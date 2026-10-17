@@ -196,7 +196,7 @@ const T = defineDict({
     noDiscount: 'Pa zbritje',
     returns: 'Kthimet',
     company: 'Kompania',
-    pib: 'NIPT',
+    pib: 'NUI',
     notFound: 'Porosia nuk u gjet',
     notFoundText: 'Mund të jetë fshirë ose lidhja nuk është e saktë.',
     backToOrders: 'Kthehu te porositë',

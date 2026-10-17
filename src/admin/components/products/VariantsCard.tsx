@@ -113,7 +113,7 @@ export function VariantsCard({
         )}
         <div className={cn('grid gap-4', variants.length ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
           <FormField label={t('f_sku')} hint={variants.length ? t('f_sku_h') : undefined} error={skuError}>
-            <TextInput value={sku} onChange={(e) => onSku(e.target.value.toUpperCase())} placeholder="SC-VR-101" mono spellCheck={false} invalid={!!skuError} aria-label={t('f_sku')} />
+            <TextInput value={sku} onChange={(e) => onSku(e.target.value.toUpperCase())} placeholder="TS-BIO-100" mono spellCheck={false} invalid={!!skuError} aria-label={t('f_sku')} />
           </FormField>
           <FormField label={t('f_barcode')}>
             <TextInput value={barcode} onChange={(e) => onBarcode(e.target.value.replace(/[^\d]/g, ''))} placeholder="389…" mono inputMode="numeric" aria-label={t('f_barcode')} />

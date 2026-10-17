@@ -158,7 +158,7 @@ export const inv = defineDict({
 
     /* ---------------- PO editor ---------------- */
     ed_supplierCard: 'Lieferant und Ziel',
-    ed_supplierPh: 'z. B. Alpe Floor GmbH',
+    ed_supplierPh: 'z. B. Becker-Antriebe GmbH',
     ed_supplierHint: 'Ein Lieferant ist kein Kunde — seine Preise sehen nur berechtigte Rollen.',
     ed_products: 'Produkte',
     ed_addProduct: 'Produkt hinzufügen',
@@ -407,7 +407,7 @@ export const inv = defineDict({
     po_costHidden: 'E fshehur',
 
     ed_supplierCard: 'Furnitori dhe destinacioni',
-    ed_supplierPh: 'p.sh. Alpe Floor GmbH',
+    ed_supplierPh: 'p.sh. Becker-Antriebe GmbH',
     ed_supplierHint: 'Furnitori nuk është klient; kostot e tij shihen vetëm nga role me leje.',
     ed_products: 'Produktet',
     ed_addProduct: 'Shto produkt',
@@ -654,7 +654,7 @@ export const inv = defineDict({
     po_costHidden: 'Hidden',
 
     ed_supplierCard: 'Supplier & destination',
-    ed_supplierPh: 'e.g. Alpe Floor GmbH',
+    ed_supplierPh: 'e.g. Becker-Antriebe GmbH',
     ed_supplierHint: 'A supplier is not a customer; its costs are visible only to permitted roles.',
     ed_products: 'Products',
     ed_addProduct: 'Add product',

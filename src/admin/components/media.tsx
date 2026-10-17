@@ -55,7 +55,7 @@ export function useUploader() {
           url: c.url,
           name: f.name,
           alt: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
-          folder: 'Otpremljeno',
+          folder: 'Uploaded',
           uploaded: true,
           createdAt: new Date().toISOString(),
           width: c.width,

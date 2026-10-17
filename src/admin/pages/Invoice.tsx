@@ -84,7 +84,7 @@ const T = defineDict({
     place: 'Vendi i lëshimit',
     due: 'Afati i pagesës',
     currency: 'Monedha',
-    pib: 'NIPT',
+    pib: 'NUI',
     pdv: 'Nr. i TVSH-së',
     account: 'Llogaria bankare',
     tel: 'Tel.',

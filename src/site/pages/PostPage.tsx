@@ -41,7 +41,7 @@ const T = defineDict({
     allPosts: 'Të gjitha këshillat',
     nf_eyebrow: 'Artikulli nuk u gjet',
     nf_title: 'Kjo këshillë *ka humbur rrugën*',
-    nf_text: 'Artikulli mund të jetë hequr ose adresa i është ndryshuar. Shikoni këshillat e tjera të mjeshtrave tanë.',
+    nf_text: 'Artikulli mund të jetë hequr ose adresa i është ndryshuar. Shikoni këshillat e tjera të ekipit tonë.',
     nf_suggest: 'Mund t’ju interesojë',
     authorNote: 'Këshilla nga praktika — nga salloni dhe nga montimet në gjithë Evropën.',
   },

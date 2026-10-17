@@ -231,7 +231,7 @@ export default function Returns() {
   );
 }
 
-/** "1 × Vrata Linea  +1 more" with the reason category under it. */
+/** "1 × Bioclimatic Freestanding  +1 more" with the reason category under it. */
 function Lines({ ret, order, products, lang, compact }: { ret: ReturnRequest; order: Order | undefined; products: Product[]; lang: Lang; compact?: boolean }) {
   const t = useDict(rd, 'admin');
   const first = ret.lines[0];

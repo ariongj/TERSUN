@@ -8,10 +8,10 @@ export type SortKey = 'popular' | 'new' | 'priceAsc' | 'priceDesc' | 'name';
 
 export const SORTS: { key: SortKey; param: string | null }[] = [
   { key: 'popular', param: null },
-  { key: 'new', param: 'najnovije' },
-  { key: 'priceAsc', param: 'cijena-rastuce' },
-  { key: 'priceDesc', param: 'cijena-opadajuce' },
-  { key: 'name', param: 'naziv' },
+  { key: 'new', param: 'new' },
+  { key: 'priceAsc', param: 'price-asc' },
+  { key: 'priceDesc', param: 'price-desc' },
+  { key: 'name', param: 'name' },
 ];
 
 export const sortFromParam = (v: string | null): SortKey => SORTS.find((s) => s.param === v)?.key ?? 'popular';
@@ -43,7 +43,7 @@ export function sortProducts(list: Product[], sort: SortKey, name: (v: L10n) => 
 export type Avail = 'stock' | 'order';
 export type UnitKind = 'piece' | 'area' | 'length';
 
-/** Ready to ship from stock vs. made to order (windows, kitchens…; stock ≥ 999 marks "unlimited / produced on demand"). */
+/** Ready to ship from stock vs. made to order (pergolas, glass systems…; stock ≥ 999 marks "unlimited / produced on demand"). */
 export const availOf = (p: Product): Avail => (!p.quoteOnly && p.stock > 0 && p.stock < 999 ? 'stock' : 'order');
 export const unitKind = (u: Unit): UnitKind => (u === 'm2' ? 'area' : u === 'm' ? 'length' : 'piece');
 export const hasInstall = (p: Product) => !!p.installation?.available;

@@ -221,15 +221,15 @@ export const MEDIA_T = defineDict({
   },
 });
 
-/** Data folder names are stored in German — show them in the panel language. */
+/** Data folder names are stored in English — show them in the panel language. */
 const FOLDER_LABELS: Record<string, { de: string; sq: string; en: string }> = {
   Hero: { de: 'Hero', sq: 'Hero', en: 'Hero' },
-  Ostalo: { de: 'Sonstiges', sq: 'Të tjera', en: 'Other' },
-  Kategorije: { de: 'Kategorien', sq: 'Kategoritë', en: 'Categories' },
-  Usluge: { de: 'Leistungen', sq: 'Shërbimet', en: 'Services' },
-  Projekti: { de: 'Projekte', sq: 'Projektet', en: 'Projects' },
-  Proizvodi: { de: 'Produkte', sq: 'Produktet', en: 'Products' },
-  Otpremljeno: { de: 'Hochgeladen', sq: 'Të ngarkuara', en: 'Uploaded' },
+  Misc: { de: 'Sonstiges', sq: 'Të tjera', en: 'Other' },
+  Categories: { de: 'Kategorien', sq: 'Kategoritë', en: 'Categories' },
+  Services: { de: 'Leistungen', sq: 'Shërbimet', en: 'Services' },
+  Projects: { de: 'Projekte', sq: 'Projektet', en: 'Projects' },
+  Products: { de: 'Produkte', sq: 'Produktet', en: 'Products' },
+  Uploaded: { de: 'Hochgeladen', sq: 'Të ngarkuara', en: 'Uploaded' },
 };
 
 export function useFolderLabel() {

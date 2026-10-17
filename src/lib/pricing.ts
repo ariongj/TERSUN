@@ -149,7 +149,7 @@ export function zoneForCity(settings: Settings, city?: string) {
 }
 
 export function allCities(settings: Settings) {
-  return settings.shippingZones.flatMap((z) => z.cities).sort((a, b) => a.localeCompare(b, 'sr'));
+  return settings.shippingZones.flatMap((z) => z.cities).sort((a, b) => a.localeCompare(b, 'de'));
 }
 
 /** The live automatic free-shipping rule (lowest amount threshold wins), if any. */

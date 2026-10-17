@@ -91,7 +91,7 @@ const T = defineDict({
     n3when: 'sipas marrëveshjes',
     n3text: 'Montuesit tanë e montojnë sistemin, e vënë në punë dhe e largojnë ambalazhin. Garancia vlen edhe për punimet.',
     n3opt: 'Montim sipas dëshirës',
-    n3optText: 'Ju duhet mjeshtër? Montimin mund ta shtoni edhe më vonë — na telefononi në {phone}.',
+    n3optText: 'Ju duhet montim? Montimin mund ta shtoni edhe më vonë — na telefononi në {phone}.',
     bankTitle: 'Të dhënat për pagesë',
     bankText: 'Porosinë e dërgojmë në përgatitje sapo të regjistrohet pagesa (zakonisht 1 ditë pune). Patjetër shënoni referencën.',
     recipient: 'Përfituesi',

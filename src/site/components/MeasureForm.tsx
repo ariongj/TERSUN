@@ -24,7 +24,7 @@ const MEASURE_SERVICE = 'sv-mjerenje';
 
 /**
  * Lead form used for "free measurement", "request a quote" and plain contact.
- * Submissions land in Admin → Upiti i mjerenja instantly.
+ * Submissions land in Admin → Contacts instantly.
  */
 export function MeasureForm({
   type = 'measurement',

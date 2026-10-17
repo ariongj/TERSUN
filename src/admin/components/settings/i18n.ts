@@ -422,7 +422,7 @@ export const T = defineDict({
     about_h: 'Short description for the site footer and the About page.',
     taxGroup: 'Tax details',
     pib: 'Tax ID',
-    pdv: 'VAT number (PDV)',
+    pdv: 'VAT number',
 
     reachGroup: 'Phone & e-mail',
     locationGroup: 'Location & opening hours',

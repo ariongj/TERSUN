@@ -177,7 +177,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
     const extra: Partial<InquiryX> = {
       seen: true,
       followUpAt: follow ? new Date(`${follow}T10:00`).toISOString() : undefined,
-      tags: [kind === 'b2b' ? 'b2b' : kind === 'meeting' ? 'takim' : kind === 'measurement' ? 'matje' : 'kontakt', source === 'phone' ? 'telefon' : 'sallon'],
+      tags: [kind === 'b2b' ? 'b2b' : kind === 'meeting' ? 'takim' : kind === 'measurement' ? 'konsulte' : 'kontakt', source === 'phone' ? 'telefon' : 'sallon'],
       ...(kind === 'meeting' ? { kind: 'meeting' as const } : {}),
     };
     db.updateInquiry(q.id, extra);

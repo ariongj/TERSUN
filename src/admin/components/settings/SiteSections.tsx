@@ -143,7 +143,7 @@ export function AnnouncementsSection({ s, set }: SectionProps) {
 /* ------------------------------------------------------------------ */
 /* Izgled                                                              */
 /* ------------------------------------------------------------------ */
-export const DEFAULT_BRAND = '#9a2e2e';
+export const DEFAULT_BRAND = '#8c6a3a';
 
 const PRESETS: { hex: string; key: Key }[] = [
   { hex: DEFAULT_BRAND, key: 'preset_tersun' },
@@ -158,7 +158,7 @@ const normHex = (v: string) => {
   const h = v.trim().replace(/^#?/, '#').toLowerCase();
   return h.length === 4 ? `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}` : h;
 };
-/** Accepts "9a2e2e" as well as "#9a2e2e". */
+/** Accepts "8c6a3a" as well as "#8c6a3a". */
 const withHash = (v: string) => v.trim().replace(/^#?/, '#');
 
 /** "Sve za vaš dom" → "Sve za vaš *dom*" (last word in the italic brand serif). */

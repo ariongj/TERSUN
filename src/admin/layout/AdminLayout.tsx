@@ -34,7 +34,7 @@ function Brand({ onClick }: { onClick?: () => void }) {
 function StoreLabel({ className, dark = true }: { className?: string; dark?: boolean }) {
   const t = useDict(adm, 'admin');
   const company = useDb((s) => s.settings.companyName);
-  const name = company.replace(/\s*d\.?\s?o\.?\s?o\.?$/i, '') || 'TERSUN';
+  const name = company.replace(/\s*(d\.?\s?o\.?\s?o\.?|L\.?L\.?C\.?|sh\.?p\.?k\.?)$/i, '') || 'TERSUN';
   return (
     <a
       href={href('/')}

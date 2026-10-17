@@ -184,7 +184,7 @@ const T = defineDict({
     phone: 'Telefoni',
     email: 'E-mail',
     company: 'Kompania',
-    pib: 'NIPT',
+    pib: 'NUI',
     customerLang: 'Gjuha e klientit (artikujt, fatura)',
     delivery: 'Dërgesa',
     city: 'Qyteti',

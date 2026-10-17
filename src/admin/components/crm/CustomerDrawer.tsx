@@ -113,7 +113,7 @@ const T = defineDict({
     phone: 'Telefoni',
     language: 'Gjuha e komunikimit',
     company: 'Kompania',
-    pib: 'NIPT',
+    pib: 'NUI',
     addresses: 'Adresat',
     addrDefault: 'Kryesore',
     noAddress: 'Nuk ka adresë të ruajtur.',

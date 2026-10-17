@@ -36,7 +36,7 @@ export const SEG = defineDict({
     tpl_dormant: 'Inaktiv seit 60+ Tagen',
     tpl_big: 'Umsatz 2.000 €+',
     tpl_new: 'Neu in diesem Monat',
-    tpl_tag: 'Architekten und Handwerksbetriebe',
+    tpl_tag: 'Architekten und Bauunternehmen',
     explanation: 'Erklärung',
     live: 'Live-Treffer',
     liveOf: 'von {n} Kunden · {pct}%',
@@ -178,7 +178,7 @@ const TEMPLATES: { id: 'tpl_dormant' | 'tpl_big' | 'tpl_new' | 'tpl_tag'; match:
   { id: 'tpl_dormant', match: 'all', rules: [{ field: 'orders', op: 'gt', value: '0' }, { field: 'lastOrderDays', op: 'gt', value: '60' }] },
   { id: 'tpl_big', match: 'all', rules: [{ field: 'spent', op: 'gt', value: '2000' }] },
   { id: 'tpl_new', match: 'all', rules: [{ field: 'orders', op: 'eq', value: '1' }, { field: 'lastOrderDays', op: 'lt', value: '30' }] },
-  { id: 'tpl_tag', match: 'any', rules: [{ field: 'tag', op: 'eq', value: 'arhitekta' }, { field: 'tag', op: 'eq', value: 'izvođač' }] },
+  { id: 'tpl_tag', match: 'any', rules: [{ field: 'tag', op: 'eq', value: 'architect' }, { field: 'tag', op: 'eq', value: 'contractor' }] },
 ];
 
 /** Discounts (and their offers) that target a segment. */

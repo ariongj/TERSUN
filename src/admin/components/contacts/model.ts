@@ -218,7 +218,7 @@ export function quoteState(q: Quote, now: number): QuoteState {
   return q.status === 'sent' && isExpired(q, now) ? 'expired' : q.status;
 }
 
-export function quoteTotals(lines: Quote['lines'], vatRate = 21) {
+export function quoteTotals(lines: Quote['lines'], vatRate = 18) {
   const total = round2(lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.price) || 0), 0));
   const vat = round2(total - total / (1 + vatRate / 100));
   return { total, vat, net: round2(total - vat) };

@@ -261,9 +261,9 @@ const T = defineDict({
 });
 
 const DEFAULT_TERMS: L10n = {
-  de: 'Preise inkl. 21 % MwSt. 40 % Anzahlung, Restbetrag nach Montage. Lieferzeit 3–4 Wochen ab Auftragsbestätigung.',
-  sq: 'Çmimet përfshijnë TVSH 21%. Avans 40%, pjesa tjetër pas montimit. Afati i dërgesës 3–4 javë nga konfirmimi.',
-  en: 'Prices include 21% VAT. 40% deposit, balance on installation. Delivery 3–4 weeks from confirmation.',
+  de: 'Preise inkl. MwSt. 40 % Anzahlung, Restbetrag nach Montage. Lieferzeit 4–6 Wochen ab Auftragsbestätigung.',
+  sq: 'Çmimet përfshijnë TVSH-në. Avans 40%, pjesa tjetër pas montimit. Afati i dërgesës 4–6 javë nga konfirmimi.',
+  en: 'Prices include VAT. 40% deposit, balance on installation. Lead time 4–6 weeks from confirmation.',
 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 type Line = Quote['lines'][number];

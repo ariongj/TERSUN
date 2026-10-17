@@ -274,13 +274,13 @@ function useSamples(lang: Lang) {
       order: {
         number: o?.number ?? 'SC-1042',
         total: money(o?.total ?? 249, lang),
-        name: o ? `${o.customer.firstName} ${o.customer.lastName}` : 'Ana Petrović',
+        name: o ? `${o.customer.firstName} ${o.customer.lastName}` : 'Sabine Hofmann',
         email: o?.customer.email ?? 'customer@example.com',
         tracking: 'MNE-48213',
       },
       inquiry: { name: q?.name ?? 'Lukas Becker', email: q?.email ?? 'customer@example.com' },
       booking: {
-        name: b?.customerName ?? 'Marko Đurović',
+        name: b?.customerName ?? 'Arben Krasniqi',
         email: b?.email ?? 'customer@example.com',
         date: start.toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
         time: start.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
