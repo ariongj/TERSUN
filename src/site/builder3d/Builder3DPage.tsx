@@ -237,7 +237,11 @@ export default function Builder3DPage() {
   const product = products.find((p) => p.id === system.productId);
   const price = product ? estimate(product.price, system, state) : null;
   const set = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch }));
-  const setValue = (k: string, val: string | boolean) => setState((s) => ({ ...s, values: { ...s.values, [k]: val } }));
+  const setValue = (k: string, val: string | boolean) => {
+    setState((s) => ({ ...s, values: { ...s.values, [k]: val } }));
+    // LEDs barely show in daylight — switching them on jumps to the night scene so the change is visible
+    if (k === 'led' && val === true && mode === 'day') setMode('night');
+  };
 
   const summary = useMemo(() => {
     const rows: [string, string][] = [[t('system'), l(system.name)]];

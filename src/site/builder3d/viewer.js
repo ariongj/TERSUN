@@ -306,24 +306,26 @@ function sideClosure(k, type, s, top) {
   return null;
 }
 
-function glassRoof(k, withAwning) {
+// One glass-roof unit (w × d metres, front at +z) built into k.group; opt: { wall, rear, nFront, awning }.
+function glassRoofUnit(k, w, d, opt) {
   const o = k.o;
-  const w = o.w * CM, d = o.d * CM, h = o.h * CM;
+  const h = o.h * CM;
+  const withAwning = opt.awning;
   const post = 0.12, gutter = 0.2, rise = Math.max(0.3, d * 0.14);
   const hr = h + rise;
   const x0 = -w / 2, x1 = w / 2, z0 = -d / 2, z1 = d / 2;
-  const free = o.layout === 'free' || o.layout === 'double';
+  const free = !opt.wall;
   const slope = Math.atan2(rise, d);
   const yAt = (z) => h + rise * ((z1 - z) / d);
 
-  if (!free) k.wall(w, hr, z0);
+  if (opt.wall) k.wall(w, hr, z0);
 
   // front posts and gutter
-  const nFront = w > 7 || o.layout === 'double' ? 3 : 2;
+  const nFront = opt.nFront || (w > 7 ? 3 : 2);
   const fx = nFront === 3 ? [x0 + post / 2, 0, x1 - post / 2] : [x0 + post / 2, x1 - post / 2];
   fx.forEach((x) => k.box(post, h - gutter, post, x, (h - gutter) / 2, z1 - post / 2));
   k.box(w, gutter, 0.16, 0, h - gutter / 2, z1 - 0.08);
-  if (free) fx.forEach((x) => k.box(post, hr - 0.1, post, x, (hr - 0.1) / 2, z0 + post / 2));
+  if (opt.rear) fx.forEach((x) => k.box(post, hr - 0.1, post, x, (hr - 0.1) / 2, z0 + post / 2));
   // wall profile / rear beam
   k.box(w, 0.14, 0.12, 0, hr - 0.03, z0 + 0.06);
 
@@ -358,6 +360,10 @@ function glassRoof(k, withAwning) {
     for (let i = 0; i < Math.max(1, Math.round(w / 3)); i++) {
       k.ledLight(x0 + (w * (i + 0.5)) / Math.max(1, Math.round(w / 3)), h - 0.15, 0, 4);
     }
+    // light lines under the front gutter and along the rear profile
+    k.led(w - 0.24, 0.014, 0.04, 0, h - gutter - 0.008, z1 - 0.1);
+    k.led(w - 0.24, 0.014, 0.04, 0, hr - 0.105, z0 + 0.1);
+    fx.forEach((x) => k.led(0.014, h - gutter - 0.3, 0.03, x, (h - gutter) / 2, z1 - post - 0.002));
   }
 
   let awningAnim = null;
@@ -395,7 +401,39 @@ function glassRoof(k, withAwning) {
       bar.position.set(0, 0, -len / 2 + 0.2 + run);
     };
   }
-  k.anim = (a) => { if (awningAnim) awningAnim(a); };
+  return awningAnim;
+}
+
+
+// Glass roof in its four configurations: wall-mounted, freestanding, double (two roofs sloping away from a
+// middle construction) and L-shape (a second wing along the side wall of an L-shaped house).
+function glassRoof(k, withAwning) {
+  const o = k.o;
+  const w = o.w * CM, d = o.d * CM;
+  const anims = [];
+  const place = (build, x, z, rotY) => {
+    const root = k.group, g = new THREE.Group();
+    k.group = g;
+    const a = build();
+    k.group = root;
+    g.position.set(x, 0, z);
+    g.rotation.y = rotY || 0;
+    root.add(g);
+    if (a) anims.push(a);
+  };
+  if (o.layout === 'double') {
+    const half = d / 2;
+    place(() => glassRoofUnit(k, w, half, { wall: false, rear: true, awning: withAwning }), 0, half / 2);
+    place(() => glassRoofUnit(k, w, half, { wall: false, rear: false, awning: withAwning }), 0, -half / 2, Math.PI);
+  } else if (o.layout === 'l-shape') {
+    const wing = Math.min(Math.max(2.5, w * 0.6), 4);
+    place(() => glassRoofUnit(k, w, d, { wall: true, rear: false, awning: withAwning }), 0, 0);
+    place(() => glassRoofUnit(k, wing, d, { wall: true, rear: false, awning: withAwning }), -w / 2 + d / 2, d / 2 + wing / 2, Math.PI / 2);
+  } else {
+    const free = o.layout === 'free';
+    place(() => glassRoofUnit(k, w, d, { wall: !free, rear: free, awning: withAwning }), 0, 0);
+  }
+  k.anim = (a) => anims.forEach((fn) => fn(a));
 }
 
 function guillotine(k) {
