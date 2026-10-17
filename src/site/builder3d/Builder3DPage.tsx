@@ -207,6 +207,7 @@ export default function Builder3DPage() {
     if (!gl || !stageRef.current) return;
     const v = createViewer(stageRef.current, { keepView: true, labels: { w: true }, onInteract: () => setRotate(false) });
     viewerRef.current = v;
+    if (import.meta.env.DEV) (window as unknown as { __viewer?: Viewer }).__viewer = v; // for scripted renders
     v.setAutoRotate(true);
     return () => {
       v.dispose();

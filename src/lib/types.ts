@@ -330,6 +330,8 @@ export interface Cta { label: L10n; href: string }
 export interface HeroSlide {
   id: string;
   image: string;
+  /** Optional clip shown instead of the image on portrait (phone) screens */
+  video?: string;
   eyebrow: L10n;
   title: L10n;
   subtitle: L10n;

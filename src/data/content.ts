@@ -104,7 +104,8 @@ export function buildHome(now = new Date()): HomeSection[] {
         slides: [
           {
             id: 's1',
-            image: '/images/video/bioclimatic.mp4',
+            image: '/images/hero/bioclimatic.webp',
+            video: '/images/video/bioclimatic.mp4',
             eyebrow: T('Bioklimatische Pergola', 'Sistemi Bioklimatik', 'Bioclimatic System'),
             title: T('Beyond *Outdoor* Living.', 'Beyond *Outdoor* Living.', 'Beyond *Outdoor* Living.'),
             subtitle: T('Sonne, Schatten, Regen – auf Knopfdruck.', 'Diell, hije, shi – me një prekje.', 'Sun, shade, rain – at a touch.'),
@@ -172,7 +173,7 @@ export function buildHome(now = new Date()): HomeSection[] {
         eyebrow: T('3D-Builder', '3D Builder', '3D Builder'),
         title: T('Gestalten Sie Ihre Pergola *in 3D*.', 'Krijoni pergolën tuaj *në 3D*.', 'Design your pergola *in 3D*.'),
         text: T('Maße, Farbe, Licht, Tag & Nacht – in Echtzeit.', 'Masa, ngjyra, drita, ditë & natë – në kohë reale.', 'Size, colour, light, day & night – in real time.'),
-        image: '/images/misc/builder-night.webp',
+        image: '/images/misc/builder-studio.webp',
         cta: { label: T('3D-Builder öffnen', 'Hapni 3D Builder', 'Open the 3D Builder'), href: '/3d' },
         endsAt: '',
         code: '',

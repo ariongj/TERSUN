@@ -213,3 +213,13 @@ html[data-admin] ::selection {
 .tersun-range::-moz-range-track { height: 3px; border-radius: 3px; background: linear-gradient(to right, var(--color-brand-300) var(--pct), rgb(255 255 255 / 0.14) var(--pct)); }
 .tersun-range::-webkit-slider-thumb { -webkit-appearance: none; margin-top: -8.5px; height: 20px; width: 20px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 4px rgb(228 211 180 / 0.25), 0 2px 8px rgb(0 0 0 / 0.4); }
 .tersun-range::-moz-range-thumb { height: 20px; width: 20px; border: 0; border-radius: 999px; background: #fff; box-shadow: 0 0 0 4px rgb(228 211 180 / 0.25), 0 2px 8px rgb(0 0 0 / 0.4); }
+/* Hero opening: pull back out of darkness, then a soft champagne light sweep */
+@keyframes heroIntro {
+  0% { transform: scale(1.32); filter: brightness(0.15) saturate(0.6); }
+  60% { filter: brightness(0.9) saturate(1); }
+  100% { transform: scale(1.04); filter: brightness(1) saturate(1); }
+}
+@keyframes heroSweep {
+  from { background-position: 120% 0; opacity: 1; }
+  to { background-position: -40% 0; opacity: 0; }
+}

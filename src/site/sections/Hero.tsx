@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, ChevronLeft, ChevronRight, Ruler } from 'lucide-react';
 import type { HeroSlide } from '@/lib/types';
-import { Accent } from '@/components/ui/misc';
 import { ButtonLink } from '@/components/ui/Button';
 import { useDict, useL } from '@/i18n';
 import { site } from '@/i18n/site';
@@ -12,23 +11,30 @@ import { cn } from '@/lib/utils';
 
 const DURATION = 7000;
 
-/**
- * The bioclimatic promo is a portrait (≈2:3) clip. Stretched over a wide screen it would be upscaled ~3× and look
- * soft, so on landscape screens it plays sharp in a tall frame on the right, over a blurred full-bleed copy.
- * On portrait screens (phones) one copy fills the hero at its native resolution.
- */
-function HeroVideo({ src, eager }: { src: string; eager: boolean }) {
-  const poster = src.replace(/\.mp4$/i, '-poster.jpg');
-  const common = { src, poster, autoPlay: true, muted: true, loop: true, playsInline: true, preload: eager ? 'auto' : 'metadata' } as const;
+/** Headline that rises word by word out of a mask; words in *asterisks* get the gold italic accent. */
+function RevealTitle({ text, delay }: { text: string; delay: number }) {
+  const words: { w: string; accent: boolean }[] = [];
+  for (const part of text.split(/(\*[^*]+\*)/g).filter(Boolean)) {
+    const accent = part.startsWith('*') && part.endsWith('*');
+    for (const w of (accent ? part.slice(1, -1) : part).split(/\s+/).filter(Boolean)) words.push({ w, accent });
+  }
   return (
     <>
-      <video {...common} className="h-full w-full scale-110 object-cover landscape:blur-2xl landscape:brightness-[0.55]" />
-      <div className="absolute inset-y-0 right-[5%] hidden items-center landscape:flex xl:right-[9%]">
-        <video
-          {...common}
-          className="aspect-[1080/1640] h-[78%] max-h-[860px] rounded-[28px] object-cover shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15"
-        />
-      </div>
+      {words.map(({ w, accent }, n) => (
+        <span key={n} className="inline-block overflow-hidden pb-[0.12em] align-bottom">
+          <motion.span
+            className={cn('inline-block', accent && 'font-display italic text-brand-300')}
+            variants={{
+              hidden: { y: '110%', rotate: 4 },
+              show: { y: '0%', rotate: 0, transition: { duration: 1.1, delay: delay + n * 0.09, ease: [0.16, 1, 0.3, 1] } },
+              exit: { y: '-40%', opacity: 0, transition: { duration: 0.3 } },
+            }}
+          >
+            {w}
+          </motion.span>
+          {n < words.length - 1 && '\u00a0'}
+        </span>
+      ))}
     </>
   );
 }
@@ -39,6 +45,17 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
   const tc = useDict(common);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [intro, setIntro] = useState(true);
+  // the opening plays once the first photo has decoded (or after 2.5 s, whatever comes first)
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    if (i !== 0) setIntro(false);
+  }, [i]);
+  const base = intro && i === 0 ? 1.2 : 0.15; // extra delay while the opening image settles
   const count = slides.length;
   const go = useCallback((n: number) => setI(((n % count) + count) % count), [count]);
 
@@ -50,49 +67,58 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
   const s = slides[Math.min(i, count - 1)];
 
   return (
-    <section className="relative isolate h-[calc(100svh-36px)] min-h-[640px] max-h-[1000px] overflow-hidden bg-ink" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      {/* Images */}
+    <section className="relative isolate h-[calc(100svh-36px)] min-h-[640px] max-h-[1100px] overflow-hidden bg-ink" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      {/* Images — the first slide opens with a slow pull-back out of darkness */}
       {slides.map((sl, k) => (
-        <div key={sl.id} className={cn('absolute inset-0 -z-20 transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
-          {/\.mp4$/i.test(sl.image) ? (
-            <HeroVideo src={sl.image} eager={k === 0} />
-          ) : (
-            <img
-              src={sl.image}
-              alt=""
-              loading={k === 0 ? 'eager' : 'lazy'}
-              className={cn('h-full w-full object-cover will-change-transform', k === i ? 'animate-[kenburns_9s_ease-out_both]' : '')}
-            />
+        <div key={sl.id} className={cn('absolute inset-0 -z-20 overflow-hidden transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
+          <img
+            src={sl.image}
+            alt=""
+            loading={k === 0 ? 'eager' : 'lazy'}
+            fetchPriority={k === 0 ? 'high' : undefined}
+            onLoad={k === 0 ? () => setReady(true) : undefined}
+            className={cn(
+              'h-full w-full object-cover will-change-transform',
+              k === 0 && intro && !ready && 'scale-[1.32] brightness-[0.15]',
+              k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
+              sl.video && 'portrait:hidden',
+            )}
+          />
+          {sl.video && (
+            <video src={sl.video} poster={sl.video.replace(/\.mp4$/i, '-poster.jpg')} autoPlay muted loop playsInline preload="metadata" className="hidden h-full w-full object-cover portrait:block" />
           )}
         </div>
       ))}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/80 via-ink/40 to-ink/5" />
+      {/* cinematic light sweep on the intro */}
+      {intro && ready && i === 0 && <div className="pointer-events-none absolute inset-0 -z-10 animate-[heroSweep_2.6s_1.1s_ease-out_both] bg-[linear-gradient(100deg,transparent_35%,rgb(228_211_180/0.16)_50%,transparent_65%)] bg-[length:250%_100%]" />}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/45 to-transparent" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/70 via-transparent to-ink/30" />
 
       <div className="container-x flex h-full flex-col justify-end pb-28 pt-32 sm:pb-36">
         <AnimatePresence mode="wait">
-          <motion.div key={s.id} initial="hidden" animate="show" exit="exit" className="max-w-3xl">
+          <motion.div key={s.id} initial="hidden" animate={ready ? 'show' : 'hidden'} exit="exit" className="max-w-3xl">
             <motion.div
-              variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.1 } }, exit: { opacity: 0, y: -8, transition: { duration: 0.25 } } }}
+              variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: base } }, exit: { opacity: 0, y: -8, transition: { duration: 0.25 } } }}
               className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[11.5px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
               {l(s.eyebrow)}
             </motion.div>
-            <motion.h1
-              variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.9, delay: 0.18, ease: [0.16, 1, 0.3, 1] } }, exit: { opacity: 0, y: -10, transition: { duration: 0.25 } } }}
-              className="display text-shadow-soft text-[46px] leading-[0.98] text-white sm:text-7xl lg:text-[92px]"
-            >
-              <Accent text={l(s.title)} accentClassName="text-brand-200" />
-            </motion.h1>
+            <h1 className="display text-shadow-soft text-[48px] leading-[0.98] text-white sm:text-7xl lg:text-[104px]">
+              <RevealTitle text={l(s.title)} delay={base + 0.15} />
+            </h1>
+            <motion.div
+              variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1, transition: { duration: 1.2, delay: base + 0.7, ease: [0.16, 1, 0.3, 1] } }, exit: { opacity: 0 } }}
+              className="mt-7 h-px w-28 origin-left bg-gradient-to-r from-brand-300 to-transparent"
+            />
             <motion.p
-              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.8, delay: 0.3 } }, exit: { opacity: 0, transition: { duration: 0.2 } } }}
-              className="mt-6 max-w-xl text-[17px] leading-relaxed text-white/85 sm:text-lg"
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.9, delay: base + 0.8 } }, exit: { opacity: 0, transition: { duration: 0.2 } } }}
+              className="mt-5 max-w-xl text-[17px] leading-relaxed text-white/85 sm:text-lg"
             >
               {l(s.subtitle)}
             </motion.p>
             <motion.div
-              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.42 } }, exit: { opacity: 0, transition: { duration: 0.2 } } }}
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.8, delay: base + 1.0 } }, exit: { opacity: 0, transition: { duration: 0.2 } } }}
               className="mt-9 flex flex-wrap gap-3"
             >
               <ButtonLink to={s.primary.href} size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
@@ -118,7 +144,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
                 <button key={sl.id} onClick={() => go(k)} className="group relative h-[3px] w-14 overflow-hidden rounded-full bg-white/25" aria-label={tc('slideN', { n: k + 1 })}>
                   <span
                     className={cn('absolute inset-y-0 left-0 rounded-full bg-white', k < i || (k === i && !autoplay) ? 'w-full' : 'w-0')}
-                    style={k === i && autoplay ? { animation: `heroprogress ${DURATION}ms linear forwards`, animationPlayState: paused ? 'paused' : 'running' } : undefined}
+                    style={k === i && autoplay ? { animation: `heroprogress ${k === 0 && intro ? DURATION + 3000 : DURATION}ms linear forwards`, animationPlayState: paused || !ready ? 'paused' : 'running' } : undefined}
                     onAnimationEnd={k === i && autoplay ? () => go(i + 1) : undefined}
                   />
                 </button>
