@@ -294,7 +294,7 @@ export default function Builder3DPage() {
           {/* title */}
           <div className="pointer-events-none absolute left-5 top-5 sm:left-8 sm:top-7">
             <div className="eyebrow text-brand-200">{t('eyebrow')}</div>
-            <h1 className="display mt-2 text-[34px] leading-none text-white sm:text-[52px]">{l(system.name)}</h1>
+            <h1 className="display mt-2 max-w-[calc(100vw-170px)] text-[28px] leading-[1.02] text-white sm:max-w-none sm:text-[52px]">{l(system.name)}</h1>
           </div>
 
           {/* mode switch */}

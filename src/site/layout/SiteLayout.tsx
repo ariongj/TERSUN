@@ -13,7 +13,9 @@ import { useDb } from '@/store/db';
 function DemoBadge() {
   const t = useDict(site);
   const settings = useSettings();
-  if (!settings.demoBanner) return null;
+  const { pathname } = useLocation();
+  // the 3D builder fills the screen with its own controls — keep the badge out of the way there
+  if (!settings.demoBanner || pathname === '/3d') return null;
   return (
     <Link
       to="/admin"

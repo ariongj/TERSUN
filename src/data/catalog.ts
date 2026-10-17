@@ -222,7 +222,7 @@ const DRAFTS: Draft[] = [
       'The freestanding pergola with motorised rotating louvres. Watertight when closed, rainwater drains invisibly through the posts.',
     ),
     price: 7900,
-    images: img('bioclimatic', 3),
+    images: [...img('bioclimatic', 3), '/images/p/r-bio-free.webp'],
     options: [optFrame, optControl],
     specs: [
       aluminium,
@@ -255,7 +255,7 @@ const DRAFTS: Draft[] = [
       'Wall-mounted version for terraces right at the house – the same louvres, fewer posts.',
     ),
     price: 6900,
-    images: img('bioclimatic', 3, 2),
+    images: [...img('bioclimatic', 3, 3), '/images/p/r-bio-wall.webp'],
     options: [optFrame, optControl],
     specs: [
       aluminium,
@@ -287,7 +287,7 @@ const DRAFTS: Draft[] = [
       'Two coupled fields with a shared middle gutter – for large terraces and hospitality.',
     ),
     price: 13900,
-    images: img('bioclimatic', 3, 3),
+    images: [...img('bioclimatic', 3, 2), '/images/p/r-bio-double.webp'],
     options: [optFrame, optControl],
     specs: [
       aluminium,
@@ -318,7 +318,7 @@ const DRAFTS: Draft[] = [
       'A modular system of as many fields as you need – hotels, restaurants, pool terraces.',
     ),
     price: 21900,
-    images: img('bioclimatic', 3, 2),
+    images: ['/images/p/r-bio-modular.webp', ...img('bioclimatic', 3)],
     options: [optFrame, optControl],
     specs: [
       aluminium,
@@ -350,7 +350,7 @@ const DRAFTS: Draft[] = [
       'First-class aluminium and laminated safety glass – weather protection with full daylight.',
     ),
     price: 4900,
-    images: img('glass-roof', 4, 2),
+    images: [...img('glass-roof', 4, 2), '/images/p/r-glass-wall.webp'],
     options: [optFrame, optGlassVsg],
     specs: [
       aluminium,
@@ -382,7 +382,7 @@ const DRAFTS: Draft[] = [
       'The freestanding glass canopy for garden, pool and lounge.',
     ),
     price: 5900,
-    images: img('glass-roof', 4, 1),
+    images: [...img('glass-roof', 4, 1), '/images/p/r-glass-free.webp'],
     options: [optFrame, optGlassVsg],
     specs: [
       aluminium,
@@ -412,7 +412,7 @@ const DRAFTS: Draft[] = [
       'Two roof areas in an L with a corner post – one continuous line around the house.',
     ),
     price: 8900,
-    images: img('glass-roof', 4, 4),
+    images: [...img('glass-roof', 4, 4), '/images/p/r-glass-double.webp'],
     options: [optFrame, optGlassVsg],
     specs: [aluminium, spec(L.glass, T('VSG 4+4 oder 5+5', 'Xham sigurie 4+4 ose 5+5', 'Laminated 4+4 or 5+5')), spec(L.warranty, years(2))],
     installation: null,
@@ -497,7 +497,7 @@ const DRAFTS: Draft[] = [
       'Glass panels rise and lower at a touch – from a sill-height screen to a fully open lounge.',
     ),
     price: 4600,
-    images: img('guillotine', 3, 1),
+    images: [...img('guillotine', 3, 1), '/images/p/r-guillotine.webp'],
     options: [optFrame, optGlassIso],
     specs: [
       spec(L.construction, T('Vollaluminium', 'Tërësisht alumini', 'Full aluminium')),
@@ -529,7 +529,7 @@ const DRAFTS: Draft[] = [
       'The compact Guillotine for balconies and loggias – wind protection without losing the view.',
     ),
     price: 3200,
-    images: img('guillotine', 3, 3),
+    images: [...img('guillotine', 3, 3), '/images/p/r-guillotine.webp'],
     options: [optFrame, optGlassIso],
     specs: [spec(L.motor, same('Becker')), spec(L.maxW, '300 cm'), spec(L.maxH, '250 cm'), spec(L.warranty, years(2))],
     installation: null,
@@ -556,7 +556,7 @@ const DRAFTS: Draft[] = [
       'Closes a pergola or glass roof into a winter garden – and opens it completely in summer.',
     ),
     price: 2400,
-    images: img('slide', 5, 1),
+    images: [...img('slide', 5, 1), '/images/p/r-slide.webp'],
     options: [
       optFrame,
       optGlassIso,
@@ -619,7 +619,7 @@ const DRAFTS: Draft[] = [
       'Sun, wind, insect and privacy protection in one – the fabric runs in zip-guided rails.',
     ),
     price: 1190,
-    images: img('zip', 4, 4),
+    images: [...img('zip', 4, 4), '/images/p/r-zip.webp'],
     options: [optFrame, optFabric],
     specs: [
       spec(T('Tuch', 'Shtofi', 'Fabric'), T('Sattler, Reißverschluss-Führung', 'Sattler, udhëzues me zinxhir', 'Sattler, zip-guided')),
@@ -650,7 +650,7 @@ const DRAFTS: Draft[] = [
       'For windows and glass façades – the heat stays outside, the view stays.',
     ),
     price: 690,
-    images: img('zip', 4, 2),
+    images: [...img('zip', 4, 2), '/images/p/r-zip.webp'],
     options: [optFrame, optFabric],
     specs: [spec(T('Tuch', 'Shtofi', 'Fabric'), same('Sattler')), spec(L.maxW, '400 cm'), spec(L.maxH, '350 cm')],
     installation: null,

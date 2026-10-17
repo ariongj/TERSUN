@@ -12,6 +12,27 @@ import { cn } from '@/lib/utils';
 
 const DURATION = 7000;
 
+/**
+ * The bioclimatic promo is a portrait (≈2:3) clip. Stretched over a wide screen it would be upscaled ~3× and look
+ * soft, so on landscape screens it plays sharp in a tall frame on the right, over a blurred full-bleed copy.
+ * On portrait screens (phones) one copy fills the hero at its native resolution.
+ */
+function HeroVideo({ src, eager }: { src: string; eager: boolean }) {
+  const poster = src.replace(/\.mp4$/i, '-poster.jpg');
+  const common = { src, poster, autoPlay: true, muted: true, loop: true, playsInline: true, preload: eager ? 'auto' : 'metadata' } as const;
+  return (
+    <>
+      <video {...common} className="h-full w-full scale-110 object-cover landscape:blur-2xl landscape:brightness-[0.55]" />
+      <div className="absolute inset-y-0 right-[5%] hidden items-center landscape:flex xl:right-[9%]">
+        <video
+          {...common}
+          className="aspect-[1080/1640] h-[78%] max-h-[860px] rounded-[28px] object-cover shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15"
+        />
+      </div>
+    </>
+  );
+}
+
 export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autoplay: boolean }) {
   const l = useL();
   const t = useDict(site);
@@ -34,7 +55,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
       {slides.map((sl, k) => (
         <div key={sl.id} className={cn('absolute inset-0 -z-20 transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
           {/\.mp4$/i.test(sl.image) ? (
-            <video src={sl.image} poster={sl.image.replace(/\.mp4$/i, '-poster.jpg')} autoPlay muted loop playsInline preload={k === 0 ? 'auto' : 'metadata'} className="h-full w-full object-cover" />
+            <HeroVideo src={sl.image} eager={k === 0} />
           ) : (
             <img
               src={sl.image}
