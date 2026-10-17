@@ -309,7 +309,7 @@ function sideClosure(k, type, s, top) {
 // One glass-roof unit (w × d metres, front at +z) built into k.group; opt: { wall, rear, nFront, awning }.
 function glassRoofUnit(k, w, d, opt) {
   const o = k.o;
-  const h = o.h * CM;
+  const h = opt.h != null ? opt.h : o.h * CM;
   const withAwning = opt.awning;
   const post = 0.12, gutter = 0.2, rise = Math.max(0.3, d * 0.14);
   const hr = h + rise;
@@ -436,11 +436,26 @@ function glassRoof(k, withAwning) {
   k.anim = (a) => anims.forEach((fn) => fn(a));
 }
 
+// Context for the side closures (Guillotine, Slide, ZIP): a terrace roof on the house wall whose front
+// opening the product closes, right under the gutter. The terrace lies behind the product (z < 0).
+const TERRACE_DEPTH = 2.8;
+function enclosure(k, w, h) {
+  const D = TERRACE_DEPTH;
+  const root = k.group, g = new THREE.Group();
+  k.group = g;
+  glassRoofUnit(k, w + 0.24, D, { wall: true, rear: false, nFront: 2, h: h + 0.2 });
+  k.group = root;
+  g.position.z = -D / 2 + 0.12;
+  root.add(g);
+  const slab = new THREE.Mesh(new THREE.BoxGeometry(w + 1.2, 0.05, D + 0.5), k.m.stone);
+  slab.position.set(0, 0.025, -D / 2 + 0.25); slab.receiveShadow = true;
+  root.add(slab);
+}
+
 function guillotine(k) {
   const o = k.o;
   const w = o.w * CM, h = o.h * CM;
-  k.wall(w, h, -1.6, true);
-  terraceSlab(k, w, 2.2);
+  enclosure(k, w, h);
   const side = 0.1, topH = 0.16, bot = 0.1, depth = 0.14;
   k.box(side, h, depth, -w / 2 + side / 2, h / 2, 0);
   k.box(side, h, depth, w / 2 - side / 2, h / 2, 0);
@@ -470,8 +485,7 @@ function slide(k) {
   const o = k.o;
   const w = o.w * CM, h = o.h * CM;
   const n = THREE.MathUtils.clamp(Math.round(o.tracks || 4), 2, 8);
-  k.wall(w, h, -1.6, true);
-  terraceSlab(k, w, 2.2);
+  enclosure(k, w, h);
   const frame = 0.08, depth = 0.06 + n * 0.03;
   k.box(w, frame, depth, 0, frame / 2, 0);
   k.box(w, frame, depth, 0, h - frame / 2, 0);
@@ -502,8 +516,7 @@ function slide(k) {
 function zip(k) {
   const o = k.o;
   const w = o.w * CM, h = o.h * CM;
-  k.wall(w, h, -1.6, true);
-  terraceSlab(k, w, 2.2);
+  enclosure(k, w, h);
   const guide = 0.06, box = 0.14;
   k.box(guide, h - box, 0.12, -w / 2 + guide / 2, (h - box) / 2, 0);
   k.box(guide, h - box, 0.12, w / 2 - guide / 2, (h - box) / 2, 0);
@@ -518,12 +531,6 @@ function zip(k) {
     fabric.position.set(0, h - box - drop / 2, 0);
     bar.position.y = h - box - drop;
   };
-}
-
-function terraceSlab(k, w, d) {
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(w + 2, 0.06, d), k.m.stone);
-  slab.position.set(0, 0.03, -0.6); slab.receiveShadow = true;
-  k.group.add(slab);
 }
 
 const BUILDERS = {
@@ -752,6 +759,7 @@ export function createViewer(container, options) {
   const dimMat = new THREE.LineDashedMaterial({ color: '#d8bc8a', dashSize: 0.08, gapSize: 0.06, transparent: true, opacity: 0.8 });
 
   let kit = null, current = null, mode = 'studio', showDims = true, showProps = true;
+  let enclosed = false;
   let roofy = true, dimsNow = { w: 4.5, d: 3.5, h: 2.6 }, view = 'corner', framed = null, firstFrame = true;
   const anim = { angle: 30, open: 0.3, extension: 0.8, sideOpen: 0.3 };
   const target = Object.assign({}, anim);
@@ -771,9 +779,13 @@ export function createViewer(container, options) {
     const { w, d, h } = dimsNow;
     const size = Math.max(w, d, h * 1.4);
     const dist = ((size * 2.3 + 3.2) * Math.max(1, 1.35 / camera.aspect)) / (opts.zoom || 1);
-    const tgt = new THREE.Vector3(0, h * (name === 'top' ? 0.1 : 0.42), roofy ? 0 : -0.3);
+    const tgt = new THREE.Vector3(0, h * (name === 'top' ? 0.1 : 0.42), roofy ? 0 : enclosed ? -d / 2 + 0.3 : -0.3);
     let pos;
-    if (name === 'inside' && roofy) {
+    if (name === 'inside' && enclosed) {
+      // standing on the terrace, looking out through the glass / screen
+      pos = new THREE.Vector3(-w * 0.12, 1.45, -d + 0.35);
+      tgt.set(w * 0.08, h * 0.42, 1.5);
+    } else if (name === 'inside' && roofy) {
       // standing inside near the front corner, looking across and up into the roof
       pos = new THREE.Vector3(-w * 0.26, 1.45, d * 0.3);
       tgt.set(w * 0.22, 2.55, -d * 0.3);
@@ -787,7 +799,10 @@ export function createViewer(container, options) {
   function flyTo(name, instant) {
     const pose = viewPose(name);
     // only the inside view may look up into the roof; elsewhere the camera stays above the ground
-    controls.maxPolarAngle = name === 'inside' && roofy ? Math.PI * 0.8 : Math.PI / 2 - 0.03;
+    controls.maxPolarAngle = name === 'inside' && (roofy || enclosed) ? Math.PI * 0.8 : Math.PI / 2 - 0.03;
+    // a wider lens when standing on the enclosed terrace, so the whole opening is in view
+    camera.fov = name === 'inside' && enclosed ? 58 : 30;
+    camera.updateProjectionMatrix();
     controls.maxDistance = pose.dist * 2.4;
     if (instant) { camera.position.copy(pose.pos); controls.target.copy(pose.tgt); fly.t = 1; return; }
     fly.from.copy(camera.position); fly.to.copy(pose.pos);
@@ -801,19 +816,20 @@ export function createViewer(container, options) {
     studio.visible = studioOn;
     outdoor.visible = !studioOn;
     platform.scale.set(Math.max(w, d) * 0.72 + 1.4, 1, Math.max(w, d) * 0.72 + 1.4);
-    deck.visible = roofy;
+    deck.visible = roofy || enclosed;
     deck.scale.set(w + 1.8, 1, d + 1.8);
+    deck.position.z = enclosed ? -d / 2 + 0.12 : 0;
     const pool = dressing.getObjectByName('pool');
     pool.visible = roofy;
     pool.position.set(-(w / 2 + 0.9 + 1.7), 0, 0.6);
     const hedges = dressing.getObjectByName('hedges');
-    hedges.position.set(0, 0, -(roofy ? d / 2 : 1.6) - 1.6);
+    hedges.position.set(0, 0, enclosed ? -d - 1.2 : -(roofy ? d / 2 : 1.6) - 1.6);
     const trees = dressing.getObjectByName('trees');
-    trees.children.forEach((t) => { t.position.set(t.userData.side * (w / 2 + 1.6), 0, -(roofy ? d / 2 : 1.4) - 0.6 + t.userData.dz); });
+    trees.children.forEach((t) => { t.position.set(t.userData.side * (w / 2 + 1.6), 0, (enclosed ? -d - 0.4 : -(roofy ? d / 2 : 1.4) - 0.6) + t.userData.dz); });
     trees.visible = showProps;
     trees.children.forEach((t, i) => { garden[i].position.set(t.position.x * 0.92, 0.5, t.position.z + 0.6); });
-    sofa.visible = showProps && roofy && w >= 3 && d >= 2.5;
-    sofa.position.set(0, studioOn ? 0.05 : 0.04, -0.1);
+    sofa.visible = showProps && (roofy || enclosed) && w >= 3 && d >= 2.5;
+    sofa.position.set(0, studioOn ? 0.05 : 0.04, enclosed ? -d / 2 : -0.1);
     sofa.scale.setScalar(Math.min(1, (w - 0.6) / 3.4, (d - 0.4) / 2.6));
     // studio key light from above, aimed at the product
     const size = Math.max(w, d);
@@ -832,8 +848,9 @@ export function createViewer(container, options) {
     applyLights();
     kit.anim(anim);
 
-    const w = o.w * CM, d = (o.d || 60) * CM, h = o.h * CM;
     roofy = type === 'bioclimatic' || type === 'glassroof' || type === 'awning';
+    enclosed = type === 'guillotine' || type === 'slide' || type === 'zip';
+    const w = o.w * CM, d = enclosed ? TERRACE_DEPTH : (o.d || 60) * CM, h = o.h * CM;
     dimsNow = { w, d, h };
     stage();
 
