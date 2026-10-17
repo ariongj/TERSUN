@@ -19,11 +19,12 @@ function esc(s) {
  */
 function createContext(lang, route, opts) {
   const preview = !!(opts && opts.preview);
+  const demo = !!(opts && opts.demo);
   const depth = (lang + '/' + route).split('/').filter(Boolean).length;
   // the 404 page is served from arbitrary URLs, so it uses root-absolute links
   const up = opts && opts.absolute ? '/' : '../'.repeat(depth);
   const ctx = {
-    lang, route, preview,
+    lang, route, preview, demo,
     t: (key) => {
       const v = S[key];
       if (!v) throw new Error('Missing string: ' + key);
@@ -128,9 +129,10 @@ function layout(ctx, products, page) {
     `\n  <link rel="alternate" hreflang="x-default" href="${ctx.abs(route, config.defaultLanguage)}">`;
   const clientConfig = {
     lang,
-    endpoint: config.formEndpoint,
+    endpoint: ctx.demo ? '' : config.formEndpoint,
+    demo: ctx.demo,
     email: config.company.email,
-    strings: page.clientStrings || {}
+    strings: Object.assign({ demoSent: S.demoSent[lang] }, page.clientStrings || {})
   };
   return `<!doctype html>
 <html lang="${S.htmlLang[lang]}">

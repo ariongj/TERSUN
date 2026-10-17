@@ -44,6 +44,7 @@
    * Resolves to 'sent' or 'mailto'.
    */
   T.send = function (payload, subject, text) {
+    if (T.demo) return Promise.resolve('demo');
     if (T.endpoint) {
       return fetch(T.endpoint, {
         method: 'POST',
@@ -94,7 +95,7 @@
       T.send(data, 'TERSUN – ' + (productLabel || 'Contact') + ' – ' + data.name, lines.join('\n'))
         .then(function (how) {
           status.className = 'form-status ok';
-          status.textContent = how === 'sent' ? T.strings.fThanks : T.strings.cfgMailtoText;
+          status.textContent = how === 'sent' ? T.strings.fThanks : how === 'demo' ? T.strings.demoSent : T.strings.cfgMailtoText;
           if (how === 'sent') contact.reset();
         })
         .catch(function () {

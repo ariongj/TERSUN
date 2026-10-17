@@ -404,7 +404,7 @@
         $('[data-cfg-steps]').hidden = true;
         var done = $('[data-cfg-done]');
         done.hidden = false;
-        $('[data-cfg-done-text]').textContent = how === 'sent' ? L.cfgThanksText : L.cfgMailtoText;
+        $('[data-cfg-done-text]').textContent = how === 'sent' ? L.cfgThanksText : how === 'demo' ? L.demoSent : L.cfgMailtoText;
         var sum = document.createElement('div');
         sum.className = 'cfg-summary';
         renderSummary(sum);

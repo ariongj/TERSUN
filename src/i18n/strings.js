@@ -303,6 +303,11 @@ module.exports = {
   footerRights: { en: 'All rights reserved.', de: 'Alle Rechte vorbehalten.', sq: 'Të gjitha të drejtat e rezervuara.' },
   footerLanguage: { en: 'Language', de: 'Sprache', sq: 'Gjuha' },
 
+  demoSent: {
+    en: 'This is a preview of the website, so nothing was sent. On the live site this request goes straight to TERSUN.',
+    de: 'Dies ist eine Vorschau der Website, daher wurde nichts gesendet. Auf der Live-Website geht diese Anfrage direkt an TERSUN.',
+    sq: 'Ky është një version paraprak i faqes, prandaj asgjë nuk u dërgua. Në faqen live kjo kërkesë shkon direkt te TERSUN.'
+  },
   notFoundTitle: { en: 'Page not found', de: 'Seite nicht gefunden', sq: 'Faqja nuk u gjet' },
   notFoundText: { en: 'The page you are looking for does not exist.', de: 'Die gesuchte Seite existiert nicht.', sq: 'Faqja që kërkoni nuk ekziston.' }
 };

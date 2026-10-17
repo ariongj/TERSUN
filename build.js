@@ -14,7 +14,9 @@ const { layout, createContext } = require('./src/templates/layout');
 
 const SRC = path.join(__dirname, 'src');
 const OUT = path.join(__dirname, 'dist');
-const preview = process.argv.includes('--preview');
+const preview = process.argv.includes('--preview') || process.argv.includes('--demo');
+// --demo: preview build whose forms don't send anything (for sharing a preview link)
+const demo = process.argv.includes('--demo');
 const IMAGE_EXT = /\.(jpe?g|png|webp|avif)$/i;
 
 function write(file, content) {
@@ -57,7 +59,7 @@ const routes = [
 let count = 0;
 for (const lang of config.languages) {
   for (const [route, render] of routes) {
-    const ctx = createContext(lang, route, { preview });
+    const ctx = createContext(lang, route, { preview, demo });
     write(path.join(lang, route, 'index.html'), layout(ctx, products, render(ctx, products)));
     count++;
   }
@@ -119,4 +121,6 @@ ${urls.join('\n')}
 `);
 write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`);
 
-console.log(`Built ${count} pages in ${config.languages.length} languages → ${path.relative(process.cwd(), OUT) || OUT}${preview ? ' (preview links)' : ''}`);
+if (demo) fs.rmSync(path.join(OUT, '404.html'), { force: true });
+
+console.log(`Built ${count} pages in ${config.languages.length} languages → ${path.relative(process.cwd(), OUT) || OUT}${demo ? ' (demo: forms do not send)' : preview ? ' (preview links)' : ''}`);
