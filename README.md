@@ -17,7 +17,7 @@ It is available in three languages (English, German and Albanian), presents six 
 - **Static site, no dependencies.** A small Node script (`build.js`) renders every page to plain HTML in `dist/`, so the site can be hosted anywhere (Netlify, Vercel, GitHub Pages, Cloudflare Pages, any web server).
 - **Multilingual SEO.** Each language has its own URL (`/en/`, `/de/`, `/sq/`), with `hreflang` alternates, canonical URLs, a sitemap, Open Graph tags and JSON-LD. The root URL redirects visitors to their browser language.
 - **Product pages** with photos and a gallery, a video for the bioclimatic system, highlights, technical details and colours/options. The content comes from the LONI tenda / TERSUN catalogue 2026.
-- **Configurator** (similar to warema.com): product → dimensions → design → options → request. A live parametric drawing follows the chosen dimensions, colour, layout and options, and its slider opens the louvres or panels. The visitor gets a summary with a reference number and can print it or save it as a PDF. A draft is kept in the browser.
+- **3D Builder** (similar to warema.com, in 3D): product → dimensions → design → options → request. A real-time 3D model (three.js, self-hosted) follows every choice: dimensions, colour, version (standard / double / modular), mounting, side closures, LED, glass and fabric. Visitors can orbit and zoom, switch between day (real sun shadows through the louvres) and night (LED lighting), open or close the louvres, panels and screens, toggle furniture and a person for scale, go fullscreen and save a PNG. Each configuration can be shared as a link. That link reopens it exactly and is also included in the quote request, so the sales team sees the same design. On devices without WebGL, a 2D parametric drawing is shown instead.
 - **GDPR friendly.** Fonts (Jost, OFL) are hosted locally, there are no tracking cookies and no third-party requests.
 
 ## Commands
@@ -48,6 +48,7 @@ Node 18 or newer is required. There is nothing to install.
 | Styles | `src/assets/css/style.css` |
 | Product photos | `src/assets/img/products/<slug>/` — the first file alphabetically is the hero image, all files form the gallery |
 | Bioclimatic video | `src/assets/video/` |
+| 3D models of the products | `src/assets/js/builder3d.js` (one builder function per product) |
 | Logo (SVG, converted from the original CorelDRAW file) | `src/assets/img/logo/`, source in `brand/` |
 
 All texts are kept as `{ en, de, sq }` side by side. To add a language, add its code to `config.languages` and a value to every entry.

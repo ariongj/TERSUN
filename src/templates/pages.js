@@ -49,18 +49,22 @@ function configBand(ctx) {
   const { t, href } = ctx;
   return `
 <section class="config-band">
-  <div class="container config-band-inner reveal">
-    <div>
-      <span class="eyebrow">${t('navConfigurator')}</span>
+  <div class="container config-band-inner">
+    <div class="reveal">
+      <span class="eyebrow eyebrow-light">${t('navConfigurator')}</span>
       <h2>${t('configBandTitle')}</h2>
       <p>${t('configBandText')}</p>
-    </div>
-    <div>
       <ol class="config-band-steps">
         ${S.cfgSteps[ctx.lang].map((s, i) => `<li><b>${i + 1}</b>${s}</li>`).join('')}
       </ol>
       <a class="btn btn-light" href="${href('configurator/')}">${t('ctaConfigure')} ${icon('arrow')}</a>
     </div>
+    <a class="config-band-visual reveal" href="${href('configurator/')}" aria-label="${esc(t('ctaConfigure'))}">
+      <img src="${ctx.asset('img/builder-day.jpg')}" alt="" loading="lazy" decoding="async">
+      <img class="night" src="${ctx.asset('img/builder-night.jpg')}" alt="" loading="lazy" decoding="async">
+      <span class="config-band-badge">3D</span>
+      <span class="config-band-daynight"><i></i>${t('cfg3dNight')}</span>
+    </a>
   </div>
 </section>`;
 }
@@ -338,7 +342,7 @@ function configurator(ctx, products) {
   const strings = {};
   ['cfgSteps', 'cfgNext', 'cfgBack', 'cfgSend', 'dimW', 'dimD', 'dimH', 'cfgCustomRal', 'cfgNone', 'cfgReference',
     'cfgThanksTitle', 'cfgThanksText', 'cfgMailtoText', 'cfgError', 'cfgOutOfRange', 'fName', 'fEmail', 'fPhone',
-    'fCountry', 'fCity', 'fCustomerType', 'fMessage', 'navConfigurator', 'cfgSummary']
+    'fCountry', 'fCity', 'fCustomerType', 'fMessage', 'navConfigurator', 'cfgSummary', 'cfgCopied']
     .forEach((k) => { strings[k] = S[k][lang]; });
   const consent = S.fConsent[lang].replace('{privacy}', ctx.href('legal/') + '#privacy');
 
@@ -354,10 +358,24 @@ function configurator(ctx, products) {
 <section class="configurator" data-configurator>
   <div class="container cfg-layout">
     <div class="cfg-preview">
-      <div class="cfg-preview-stage" data-cfg-preview></div>
-      <div class="cfg-preview-control" data-cfg-preview-control hidden>
-        <label><span data-cfg-preview-label></span> <output data-cfg-preview-output></output>
-          <input type="range" data-cfg-preview-range></label>
+      <div class="cfg-stage-wrap">
+        <div class="cfg-preview-stage" data-cfg-preview></div>
+        <div class="cfg-toolbar" data-cfg-toolbar role="toolbar" aria-label="3D" hidden>
+          ${[['night', 'moon', 'cfg3dNight', false], ['dims', 'ruler', 'cfg3dDims', true], ['props', 'sofa', 'cfg3dProps', true],
+            ['rotate', 'rotate', 'cfg3dRotate', true], ['reset', 'target', 'cfg3dReset'], ['full', 'expand', 'cfg3dFull'], ['save', 'download', 'cfg3dSave']]
+            .map(([a, ic, label, pressed]) => `<button type="button" data-3d="${a}" title="${esc(t(label))}" aria-label="${esc(t(label))}"${pressed === undefined ? '' : ` aria-pressed="${pressed}"`}>${icon(ic)}</button>`).join('')}
+        </div>
+        <p class="cfg-hint">${icon('rotate')}<span>${t('cfg3dHint')}</span></p>
+      </div>
+      <div class="cfg-preview-controls">
+        <div class="cfg-preview-control" data-cfg-preview-control hidden>
+          <label><span data-cfg-preview-label></span> <output data-cfg-preview-output></output>
+            <input type="range" data-cfg-preview-range></label>
+        </div>
+        <div class="cfg-preview-control" data-cfg-side-control hidden>
+          <label><span>${t('cfgSideOpen')}</span> <output data-cfg-side-output></output>
+            <input type="range" min="0" max="100" value="30" data-cfg-side-range></label>
+        </div>
       </div>
       <p class="small muted">${t('cfgPreviewNote')}</p>
     </div>
@@ -399,6 +417,7 @@ function configurator(ctx, products) {
         <fieldset class="cfg-step" data-step="4" hidden>
           <legend>${t('cfgRequestTitle')}</legend>
           <div class="cfg-summary" data-cfg-summary></div>
+          <button type="button" class="link-arrow cfg-share" data-cfg-share>${icon('link')}<span>${t('cfgShare')}</span></button>
           <div class="form-grid">
             <label class="field"><span>${t('fName')} *</span><input name="name" autocomplete="name" required></label>
             <label class="field"><span>${t('fEmail')} *</span><input name="email" type="email" autocomplete="email" required></label>
@@ -425,6 +444,7 @@ function configurator(ctx, products) {
         <h2>${t('cfgThanksTitle')}</h2>
         <p data-cfg-done-text></p>
         <div class="hero-actions">
+          <button type="button" class="btn btn-ghost" data-cfg-share>${icon('link')}<span>${t('cfgShare')}</span></button>
           <button type="button" class="btn btn-ghost" data-cfg-print>${t('cfgPrint')}</button>
           <button type="button" class="btn" data-cfg-restart>${t('cfgRestart')}</button>
         </div>
@@ -439,7 +459,7 @@ function configurator(ctx, products) {
     description: t('metaConfigDesc'),
     bodyClass: 'page-configurator',
     clientStrings: strings,
-    scripts: ['js/illustrations.js', 'js/configurator.js'],
+    scripts: ['js/illustrations.js', 'js/configurator.js', { src: 'js/builder-mount.js', module: true }],
     body
   };
 }

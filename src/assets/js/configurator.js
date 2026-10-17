@@ -16,17 +16,38 @@
   var btnBack = $('[data-cfg-back]'), btnNext = $('[data-cfg-next]'), btnSubmit = $('[data-cfg-submit]');
   var status = $('[data-cfg-status]');
   var previewCtl = $('[data-cfg-preview-control]'), previewRange = $('[data-cfg-preview-range]');
+  var sideCtl = $('[data-cfg-side-control]'), sideRange = $('[data-cfg-side-range]');
   var DIM_KEYS = ['w', 'd', 'h'];
   var DIM_LABEL = { w: L.dimW, d: L.dimD, h: L.dimH };
   var STORE = 'tersun-config';
 
-  var state = { step: 0, reached: 0, product: null, dims: {}, values: {}, preview: null };
+  var state = { step: 0, reached: 0, product: null, dims: {}, values: {}, preview: null, sideOpen: 30 };
 
   function product() { return products.filter(function (p) { return p.id === state.product; })[0]; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function isDesignField(f) { return f.type === 'color' || (f.type === 'choice' && f.key !== 'control'); }
   function choice(f, value) { return (f.choices || []).filter(function (c) { return c.value === value; })[0]; }
   function field(key) { return (product().fields || []).filter(function (f) { return f.key === key; })[0]; }
+
+  // Configuration encoded in the URL hash, so it can be shared and reopened
+  function shareCode() {
+    var json = JSON.stringify({ p: state.product, d: state.dims, v: state.values });
+    return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function shareUrl() {
+    return location.href.split('#')[0].split('?')[0] + '#c=' + shareCode();
+  }
+
+  function readShare() {
+    var m = /[#&]c=([\w-]+)/.exec(location.hash);
+    if (!m) return null;
+    try {
+      var b = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      var o = JSON.parse(decodeURIComponent(escape(atob(b))));
+      return { product: o.p, dims: o.d, values: o.v };
+    } catch (e) { return null; }
+  }
 
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify({ product: state.product, dims: state.dims, values: state.values })); } catch (e) { /* storage unavailable */ }
@@ -50,7 +71,7 @@
     });
     if (restore && restore.product === id) {
       DIM_KEYS.forEach(function (k) { if (restore.dims && restore.dims[k] != null && p.dims[k]) state.dims[k] = restore.dims[k]; });
-      Object.keys(restore.values || {}).forEach(function (k) { if (k in state.values || k === 'ral') state.values[k] = restore.values[k]; });
+      Object.keys(restore.values || {}).forEach(function (k) { if (k in state.values || k.indexOf('ral-') === 0) state.values[k] = restore.values[k]; });
     }
     state.preview = p.preview ? p.preview.value : null;
     var radio = form.querySelector('input[name=product][value="' + id + '"]');
@@ -120,7 +141,20 @@
     $('[data-cfg-options]').innerHTML = p.fields.filter(function (f) { return !isDesignField(f); }).map(fieldHtml).join('');
   }
 
+  function sideClosureActive() {
+    var v = state.values.side;
+    return state.product === 'bioclimatic' && (v === 'zip' || v === 'guillotine' || v === 'slide');
+  }
+
+  function buildSideControl() {
+    if (!sideCtl) return;
+    sideCtl.hidden = !(window.TersunViewer && sideClosureActive());
+    sideRange.value = state.sideOpen;
+    $('[data-cfg-side-output]').textContent = state.sideOpen + '%';
+  }
+
   function buildPreviewControl() {
+    buildSideControl();
     var pv = product().preview;
     previewCtl.hidden = !pv;
     if (!pv) return;
@@ -170,12 +204,24 @@
 
   var raf = 0;
   function drawPreview() {
+    var viewer = window.TersunViewer;
+    if (viewer) {
+      buildSideControl();
+      if (!state.product) viewer.update('bioclimatic', { w: 450, d: 350, h: 260, color: '#383e42', angle: 35, led: true, dims: {} });
+      else {
+        var vp = previewParams();
+        vp.opts.sideOpen = state.sideOpen / 100;
+        viewer.update(vp.type, vp.opts);
+      }
+      return;
+    }
     if (!state.product) {
       stage.innerHTML = I.render('bioclimatic', { color: '#383e42', angle: 35, led: true, title: '' });
       return;
     }
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(function () {
+      if (window.TersunViewer) return; // the 3D viewer took over meanwhile
       var pp = previewParams();
       stage.innerHTML = I.render(pp.type, pp.opts);
     });
@@ -268,6 +314,7 @@
         state.values[key] = el.value;
         var ral = root.querySelector('[data-ral="' + key + '"]');
         if (ral) ral.hidden = el.value !== 'custom';
+        if (key === 'side') buildSideControl();
       }
       drawPreview(); save();
     }
@@ -295,6 +342,12 @@
       var v = Math.max(f.min, Math.min(f.max, Math.round(+e.target.value) || f.value));
       e.target.value = v; state.values[key] = v; drawPreview(); save();
     }
+  });
+
+  if (sideRange) sideRange.addEventListener('input', function () {
+    state.sideOpen = +sideRange.value;
+    $('[data-cfg-side-output]').textContent = state.sideOpen + '%';
+    drawPreview();
   });
 
   previewRange.addEventListener('input', function () {
@@ -326,9 +379,11 @@
       message: val('message')
     };
     var rows = summaryRows();
+    var link = shareUrl();
     var text = [
       'TERSUN – ' + L.navConfigurator,
       L.cfgReference + ': ' + reference,
+      link,
       '',
       p.name
     ].concat(rows.map(function (r) { return r[0] + ': ' + r[1]; })).concat([
@@ -341,7 +396,7 @@
       '',
       contact.message
     ]).join('\n');
-    var payload = Object.assign({ reference: reference, product: p.id, productName: p.name, dimensions: state.dims, options: state.values }, contact);
+    var payload = Object.assign({ reference: reference, link: link, product: p.id, productName: p.name, dimensions: state.dims, options: state.values }, contact);
     btnSubmit.disabled = true;
     T.send(payload, 'TERSUN ' + reference + ' – ' + p.name + ' – ' + contact.name, text)
       .then(function (how) {
@@ -353,6 +408,13 @@
         var sum = document.createElement('div');
         sum.className = 'cfg-summary';
         renderSummary(sum);
+        if (window.TersunViewer) {
+          var img = new Image();
+          img.alt = p.name;
+          img.className = 'cfg-snapshot';
+          img.src = window.TersunViewer.snapshot();
+          sum.insertBefore(img, sum.firstChild);
+        }
         var old = done.querySelector('.cfg-summary');
         if (old) old.remove();
         done.insertBefore(sum, done.querySelector('.hero-actions'));
@@ -366,6 +428,20 @@
   });
 
   $('[data-cfg-print]').addEventListener('click', function () { window.print(); });
+
+  root.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-cfg-share]');
+    if (!btn || !state.product) return;
+    var url = shareUrl();
+    var done = function () {
+      var label = btn.querySelector('span');
+      var old = label.textContent;
+      label.textContent = L.cfgCopied;
+      setTimeout(function () { label.textContent = old; }, 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt('', url); });
+    else window.prompt('', url);
+  });
   $('[data-cfg-restart]').addEventListener('click', function () {
     form.reset();
     form.hidden = false;
@@ -379,13 +455,20 @@
 
   // ---------------------------------------------------------------- init
   var params = new URLSearchParams(location.search);
-  var saved = load();
-  var initial = params.get('product') || (saved && saved.product);
+  var shared = readShare();
+  var saved = shared || load();
+  var initial = (shared && shared.product) || params.get('product') || (saved && saved.product);
   if (initial && products.some(function (p) { return p.id === initial; })) {
     selectProduct(initial, saved);
-    go(params.get('product') ? 1 : 0);
+    go(shared ? 4 : params.get('product') ? 1 : 0);
   } else {
     drawPreview();
     go(0);
   }
+
+  window.TersunConfigurator = {
+    redraw: function () { buildSideControl(); drawPreview(); },
+    reference: function () { return reference; }
+  };
+  window.dispatchEvent(new Event('tersun:configurator-ready'));
 })();

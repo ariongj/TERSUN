@@ -7,13 +7,13 @@ module.exports = {
   // navigation
   navHome: { en: 'Home', de: 'Start', sq: 'Ballina' },
   navProducts: { en: 'Products', de: 'Produkte', sq: 'Produktet' },
-  navConfigurator: { en: 'Configurator', de: 'Konfigurator', sq: 'Konfiguruesi' },
+  navConfigurator: { en: '3D Builder', de: '3D-Konfigurator', sq: 'Konfiguruesi 3D' },
   navAbout: { en: 'About', de: 'Über uns', sq: 'Rreth nesh' },
   navContact: { en: 'Contact', de: 'Kontakt', sq: 'Kontakti' },
   navMenu: { en: 'Menu', de: 'Menü', sq: 'Menyja' },
   navClose: { en: 'Close', de: 'Schließen', sq: 'Mbyll' },
   skip: { en: 'Skip to content', de: 'Zum Inhalt springen', sq: 'Kalo te përmbajtja' },
-  ctaConfigure: { en: 'Configure yours', de: 'Jetzt konfigurieren', sq: 'Konfiguroni tuajin' },
+  ctaConfigure: { en: 'Build yours in 3D', de: 'Jetzt in 3D gestalten', sq: 'Ndërtojeni tuajin në 3D' },
   ctaQuote: { en: 'Request a quote', de: 'Angebot anfordern', sq: 'Kërkoni ofertë' },
   ctaDiscover: { en: 'Discover', de: 'Entdecken', sq: 'Zbuloni' },
   ctaAllProducts: { en: 'All products', de: 'Alle Produkte', sq: 'Të gjitha produktet' },
@@ -95,11 +95,11 @@ module.exports = {
       ['Montojmë', 'Montim profesional nga partnerë të certifikuar.']
     ]
   },
-  configBandTitle: { en: 'Design your outdoor space in a few steps.', de: 'Gestalten Sie Ihren Außenraum in wenigen Schritten.', sq: 'Projektoni hapësirën tuaj të jashtme në pak hapa.' },
+  configBandTitle: { en: 'Build your outdoor space in 3D.', de: 'Gestalten Sie Ihren Außenraum in 3D.', sq: 'Ndërtoni hapësirën tuaj të jashtme në 3D.' },
   configBandText: {
-    en: 'Pick a system, enter your dimensions, choose colours and options – and see your configuration take shape live. We reply with a tailored quote.',
-    de: 'System wählen, Maße eingeben, Farben und Optionen festlegen – und live sehen, wie Ihre Konfiguration entsteht. Wir antworten mit einem individuellen Angebot.',
-    sq: 'Zgjidhni sistemin, vendosni përmasat, ngjyrat dhe opsionet – dhe shihni konfigurimin tuaj live. Ne ju përgjigjemi me një ofertë të personalizuar.'
+    en: 'Pick a system, enter your dimensions, choose colours, LED and side closures – then walk around it in 3D, by day and by night. Save the image, share the link, and we reply with a tailored quote.',
+    de: 'System wählen, Maße eingeben, Farben, LED und Seitenabschlüsse festlegen – und es in 3D von allen Seiten erleben, bei Tag und bei Nacht. Bild speichern, Link teilen – wir antworten mit einem individuellen Angebot.',
+    sq: 'Zgjidhni sistemin, vendosni përmasat, ngjyrat, LED-in dhe mbylljet anësore – pastaj shiheni në 3D nga çdo anë, ditën dhe natën. Ruani imazhin, ndani linkun dhe ne ju përgjigjemi me një ofertë të personalizuar.'
   },
   marketsEyebrow: { en: 'Markets', de: 'Märkte', sq: 'Tregjet' },
   marketsTitle: { en: 'Europe & United States', de: 'Europa & USA', sq: 'Evropa dhe Shtetet e Bashkuara' },
@@ -132,20 +132,31 @@ module.exports = {
   optionsTitle: { en: 'Colours & options', de: 'Farben & Optionen', sq: 'Ngjyrat dhe opsionet' },
   galleryTitle: { en: 'Gallery', de: 'Galerie', sq: 'Galeria' },
   moreProducts: { en: 'More from TERSUN', de: 'Mehr von TERSUN', sq: 'Më shumë nga TERSUN' },
-  configureThis: { en: 'Configure this product', de: 'Dieses Produkt konfigurieren', sq: 'Konfiguroni këtë produkt' },
+  configureThis: { en: 'Build it in 3D', de: 'In 3D gestalten', sq: 'Ndërtojeni në 3D' },
 
   // configurator
-  metaConfigTitle: { en: 'Configurator – TERSUN', de: 'Konfigurator – TERSUN', sq: 'Konfiguruesi – TERSUN' },
+  metaConfigTitle: { en: '3D Builder – TERSUN', de: '3D-Konfigurator – TERSUN', sq: 'Konfiguruesi 3D – TERSUN' },
   metaConfigDesc: {
     en: 'Configure your TERSUN system online: dimensions, colours and options with a live preview, then request your personal quote.',
     de: 'Konfigurieren Sie Ihr TERSUN System online: Maße, Farben und Optionen mit Live-Vorschau – und fordern Sie Ihr persönliches Angebot an.',
     sq: 'Konfiguroni sistemin tuaj TERSUN online: përmasat, ngjyrat dhe opsionet me pamje live, pastaj kërkoni ofertën tuaj personale.'
   },
-  cfgTitle: { en: 'Configurator', de: 'Konfigurator', sq: 'Konfiguruesi' },
+  cfgTitle: { en: 'Build your TERSUN in 3D', de: 'Ihr TERSUN in 3D gestalten', sq: 'Ndërtoni TERSUN-in tuaj në 3D' },
+  cfg3dNight: { en: 'Day / night', de: 'Tag / Nacht', sq: 'Ditë / natë' },
+  cfg3dDims: { en: 'Show dimensions', de: 'Maße anzeigen', sq: 'Shfaq përmasat' },
+  cfg3dProps: { en: 'Furniture & person', de: 'Möbel & Person', sq: 'Mobilje & person' },
+  cfg3dRotate: { en: 'Auto-rotate', de: 'Automatisch drehen', sq: 'Rrotullim automatik' },
+  cfg3dReset: { en: 'Reset view', de: 'Ansicht zurücksetzen', sq: 'Rikthe pamjen' },
+  cfg3dFull: { en: 'Fullscreen', de: 'Vollbild', sq: 'Ekran i plotë' },
+  cfg3dSave: { en: 'Save image', de: 'Bild speichern', sq: 'Ruaj imazhin' },
+  cfg3dHint: { en: 'Drag to rotate · scroll or pinch to zoom', de: 'Ziehen zum Drehen · scrollen oder zoomen', sq: 'Tërhiqni për ta rrotulluar · scroll ose pinch për zoom' },
+  cfgSideOpen: { en: 'Side closure', de: 'Seitenabschluss', sq: 'Mbyllja anësore' },
+  cfgShare: { en: 'Copy link to this configuration', de: 'Link zu dieser Konfiguration kopieren', sq: 'Kopjo linkun e këtij konfigurimi' },
+  cfgCopied: { en: 'Link copied', de: 'Link kopiert', sq: 'Linku u kopjua' },
   cfgIntro: {
-    en: 'Configure your system in five steps. Your request is free and non-binding.',
-    de: 'Konfigurieren Sie Ihr System in fünf Schritten. Ihre Anfrage ist kostenlos und unverbindlich.',
-    sq: 'Konfiguroni sistemin tuaj në pesë hapa. Kërkesa juaj është falas dhe pa detyrime.'
+    en: 'Choose your system, enter your dimensions and see it take shape in 3D – by day and by night. Your request is free and non-binding.',
+    de: 'System wählen, Maße eingeben und in 3D sehen, wie es entsteht – bei Tag und bei Nacht. Ihre Anfrage ist kostenlos und unverbindlich.',
+    sq: 'Zgjidhni sistemin, vendosni përmasat dhe shihni si merr formë në 3D – ditën dhe natën. Kërkesa juaj është falas dhe pa detyrime.'
   },
   cfgSteps: {
     en: ['Product', 'Dimensions', 'Design', 'Options', 'Request'],

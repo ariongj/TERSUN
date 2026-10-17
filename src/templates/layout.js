@@ -163,7 +163,9 @@ ${page.body}
 ${footer(ctx, products)}
 <script>window.TERSUN = ${JSON.stringify(clientConfig).replace(/</g, '\\u003c')};</script>
 <script src="${ctx.asset('js/main.js')}" defer></script>
-${(page.scripts || []).map((s) => `<script src="${ctx.asset(s)}" defer></script>`).join('\n')}
+${(page.scripts || []).map((s) => typeof s === 'string'
+    ? `<script src="${ctx.asset(s)}" defer></script>`
+    : `<script type="module" src="${ctx.asset(s.src)}"></script>`).join('\n')}
 </body>
 </html>
 `;
