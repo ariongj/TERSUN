@@ -17,8 +17,8 @@ export type RuleMode = 'link' | 'new' | 'none';
 export type Step = 1 | 2 | 3;
 
 export const DAY = 86400000;
-const E = (): L10n => ({ me: '', sq: '', en: '' });
-export const LANG_CODES: Lang[] = ['me', 'sq', 'en'];
+const E = (): L10n => ({ de: '', sq: '', en: '' });
+export const LANG_CODES: Lang[] = ['de', 'sq', 'en'];
 
 export function emptyOffer(ownerId: string): OfferX {
   const start = new Date();
@@ -42,7 +42,7 @@ export function emptyOffer(ownerId: string): OfferX {
     utm: '',
     metrics: { visits: 0, ctaClicks: 0, codeUses: 0, orders: 0, revenue: 0, discountTotal: 0 },
     createdAt: new Date().toISOString(),
-    markets: ['mk-me'],
+    markets: ['mk-xk'],
   };
 }
 
@@ -68,21 +68,21 @@ export const sameMoment = (a?: string, b?: string) => (!a && !b) || (!!a && !!b 
 
 // Own month names: some Chromium builds ship without Albanian date data and would print English months.
 const MONTHS: Record<Lang, string[]> = {
-  me: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'],
+  de: ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'],
   sq: ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'],
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 };
-/** "26. sep" (ME) · "26 shtator" (SQ) · "26 Sep" (EN), optionally with the year and the time. */
+/** "26. Sep." (DE) · "26 shtator" (SQ) · "26 Sep" (EN), optionally with the year and the time. */
 export function fmtDay(iso: string, lang: Lang, opts: { year?: boolean; time?: boolean } = {}) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
   const m = MONTHS[lang][d.getMonth()];
-  let s = lang === 'me' ? `${d.getDate()}. ${m}` : `${d.getDate()} ${m}`;
-  if (opts.year) s += lang === 'me' ? ` ${d.getFullYear()}.` : ` ${d.getFullYear()}`;
+  let s = lang === 'de' ? `${d.getDate()}. ${m}` : `${d.getDate()} ${m}`;
+  if (opts.year) s += lang === 'de' ? ` ${d.getFullYear()}` : ` ${d.getFullYear()}`;
   if (opts.time) s += `, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   return s;
 }
-/** "26. sep – 17. okt" style range (year only when it differs from now). */
+/** "26. Sep. – 17. Okt." style range (year only when it differs from now). */
 export function rangeLabel(start: string, end: string | undefined, lang: Lang, openLabel: string) {
   const y = new Date().getFullYear();
   const f = (iso: string) => fmtDay(iso, lang, { year: new Date(iso).getFullYear() !== y });
@@ -131,24 +131,20 @@ export function slotsFor(linked: Placement[], homeBlock: boolean): OfferSlot[] {
   return (['hero', 'banner', 'announcement', 'home-block'] as OfferSlot[]).filter((s) => set.has(s));
 }
 
-/** ME plural forms (1 slajd · 2 slajda · 5 slajdova); SQ/EN use one/many. */
+/** DE/SQ/EN plural forms (1 Slide · 2 Slides): one/many; `few` is kept for dictionary compatibility. */
 export function pluralForm(n: number): 'one' | 'few' | 'many' {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return 'one';
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'few';
-  return 'many';
+  return n === 1 ? 'one' : 'many';
 }
 
 /* ------------------------------------------------------------------ */
 /* New placement from the offer                                        */
 /* ------------------------------------------------------------------ */
-const CTA_LABEL: L10n = { me: 'Pogledajte ponudu', sq: 'Shikoni ofertën', en: 'See the offer' };
+const CTA_LABEL: L10n = { de: 'Zum Angebot', sq: 'Shikoni ofertën', en: 'See the offer' };
 
 export function placementFromOffer(o: OfferX, kind: PlacementKind, order: number, status: Placement['status']): Placement {
-  const href = `/oferta/${o.slug}`;
-  const nameMe = o.name.me || o.name.sq || o.name.en || 'Ponuda';
-  const label = { slide: 'Hero', banner: 'Katalog', announcement: 'Traka' }[kind];
+  const href = `/offer/${o.slug}`;
+  const nameMe = o.name.de || o.name.sq || o.name.en || 'Angebot';
+  const label = { slide: 'Hero', banner: 'Katalog', announcement: 'Leiste' }[kind];
   const barText = (lang: Lang) => [plain(o.badge[lang] || ''), plain(o.landing.title[lang] || o.name[lang] || '')].filter(Boolean).join(' — ');
   return {
     id: uid('pl'),
@@ -156,7 +152,7 @@ export function placementFromOffer(o: OfferX, kind: PlacementKind, order: number
     position: KIND_POSITION[kind],
     name: `${label} — ${nameMe}`,
     eyebrow: kind === 'announcement' ? E() : { ...o.badge },
-    title: kind === 'announcement' ? { me: barText('me'), sq: barText('sq'), en: barText('en') } : { ...o.landing.title },
+    title: kind === 'announcement' ? { de: barText('de'), sq: barText('sq'), en: barText('en') } : { ...o.landing.title },
     subtitle: kind === 'announcement' ? E() : { ...o.landing.text },
     cta: { label: kind === 'announcement' ? E() : { ...CTA_LABEL }, href },
     image: kind === 'announcement' ? '' : o.image,
@@ -182,7 +178,7 @@ export interface LinkCtx {
   /** Slug of the offer being edited (valid even before it is saved) */
   selfSlug?: string;
 }
-const STATIC = new Set(['/', '/proizvodi', '/usluge', '/projekti', '/o-nama', '/kontakt', '/savjeti', '/korpa', '/pretraga', '/lista-zelja']);
+const STATIC = new Set(['/', '/shop', '/services', '/projects', '/about', '/contact', '/journal', '/cart', '/search', '/wishlist']);
 
 export function linkOk(href: string, c: LinkCtx): boolean {
   const h = (href ?? '').trim();
@@ -194,17 +190,17 @@ export function linkOk(href: string, c: LinkCtx): boolean {
   const [, a, b, extra] = path.split('/');
   if (!b || extra) return false;
   switch (a) {
-    case 'proizvodi':
+    case 'shop':
       return c.categories.some((x) => x.slug === b);
-    case 'proizvod':
+    case 'product':
       return c.products.some((p) => p.slug === b && p.status === 'active');
-    case 'kolekcija':
+    case 'collection':
       return c.collections.some((x) => x.slug === b && x.published);
-    case 'oferta':
+    case 'offer':
       return b === c.selfSlug || c.offers.some((o) => o.slug === b);
-    case 'stranica':
+    case 'page':
       return c.pages.some((x) => x.slug === b);
-    case 'savjeti':
+    case 'journal':
       return c.posts.some((x) => x.slug === b);
     default:
       return false;
@@ -302,7 +298,7 @@ export function runChecks(x: CheckInput): Check[] {
   /* ---- links ---- */
   if (!o.slug.trim()) out.push({ id: 'slug', group: 'links', level: 'fail', key: 'ck_slugMissing', fix: 'basics' });
   else if (x.slugTaken) out.push({ id: 'slug', group: 'links', level: 'fail', key: 'f_slugTaken', fix: 'basics' });
-  else out.push({ id: 'slug', group: 'links', level: 'ok', key: 'ck_slugOk', vars: { url: `/oferta/${o.slug}` } });
+  else out.push({ id: 'slug', group: 'links', level: 'ok', key: 'ck_slugOk', vars: { url: `/offer/${o.slug}` } });
   if (x.collection && !x.collection.published) out.push({ id: 'collection', group: 'links', level: 'warn', key: 'ck_collectionUnpublished', vars: { name: l(x.collection.title) }, fix: 'products' });
   const ctas = x.linked.filter((p) => p.kind !== 'announcement' || p.cta.href.trim());
   const broken = ctas.filter((p) => !linkOk(p.cta.href, x.links));

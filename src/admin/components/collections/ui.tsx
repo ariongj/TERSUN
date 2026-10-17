@@ -56,12 +56,12 @@ export function ProductPicker({ products, categories, selected, onAdd }: { produ
 
   const results = useMemo(() => {
     const terms = fold(q.trim()).split(/\s+/).filter(Boolean);
-    const catName = (p: Product) => l(categories.find((c) => c.id === p.categoryId)?.name ?? { me: '', sq: '', en: '' });
+    const catName = (p: Product) => l(categories.find((c) => c.id === p.categoryId)?.name ?? { de: '', sq: '', en: '' });
     return products
       .filter((p) => p.status !== 'archived' || selected.includes(p.id))
       .filter((p) => {
         if (!terms.length) return true;
-        const hay = fold(`${p.name.me} ${p.name.sq} ${p.name.en} ${p.sku} ${catName(p)} ${(p.tags ?? []).join(' ')} ${p.vendor ?? ''}`);
+        const hay = fold(`${p.name.de} ${p.name.sq} ${p.name.en} ${p.sku} ${catName(p)} ${(p.tags ?? []).join(' ')} ${p.vendor ?? ''}`);
         return terms.every((x) => hay.includes(x));
       })
       .sort((a, b) => Number(selected.includes(a.id)) - Number(selected.includes(b.id)) || b.sold - a.sold)

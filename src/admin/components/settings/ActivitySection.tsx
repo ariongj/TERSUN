@@ -17,31 +17,31 @@ import { S } from './strings';
 import { Avatar, Gate, Panel } from './ui';
 
 const A = defineDict({
-  me: {
-    search: 'Pretraži detalje, broj ili naziv…',
-    allActors: 'Svi akteri',
-    allObjects: 'Svi objekti',
-    allActions: 'Sve radnje',
-    web: 'Sajt (kupac)',
-    system: 'Sistem',
-    colTime: 'Vrijeme',
-    colActor: 'Akter',
-    colAction: 'Radnja',
-    colObject: 'Objekat',
-    colDetail: 'Promjena',
-    more: 'Prikaži još',
-    exportCsv: 'Izvezi CSV',
-    empty: 'Nema zapisa za izabrane filtere.',
-    retention: 'Dnevnik čuva posljednjih 300 zapisa i ne može se mijenjati iz CMS-a.',
-    p_all: 'Sve',
-    p_today: 'Danas',
-    p_7: '7 dana',
-    p_30: '30 dana',
-    a_create: 'Kreiranje', a_update: 'Izmjena', a_delete: 'Brisanje', a_publish: 'Objava', a_unpublish: 'Povlačenje', a_archive: 'Arhiviranje', a_status: 'Status', a_refund: 'Povrat novca',
-    a_fulfil: 'Isporuka', a_receive: 'Prijem', a_adjust: 'Korekcija', a_convert: 'Konverzija', a_assign: 'Dodjela', a_restore: 'Vraćanje', a_login: 'Prijava', a_send: 'Slanje',
-    o_product: 'Proizvod', o_order: 'Narudžba', o_discount: 'Popust', o_offer: 'Ponuda', o_placement: 'Slajd / baner', o_collection: 'Kolekcija', o_settings: 'Podešavanja', o_home: 'Početna',
-    o_draft: 'Nacrt narudžbe', o_return: 'Povrat', o_purchaseOrder: 'Nabavka', o_inventory: 'Inventar', o_inquiry: 'Upit', o_quote: 'B2B ponuda', o_booking: 'Termin', o_staff: 'Osoblje',
-    o_page: 'Stranica', o_post: 'Članak', o_menu: 'Meni', o_segment: 'Segment', o_customer: 'Kupac',
+  de: {
+    search: 'Details, Nummer oder Name suchen…',
+    allActors: 'Alle Akteure',
+    allObjects: 'Alle Objekte',
+    allActions: 'Alle Aktionen',
+    web: 'Website (Kunde)',
+    system: 'System',
+    colTime: 'Zeit',
+    colActor: 'Akteur',
+    colAction: 'Aktion',
+    colObject: 'Objekt',
+    colDetail: 'Änderung',
+    more: 'Mehr anzeigen',
+    exportCsv: 'CSV exportieren',
+    empty: 'Keine Einträge für die gewählten Filter.',
+    retention: 'Das Protokoll speichert die letzten 300 Einträge und kann im CMS nicht bearbeitet werden.',
+    p_all: 'Alle',
+    p_today: 'Heute',
+    p_7: '7 Tage',
+    p_30: '30 Tage',
+    a_create: 'Erstellung', a_update: 'Änderung', a_delete: 'Löschung', a_publish: 'Veröffentlichung', a_unpublish: 'Depublizierung', a_archive: 'Archivierung', a_status: 'Status', a_refund: 'Rückerstattung',
+    a_fulfil: 'Lieferung', a_receive: 'Wareneingang', a_adjust: 'Korrektur', a_convert: 'Umwandlung', a_assign: 'Zuweisung', a_restore: 'Wiederherstellung', a_login: 'Anmeldung', a_send: 'Versand',
+    o_product: 'Produkt', o_order: 'Bestellung', o_discount: 'Rabatt', o_offer: 'Angebot', o_placement: 'Slide / Banner', o_collection: 'Kollektion', o_settings: 'Einstellungen', o_home: 'Startseite',
+    o_draft: 'Bestellentwurf', o_return: 'Retoure', o_purchaseOrder: 'Einkauf', o_inventory: 'Lagerbestand', o_inquiry: 'Anfrage', o_quote: 'B2B-Angebot', o_booking: 'Termin', o_staff: 'Mitarbeitende',
+    o_page: 'Seite', o_post: 'Beitrag', o_menu: 'Menü', o_segment: 'Segment', o_customer: 'Kunde',
   },
   sq: {
     search: 'Kërko në detaje, numër ose emër…',
@@ -96,7 +96,7 @@ const A = defineDict({
     o_page: 'Page', o_post: 'Post', o_menu: 'Menu', o_segment: 'Segment', o_customer: 'Customer',
   },
 });
-type AKey = keyof typeof A.me;
+type AKey = keyof typeof A.de;
 type Period = 'all' | 'today' | '7' | '30';
 
 const ACTION_SYMBOL: Partial<Record<AuditAction, string>> = { create: '+', delete: '−', publish: '↑', unpublish: '↓', archive: '▪', refund: '↺', restore: '↺', login: '→', send: '↗', status: '●', fulfil: '✓', receive: '↧' };

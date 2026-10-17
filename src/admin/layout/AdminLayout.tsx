@@ -19,7 +19,7 @@ import { Sidebar } from './Sidebar';
 import { activeNav, navFor } from './nav';
 import { MOD_KEY, useScrollLock } from './popover';
 
-/** "CMS" + small SELCA mark (top bar, left). */
+/** "CMS" + small TERSUN mark (top bar, left). */
 function Brand({ onClick }: { onClick?: () => void }) {
   return (
     <Link to="/admin" onClick={onClick} className="flex items-center gap-2.5 rounded-md px-1.5 py-1 text-white">
@@ -34,7 +34,7 @@ function Brand({ onClick }: { onClick?: () => void }) {
 function StoreLabel({ className, dark = true }: { className?: string; dark?: boolean }) {
   const t = useDict(adm, 'admin');
   const company = useDb((s) => s.settings.companyName);
-  const name = company.replace(/\s*d\.?\s?o\.?\s?o\.?$/i, '') || 'SELCA COMPANY';
+  const name = company.replace(/\s*d\.?\s?o\.?\s?o\.?$/i, '') || 'TERSUN';
   return (
     <a
       href={href('/')}
@@ -89,7 +89,7 @@ export default function AdminLayout() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Tab title: "Porositë · CMS — SELCA COMPANY"
+  // Tab title: "Porositë · CMS — TERSUN"
   const screen = useMemo(() => activeNav(pathname, navFor(role)).leaf, [pathname, role]);
   useEffect(() => {
     document.title = `${screen ? `${t(screen.label)} · ` : ''}CMS — ${companyName}`;

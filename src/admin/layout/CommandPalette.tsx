@@ -31,7 +31,7 @@ interface Hit {
 }
 
 const PER_GROUP = 5;
-const all = (v: L10n | undefined) => (v ? `${v.me} ${v.sq} ${v.en}` : '');
+const all = (v: L10n | undefined) => (v ? `${v.de} ${v.sq} ${v.en}` : '');
 
 /**
  * Global search / command palette (top bar, Ctrl/⌘+K) — PDF p.08 "Kërko produkte, porosi ose klientë…".
@@ -140,7 +140,7 @@ function Palette({ onClose }: { onClose: () => void }) {
     }
     if (can('collections')) {
       for (const c of take(collections, (c) => `${all(c.title)} ${c.slug}`)) {
-        out.push({ key: `col:${c.id}`, group: 'collections', to: `/admin/kolekcije/${c.id}`, title: l(c.title), sub: `/kolekcija/${c.slug}`, meta: c.published ? t('published') : t('draft'), img: c.image, icon: LayoutGrid });
+        out.push({ key: `col:${c.id}`, group: 'collections', to: `/admin/kolekcije/${c.id}`, title: l(c.title), sub: `/collection/${c.slug}`, meta: c.published ? t('published') : t('draft'), img: c.image, icon: LayoutGrid });
       }
     }
     if (can('offers')) {
@@ -150,7 +150,7 @@ function Palette({ onClose }: { onClose: () => void }) {
     }
     if (can('content')) {
       for (const p of take(pages, (p) => `${all(p.title)} ${p.slug}`)) {
-        out.push({ key: `pg:${p.id}`, group: 'pages', to: `/admin/stranice/${p.id}`, title: l(p.title), sub: `/stranica/${p.slug}`, meta: p.published ? t('published') : t('draft'), icon: FileText });
+        out.push({ key: `pg:${p.id}`, group: 'pages', to: `/admin/stranice/${p.id}`, title: l(p.title), sub: `/page/${p.slug}`, meta: p.published ? t('published') : t('draft'), icon: FileText });
       }
       for (const p of take(posts, (p) => `${all(p.title)} ${all(p.tag)} ${p.slug}`)) {
         out.push({ key: `po:${p.id}`, group: 'blog', to: `/admin/savjeti/${p.id}`, title: l(p.title), sub: l(p.tag), img: p.cover, icon: Newspaper });

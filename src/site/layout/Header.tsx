@@ -59,17 +59,18 @@ function useMainNav(): { items: NavItem[]; fallback: boolean } {
       fallback: true,
       items: [
         {
-          ...link('nav-products', '/proizvodi', t('nav_products')),
+          ...link('nav-products', '/shop', t('nav_products')),
           children: [
-            ...cats.map((c): NavItem => ({ id: c.id, label: l(c.name), to: `/proizvodi/${c.slug}`, external: false, type: 'category', image: c.image, sub: l(c.tagline), children: [] })),
-            link('nav-sale', '/proizvodi?akcija=1', t('sale')),
+            ...cats.map((c): NavItem => ({ id: c.id, label: l(c.name), to: `/shop/${c.slug}`, external: false, type: 'category', image: c.image, sub: l(c.tagline), children: [] })),
+            link('nav-sale', '/shop?sale=1', t('sale')),
           ],
         },
-        link('nav-services', '/usluge', t('nav_services')),
-        link('nav-projects', '/projekti', t('nav_projects')),
-        link('nav-about', '/o-nama', t('nav_about')),
-        link('nav-blog', '/savjeti', t('nav_blog')),
-        link('nav-contact', '/kontakt', t('nav_contact')),
+        link('nav-3d', '/3d', '3D Builder'),
+        link('nav-services', '/services', t('nav_services')),
+        link('nav-projects', '/projects', t('nav_projects')),
+        link('nav-about', '/about', t('nav_about')),
+        link('nav-blog', '/journal', t('nav_blog')),
+        link('nav-contact', '/contact', t('nav_contact')),
       ],
     };
   }, [nodes, cats, l, t]);
@@ -80,7 +81,7 @@ const pathOf = (to: string) => to.split(/[?#]/)[0];
 /** Highlight a dropdown parent while the shopper is inside its section. */
 function inSection(n: NavItem, pathname: string) {
   const shop = n.children.some((c) => c.type === 'category' || c.type === 'product' || c.type === 'collection');
-  if (shop && (pathname.startsWith('/proizvod') || pathname.startsWith('/kolekcija'))) return true;
+  if (shop && (pathname.startsWith('/product') || pathname.startsWith('/collection'))) return true;
   return [n, ...n.children].some((x) => {
     const p = pathOf(x.to);
     return !x.external && p.length > 1 && (pathname === p || pathname.startsWith(`${p}/`));
@@ -112,7 +113,7 @@ function AnnouncementBar() {
   const l = useL();
   const [i, setI] = useState(0);
   const items = useMemo(() => {
-    const live = bar.filter((p) => p.title.me.trim()).map((p) => ({ id: p.id, text: p.title, href: p.cta?.href?.trim() ?? '' }));
+    const live = bar.filter((p) => p.title.de.trim()).map((p) => ({ id: p.id, text: p.title, href: p.cta?.href?.trim() ?? '' }));
     return live.length ? live : settings.announcements.map((text, n) => ({ id: `a${n}`, text, href: '' }));
   }, [bar, settings.announcements]);
   useEffect(() => {
@@ -195,7 +196,7 @@ function MegaMenu({ item, onClose }: { item: NavItem; onClose: () => void }) {
         </div>
         {promo && (
           <NavTarget item={promo} onClick={onClose} className="group relative col-span-3 overflow-hidden rounded-2xl bg-ink">
-            <Img src={promo.image ?? '/images/cat/podovi.webp'} small alt="" className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105" />
+            <Img src={promo.image ?? '/images/cat/bioclimatic.webp'} small alt="" className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
             <div className="relative flex h-full min-h-[180px] flex-col justify-end p-5 text-white">
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-200">{promo.label}</span>
@@ -262,8 +263,8 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
           <button className={cn(iconBtn, 'lg:hidden -ml-2')} onClick={() => setMobileOpen(true)} aria-label={t('menu')}>
             <Menu className="h-5 w-5" />
           </button>
-          <Link to="/" className="shrink-0" aria-label="SELCA COMPANY">
-            <Logo tone={tone} className="h-[46px]" />
+          <Link to="/" className="shrink-0" aria-label="TERSUN">
+            <Logo tone={tone} className="h-[18px] sm:h-[21px]" />
           </Link>
 
           <nav className="ml-6 hidden items-center gap-0.5 lg:flex">
@@ -295,7 +296,7 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
             <button className={iconBtn} onClick={() => setSearchOpen(true)} aria-label={t('searchPlaceholder')}>
               <Search className="h-[19px] w-[19px]" />
             </button>
-            <Link to="/lista-zelja" className={cn(iconBtn, 'hidden sm:grid')} aria-label={t('wishlist')}>
+            <Link to="/wishlist" className={cn(iconBtn, 'hidden sm:grid')} aria-label={t('wishlist')}>
               <Heart className="h-[19px] w-[19px]" />
               {wishCount > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">{wishCount}</span>}
             </Link>
@@ -309,7 +310,7 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
             </button>
             {/* Wrapper carries the breakpoint: the button's own `inline-flex` would win over `hidden` (cn has no tailwind-merge). */}
             <span className="ml-2 hidden xl:inline-flex">
-              <ButtonLink to="/#mjerenje" variant={solid ? 'primary' : 'light'} size="sm" icon={<Ruler className="h-4 w-4" />}>
+              <ButtonLink to="/#consultation" variant={solid ? 'primary' : 'light'} size="sm" icon={<Ruler className="h-4 w-4" />}>
                 {t('freeMeasure')}
               </ButtonLink>
             </span>
@@ -341,13 +342,13 @@ function MobileMenu({ open, onClose, nav, fallback }: { open: boolean; onClose: 
     { key: 'home', to: '/', label: t('home'), external: false, sub: [] },
     ...nav.map((n) =>
       n === shop
-        ? { key: n.id, to: n.to || '/proizvodi', label: n.to ? t('allProducts') : n.label, external: n.external, sub: fallback ? [] : n.children.filter((c) => !isTile(c)) }
+        ? { key: n.id, to: n.to || '/shop', label: n.to ? t('allProducts') : n.label, external: n.external, sub: fallback ? [] : n.children.filter((c) => !isTile(c)) }
         : { key: n.id, to: n.to, label: n.label, external: n.external, sub: n.children },
     ),
   ];
   const rowCls = 'border-b border-line py-3.5 text-[17px] font-semibold';
   return (
-    <Drawer open={open} onClose={onClose} side="left" title={<Logo className="h-9" />} width="max-w-[380px]">
+    <Drawer open={open} onClose={onClose} side="left" title={<Logo className="h-5" />} width="max-w-[380px]">
       <div className="px-5 py-5">
         {tiles.length > 0 && (
           <>
@@ -396,7 +397,7 @@ function MobileMenu({ open, onClose, nav, fallback }: { open: boolean; onClose: 
             <Phone className="h-4 w-4" /> {settings.phone}
           </a>
         </div>
-        <ButtonLink to="/#mjerenje" onClick={onClose} className="mt-6 w-full" size="lg" icon={<Ruler className="h-4 w-4" />}>
+        <ButtonLink to="/#consultation" onClick={onClose} className="mt-6 w-full" size="lg" icon={<Ruler className="h-4 w-4" />}>
           {t('bookMeasure')}
         </ButtonLink>
       </div>

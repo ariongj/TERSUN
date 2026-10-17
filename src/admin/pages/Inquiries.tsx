@@ -26,43 +26,43 @@ import type { Product, Staff } from '@/lib/types';
 import { cn, download } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    manual: 'Ručni upit',
-    export: 'Izvoz',
-    exported: 'Izvezeno {n} upita (CSV)',
-    searchPh: 'Pretraži upite…',
-    assignee: 'Odgovorni',
-    source: 'Izvor',
-    kind: 'Vrsta',
-    everyone: 'Svi',
-    allF: 'Sve',
-    col_request: 'Upit',
-    col_kind: 'Vrsta',
-    col_assignee: 'Odgovorni',
+  de: {
+    manual: 'Manuelle Anfrage',
+    export: 'Export',
+    exported: '{n} Anfragen exportiert (CSV)',
+    searchPh: 'Anfragen durchsuchen…',
+    assignee: 'Zuständig',
+    source: 'Quelle',
+    kind: 'Art',
+    everyone: 'Alle',
+    allF: 'Alle',
+    col_request: 'Anfrage',
+    col_kind: 'Art',
+    col_assignee: 'Zuständig',
     col_status: 'Status',
-    col_due: 'Rok',
+    col_due: 'Frist',
     col_date: 'Datum',
-    count: '{n} upita',
-    showing: 'Prikazano {n} od {total}',
-    clear: 'Poništi filtere',
-    emptyTitle: 'Nema upita za ove filtere',
-    emptyText: 'Promijenite karticu ili filtere, ili obrišite pretragu.',
-    noneTitle: 'Još nema upita',
-    noneText: 'Formulari sa sajta, ručni upiti i pozivi pojavljuju se ovdje odmah.',
-    spam: 'Zaštita od spama: skriveno polje (honeypot) i ograničenje slanja — jedno slanje formulara pravi tačno jedan upit. Upiti sa istim telefonom ili e-mailom u roku od 7 dana označavaju se kao mogući duplikati.',
-    selected: '{n} izabrano',
-    selectAll: 'Izaberi sve',
-    selectRow: 'Izaberi upit',
-    bulkAssign: 'Dodijeli…',
-    bulkClose: 'Zatvori',
-    bulkSeen: 'Označi kao pročitano',
-    bulkAssigned: '{n} upita dodijeljeno: {name}',
-    bulkClosed: '{n} upita zatvoreno',
-    bulkSeenDone: 'Označeno kao pročitano',
-    toastNew: 'Novi upit: {name}',
-    open: 'Otvori',
-    sortDue: 'Sortiraj po roku',
-    sortDate: 'Sortiraj po datumu',
+    count: '{n} Anfragen',
+    showing: '{n} von {total} angezeigt',
+    clear: 'Filter zurücksetzen',
+    emptyTitle: 'Keine Anfragen für diese Filter',
+    emptyText: 'Ändern Sie den Tab oder die Filter, oder leeren Sie die Suche.',
+    noneTitle: 'Noch keine Anfragen',
+    noneText: 'Website-Formulare, manuelle Anfragen und Anrufe erscheinen hier sofort.',
+    spam: 'Spamschutz: verstecktes Feld (Honeypot) und Sendebegrenzung — ein Formularversand erzeugt genau eine Anfrage. Anfragen mit derselben Telefonnummer oder E-Mail innerhalb von 7 Tagen werden als mögliche Duplikate markiert.',
+    selected: '{n} ausgewählt',
+    selectAll: 'Alle auswählen',
+    selectRow: 'Anfrage auswählen',
+    bulkAssign: 'Zuweisen…',
+    bulkClose: 'Schließen',
+    bulkSeen: 'Als gelesen markieren',
+    bulkAssigned: '{n} Anfragen zugewiesen an: {name}',
+    bulkClosed: '{n} Anfragen geschlossen',
+    bulkSeenDone: 'Als gelesen markiert',
+    toastNew: 'Neue Anfrage: {name}',
+    open: 'Öffnen',
+    sortDue: 'Nach Frist sortieren',
+    sortDate: 'Nach Datum sortieren',
   },
   sq: {
     manual: 'Kërkesë manuale',
@@ -142,7 +142,7 @@ const T = defineDict({
   },
 });
 
-type AssigneeF = 'all' | 'none' | 'me' | string;
+type AssigneeF = 'all' | 'none' | 'mine' | string;
 type Row = { q: InquiryX; kind: ContactKind; due: Due | null; dup?: string; staff?: Staff; product?: Product };
 
 export default function Inquiries() {
@@ -201,7 +201,7 @@ export default function Inquiries() {
   const base = useMemo(
     () =>
       rows.filter(({ q: x, kind: k, due, product }) => {
-        if (who === 'none' ? !!x.assignee : who === 'me' ? x.assignee !== me?.id : who !== 'all' && x.assignee !== who) return false;
+        if (who === 'none' ? !!x.assignee : who === 'mine' ? x.assignee !== me?.id : who !== 'all' && x.assignee !== who) return false;
         if (source !== 'all' && sourceOf(x) !== source) return false;
         if (kind !== 'all' && k !== kind) return false;
         if (agenda === 'new' && x.status !== 'new') return false;
@@ -367,7 +367,7 @@ export default function Inquiries() {
           <FilterSelect label={t('assignee')} value={who} onChange={(e) => setWho(e.target.value)} active={who !== 'all'} className="xl:w-auto">
             <option value="all">{t('everyone')}</option>
             <option value="none">{tx('unassigned')}</option>
-            {me && <option value="me">{tx('me')}</option>}
+            {me && <option value="mine">{tx('mine')}</option>}
             {assignable.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}

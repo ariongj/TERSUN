@@ -92,10 +92,10 @@ export function HrefField({ value, onChange, label }: { value: string; onChange:
   const t = useDict(B, 'admin');
   const cats = useCategories();
   const listId = useId();
-  const routes = ['/proizvodi', '/proizvodi?akcija=1', ...cats.map((c) => `/proizvodi/${c.slug}`), '/usluge', '/projekti', '/savjeti', '/o-nama', '/kontakt', '/#mjerenje'];
+  const routes = ['/shop', '/shop?sale=1', ...cats.map((c) => `/shop/${c.slug}`), '/services', '/projects', '/journal', '/about', '/contact', '/#consultation'];
   return (
     <>
-      <TextField label={label ?? t('href')} value={value} onChange={onChange} leading={<Link2 className="h-4 w-4" />} list={listId} placeholder="/proizvodi" spellCheck={false} />
+      <TextField label={label ?? t('href')} value={value} onChange={onChange} leading={<Link2 className="h-4 w-4" />} list={listId} placeholder="/shop" spellCheck={false} />
       <datalist id={listId}>
         {routes.map((r) => (
           <option key={r} value={r} />

@@ -14,7 +14,7 @@ import { readRules, webSlot } from '@/admin/components/appointments/rules';
 
 /** Booking note on the success screen (CMS v2 — appointments, PDF p.45). */
 const B = defineDict({
-  me: { slot: 'Okvirni termin: {when}', slotHint: 'Termin čeka potvrdu — potvrdićemo ga telefonom.' },
+  de: { slot: 'Vorläufiger Termin: {when}', slotHint: 'Der Termin ist noch nicht bestätigt — wir bestätigen ihn telefonisch.' },
   sq: { slot: 'Termin i përkohshëm: {when}', slotHint: 'Termini është në pritje — do ta konfirmojmë me telefon.' },
   en: { slot: 'Provisional slot: {when}', slotHint: 'Pending — we will confirm it by phone.' },
 });
@@ -147,7 +147,7 @@ export function MeasureForm({
     <form onSubmit={submit} noValidate className={cn('rounded-3xl bg-white p-6 ring-1 ring-line sm:p-8', className)}>
       <div className="grid gap-4 sm:grid-cols-2">
         <Input label={t('f_name')} required value={form.name} onChange={set('name')} error={errors.name} autoComplete="name" />
-        <Input label={t('f_phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+382 6_ ___ ___" autoComplete="tel" />
+        <Input label={t('f_phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+383 4_ ___ ___" autoComplete="tel" />
         {type === 'contact' ? (
           <Input label={t('f_email')} type="email" value={form.email} onChange={set('email')} wrapClassName="sm:col-span-2" autoComplete="email" />
         ) : (

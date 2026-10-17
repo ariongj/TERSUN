@@ -11,29 +11,29 @@ import { pad2, telHref, useMeasureHref, type SectionData } from './data';
 
 /** Strings shared by the company pages (services, projects, about). */
 export const C = defineDict({
-  me: {
-    step: 'Korak',
-    inNumbers: 'SELCA u brojkama',
-    bookFree: 'Zakaži besplatno mjerenje',
-    ctaEyebrow: 'Sljedeći korak',
-    ctaTitle: 'Vaš dom može biti *sljedeći*.',
-    ctaText: 'Zakažite besplatno mjerenje ili nas posjetite u salonu — zajedno ćemo izabrati materijale i pripremiti preciznu ponudu.',
+  de: {
+    step: 'Schritt',
+    inNumbers: 'TERSUN in Zahlen',
+    bookFree: 'Kostenlose Beratung vereinbaren',
+    ctaEyebrow: 'Nächster Schritt',
+    ctaTitle: 'Ihre Terrasse könnte die *nächste* sein.',
+    ctaText: 'Vereinbaren Sie eine kostenlose Beratung vor Ort oder besuchen Sie unseren Showroom — gemeinsam planen wir Ihr System in 3D und erstellen ein präzises Angebot.',
   },
   sq: {
     step: 'Hapi',
-    inNumbers: 'SELCA në shifra',
-    bookFree: 'Caktoni matje falas',
+    inNumbers: 'TERSUN në shifra',
+    bookFree: 'Caktoni konsultë falas',
     ctaEyebrow: 'Hapi i radhës',
-    ctaTitle: 'Shtëpia juaj mund të jetë *e radhës*.',
-    ctaText: 'Caktoni një matje falas ose na vizitoni në sallon — së bashku do të zgjedhim materialet dhe do të përgatisim një ofertë të saktë.',
+    ctaTitle: 'Tarraca juaj mund të jetë *e radhës*.',
+    ctaText: 'Caktoni një konsultë falas ose na vizitoni në sallon — së bashku e projektojmë sistemin në 3D dhe përgatisim një ofertë të saktë.',
   },
   en: {
     step: 'Step',
-    inNumbers: 'SELCA in numbers',
-    bookFree: 'Book a free measurement',
+    inNumbers: 'TERSUN in numbers',
+    bookFree: 'Book a free consultation',
     ctaEyebrow: 'Next step',
-    ctaTitle: 'Your home could be *next*.',
-    ctaText: 'Book a free measurement or visit our showroom — together we’ll choose the materials and put together a precise quote.',
+    ctaTitle: 'Your terrace could be *next*.',
+    ctaText: 'Book a free consultation or visit our showroom — together we’ll design your system in 3D and put together a precise quote.',
   },
 });
 
@@ -143,7 +143,7 @@ export function CtaBand({ image, className }: { image: string; className?: strin
                 <ButtonLink to={measureHref} size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
                   {t('bookFree')}
                 </ButtonLink>
-                <ButtonLink to="/kontakt" size="lg" variant="outlineLight">
+                <ButtonLink to="/contact" size="lg" variant="outlineLight">
                   {ts('nav_contact')}
                 </ButtonLink>
               </div>

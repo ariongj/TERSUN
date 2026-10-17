@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { toast } from 'sonner';
 import {
   ArrowRight, ArrowUpRight, Award, Check, ChevronLeft, ChevronRight, Clock, Copy, Hammer, Home as HomeIcon, Leaf, Phone,
-  Ruler, ShieldCheck, Sparkles, Star, Truck, Wrench, MessageCircle,
+  Ruler, ShieldCheck, Sparkles, Star, Truck, Wrench, MessageCircle, Cog, Globe,
 } from 'lucide-react';
 import type { HomeSection, Product } from '@/lib/types';
 import { Accent, Accordion, Img, Reveal, useCountdown } from '@/components/ui/misc';
@@ -24,32 +24,32 @@ import { cn } from '@/lib/utils';
 type DataOf<T extends HomeSection['type']> = Extract<HomeSection, { type: T }>['data'];
 
 const H = defineDict({
-  me: {
-    days: 'dana',
-    hours: 'sati',
-    minutes: 'min',
-    seconds: 'sek',
-    endsIn: 'Akcija ističe za',
-    useCode: 'Kod za dodatni popust',
-    copied: 'Kod je kopiran',
-    allProducts: 'Svi proizvodi',
-    productsCount: '{n} proizvoda',
-    tab_bestsellers: 'Najprodavanije',
-    tab_sale: 'Na akciji',
-    tab_new: 'Novo',
-    tab_manual: 'Izdvojeno',
-    allProjects: 'Sve realizacije',
-    readMore: 'Pročitaj',
-    minRead: '{n} min čitanja',
-    allPosts: 'Svi savjeti',
-    helpTitle: 'Niste pronašli odgovor?',
-    helpText: 'Pozovite nas ili pošaljite poruku — odgovaramo istog dana.',
-    follow: 'Zapratite nas',
-    benefit1: 'Potpuno besplatno i bez obaveze',
-    benefit2: 'Dolazak u roku od 48 sati',
-    benefit3: 'Stručni savjet i precizna ponuda',
-    learnMore: 'Saznaj više o uslugama',
-    step: 'Korak',
+  de: {
+    days: 'Tage',
+    hours: 'Std.',
+    minutes: 'Min.',
+    seconds: 'Sek.',
+    endsIn: 'Angebot endet in',
+    useCode: 'Code für einen Extra-Rabatt',
+    copied: 'Code kopiert',
+    allProducts: 'Alle Produkte',
+    productsCount: '{n} Produkte',
+    tab_bestsellers: 'Bestseller',
+    tab_sale: 'Im Angebot',
+    tab_new: 'Neu',
+    tab_manual: 'Empfohlen',
+    allProjects: 'Alle Referenzen',
+    readMore: 'Lesen',
+    minRead: '{n} Min. Lesezeit',
+    allPosts: 'Alle Ratgeber',
+    helpTitle: 'Keine Antwort gefunden?',
+    helpText: 'Rufen Sie uns an oder schreiben Sie uns — wir antworten noch am selben Tag.',
+    follow: 'Folgen Sie uns',
+    benefit1: 'Völlig kostenlos und unverbindlich',
+    benefit2: 'Termin vor Ort innerhalb von 48 Stunden',
+    benefit3: 'Fachkundige Beratung und präzises Angebot',
+    learnMore: 'Mehr über unsere Leistungen',
+    step: 'Schritt',
   },
   sq: {
     days: 'ditë',
@@ -107,7 +107,7 @@ const H = defineDict({
   },
 });
 
-const ICONS: Record<string, ComponentType<{ className?: string }>> = { Ruler, Hammer, ShieldCheck, Truck, Clock, Award, Sparkles, Leaf, Wrench, Home: HomeIcon, Star, Phone };
+const ICONS: Record<string, ComponentType<{ className?: string }>> = { Ruler, Hammer, ShieldCheck, Truck, Clock, Award, Sparkles, Leaf, Wrench, Home: HomeIcon, Star, Phone, Cog, Globe };
 
 /* ------------------------------------------------------------------ */
 export function TrustSection({ data, overlap }: { data: DataOf<'trust'>; overlap: boolean }) {
@@ -140,7 +140,9 @@ export function TrustSection({ data, overlap }: { data: DataOf<'trust'>; overlap
 export function CategoriesSection({ data }: { data: DataOf<'categories'> }) {
   const l = useL();
   const h = useDict(H);
-  const cats = useCategories();
+  const all = useCategories();
+  const featured = all.filter((c) => c.featured);
+  const cats = featured.length ? featured : all;
   const products = useActiveProducts();
   return (
     <section className="py-24 sm:py-28">
@@ -151,7 +153,7 @@ export function CategoriesSection({ data }: { data: DataOf<'categories'> }) {
             title={l(data.title)}
             subtitle={l(data.subtitle)}
             action={
-              <ButtonLink to="/proizvodi" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/shop" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {h('allProducts')}
               </ButtonLink>
             }
@@ -162,7 +164,7 @@ export function CategoriesSection({ data }: { data: DataOf<'categories'> }) {
             const n = products.filter((p) => p.categoryId === c.id).length;
             return (
               <Reveal key={c.id} delay={(i % 3) * 90} className={cn(i % 3 === 1 && 'lg:translate-y-14')}>
-                <Link to={`/proizvodi/${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-3xl bg-ink">
+                <Link to={`/shop/${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-3xl bg-ink">
                   <Img src={c.image} alt={l(c.name)} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.07]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/15 to-transparent" />
                   <div className="absolute left-5 top-5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-[0.18em] text-white backdrop-blur-md">{String(i + 1).padStart(2, '0')}</div>
@@ -265,7 +267,39 @@ export function FeaturedSection({ data }: { data: DataOf<'featured'> }) {
 }
 
 /* ------------------------------------------------------------------ */
+/** Promo without a deadline: a full-bleed cinematic band (used for the 3D builder teaser). */
+function FeatureBand({ data }: { data: DataOf<'promo'> }) {
+  const l = useL();
+  return (
+    <section className="pb-24 sm:pb-28">
+      <Reveal>
+        <Link to={data.cta.href} className="group relative block overflow-hidden bg-ink">
+          <div className="relative h-[72svh] min-h-[480px] max-h-[820px]">
+            <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[2400ms] ease-out group-hover:scale-[1.04]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-ink/10" />
+            <div className="container-x relative flex h-full flex-col items-start justify-end pb-14 sm:pb-20">
+              <div className="eyebrow text-brand-200">{l(data.eyebrow)}</div>
+              <h2 className="display mt-4 max-w-3xl text-[44px] leading-[0.98] text-white sm:text-[72px]">
+                <Accent text={l(data.title)} accentClassName="text-brand-200" />
+              </h2>
+              {l(data.text) && <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-paper/70">{l(data.text)}</p>}
+              <span className="mt-8 inline-flex h-13 items-center gap-2 rounded-full bg-white px-7 text-[15px] font-semibold text-ink transition group-hover:bg-brand-200">
+                {l(data.cta.label)} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </div>
+        </Link>
+      </Reveal>
+    </section>
+  );
+}
+
 export function PromoSection({ data }: { data: DataOf<'promo'> }) {
+  if (!data.endsAt) return <FeatureBand data={data} />;
+  return <TimedPromo data={data} />;
+}
+
+function TimedPromo({ data }: { data: DataOf<'promo'> }) {
   const l = useL();
   const h = useDict(H);
   const cd = useCountdown(data.endsAt);
@@ -275,6 +309,7 @@ export function PromoSection({ data }: { data: DataOf<'promo'> }) {
     [cd.minutes, h('minutes')],
     [cd.seconds, h('seconds')],
   ];
+  const badge = /[−-]\s?\d+\s?%/.exec(l(data.title))?.[0];
   return (
     <section className="pb-24 sm:pb-28">
       <div className="container-x">
@@ -283,9 +318,11 @@ export function PromoSection({ data }: { data: DataOf<'promo'> }) {
             <div className="relative min-h-[320px] overflow-hidden lg:min-h-[560px]">
               <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-ink/30" />
-              <div className="absolute left-6 top-6 grid h-28 w-28 rotate-[-10deg] place-items-center rounded-full bg-brand-600 text-center text-white shadow-2xl sm:h-32 sm:w-32">
-                <span className="display text-[34px] leading-none sm:text-[40px]">−20%</span>
-              </div>
+              {badge && (
+                <div className="absolute left-6 top-6 grid h-28 w-28 rotate-[-10deg] place-items-center rounded-full bg-brand-600 text-center text-white shadow-2xl sm:h-32 sm:w-32">
+                  <span className="display text-[34px] leading-none sm:text-[40px]">{badge}</span>
+                </div>
+              )}
             </div>
             <div className="bg-grain relative flex flex-col justify-center p-8 sm:p-12 lg:p-16">
               <div className="eyebrow text-brand-200">{l(data.eyebrow)}</div>
@@ -376,7 +413,7 @@ export function ServicesSection({ data }: { data: DataOf<'services'> }) {
             title={l(data.title)}
             subtitle={l(data.subtitle)}
             action={
-              <ButtonLink to="/usluge" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/services" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {h('learnMore')}
               </ButtonLink>
             }
@@ -454,7 +491,7 @@ export function ProjectsSection({ data }: { data: DataOf<'projects'> }) {
         </Reveal>
         <Scroller className="mt-10 lg:mt-24 [&_button]:border-white/20 [&_button]:bg-transparent [&_button]:text-white [&_button:hover]:bg-white [&_button:hover]:text-ink">
           {projects.map((p) => (
-            <Link key={p.id} to="/projekti" className="group relative block aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-3xl bg-ink-soft sm:aspect-[4/3] sm:w-[62%] lg:w-[46%]">
+            <Link key={p.id} to="/projects" className="group relative block aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-3xl bg-ink-soft sm:aspect-[4/3] sm:w-[62%] lg:w-[46%]">
               <Img src={p.image} alt={l(p.title)} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/10 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
@@ -474,7 +511,7 @@ export function ProjectsSection({ data }: { data: DataOf<'projects'> }) {
           ))}
         </Scroller>
         <div className="mt-10">
-          <ButtonLink to="/projekti" variant="outlineLight" iconRight={<ArrowRight className="h-4 w-4" />}>
+          <ButtonLink to="/projects" variant="outlineLight" iconRight={<ArrowRight className="h-4 w-4" />}>
             {h('allProjects')}
           </ButtonLink>
         </div>
@@ -527,7 +564,7 @@ export function BlogSection({ data }: { data: DataOf<'blog'> }) {
             eyebrow={l(data.eyebrow)}
             title={l(data.title)}
             action={
-              <ButtonLink to="/savjeti" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/journal" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {h('allPosts')}
               </ButtonLink>
             }
@@ -536,7 +573,7 @@ export function BlogSection({ data }: { data: DataOf<'blog'> }) {
         <div className="mt-12 grid gap-8 md:grid-cols-3">
           {posts.map((p, i) => (
             <Reveal key={p.id} delay={i * 90}>
-              <Link to={`/savjeti/${p.slug}`} className="group block">
+              <Link to={`/journal/${p.slug}`} className="group block">
                 <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-sand">
                   <Img src={p.cover} small alt="" className="h-full w-full object-cover transition-transform duration-[1.2s] group-hover:scale-105" />
                 </div>
@@ -578,7 +615,7 @@ export function FaqSection({ data }: { data: DataOf<'faq'> }) {
               <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-paper hover:bg-ink-soft">
                 <Phone className="h-4 w-4" /> {settings.phone}
               </a>
-              <ButtonLink to="/kontakt" variant="outline">
+              <ButtonLink to="/contact" variant="outline">
                 {t('nav_contact')}
               </ButtonLink>
             </div>
@@ -636,7 +673,7 @@ export function CtaSection({ data }: { data: DataOf<'cta'> }) {
   const l = useL();
   const h = useDict(H);
   return (
-    <section id="mjerenje" className="scroll-mt-28 pb-8">
+    <section id="consultation" className="scroll-mt-28 pb-8">
       <div className="container-x">
         <Reveal>
           <div className="grid gap-4 rounded-[36px] bg-sand/80 p-3 sm:p-4 lg:grid-cols-[0.95fr_1.05fr]">

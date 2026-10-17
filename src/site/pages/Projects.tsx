@@ -13,29 +13,29 @@ import { useDb } from '@/store/db';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    eyebrow: 'Realizacije',
-    title: 'Domovi koje smo *uredili*',
-    subtitle: 'Izbor projekata iz cijele Crne Gore — od jednog kupatila do kompletne stolarije za vilu.',
-    statProjects: 'Realizacija',
-    statCities: 'Gradova',
-    statYears: 'Godine rada',
-    all: 'Sve',
-    filter: 'Filtriraj po vrsti radova',
-    showing: 'Prikazano {n} od {total}',
-    view: 'Pogledaj projekat',
-    emptyTitle: 'Uskoro novi projekti',
-    emptyText: 'Galerija realizacija se upravo dopunjava. Svratite ponovo za nekoliko dana.',
+  de: {
+    eyebrow: 'Referenzen',
+    title: 'Terrassen, die wir *verwandelt* haben',
+    subtitle: 'Eine Auswahl unserer Projekte in Kosovo, Europa und den USA — von der kompakten Pergola bis zur vollverglasten Lounge einer Villa.',
+    statProjects: 'Projekte',
+    statCities: 'Städte',
+    statYears: 'Jahre Erfahrung',
+    all: 'Alle',
+    filter: 'Nach System filtern',
+    showing: '{n} von {total} angezeigt',
+    view: 'Projekt ansehen',
+    emptyTitle: 'Bald neue Projekte',
+    emptyText: 'Die Referenzgalerie wird gerade ergänzt. Schauen Sie in ein paar Tagen wieder vorbei.',
   },
   sq: {
     eyebrow: 'Realizimet',
-    title: 'Shtëpi që i kemi *rregulluar*',
-    subtitle: 'Një përzgjedhje projektesh nga i gjithë Mali i Zi — nga një banjo e vetme deri te dograma e plotë e një vile.',
+    title: 'Tarraca që i kemi *transformuar*',
+    subtitle: 'Një përzgjedhje projektesh në Kosovë, Evropë dhe SHBA — nga një pergolë kompakte deri te lounge-i plotësisht me xham i një vile.',
     statProjects: 'Realizime',
     statCities: 'Qytete',
     statYears: 'Vite pune',
     all: 'Të gjitha',
-    filter: 'Filtro sipas llojit të punimeve',
+    filter: 'Filtro sipas sistemit',
     showing: 'Shfaqen {n} nga {total}',
     view: 'Shiko projektin',
     emptyTitle: 'Së shpejti projekte të reja',
@@ -43,13 +43,13 @@ const T = defineDict({
   },
   en: {
     eyebrow: 'Our work',
-    title: 'Homes we have *transformed*',
-    subtitle: 'A selection of projects from across Montenegro — from a single bathroom to full glazing for a villa.',
+    title: 'Terraces we have *transformed*',
+    subtitle: 'A selection of our projects across Kosovo, Europe and the USA — from a compact pergola to a fully glazed villa lounge.',
     statProjects: 'Projects',
     statCities: 'Towns',
     statYears: 'Years',
     all: 'All',
-    filter: 'Filter by type of work',
+    filter: 'Filter by system',
     showing: 'Showing {n} of {total}',
     view: 'View project',
     emptyTitle: 'New projects coming soon',
@@ -266,7 +266,7 @@ export default function Projects() {
         </>
       )}
 
-      <CtaBand image="/images/hero/living.webp" />
+      <CtaBand image="/images/misc/night.webp" />
 
       <ProjectLightbox projects={list} index={index} open={open} onClose={() => setOpen(false)} onIndex={setIndex} />
     </>

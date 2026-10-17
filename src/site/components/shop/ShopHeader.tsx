@@ -11,15 +11,15 @@ import { money, perUnit } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { T, countLabel } from './dict';
 
-/** Link to a category (or the all-products view) keeping ?akcija / ?sort. */
+/** Link to a category (or the all-products view) keeping ?sale / ?sort. */
 export function shopHref(slug: string | null, params: URLSearchParams, patch: Record<string, string | null> = {}) {
   const next = new URLSearchParams();
-  for (const k of ['akcija', 'sort']) {
+  for (const k of ['sale', 'sort']) {
     const v = k in patch ? patch[k] : params.get(k);
     if (v) next.set(k, v);
   }
   const qs = next.toString();
-  return `/proizvodi${slug ? `/${slug}` : ''}${qs ? `?${qs}` : ''}`;
+  return `/shop${slug ? `/${slug}` : ''}${qs ? `?${qs}` : ''}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -41,7 +41,7 @@ export function CategoryBanner({ category, products, sale }: { category: Categor
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(28_26_23/0.9)_0%,rgb(28_26_23/0.62)_42%,rgb(28_26_23/0.12)_100%)]" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/70 via-transparent to-ink/30" />
       <div className="container-x flex min-h-[400px] flex-col pb-10 pt-7 sm:min-h-[460px] sm:pb-14 sm:pt-9">
-        <Breadcrumbs tone="light" items={[{ label: ts('nav_products'), to: '/proizvodi' }, { label: l(category.name) }]} />
+        <Breadcrumbs tone="light" items={[{ label: ts('nav_products'), to: '/shop' }, { label: l(category.name) }]} />
         <div className="mt-auto pt-14 animate-fade-up">
           <div className="eyebrow text-brand-200">{l(category.tagline)}</div>
           <h1 className="display mt-3 text-[56px] leading-[0.95] text-white sm:text-[84px]">{l(category.name)}</h1>
@@ -91,7 +91,7 @@ export function AllHeader({ products, categories, sale, params }: { products: Pr
     <section className="relative overflow-hidden border-b border-line bg-paper">
       <div className="bg-grain pointer-events-none absolute inset-0 opacity-70" />
       <div className="container-x relative pb-10 pt-7 sm:pb-12 sm:pt-9">
-        <Breadcrumbs items={sale ? [{ label: ts('nav_products'), to: '/proizvodi' }, { label: ts('sale') }] : [{ label: ts('nav_products') }]} />
+        <Breadcrumbs items={sale ? [{ label: ts('nav_products'), to: '/shop' }, { label: ts('sale') }] : [{ label: ts('nav_products') }]} />
         <div className="mt-8 grid gap-8 animate-fade-up sm:mt-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="eyebrow">{sale ? t('saleEyebrow') : t('catalog')}</div>

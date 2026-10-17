@@ -9,19 +9,16 @@ import {
 } from './cms';
 
 /** Bump to force every browser to reload fresh demo data. */
-export const DB_VERSION = 5;
+export const DB_VERSION = 101;
 
-/** Every bundled image, exposed in the CMS media library. */
+/** Every bundled image, exposed in the CMS media library (product photos are added from the catalogue). */
 const IMAGE_PATHS = [
-  'hero/living', 'hero/arch', 'hero/bath', 'hero/kitchen',
-  'misc/house-dusk', 'misc/villa', 'misc/about',
-  'cat/vrata', 'cat/prozori', 'cat/podovi', 'cat/keramika', 'cat/kupatilo', 'cat/kuhinje',
-  's/mjerenje', 's/ugradnja', 's/ugradnja-prozora', 's/podovi', 's/majstor', 's/adaptacija', 's/gips',
-  'projects/vila-primorje', 'projects/kupatilo-oval', 'projects/kupatilo-toplo', 'projects/kupatilo-travertin',
-  'projects/kuhinja-orah', 'projects/dnevna-svjetla', 'projects/stan-hrast', 'projects/kuhinja-siva',
+  'hero/bioclimatic', 'hero/slide', 'hero/awning', 'hero/zip', 'hero/guillotine',
+  'misc/builder-day', 'misc/builder-night', 'misc/about', 'misc/view', 'misc/night',
+  'cat/bioclimatic', 'cat/glass-roof', 'cat/awning', 'cat/guillotine', 'cat/slide', 'cat/zip',
 ];
 
-const FOLDER: Record<string, string> = { hero: 'Hero', misc: 'Ostalo', cat: 'Kategorije', s: 'Usluge', projects: 'Projekti', p: 'Proizvodi' };
+const FOLDER: Record<string, string> = { hero: 'Hero', misc: 'Misc', cat: 'Categories', p: 'Products', projects: 'Projects' };
 
 function buildMedia(productImages: string[], now: Date): MediaItem[] {
   const all = [...IMAGE_PATHS.map((p) => `/images/${p}.webp`), ...productImages];
@@ -34,7 +31,7 @@ function buildMedia(productImages: string[], now: Date): MediaItem[] {
       url,
       name: `${name}.webp`,
       alt: name.replace(/-\d$/, '').replace(/-/g, ' '),
-      folder: FOLDER[seg] ?? 'Ostalo',
+      folder: FOLDER[seg] ?? 'Misc',
       uploaded: false,
       createdAt: new Date(now.getTime() - (unique.length - i) * 3600000).toISOString(),
     };

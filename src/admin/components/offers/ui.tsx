@@ -47,7 +47,7 @@ export function PlacementStatusPill({ state }: { state: PlacementState }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Rule summary ("Automatike / produkte", "Kodi SELCA10", "Pa zbritje") */
+/* Rule summary ("Automatike / produkte", "Kodi TERSUN10", "Pa zbritje") */
 /* ------------------------------------------------------------------ */
 export function ruleLines(d: Discount | undefined, t: OT, lang: Lang): { head: string; sub: string } {
   if (!d) return { head: t('rule_none'), sub: t('rule_editorial') };

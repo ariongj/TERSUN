@@ -25,15 +25,15 @@ export interface SettingsExt {
 }
 
 export const EXT_DEFAULTS: SettingsExt = {
-  domain: 'selca.me',
+  domain: 'tersun.com',
   weightUnit: 'kg',
   lengthUnit: 'cm',
   payProvider: 'pilot',
   payEnv: 'test',
   capture: 'auto',
-  langDefault: 'me',
-  langFallback: 'me',
-  localDelivery: { enabled: true, fee: 0, area: 'Podgorica, Tuzi' },
+  langDefault: 'de',
+  langFallback: 'de',
+  localDelivery: { enabled: true, fee: 0, area: 'Prishtina, Fushë Kosovë' },
 };
 
 /** The draft the settings screens edit: the shared settings + `ext`. */
@@ -129,7 +129,7 @@ export const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JS
 
 export const ORDER_PREFIX_RE = /^[A-Z0-9][A-Z0-9-]{0,5}$/;
 
-export const TIMEZONES = ['Europe/Podgorica', 'Europe/Tirane', 'Europe/Belgrade', 'Europe/Sarajevo', 'Europe/Zagreb', 'Europe/Vienna', 'Europe/Berlin', 'Europe/London', 'Europe/Istanbul'];
+export const TIMEZONES = ['Europe/Belgrade', 'Europe/Tirane', 'Europe/Skopje', 'Europe/Sarajevo', 'Europe/Zagreb', 'Europe/Vienna', 'Europe/Berlin', 'Europe/Zurich', 'Europe/London', 'Europe/Istanbul', 'America/New_York', 'America/Chicago', 'America/Los_Angeles'];
 
 /** "GMT+2" for an IANA zone (current offset). */
 export function tzOffset(zone: string, at = new Date()) {

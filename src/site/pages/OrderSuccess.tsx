@@ -17,56 +17,58 @@ import { Confetti, SuccessCheck } from '@/site/components/checkout/Celebrate';
 import { ck } from '@/site/components/checkout/dict';
 
 const T = defineDict({
-  me: {
-    pageTitle: 'Narudžba primljena',
-    eyebrow: 'Narudžba je primljena',
-    thanks: 'Hvala, *{name}*!',
-    lead: 'Vaša narudžba je uspješno zaprimljena. Potvrdu smo poslali na {email}, a naš savjetnik će vas uskoro pozvati.',
-    orderNo: 'Broj narudžbe',
-    placedAt: 'Naručeno {date}',
-    nextTitle: 'Šta *slijedi*',
-    n1: 'Poziv za potvrdu',
-    n1when: 'u roku od 2 h',
-    n1text: 'Savjetnik vas zove na {phone} da potvrdi narudžbu, detalje i termin.',
-    n2delivery: 'Dostava na adresu',
-    n2deliveryText: 'Dostavljamo na {address}. Kurir vas zove dan ranije.',
-    n2measure: 'Mjerenje i dostava',
-    n2measureText: 'Prije ugradnje dolazimo na besplatno mjerenje, a zatim dostavljamo materijal na {address}.',
-    n2pickup: 'Preuzimanje u salonu',
-    n2pickupText: 'Narudžba vas čeka u salonu: {address}. Javićemo vam kada bude spremna.',
-    n2when: '{days} radna dana',
-    n2whenPickup: 'kada bude spremno',
-    n3: 'Stručna ugradnja',
-    n3when: 'po dogovoru',
-    n3text: 'Naši majstori ugrađuju, čiste za sobom i odnose ambalažu. Garancija važi i na radove.',
-    n3opt: 'Ugradnja po želji',
-    n3optText: 'Trebate majstora? Ugradnju možete dodati i naknadno — pozovite nas na {phone}.',
-    bankTitle: 'Podaci za uplatu',
-    bankText: 'Narudžbu šaljemo u pripremu čim uplata bude evidentirana (obično 1 radni dan). Obavezno navedite poziv na broj.',
-    recipient: 'Primalac',
-    bank: 'Banka',
-    account: 'Broj računa',
-    amount: 'Iznos',
-    reference: 'Poziv na broj',
-    purpose: 'Svrha uplate',
-    purposeText: 'Uplata po narudžbi {n}',
-    codNote: 'Pripremite {amount} — plaćate kuriru gotovinom ili karticom.',
-    codNotePickup: 'Pripremite {amount} — plaćate u salonu gotovinom ili karticom.',
-    cardNote: 'Plaćanje karticom je odobreno — iznos {amount} je naplaćen.',
-    deliveryTo: 'Dostava',
-    payment: 'Plaćanje',
+  de: {
+    taxId: 'USt-IdNr.',
+    pageTitle: 'Bestellung eingegangen',
+    eyebrow: 'Bestellung eingegangen',
+    thanks: 'Vielen Dank, *{name}*!',
+    lead: 'Ihre Bestellung ist erfolgreich bei uns eingegangen. Die Bestätigung haben wir an {email} gesendet, und einer unserer Berater ruft Sie in Kürze an.',
+    orderNo: 'Bestellnummer',
+    placedAt: 'Bestellt am {date}',
+    nextTitle: 'Wie es *weitergeht*',
+    n1: 'Bestätigungsanruf',
+    n1when: 'innerhalb von 2 h',
+    n1text: 'Ein Berater ruft Sie unter {phone} an, um die Bestellung, die Details und den Termin zu bestätigen.',
+    n2delivery: 'Lieferung nach Hause',
+    n2deliveryText: 'Wir liefern an {address}. Der Kurier ruft Sie am Vortag an.',
+    n2measure: 'Vor-Ort-Termin und Lieferung',
+    n2measureText: 'Vor der Montage kommen wir zur kostenlosen Beratung vor Ort und liefern anschließend Ihr System an {address}.',
+    n2pickup: 'Abholung im Showroom',
+    n2pickupText: 'Ihre Bestellung liegt im Showroom für Sie bereit: {address}. Wir melden uns, sobald sie abholbereit ist.',
+    n2when: '{days} Werktage',
+    n2whenPickup: 'sobald bereit',
+    n3: 'Fachgerechte Montage',
+    n3when: 'nach Vereinbarung',
+    n3text: 'Unsere Monteure bauen Ihr System auf, nehmen es in Betrieb und nehmen die Verpackung mit. Die Garantie gilt auch für die Arbeiten.',
+    n3opt: 'Montage auf Wunsch',
+    n3optText: 'Sie benötigen einen Monteur? Die Montage können Sie auch nachträglich hinzufügen — rufen Sie uns einfach unter {phone} an.',
+    bankTitle: 'Überweisungsdaten',
+    bankText: 'Wir beginnen mit der Vorbereitung Ihrer Bestellung, sobald die Zahlung verbucht ist (in der Regel 1 Werktag). Bitte geben Sie unbedingt den Verwendungszweck an.',
+    recipient: 'Empfänger',
+    bank: 'Bank',
+    account: 'Kontonummer',
+    amount: 'Betrag',
+    reference: 'Referenz',
+    purpose: 'Verwendungszweck',
+    purposeText: 'Zahlung für Bestellung {n}',
+    codNote: 'Bitte halten Sie {amount} bereit — Sie zahlen beim Kurier bar oder mit Karte.',
+    codNotePickup: 'Bitte halten Sie {amount} bereit — Sie zahlen im Showroom bar oder mit Karte.',
+    cardNote: 'Kartenzahlung genehmigt — {amount} wurden belastet.',
+    deliveryTo: 'Lieferung',
+    payment: 'Zahlung',
     contact: 'Kontakt',
-    summary: 'Pregled narudžbe',
-    continue: 'Nastavi kupovinu',
-    home: 'Početna',
+    summary: 'Bestellübersicht',
+    continue: 'Weiter einkaufen',
+    home: 'Startseite',
     demo: 'Demo:',
-    demoText: 'narudžba se upravo pojavila u CMS-u.',
-    demoLink: 'Pogledaj narudžbu u CMS-u',
-    nfTitle: 'Narudžba nije pronađena',
-    nfText: 'Provjerite link iz potvrde ili nas kontaktirajte — rado ćemo pomoći.',
-    contactUs: 'Kontaktirajte nas',
+    demoText: 'Die Bestellung ist soeben im CMS eingegangen.',
+    demoLink: 'Bestellung im CMS ansehen',
+    nfTitle: 'Bestellung nicht gefunden',
+    nfText: 'Bitte prüfen Sie den Link aus Ihrer Bestätigung oder kontaktieren Sie uns — wir helfen Ihnen gern weiter.',
+    contactUs: 'Kontakt aufnehmen',
   },
   sq: {
+    taxId: 'NUI',
     pageTitle: 'Porosia u pranua',
     eyebrow: 'Porosia u pranua',
     thanks: 'Faleminderit, *{name}*!',
@@ -79,15 +81,15 @@ const T = defineDict({
     n1text: 'Këshilltari ju telefonon në {phone} për të konfirmuar porosinë, detajet dhe terminin.',
     n2delivery: 'Dërgesë në adresë',
     n2deliveryText: 'Dërgojmë në {address}. Korrieri ju telefonon një ditë më parë.',
-    n2measure: 'Matja dhe dërgesa',
-    n2measureText: 'Para montimit vijmë për matje falas, pastaj e dërgojmë materialin në {address}.',
+    n2measure: 'Takimi në vend dhe dërgesa',
+    n2measureText: 'Para montimit vijmë për konsultë falas, pastaj e dërgojmë sistemin tuaj në {address}.',
     n2pickup: 'Marrje në sallon',
     n2pickupText: 'Porosia ju pret në sallon: {address}. Do t’ju njoftojmë kur të jetë gati.',
     n2when: '{days} ditë pune',
     n2whenPickup: 'kur të jetë gati',
     n3: 'Montim profesional',
     n3when: 'sipas marrëveshjes',
-    n3text: 'Mjeshtrit tanë montojnë, pastrojnë pas vetes dhe e largojnë ambalazhin. Garancia vlen edhe për punimet.',
+    n3text: 'Montuesit tanë e montojnë sistemin, e vënë në punë dhe e largojnë ambalazhin. Garancia vlen edhe për punimet.',
     n3opt: 'Montim sipas dëshirës',
     n3optText: 'Ju duhet mjeshtër? Montimin mund ta shtoni edhe më vonë — na telefononi në {phone}.',
     bankTitle: 'Të dhënat për pagesë',
@@ -116,6 +118,7 @@ const T = defineDict({
     contactUs: 'Na kontaktoni',
   },
   en: {
+    taxId: 'Tax ID',
     pageTitle: 'Order received',
     eyebrow: 'Order received',
     thanks: 'Thank you, *{name}*!',
@@ -128,15 +131,15 @@ const T = defineDict({
     n1text: 'An advisor calls you on {phone} to confirm the order, the details and the timing.',
     n2delivery: 'Home delivery',
     n2deliveryText: 'We deliver to {address}. The courier calls you the day before.',
-    n2measure: 'Measurement & delivery',
-    n2measureText: 'Before installation we come for a free measurement, then deliver the materials to {address}.',
+    n2measure: 'On-site visit & delivery',
+    n2measureText: 'Before installation we come for a free on-site consultation, then deliver your system to {address}.',
     n2pickup: 'Showroom pickup',
     n2pickupText: 'Your order will be waiting at our showroom: {address}. We’ll let you know when it’s ready.',
     n2when: '{days} working days',
     n2whenPickup: 'when ready',
     n3: 'Expert installation',
     n3when: 'as agreed',
-    n3text: 'Our fitters install, clean up after themselves and take the packaging away. The warranty covers the work too.',
+    n3text: 'Our crew installs and commissions your system and takes the packaging away. The warranty covers the work too.',
     n3opt: 'Installation on request',
     n3optText: 'Need a fitter? You can add installation later — just call us on {phone}.',
     bankTitle: 'Bank transfer details',
@@ -183,7 +186,7 @@ function NotFoundState() {
           <ButtonLink to="/" icon={<Home className="h-4 w-4" />}>
             {t('home')}
           </ButtonLink>
-          <ButtonLink to="/kontakt" variant="outline">
+          <ButtonLink to="/contact" variant="outline">
             {t('contactUs')}
           </ButtonLink>
         </div>
@@ -387,7 +390,7 @@ function Success({ order }: { order: Order }) {
                   <>
                     <br />
                     {c.company}
-                    {c.pib ? ` · PIB ${c.pib}` : ''}
+                    {c.pib ? ` · ${t('taxId')} ${c.pib}` : ''}
                   </>
                 )}
               </p>
@@ -402,7 +405,7 @@ function Success({ order }: { order: Order }) {
           )}
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <ButtonLink to="/proizvodi" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('continue')}
             </ButtonLink>
             <ButtonLink to="/" size="lg" variant="outline" icon={<Home className="h-4 w-4" />}>

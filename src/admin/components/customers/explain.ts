@@ -18,7 +18,7 @@ export function ruleValid(r: SegmentRule) {
 /**
  * Plain-language explanation of a segment (PDF p.19 "shpjegimi i kushteve"):
  *   "Përfshin klientët ku shpenzimet totale janë mbi 4.000 € dhe numri i porosive është më i madh se 1."
- * In ANY mode consecutive "is" rules on the same field are grouped: "qyteti është Bar, Ulcinj ose Budva".
+ * In ANY mode consecutive "is" rules on the same field are grouped: "qyteti është Prishtina, Prizren ose Peja".
  */
 export function useExplain() {
   const t = useDict(cx, 'admin');
@@ -33,8 +33,8 @@ export function useExplain() {
         const raw = String(r.value).trim();
         if (r.field === 'spent') return money(Number(raw.replace(',', '.')), lang, { decimals: false });
         if (r.field === 'lang') {
-          const name = ['me', 'sq', 'en'].includes(raw) ? t(`lang_${raw as 'me' | 'sq' | 'en'}`) : raw;
-          return lang === 'en' ? name : name.toLowerCase();
+          const name = ['de', 'sq', 'en'].includes(raw) ? t(`lang_${raw as 'de' | 'sq' | 'en'}`) : raw;
+          return lang === 'sq' ? name.toLowerCase() : name; // German and English capitalise language names
         }
         if (r.field === 'tag') return lang === 'en' ? `“${raw}”` : `„${raw}“`;
         return raw;

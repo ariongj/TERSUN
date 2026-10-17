@@ -54,7 +54,7 @@ export interface Group {
 export function groupsOf(stored: Integration[]): Group[] {
   return KINDS.map((kind) => {
     const list = (stored as IntegrationY[]).filter((i) => i.kind === kind);
-    const items = list.length ? list : [{ id: `int-${kind}`, kind, name: KIND_META[kind].title.me, status: 'disconnected' as const, note: '' }];
+    const items = list.length ? list : [{ id: `int-${kind}`, kind, name: KIND_META[kind].title.de, status: 'disconnected' as const, note: '' }];
     return { kind, items: items.map(normalize) };
   });
 }
@@ -87,9 +87,9 @@ export const WEBHOOK_EVENTS: Record<IntegrationKind, string[]> = {
   erp: ['stock.updated', 'invoice.posted'],
 };
 
-export const webhookUrl = (kind: IntegrationKind) => `https://selca.me/api/webhooks/${kind}`;
+export const webhookUrl = (kind: IntegrationKind) => `https://tersun.com/api/webhooks/${kind}`;
 
-const T = (me: string, sq: string, en: string): L10n => ({ me, sq, en });
+const T = (de: string, sq: string, en: string): L10n => ({ de, sq, en });
 
 /**
  * Activity log: stored entries (connect, rotate, test…) + demo entries derived from real store data
@@ -102,13 +102,13 @@ export function logOf(x: IntegrationY, orders: Order[], now: Date): LogEntry[] {
   const shipped = recent.filter((o) => o.fulfillment?.shippedAt).slice(0, 4);
   if (x.kind === 'courier')
     for (const o of shipped)
-      out.push({ at: o.fulfillment!.shippedAt!, level: 'ok', text: T(`shipment.created — ${o.number} · naljepnica kreirana`, `shipment.created — ${o.number} · etiketa u krijua`, `shipment.created — ${o.number} · label created`) });
+      out.push({ at: o.fulfillment!.shippedAt!, level: 'ok', text: T(`shipment.created — ${o.number} · Etikett erstellt`, `shipment.created — ${o.number} · etiketa u krijua`, `shipment.created — ${o.number} · label created`) });
   if (x.kind === 'fiscal')
     for (const o of recent.filter((o) => o.payment.status === 'paid').slice(0, 4))
-      out.push({ at: o.createdAt, level: 'ok', text: T(`invoice.fiscalized — ${o.number} · IKOF/JIKR sačuvani`, `invoice.fiscalized — ${o.number} · IKOF/JIKR u ruajtën`, `invoice.fiscalized — ${o.number} · IKOF/JIKR stored`) });
+      out.push({ at: o.createdAt, level: 'ok', text: T(`invoice.fiscalized — ${o.number} · Fiskalcode gespeichert`, `invoice.fiscalized — ${o.number} · kodi fiskal u ruajt`, `invoice.fiscalized — ${o.number} · fiscal code stored`) });
   if (x.kind === 'erp') {
-    out.push({ at: new Date(now.getTime() - 35 * 60000).toISOString(), level: 'ok', text: T('stock.updated — 42 artikla sinhronizovana', 'stock.updated — 42 artikuj u sinkronizuan', 'stock.updated — 42 items synced') });
-    out.push({ at: new Date(now.getTime() - 6 * 3600000).toISOString(), level: 'warn', text: T('2 artikla bez šifre u knjigovodstvu — preskočeni', '2 artikuj pa kod në kontabilitet — u anashkaluan', '2 items without an accounting code — skipped') });
+    out.push({ at: new Date(now.getTime() - 35 * 60000).toISOString(), level: 'ok', text: T('stock.updated — 42 Artikel synchronisiert', 'stock.updated — 42 artikuj u sinkronizuan', 'stock.updated — 42 items synced') });
+    out.push({ at: new Date(now.getTime() - 6 * 3600000).toISOString(), level: 'warn', text: T('2 Artikel ohne Buchhaltungscode — übersprungen', '2 artikuj pa kod në kontabilitet — u anashkaluan', '2 items without an accounting code — skipped') });
   }
   return out.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 40);
 }

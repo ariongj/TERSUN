@@ -21,7 +21,7 @@ export function useOfferActions() {
   const setStatus = useCallback(
     (o: Offer, status: OfferStatus) => {
       upsert('offers', { ...o, status });
-      logAudit({ action: status === 'active' ? 'publish' : status === 'draft' ? 'unpublish' : 'status', object: 'offer', objectId: o.id, detail: `${o.name.me} → ${status}` });
+      logAudit({ action: status === 'active' ? 'publish' : status === 'draft' ? 'unpublish' : 'status', object: 'offer', objectId: o.id, detail: `${o.name.de} → ${status}` });
       toast.success(status === 'paused' ? t('toast_paused') : status === 'draft' ? t('toast_draft') : t('toast_resumed'), { description: l(o.name) });
     },
     [upsert, logAudit, t, l],
@@ -38,7 +38,7 @@ export function useOfferActions() {
         const d = s.discounts.find((x) => x.id === o.discountId);
         if (d && d.status === 'active') upsert('discounts', { ...d, status: 'paused' });
       }
-      logAudit({ action: 'archive', object: 'offer', objectId: o.id, detail: o.name.me });
+      logAudit({ action: 'archive', object: 'offer', objectId: o.id, detail: o.name.de });
       toast.success(t('ended'), { description: l(o.name) });
     },
     [upsert, logAudit, t, l],
@@ -47,11 +47,11 @@ export function useOfferActions() {
   const duplicate = useCallback(
     (o: Offer): string => {
       const s = useDb.getState();
-      const base = slugify(`${o.slug}-${OF.me.copySuffix}`) || 'ponuda';
+      const base = slugify(`${o.slug}-${OF.de.copySuffix}`) || 'angebot';
       let slug = base;
       for (let i = 2; s.offers.some((x) => x.slug === slug); i++) slug = `${base}-${i}`;
       const name: L10n = {
-        me: o.name.me ? `${o.name.me} ${OF.me.copySuffix}` : '',
+        de: o.name.de ? `${o.name.de} ${OF.de.copySuffix}` : '',
         sq: o.name.sq ? `${o.name.sq} ${OF.sq.copySuffix}` : '',
         en: o.name.en ? `${o.name.en} ${OF.en.copySuffix}` : '',
       };

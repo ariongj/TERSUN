@@ -98,7 +98,7 @@ function ManualPicker({ ids, onChange }: { ids: string[]; onChange: (ids: string
   const results = useMemo(() => {
     const needle = fold(q.trim());
     return products.filter(
-      (p) => p.status === 'active' && (cat === 'all' || p.categoryId === cat) && (!needle || fold(`${p.name[lang]} ${p.name.me} ${p.sku}`).includes(needle)),
+      (p) => p.status === 'active' && (cat === 'all' || p.categoryId === cat) && (!needle || fold(`${p.name[lang]} ${p.name.de} ${p.sku}`).includes(needle)),
     );
   }, [products, q, cat, lang]);
 

@@ -13,14 +13,14 @@ import { cn } from '@/lib/utils';
 import type { Product } from '@/lib/types';
 
 const T = defineDict({
-  me: {
-    placeholder: 'Pretraži katalog — naziv, šifra ili kategorija',
-    popular: 'Najprodavanije',
-    results: 'Rezultati',
-    none: 'Nema proizvoda za „{q}“',
-    stock: 'Stanje: {n}',
-    toOrder: 'Po narudžbi',
-    quote: 'Po mjeri',
+  de: {
+    placeholder: 'Katalog durchsuchen — Name, Artikelnummer oder Kategorie',
+    popular: 'Bestseller',
+    results: 'Ergebnisse',
+    none: 'Keine Produkte für „{q}“',
+    stock: 'Bestand: {n}',
+    toOrder: 'Auf Bestellung',
+    quote: 'Nach Maß',
   },
   sq: {
     placeholder: 'Kërko në katalog — emri, kodi ose kategoria',

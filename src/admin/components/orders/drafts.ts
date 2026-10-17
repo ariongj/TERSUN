@@ -16,7 +16,7 @@ export interface DraftTotals extends Totals {
 
 export function draftTotals(d: DraftOrder, ctx: { products: Product[]; settings: Settings; discounts: Discount[]; collections: Collection[] }): DraftTotals {
   const totals = priceCart(d.items, ctx.products, ctx.settings, {
-    lang: d.lang ?? 'me',
+    lang: d.lang ?? 'de',
     codes: d.discountCodes,
     discounts: ctx.discounts,
     collections: ctx.collections,

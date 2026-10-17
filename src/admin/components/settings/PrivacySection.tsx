@@ -17,34 +17,34 @@ import type { SecProps } from './model';
 import { Block, Gate, Note, Panel, StateText, type StateTone } from './ui';
 
 const PR = defineDict({
-  me: {
-    policies: 'Pravila',
-    policies_h: 'Pravne stranice uređuju se u Sadržaju; ovdje vidite status i link u podnožju sajta.',
-    inFooter: 'U podnožju',
-    notInFooter: 'Nije u podnožju',
-    view: 'Prikaži',
-    edit: 'Uredi',
-    cookies: 'Kolačići i saglasnost',
-    cookieBanner: 'Baner za kolačiće',
-    cookieBanner_d: 'Posjetilac bira: neophodni, analitika, marketing. Nebitni kolačići se ne postavljaju bez saglasnosti.',
-    pixels: 'Pikseli i događaji kupca',
-    pixels_d: 'Analitika i marketinški pikseli aktiviraju se tek nakon saglasnosti.',
-    marketing: 'Marketinška saglasnost na checkout-u',
-    marketing_d: 'Posebno polje, nikad unaprijed označeno.',
-    st_connected: 'Povezano',
-    st_test: 'U testu',
-    st_disconnected: 'Nije povezano',
-    rights: 'Prava kupca na podatke',
-    rights_h: 'Izvoz i brisanje po politici podataka.',
-    lookup: 'E-mail ili telefon kupca',
-    find: 'Pronađi',
-    found: 'Narudžbe: {orders} · upiti: {inquiries} · termini: {bookings}',
-    none: 'Nema podataka za ovaj kontakt.',
-    exportBtn: 'Izvezi podatke (JSON)',
-    exported: 'Izvoz podataka kupca je preuzet',
-    auditDetail: 'Izvoz podataka kupca: {who}',
-    example: 'Primjer',
-    deletion: 'Brisanje: marketinške saglasnosti i upiti brišu se odmah na zahtjev; narudžbe i fakture se anonimizuju i čuvaju 10 godina zbog zakonskih (fiskalnih) obaveza.',
+  de: {
+    policies: 'Richtlinien',
+    policies_h: 'Rechtliche Seiten werden unter „Inhalte“ bearbeitet; hier sehen Sie ihren Status und den Link in der Fußzeile.',
+    inFooter: 'In der Fußzeile',
+    notInFooter: 'Nicht in der Fußzeile',
+    view: 'Ansehen',
+    edit: 'Bearbeiten',
+    cookies: 'Cookies & Einwilligung',
+    cookieBanner: 'Cookie-Banner',
+    cookieBanner_d: 'Besucher wählen: notwendig, Analyse, Marketing. Nicht notwendige Cookies werden ohne Einwilligung nicht gesetzt.',
+    pixels: 'Pixel & Kundenereignisse',
+    pixels_d: 'Analyse- und Marketing-Pixel werden erst nach Einwilligung aktiviert.',
+    marketing: 'Marketing-Einwilligung im Checkout',
+    marketing_d: 'Separates Kontrollkästchen, nie vorausgewählt.',
+    st_connected: 'Verbunden',
+    st_test: 'Im Test',
+    st_disconnected: 'Nicht verbunden',
+    rights: 'Datenrechte der Kunden',
+    rights_h: 'Export und Löschung gemäß Datenschutzrichtlinie.',
+    lookup: 'E-Mail oder Telefon des Kunden',
+    find: 'Suchen',
+    found: 'Bestellungen: {orders} · Anfragen: {inquiries} · Termine: {bookings}',
+    none: 'Keine Daten zu diesem Kontakt.',
+    exportBtn: 'Daten exportieren (JSON)',
+    exported: 'Export der Kundendaten heruntergeladen',
+    auditDetail: 'Export der Kundendaten: {who}',
+    example: 'Beispiel',
+    deletion: 'Löschung: Marketing-Einwilligungen und Anfragen werden auf Wunsch sofort gelöscht; Bestellungen und Rechnungen werden anonymisiert und aufgrund gesetzlicher (steuerlicher) Pflichten 10 Jahre aufbewahrt.',
   },
   sq: {
     policies: 'Politikat',
@@ -105,7 +105,7 @@ const PR = defineDict({
     deletion: 'Deletion: marketing consents and enquiries are deleted right away on request; orders and invoices are anonymised and kept for 10 years for legal (fiscal) obligations.',
   },
 });
-type PrKey = keyof typeof PR.me;
+type PrKey = keyof typeof PR.de;
 
 const POLICY_PAGES = ['pg-uslovi', 'pg-privatnost', 'pg-reklamacije', 'pg-dostava'];
 const INT_TONE: Record<Integration['status'], StateTone> = { connected: 'ok', test: 'test', disconnected: 'off' };
@@ -172,7 +172,7 @@ export function PrivacySection({ s, set, readOnly }: SecProps) {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 pl-7 sm:pl-0">
-                  <a href={href(`/stranica/${p.slug}`)} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-semibold text-ink-soft hover:bg-ink/[0.05] hover:text-ink">
+                  <a href={href(`/page/${p.slug}`)} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-semibold text-ink-soft hover:bg-ink/[0.05] hover:text-ink">
                     {t('view')} <ExternalLink className="h-3 w-3" />
                   </a>
                   {allow('content', 'edit') && (

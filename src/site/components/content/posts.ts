@@ -4,9 +4,9 @@ import type { Post } from '@/lib/types';
 import { slugify } from '@/lib/utils';
 
 /** Language-independent key for a post's tag (used in ?tag= filters). */
-export const tagKey = (p: Post) => slugify(p.tag.me);
+export const tagKey = (p: Post) => slugify(p.tag.de);
 
-export const postHref = (p: Post) => `/savjeti/${p.slug}`;
+export const postHref = (p: Post) => `/journal/${p.slug}`;
 
 /** Published posts, newest first. */
 export function usePublishedPosts() {

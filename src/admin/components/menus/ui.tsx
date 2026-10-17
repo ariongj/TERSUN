@@ -50,7 +50,7 @@ export function TypeIcon({ type, size = 'md', className }: { type: MenuItemType;
   );
 }
 
-/** Re-enables the warm SELCA storefront palette inside the neutral CMS (live previews). */
+/** Re-enables the warm TERSUN storefront palette inside the neutral CMS (live previews). */
 export function storeVars(brandColor: string): CSSProperties {
   return {
     ...brandVars(brandColor),

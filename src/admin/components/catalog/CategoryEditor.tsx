@@ -13,30 +13,30 @@ import type { Category } from '@/lib/types';
 import { cn, slugify, uid } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    newTitle: 'Nova kategorija',
-    editTitle: 'Uredi kategoriju',
-    newText: 'Kategorija se odmah pojavljuje u meniju, na početnoj i u prodavnici.',
-    editText: 'Izmjene su vidljive na sajtu čim ih sačuvate.',
-    name: 'Naziv',
-    namePh: 'npr. Rasvjeta',
-    tagline: 'Podnaslov',
-    taglinePh: 'Kratak opis ispod naziva',
-    description: 'Opis',
-    descriptionHint: 'Prikazuje se na vrhu stranice kategorije.',
-    image: 'Naslovna fotografija',
-    imageHint: 'Uspravna fotografija (4:5) najbolje izgleda na početnoj.',
-    slug: 'Adresa (URL)',
-    slugAuto: 'Generiše se automatski iz crnogorskog naziva.',
-    slugManual: 'Adresa je ručno podešena.',
-    slugRegen: 'Generiši iz naziva',
-    featured: 'Istaknuta kategorija',
-    featuredText: 'Označava kategoriju kao jednu od glavnih ponuda.',
-    errName: 'Unesite naziv na crnogorskom.',
-    errSlug: 'Unesite adresu kategorije.',
-    errSlugTaken: 'Ova adresa je već zauzeta.',
-    saved: 'Kategorija je sačuvana',
-    created: 'Kategorija je kreirana',
+  de: {
+    newTitle: 'Neue Kategorie',
+    editTitle: 'Kategorie bearbeiten',
+    newText: 'Die Kategorie erscheint sofort im Menü, auf der Startseite und im Shop.',
+    editText: 'Änderungen sind auf der Website sichtbar, sobald Sie sie speichern.',
+    name: 'Name',
+    namePh: 'z. B. Beleuchtung',
+    tagline: 'Untertitel',
+    taglinePh: 'Kurzbeschreibung unter dem Namen',
+    description: 'Beschreibung',
+    descriptionHint: 'Wird oben auf der Kategorieseite angezeigt.',
+    image: 'Titelbild',
+    imageHint: 'Ein Hochformatfoto (4:5) wirkt auf der Startseite am besten.',
+    slug: 'Adresse (URL)',
+    slugAuto: 'Wird automatisch aus dem deutschen Namen erzeugt.',
+    slugManual: 'Die Adresse wurde manuell festgelegt.',
+    slugRegen: 'Aus Namen erzeugen',
+    featured: 'Hervorgehobene Kategorie',
+    featuredText: 'Kennzeichnet die Kategorie als eines der Hauptangebote.',
+    errName: 'Geben Sie den deutschen Namen ein.',
+    errSlug: 'Geben Sie die Adresse der Kategorie ein.',
+    errSlugTaken: 'Diese Adresse ist bereits vergeben.',
+    saved: 'Kategorie gespeichert',
+    created: 'Kategorie erstellt',
   },
   sq: {
     newTitle: 'Kategori e re',
@@ -52,12 +52,12 @@ const T = defineDict({
     image: 'Fotografia kryesore',
     imageHint: 'Një foto vertikale (4:5) duket më mirë në faqen kryesore.',
     slug: 'Adresa (URL)',
-    slugAuto: 'Krijohet automatikisht nga emri në malazezisht.',
+    slugAuto: 'Krijohet automatikisht nga emri në gjermanisht.',
     slugManual: 'Adresa është vendosur manualisht.',
     slugRegen: 'Krijo nga emri',
     featured: 'Kategori e veçuar',
     featuredText: 'E shënon kategorinë si një nga ofertat kryesore.',
-    errName: 'Shkruani emrin në malazezisht.',
+    errName: 'Shkruani emrin në gjermanisht.',
     errSlug: 'Shkruani adresën e kategorisë.',
     errSlugTaken: 'Kjo adresë është tashmë e zënë.',
     saved: 'Kategoria u ruajt',
@@ -77,12 +77,12 @@ const T = defineDict({
     image: 'Cover photo',
     imageHint: 'A portrait photo (4:5) looks best on the homepage.',
     slug: 'Address (URL)',
-    slugAuto: 'Generated automatically from the Montenegrin name.',
+    slugAuto: 'Generated automatically from the German name.',
     slugManual: 'The address was set manually.',
     slugRegen: 'Generate from name',
     featured: 'Featured category',
     featuredText: 'Marks the category as one of your main offers.',
-    errName: 'Enter the Montenegrin name.',
+    errName: 'Enter the German name.',
     errSlug: 'Enter the category address.',
     errSlugTaken: 'This address is already taken.',
     saved: 'Category saved',
@@ -114,15 +114,15 @@ export function CategoryEditor({ open, category, onClose }: { open: boolean; cat
 
   const isNew = !category;
   const [draft, setDraft] = useState<Category>(() => (category ? structuredClone(category) : blank(categories.reduce((m, c) => Math.max(m, c.order), 0) + 1)));
-  const [slugAuto, setSlugAuto] = useState(() => !category || category.slug === slugify(category.name.me));
+  const [slugAuto, setSlugAuto] = useState(() => !category || category.slug === slugify(category.name.de));
   const [touched, setTouched] = useState(false);
 
   const set = (patch: Partial<Category>) => setDraft((d) => ({ ...d, ...patch }));
-  const slug = slugAuto ? slugify(draft.name.me) : draft.slug;
+  const slug = slugAuto ? slugify(draft.name.de) : draft.slug;
   const finalSlug = slugify(slug);
   const slugTaken = !!finalSlug && categories.some((c) => c.id !== draft.id && c.slug === finalSlug);
   const errors = {
-    name: !draft.name.me.trim() ? t('errName') : undefined,
+    name: !draft.name.de.trim() ? t('errName') : undefined,
     slug: !finalSlug ? t('errSlug') : slugTaken ? t('errSlugTaken') : undefined,
   };
 
@@ -195,7 +195,7 @@ export function CategoryEditor({ open, category, onClose }: { open: boolean; cat
             >
               <span className="flex h-full shrink-0 items-center gap-1.5 border-r border-line bg-canvas/70 px-3 font-mono text-[12.5px] text-muted">
                 <Link2 className="h-3.5 w-3.5" />
-                /proizvodi/
+                /shop/
               </span>
               <input
                 id={slugId}

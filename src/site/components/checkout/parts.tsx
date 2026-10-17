@@ -40,7 +40,7 @@ export function useCopy() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Stepper: Korpa → Podaci → Plaćanje → Potvrda                         */
+/* Stepper: Warenkorb → Daten → Zahlung → Bestätigung                   */
 /* ------------------------------------------------------------------ */
 /** current = index of the active step; 4 = every step completed. */
 export function CheckoutSteps({ current, className }: { current: 0 | 1 | 2 | 3 | 4; className?: string }) {
@@ -70,7 +70,7 @@ export function CheckoutSteps({ current, className }: { current: 0 | 1 | 2 | 3 |
               {i > 0 && <li aria-hidden className={cn('h-px w-3 shrink sm:w-8', i <= current ? 'bg-ink/50' : 'bg-ink/15')} />}
               <li aria-current={active ? 'step' : undefined} className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                 {done && i === 0 ? (
-                  <Link to="/korpa" className="flex items-center gap-1.5 hover:opacity-75 sm:gap-2">
+                  <Link to="/cart" className="flex items-center gap-1.5 hover:opacity-75 sm:gap-2">
                     {dot}
                     {text}
                   </Link>
@@ -404,7 +404,7 @@ export function TrustNotes({ className, compact }: { className?: string; compact
 /* ------------------------------------------------------------------ */
 /* Product-level discounts on a cart line                              */
 /* ------------------------------------------------------------------ */
-/** e.g. "Uz 3 sobna vrata kvaka gratis · −34,00 €" — order discounts stay in the totals. */
+/** e.g. "LED kit free with a pergola · −390,00 €" — order discounts stay in the totals. */
 export function LineDiscounts({ line, className }: { line: PricedLine; className?: string }) {
   const lang = useLang();
   const label = useDiscountLabel();

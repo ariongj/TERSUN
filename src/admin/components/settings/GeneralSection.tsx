@@ -15,47 +15,47 @@ import { EXAMPLE_FIELDS, ORDER_PREFIX_RE, TIMEZONES, tzNow, tzOffset, type SecPr
 import { Block, LinkRow, Note, Panel, Segmented, StateText } from './ui';
 
 const G = defineDict({
-  me: {
-    store: 'Prodavnica',
-    store_h: 'Naziv i opis koje kupci vide na sajtu, u e-mailovima i na fakturama.',
-    legal: 'Pravni podaci',
-    legal_h: 'Za fakture, ponude i pravne stranice.',
+  de: {
+    store: 'Shop',
+    store_h: 'Name und Beschreibung, die Kunden auf der Website, in E-Mails und auf Rechnungen sehen.',
+    legal: 'Rechtliche Angaben',
+    legal_h: 'Für Rechnungen, Angebote und rechtliche Seiten.',
     contact: 'Kontakt',
-    contact_h: 'Prikazuje se u podnožju sajta, na stranici Kontakt i u potvrdama.',
-    addressGroup: 'Adresa',
-    country: 'Država',
-    countryName: 'Crna Gora',
-    defaults: 'Standardi i formati',
-    defaults_d: 'Valuta, porez, jedinice mjere i vremenska zona za cijelu prodavnicu.',
-    currency: 'Osnovna valuta',
+    contact_h: 'Wird in der Fußzeile, auf der Kontaktseite und in Bestätigungen angezeigt.',
+    addressGroup: 'Adresse',
+    country: 'Land',
+    countryName: 'Kosovo',
+    defaults: 'Standards und Formate',
+    defaults_d: 'Währung, Steuer, Maßeinheiten und Zeitzone für den gesamten Shop.',
+    currency: 'Basiswährung',
     currencyName: 'EUR — Euro (€)',
-    currency_h: 'Cijene na sajtu su u eurima. Valute drugih tržišta podešavaju se u modulu Tržišta.',
-    markets: 'Tržišta',
-    vat_h: 'Cijene uključuju PDV. CMS ne zamjenjuje fiskalnu specifikaciju.',
-    units: 'Jedinice mjere',
-    weight: 'Težina',
-    length: 'Dimenzije',
-    saleUnits: 'Prodajne jedinice proizvoda',
-    timezone: 'Vremenska zona',
-    timezone_h: 'Za rasporede popusta, ponuda i termina · trenutno vrijeme: {time}',
-    numbering: 'Numeracija narudžbi',
-    numbering_h: 'Prefiks važi samo za nove narudžbe; postojeće zadržavaju svoj broj.',
-    prefix: 'Prefiks',
-    prefixBad: '1–6 znakova: velika slova, brojevi ili crtica',
-    nextOrder: 'Sljedeća narudžba',
-    domainSeo: 'Domen i SEO',
-    domainSeo_d: 'Primarni domen, preusmjeravanja i osnovni SEO za pretraživače.',
-    domain: 'Primarni domen',
-    domainOk: 'Povezan · SSL aktivan',
-    redirect: 'www.{domain} i stari linkovi preusmjeravaju se na https://{domain} (301).',
-    brand: 'Brend i traka',
-    brand_d: 'Izgled prodavnice uređuje se u kanalu Online Store.',
-    brandColor: 'Boja brenda, logo i tema',
-    brandColor_d: 'Premješteno u Online Store › Tema.',
-    openTheme: 'Otvori Temu',
-    bar: 'Traka sa obavještenjima',
-    bar_d: 'Poruke na vrhu sajta uređuju se uz slajdove i banere.',
-    openBar: 'Slajdovi i baneri',
+    currency_h: 'Die Preise auf der Website sind in Euro. Währungen anderer Märkte werden im Modul Märkte festgelegt.',
+    markets: 'Märkte',
+    vat_h: 'Preise inkl. MwSt. Das CMS ersetzt keine fiskalische Spezifikation.',
+    units: 'Maßeinheiten',
+    weight: 'Gewicht',
+    length: 'Abmessungen',
+    saleUnits: 'Verkaufseinheiten der Produkte',
+    timezone: 'Zeitzone',
+    timezone_h: 'Für Zeitpläne von Rabatten, Angeboten und Terminen · aktuelle Uhrzeit: {time}',
+    numbering: 'Bestellnummerierung',
+    numbering_h: 'Das Präfix gilt nur für neue Bestellungen; bestehende behalten ihre Nummer.',
+    prefix: 'Präfix',
+    prefixBad: '1–6 Zeichen: Großbuchstaben, Ziffern oder Bindestrich',
+    nextOrder: 'Nächste Bestellung',
+    domainSeo: 'Domain und SEO',
+    domainSeo_d: 'Primäre Domain, Weiterleitungen und grundlegendes SEO für Suchmaschinen.',
+    domain: 'Primäre Domain',
+    domainOk: 'Verbunden · SSL aktiv',
+    redirect: 'www.{domain} und alte Links werden auf https://{domain} weitergeleitet (301).',
+    brand: 'Marke und Leiste',
+    brand_d: 'Das Erscheinungsbild des Shops wird im Kanal Online Store bearbeitet.',
+    brandColor: 'Markenfarbe, Logo und Theme',
+    brandColor_d: 'Verschoben nach Online Store › Theme.',
+    openTheme: 'Theme öffnen',
+    bar: 'Ankündigungsleiste',
+    bar_d: 'Meldungen oben auf der Website werden zusammen mit Slides und Bannern bearbeitet.',
+    openBar: 'Slides und Banner',
   },
   sq: {
     store: 'Dyqani',
@@ -66,7 +66,7 @@ const G = defineDict({
     contact_h: 'Shfaqet në fund të faqes, te faqja Kontakt dhe në konfirmime.',
     addressGroup: 'Adresa',
     country: 'Shteti',
-    countryName: 'Mali i Zi',
+    countryName: 'Kosova',
     defaults: 'Standardet dhe formatet',
     defaults_d: 'Valuta, taksa, njësitë matëse dhe zona kohore për të gjithë dyqanin.',
     currency: 'Valuta bazë',
@@ -108,7 +108,7 @@ const G = defineDict({
     contact_h: 'Shown in the site footer, on the Contact page and in confirmations.',
     addressGroup: 'Address',
     country: 'Country',
-    countryName: 'Montenegro',
+    countryName: 'Kosovo',
     defaults: 'Standards & formats',
     defaults_d: 'Currency, tax, units of measure and time zone for the whole store.',
     currency: 'Base currency',
@@ -216,10 +216,10 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
           <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
             <TextField label={tl('email')} type="email" value={s.email} onChange={(v) => set('email', v)} leading={<Mail className={ico} />} error={errors.email} />
             <TextField label={tl('phone')} type="tel" value={s.phone} onChange={(v) => set('phone', v)} leading={<Phone className={ico} />} example />
-            <TextField label={tl('phone2')} type="tel" optional value={s.phone2 ?? ''} onChange={(v) => set('phone2', v)} leading={<Phone className={ico} />} example placeholder="+382 …" />
-            <TextField label={tl('whatsapp')} type="tel" optional value={s.whatsapp ?? ''} onChange={(v) => set('whatsapp', v)} leading={<MessageCircle className={ico} />} example placeholder="+382 …" />
+            <TextField label={tl('phone2')} type="tel" optional value={s.phone2 ?? ''} onChange={(v) => set('phone2', v)} leading={<Phone className={ico} />} example placeholder="+383 …" />
+            <TextField label={tl('whatsapp')} type="tel" optional value={s.whatsapp ?? ''} onChange={(v) => set('whatsapp', v)} leading={<MessageCircle className={ico} />} example placeholder="+383 …" />
             <L10nInput className="sm:col-span-2" label={tl('hours')} value={s.hours} onChange={(v) => set('hours', v)} />
-            <TextField label={tl('instagram')} hint={tl('instagram_h')} value={s.instagram} onChange={(v) => set('instagram', v.replace(/^@+/, '').trim())} leading={<AtSign className={ico} />} placeholder="selca_doo" />
+            <TextField label={tl('instagram')} hint={tl('instagram_h')} value={s.instagram} onChange={(v) => set('instagram', v.replace(/^@+/, '').trim())} leading={<AtSign className={ico} />} placeholder="tersun" />
             <TextField label={tl('facebook')} optional value={s.facebook ?? ''} onChange={(v) => set('facebook', v)} leading={<FacebookIcon className={ico} />} placeholder="https://facebook.com/…" />
           </div>
         </Block>
@@ -338,7 +338,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
               <StateText tone="ok">{t('domainOk')}</StateText>
             </div>
           </div>
-          <p className="mt-2 text-[12.5px] text-muted">{t('redirect', { domain: s.ext.domain || 'selca.me' })}</p>
+          <p className="mt-2 text-[12.5px] text-muted">{t('redirect', { domain: s.ext.domain || 'tersun.com' })}</p>
         </Block>
 
         <Block title="SEO">
@@ -356,8 +356,8 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
                   <LogoMark className="h-3.5!" />
                 </span>
                 <span className="min-w-0 leading-tight">
-                  <span className="block truncate text-[14px] text-[#202124]">{s.companyName || 'SELCA'}</span>
-                  <span className="block truncate text-[12px] text-[#4d5156]">https://{s.ext.domain || 'selca.me'}</span>
+                  <span className="block truncate text-[14px] text-[#202124]">{s.companyName || 'TERSUN'}</span>
+                  <span className="block truncate text-[12px] text-[#4d5156]">https://{s.ext.domain || 'tersun.com'}</span>
                 </span>
               </div>
               <div className="mt-2 text-[19px] leading-[1.3] text-[#1a0dab] sm:text-[20px]">{clip(seo.title || s.companyName, 62)}</div>

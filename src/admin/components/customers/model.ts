@@ -61,7 +61,7 @@ export interface CustomerRecord {
 const NONE: Consent = { status: 'none' };
 export const emptyMarketing = (): Marketing => ({ email: NONE, sms: NONE, whatsapp: NONE, viber: NONE });
 
-/** Last 8 digits — "+382 67 123 456" and "067 123 456" are the same phone. */
+/** Last 8 digits — "+383 44 123 456" and "044 123 456" are the same phone. */
 export const phone8 = (p?: string) => {
   const d = (p ?? '').replace(/\D/g, '');
   return d.length >= 6 ? d.slice(-8) : '';
@@ -178,7 +178,7 @@ export function buildCustomers(input: { orders: Order[]; inquiries: Inquiry[]; b
       addresses: [...addr.values()],
       company,
       pib: sorted.find((o) => o.customer.pib)?.customer.pib ?? manual.find((m) => m.pib)?.pib,
-      lang: sorted[0]?.lang ?? m0?.lang ?? 'me',
+      lang: sorted[0]?.lang ?? m0?.lang ?? 'de',
       orders: sorted,
       count: sorted.length,
       valid: valid.length,
@@ -277,8 +277,8 @@ function hash(s: string) {
   return h >>> 0;
 }
 const addDays = (iso: string, d: number) => new Date(new Date(iso).getTime() + d * 86400000).toISOString();
-const SQ_FIRST = new Set(['Arben', 'Drita', 'Gjergj', 'Lindita', 'Driton', 'Ardit', 'Elira', 'Besnik', 'Albina', 'Valentina', 'Fatmir', 'Blerim', 'Arta']);
-const TAG_POOL = ['renoviranje', 'novogradnja', 'izvođač', 'arhitekta', 'preporuka', 'apartmani', 'sajam-2026'];
+const SQ_FIRST = new Set(['Arben', 'Drita', 'Gjergj', 'Lindita', 'Driton', 'Ardit', 'Elira', 'Besnik', 'Albina', 'Valentina', 'Fatmir', 'Blerim', 'Arta', 'Erion', 'Gent', 'Liridon', 'Vlora', 'Kaltrina', 'Dardan', 'Ilir']);
+const TAG_POOL = ['villa', 'new-build', 'contractor', 'architect', 'referral', 'hospitality', 'fair-2026'];
 
 export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries: Inquiry[], seededAt: string): CustomerData {
   const profiles: CustomerData['profiles'] = {};
@@ -295,7 +295,7 @@ export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries
     if (h % 7 < 3) tags.push(TAG_POOL[h % TAG_POOL.length]);
     if (h % 11 === 0) tags.push(TAG_POOL[(h >> 4) % TAG_POOL.length]);
     if (c.orders.some((o) => o.items.some((l) => l.installation))) {
-      if (h % 3 === 0) tags.push('montaža');
+      if (h % 3 === 0) tags.push('installation');
     }
     profiles[c.key] = {
       tags: [...new Set(tags)],
@@ -311,17 +311,17 @@ export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries
 
   // Staff notes on the best customers (private — staff only)
   const NOTES: [string, string][] = [
-    ['st-arta', 'Preferon të kontaktohet pas orës 16:00. Kërkon faturë me NIPT për çdo porosi.'],
-    ['st-blerim', 'Montaža završena bez primjedbi. Kupac traži ponudu i za sobna vrata (3 kom) — javiti se do kraja mjeseca.'],
-    ['st-milica', 'Zvao zbog roka isporuke za parket — dogovorena isporuka u subotu prije podne.'],
-    ['st-gent', 'Klient besnik që nga 2024. Rekomandoi dy klientë të rinj nga Tuzi — ofroji 5% në porosinë e ardhshme.'],
+    ['st-arta', 'Preferon të kontaktohet pas orës 16:00. Kërkon faturë me numër tatimor për çdo porosi.'],
+    ['st-blerim', 'Montage der Bioclimatic Freestanding (TS-BIO-100) ohne Mängel abgeschlossen. Kunde wünscht ein Angebot für zwei ZIP-Screens (TS-ZP-600) — bis Monatsende melden.'],
+    ['st-milica', 'Called about the lead time for the Glass Roof Wall (TS-GR-200) — installation agreed for Saturday morning.'],
+    ['st-gent', 'Klient besnik që nga 2024. Rekomandoi dy klientë të rinj nga Prizreni — ofroji 5% në LED Light Kit (TS-AC-701).'],
   ];
   bySpend.slice(0, 4).forEach((c, i) => {
     const [by, text] = NOTES[i];
     const at = addDays(c.last ?? seededAt, i % 2 ? 1 : 0.2);
     profiles[c.key].notes.push({ id: `cn-seed-${i}`, at: at > seededAt ? seededAt : at, by, text });
   });
-  if (bySpend[0]) profiles[bySpend[0].key].tags = [...new Set([...profiles[bySpend[0].key].tags, 'preporuka'])];
+  if (bySpend[0]) profiles[bySpend[0].key].tags = [...new Set([...profiles[bySpend[0].key].tags, 'referral'])];
 
   // Customers met through appointments (no web order yet)
   const known = new Set(base.flatMap((c) => c.phones.map(phone8)));
@@ -333,7 +333,7 @@ export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries
     seen.add(p);
     const [firstName, ...rest] = b.customerName.split(' ');
     const key = manualKey(b.email ?? '', b.phone, b.customerName);
-    manual.push({ key, firstName, lastName: rest.join(' '), email: b.email ?? '', phone: b.phone, city: b.city ?? '', address: b.address ?? '', lang: SQ_FIRST.has(firstName) ? 'sq' : 'me', source: 'appointment', createdAt: b.createdAt });
+    manual.push({ key, firstName, lastName: rest.join(' '), email: b.email ?? '', phone: b.phone, city: b.city ?? '', address: b.address ?? '', lang: SQ_FIRST.has(firstName) ? 'sq' : 'de', source: 'appointment', createdAt: b.createdAt });
     profiles[key] = {
       tags: ['showroom'],
       notes: [],
@@ -341,15 +341,15 @@ export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries
     };
   }
 
-  // A B2B lead from the contact inbox (hotel renovation) — linked to its enquiry and quote
+  // A B2B lead from the contact inbox (hotel terrace project) — linked to its enquiry and quote
   const hotel = inquiries.find((i) => i.id === 'inq_120');
   if (hotel) {
     const [firstName, ...rest] = hotel.name.split(' ');
     const key = manualKey(hotel.email ?? '', hotel.phone, hotel.name);
-    manual.push({ key, firstName, lastName: rest.join(' '), email: hotel.email ?? '', phone: hotel.phone, city: hotel.city ?? '', address: 'Jadranski put 18', company: hotel.company, lang: 'me', source: 'contact', createdAt: hotel.createdAt });
+    manual.push({ key, firstName, lastName: rest.join(' '), email: hotel.email ?? '', phone: hotel.phone, city: hotel.city ?? '', address: 'Rruga Taulantia 18', company: hotel.company, lang: 'de', source: 'contact', createdAt: hotel.createdAt });
     profiles[key] = {
-      tags: ['hotel', 'apartmani'],
-      notes: [{ id: 'cn-seed-hotel', at: addDays(hotel.createdAt, 0.3), by: 'st-arta', text: 'Hotel me 42 dhoma — renovim para sezonës 2027. Oferta Q-2026-031 u dërgua; pret miratimin e drejtorit.' }],
+      tags: ['hotel', 'hospitality'],
+      notes: [{ id: 'cn-seed-hotel', at: addDays(hotel.createdAt, 0.3), by: 'st-arta', text: 'Hotel me 42 dhoma — Bioclimatic Modular mbi tarracën e pishinës para sezonit 2027. Oferta Q-2026-031 u dërgua; pret miratimin e drejtorit.' }],
       marketing: { ...emptyMarketing(), email: { status: 'subscribed', at: hotel.createdAt, source: 'form' } },
     };
   }
@@ -361,13 +361,13 @@ export function seedCustomerData(orders: Order[], bookings: Booking[], inquiries
     const first = fold(d1.firstName);
     const last = fold(d1.lastName).replace(/[^a-z]/g, '');
     const email = `${first[0]}${last}@gmail.com`;
-    manual.push({ key: email, firstName: fold(d1.firstName).replace(/^./, (x) => x.toUpperCase()), lastName: fold(d1.lastName).replace(/^./, (x) => x.toUpperCase()), email, phone: d1.phone.replace('+382 ', '0'), city: d1.city, address: d1.address, lang: d1.lang, source: 'import', createdAt: old });
-    profiles[email] = { tags: ['stari-sajt'], notes: [], marketing: { ...emptyMarketing(), email: { status: 'subscribed', at: old, source: 'import' } } };
+    manual.push({ key: email, firstName: fold(d1.firstName).replace(/^./, (x) => x.toUpperCase()), lastName: fold(d1.lastName).replace(/^./, (x) => x.toUpperCase()), email, phone: d1.phone.replace('+383 ', '0'), city: d1.city, address: d1.address, lang: d1.lang, source: 'import', createdAt: old });
+    profiles[email] = { tags: ['old-webshop'], notes: [], marketing: { ...emptyMarketing(), email: { status: 'subscribed', at: old, source: 'import' } } };
   }
   if (d2) {
-    const email = `${fold(d2.firstName)}.${fold(d2.lastName).replace(/[^a-z]/g, '')}@t-com.me`;
+    const email = `${fold(d2.firstName)}.${fold(d2.lastName).replace(/[^a-z]/g, '')}@web.de`;
     manual.push({ key: email, firstName: d2.firstName, lastName: d2.lastName, email, phone: '', city: d2.city, address: '', lang: d2.lang, source: 'import', createdAt: old });
-    profiles[email] = { tags: ['stari-sajt'], notes: [], marketing: { ...emptyMarketing(), email: { status: 'unsubscribed', at: addDays(old, 40), source: 'import' } } };
+    profiles[email] = { tags: ['old-webshop'], notes: [], marketing: { ...emptyMarketing(), email: { status: 'unsubscribed', at: addDays(old, 40), source: 'import' } } };
   }
 
   return { profiles, manual, merges: {}, dismissed: [] };
@@ -435,16 +435,16 @@ export function parseCsv(text: string): string[][] {
 
 type ImportField = 'firstName' | 'lastName' | 'name' | 'email' | 'phone' | 'city' | 'address' | 'company' | 'lang' | 'tags' | 'emailMarketing' | 'smsMarketing' | 'whatsappMarketing' | 'viberMarketing';
 const ALIASES: Record<ImportField, string[]> = {
-  firstName: ['first_name', 'firstname', 'first name', 'given name', 'ime', 'emri'],
-  lastName: ['last_name', 'lastname', 'last name', 'surname', 'prezime', 'mbiemri'],
+  firstName: ['first_name', 'firstname', 'first name', 'given name', 'vorname', 'ime', 'emri'],
+  lastName: ['last_name', 'lastname', 'last name', 'surname', 'nachname', 'prezime', 'mbiemri'],
   name: ['name', 'full_name', 'full name', 'customer', 'kupac', 'klienti', 'ime i prezime', 'emri i plote', 'emri dhe mbiemri'],
   email: ['email', 'e-mail', 'e_mail', 'mail', 'email address'],
   phone: ['phone', 'telefon', 'telefoni', 'tel', 'mobile', 'mobilni', 'celular'],
-  city: ['city', 'grad', 'qyteti', 'town', 'mjesto'],
-  address: ['address', 'address1', 'adresa', 'street', 'rruga'],
+  city: ['city', 'stadt', 'ort', 'qyteti', 'town', 'grad'],
+  address: ['address', 'address1', 'adresse', 'adresa', 'street', 'strasse', 'rruga'],
   company: ['company', 'firma', 'kompania', 'organization'],
-  lang: ['language', 'lang', 'jezik', 'gjuha', 'locale'],
-  tags: ['tags', 'tag', 'oznake', 'etiketat', 'etiketa'],
+  lang: ['language', 'lang', 'sprache', 'gjuha', 'locale'],
+  tags: ['tags', 'tag', 'schlagworte', 'etiketat', 'etiketa'],
   emailMarketing: ['email_marketing', 'accepts_email_marketing', 'accepts_marketing', 'newsletter', 'marketing'],
   smsMarketing: ['sms_marketing', 'accepts_sms_marketing', 'sms'],
   whatsappMarketing: ['whatsapp_marketing', 'whatsapp'],
@@ -466,7 +466,7 @@ export interface ImportRow {
 }
 
 const YES = new Set(['yes', 'y', 'true', '1', 'po', 'da', 'subscribed', 'x']);
-const LANGS: Record<string, Lang> = { me: 'me', cg: 'me', mne: 'me', sr: 'me', crnogorski: 'me', montenegrin: 'me', sq: 'sq', al: 'sq', shqip: 'sq', albanski: 'sq', albanian: 'sq', en: 'en', english: 'en', engleski: 'en', anglisht: 'en' };
+const LANGS: Record<string, Lang> = { de: 'de', deutsch: 'de', german: 'de', ger: 'de', gjermanisht: 'de', sq: 'sq', al: 'sq', shqip: 'sq', albanisch: 'sq', albanian: 'sq', en: 'en', english: 'en', englisch: 'en', anglisht: 'en' };
 
 export function analyseImport(text: string, existing: CustomerRecord[], now: string): { rows: ImportRow[]; columns: ImportField[]; unknown: string[] } {
   const table = parseCsv(text);
@@ -521,7 +521,7 @@ export function analyseImport(text: string, existing: CustomerRecord[], now: str
       city: get('city'),
       address: get('address'),
       company: get('company') || undefined,
-      lang: LANGS[low(get('lang'))] ?? 'me',
+      lang: LANGS[low(get('lang'))] ?? 'de',
       source: 'import',
       createdAt: now,
     };

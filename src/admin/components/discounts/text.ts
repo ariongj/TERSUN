@@ -15,7 +15,7 @@ export function useDiscountText() {
   const products = useDb((s) => s.products);
   const collections = useDb((s) => s.collections);
   const segments = useDb((s) => s.segments);
-  const tz = useDb((s) => s.settings.timezone) || 'Europe/Podgorica';
+  const tz = useDb((s) => s.settings.timezone) || 'Europe/Belgrade';
   const zones = useDb((s) => s.settings.shippingZones);
   const discounts = useDb((s) => s.discounts);
 

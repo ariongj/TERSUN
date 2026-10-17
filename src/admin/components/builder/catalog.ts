@@ -33,7 +33,7 @@ export const SCHEMA: Record<HomeSectionType, SectionSchema> = {
 /** Catalogue order (roughly top-to-bottom of a typical homepage). */
 export const CATALOG: HomeSectionType[] = ['hero', 'trust', 'categories', 'featured', 'promo', 'process', 'services', 'projects', 'stats', 'faq', 'blog', 'instagram', 'cta'];
 
-const tr = (k: BKey) => ({ me: B.me[k], sq: B.sq[k], en: B.en[k] });
+const tr = (k: BKey) => ({ de: B.de[k], sq: B.sq[k], en: B.en[k] });
 
 /**
  * A new, valid instance of a section type. Content starts from the store's real copy for that type

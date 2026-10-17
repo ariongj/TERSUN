@@ -26,22 +26,22 @@ export interface StoreTheme {
   domain: { name: string; checkedAt?: string };
 }
 
-export const DEFAULT_THEME = (phone = '+382 67 123 456'): StoreTheme => ({
+export const DEFAULT_THEME = (phone = '+383 44 000 000'): StoreTheme => ({
   logo: 'full',
   logoSize: 44,
   font: 'classic',
   density: 'comfortable',
-  shareImage: '/images/hero/living.webp',
+  shareImage: '/images/hero/bioclimatic.webp',
   maintenance: {
     on: false,
     message: {
-      me: `Uređujemo prodavnicu — vraćamo se uskoro. Za narudžbe pozovite ${phone}.`,
+      de: `Wir überarbeiten gerade unseren Shop — wir sind bald zurück. Für Bestellungen rufen Sie uns an: ${phone}.`,
       sq: `Po e rregullojmë dyqanin — kthehemi së shpejti. Për porosi telefononi ${phone}.`,
       en: `We are updating the store — back soon. To order, call ${phone}.`,
     },
   },
   slideshow: { layout: 'full', autoplay: true, interval: 7, controls: true },
-  domain: { name: 'selcacompany.com' },
+  domain: { name: 'tersun.com' },
 });
 
 type WithTheme = Settings & { theme?: Partial<StoreTheme> };
@@ -67,8 +67,8 @@ export function themePatch(theme: StoreTheme): Partial<Settings> {
 /* ------------------------------------------------------------------ */
 /* Brand colour                                                        */
 /* ------------------------------------------------------------------ */
-export const BRAND_PRESETS: { hex: string; key: 'preset_selca' | 'preset_terracotta' | 'preset_oak' | 'preset_olive' | 'preset_petrol' | 'preset_navy' }[] = [
-  { hex: DEFAULT_BRAND, key: 'preset_selca' },
+export const BRAND_PRESETS: { hex: string; key: 'preset_tersun' | 'preset_terracotta' | 'preset_oak' | 'preset_olive' | 'preset_petrol' | 'preset_navy' }[] = [
+  { hex: DEFAULT_BRAND, key: 'preset_tersun' },
   { hex: '#b0532c', key: 'preset_terracotta' },
   { hex: '#8a6235', key: 'preset_oak' },
   { hex: '#5a6b3f', key: 'preset_olive' },

@@ -52,10 +52,10 @@ export default function Home() {
   usePageTitle(undefined);
   const enabled = useMemo(() => home.filter((s) => s.enabled), [home]);
 
-  // CMS live preview: the homepage builder posts { type: 'selca:scrollTo', id } into this iframe
+  // CMS live preview: the homepage builder posts { type: 'tersun:scrollTo', id } into this iframe
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
-      if (e.origin !== window.location.origin || e.data?.type !== 'selca:scrollTo') return;
+      if (e.origin !== window.location.origin || e.data?.type !== 'tersun:scrollTo') return;
       const el = document.querySelector<HTMLElement>(`[data-section="${e.data.id}"]`);
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });

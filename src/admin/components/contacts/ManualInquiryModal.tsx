@@ -16,36 +16,36 @@ import { KIND_ICON } from './atoms';
 import { KINDS, assignableStaff, findExisting, isoDayFromNow, type ContactKind, type InquiryX } from './model';
 
 const T = defineDict({
-  me: {
-    title: 'Ručni upit',
-    subtitle: 'Upišite upit primljen telefonom ili u salonu — dobija isti tok kao upiti sa sajta.',
-    kind: 'Vrsta',
-    source: 'Izvor',
-    src_phone: 'Telefonski poziv',
-    src_manual: 'U salonu / ručno',
-    name: 'Ime i prezime',
+  de: {
+    title: 'Manuelle Anfrage',
+    subtitle: 'Erfassen Sie eine telefonisch oder im Showroom eingegangene Anfrage — sie durchläuft denselben Ablauf wie Anfragen von der Website.',
+    kind: 'Art',
+    source: 'Quelle',
+    src_phone: 'Telefonanruf',
+    src_manual: 'Im Showroom / manuell',
+    name: 'Vor- und Nachname',
     phone: 'Telefon',
-    email: 'E-mail',
-    city: 'Grad',
+    email: 'E-Mail',
+    city: 'Stadt',
     company: 'Firma',
-    service: 'Usluga',
-    serviceAny: 'Bez usluge',
-    preferred: 'Željeni datum',
-    message: 'Poruka / opis zahtjeva',
-    messagePh: 'Npr. ponuda za 30 prozora za hotel, ugradnja prije sezone…',
-    assignee: 'Odgovorni',
-    followUp: 'Rok za praćenje',
-    noDue: 'Bez roka',
-    today: 'Danas',
-    tomorrow: 'Sjutra',
-    in3: 'Za 3 dana',
-    required: 'Obavezno polje',
-    badPhone: 'Unesite ispravan broj (najmanje 8 cifara)',
-    badEmail: 'E-mail nije ispravan',
-    dupTitle: 'Već postoji otvoren upit za ovaj kontakt',
-    dupText: '{name} · {when}. Novi upis će biti označen kao mogući duplikat.',
-    create: 'Kreiraj upit',
-    created: 'Upit je kreiran — {name}',
+    service: 'Leistung',
+    serviceAny: 'Ohne Leistung',
+    preferred: 'Wunschtermin',
+    message: 'Nachricht / Beschreibung der Anfrage',
+    messagePh: 'Z. B. Angebot für 3 bioklimatische Pergolen für ein Hotel, Montage vor der Saison…',
+    assignee: 'Verantwortlich',
+    followUp: 'Frist für Nachverfolgung',
+    noDue: 'Ohne Frist',
+    today: 'Heute',
+    tomorrow: 'Morgen',
+    in3: 'In 3 Tagen',
+    required: 'Pflichtfeld',
+    badPhone: 'Geben Sie eine gültige Nummer ein (mindestens 8 Ziffern)',
+    badEmail: 'E-Mail ist ungültig',
+    dupTitle: 'Für diesen Kontakt existiert bereits eine offene Anfrage',
+    dupText: '{name} · {when}. Der neue Eintrag wird als mögliches Duplikat markiert.',
+    create: 'Anfrage erstellen',
+    created: 'Anfrage erstellt — {name}',
   },
   sq: {
     title: 'Kërkesë manuale',
@@ -63,7 +63,7 @@ const T = defineDict({
     serviceAny: 'Pa shërbim',
     preferred: 'Data e dëshiruar',
     message: 'Mesazhi / përshkrimi i kërkesës',
-    messagePh: 'P.sh. ofertë për 30 dritare për hotel, montim para sezonit…',
+    messagePh: 'P.sh. ofertë për 3 pergola bioklimatike për hotel, montim para sezonit…',
     assignee: 'Përgjegjësi',
     followUp: 'Afati i ndjekjes',
     noDue: 'Pa afat',
@@ -94,7 +94,7 @@ const T = defineDict({
     serviceAny: 'No service',
     preferred: 'Preferred date',
     message: 'Message / request details',
-    messagePh: 'E.g. quote for 30 windows for a hotel, fitting before the season…',
+    messagePh: 'E.g. quote for 3 bioclimatic pergolas for a hotel, installed before the season…',
     assignee: 'Assignee',
     followUp: 'Follow-up due',
     noDue: 'No due date',
@@ -237,7 +237,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
 
         <div className="grid gap-x-4 gap-y-3.5 sm:grid-cols-2">
           <CInput label={t('name')} required value={form.name} onChange={set('name')} error={errors.name} autoComplete="off" autoFocus />
-          <CInput label={t('phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+382 6_ ___ ___" />
+          <CInput label={t('phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+383 4_ ___ ___" />
           <CInput label={t('email')} type="email" value={form.email} onChange={set('email')} error={errors.email} />
           <CInput label={t('city')} value={form.city} onChange={set('city')} list="manual-cities" />
           <datalist id="manual-cities">
@@ -249,7 +249,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
           <CSelect label={t('service')} value={form.service} onChange={set('service')}>
             <option value="">{t('serviceAny')}</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.name.me}>
+              <option key={c.id} value={c.name.de}>
                 {l(c.name)}
               </option>
             ))}

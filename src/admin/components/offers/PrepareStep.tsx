@@ -41,7 +41,7 @@ export function PrepareStep({ draft, set, mode, setMode, data, isNew, slugTaken 
 
   const setName = (name: OfferX['name']) => {
     const patch: Partial<OfferX> = { name };
-    if (slugAuto) patch.slug = slugify(name.me || name.sq || name.en);
+    if (slugAuto) patch.slug = slugify(name.de || name.sq || name.en);
     set(patch);
   };
 
@@ -85,7 +85,7 @@ export function PrepareStep({ draft, set, mode, setMode, data, isNew, slugTaken 
                 className="pl-[62px]"
               />
             </div>
-            {slugTaken ? <Help tone="error">{t('f_slugTaken')}</Help> : <Help>{t('f_slugHint', { url: `selca.me/oferta/${draft.slug || '…'}` })}</Help>}
+            {slugTaken ? <Help tone="error">{t('f_slugTaken')}</Help> : <Help>{t('f_slugHint', { url: `tersun.com/oferta/${draft.slug || '…'}` })}</Help>}
           </div>
           <div>
             <FieldLabel htmlFor="of-owner">{t('f_owner')}</FieldLabel>
@@ -106,7 +106,7 @@ export function PrepareStep({ draft, set, mode, setMode, data, isNew, slugTaken 
       </Card>
 
       {/* ---------------- period ---------------- */}
-      <PeriodCard draft={draft} set={set} discount={mode === 'link' ? discount : undefined} tz={data.settings.timezone || 'Europe/Podgorica'} />
+      <PeriodCard draft={draft} set={set} discount={mode === 'link' ? discount : undefined} tz={data.settings.timezone || 'Europe/Belgrade'} />
 
       {/* ---------------- products ---------------- */}
       <ProductsCard draft={draft} set={set} data={data} discount={mode === 'link' ? discount : undefined} />
@@ -339,7 +339,7 @@ function ProductsCard({ draft, set, data, discount }: { draft: OfferX; set: (p: 
   );
 }
 
-function ProductRow({ p, lang, onRemove, data }: { p: Product; lang: 'me' | 'sq' | 'en'; onRemove?: () => void; data: OfferData }) {
+function ProductRow({ p, lang, onRemove, data }: { p: Product; lang: 'de' | 'sq' | 'en'; onRemove?: () => void; data: OfferData }) {
   const t = useOT();
   const l = useL('admin');
   const st = stockLevels(p, data.committed);
@@ -371,7 +371,7 @@ function ProductPicker({ open, onClose, selected, onChange, products }: { open: 
   const [q, setQ] = useState('');
   const shown = useMemo(() => {
     const terms = fold(q.trim()).split(/\s+/).filter(Boolean);
-    return products.filter((p) => p.status !== 'archived' && (!terms.length || terms.every((term) => fold(`${p.name.me} ${p.name.sq} ${p.name.en} ${p.sku}`).includes(term))));
+    return products.filter((p) => p.status !== 'archived' && (!terms.length || terms.every((term) => fold(`${p.name.de} ${p.name.sq} ${p.name.en} ${p.sku}`).includes(term))));
   }, [products, q]);
   const toggle = (id: string) => onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
   return (
@@ -468,7 +468,7 @@ function DiscountSummary({ d, data, offerId }: { d: Discount; data: OfferData; o
 function AudienceCard({ draft, set, data, discount }: { draft: OfferX; set: (p: Partial<OfferX>) => void; data: OfferData; discount?: Discount }) {
   const t = useOT();
   const l = useL('admin');
-  const markets = draft.markets ?? ['mk-me'];
+  const markets = draft.markets ?? ['mk-xk'];
   const seg = discount?.audience.type === 'segment' ? data.segments.find((s) => s.id === discount.audience.segmentId) : undefined;
   const combos = discount ? (['products', 'order', 'shipping'] as const).filter((k) => discount.combines[k]) : [];
   const toggle = (id: string) => set({ markets: markets.includes(id) ? markets.filter((x) => x !== id) : [...markets, id] });

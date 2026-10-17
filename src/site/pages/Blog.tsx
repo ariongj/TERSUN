@@ -14,29 +14,29 @@ import { useSettings } from '@/store/hooks';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    title: 'Savjeti',
-    eyebrow: 'Savjeti i inspiracija',
-    heroTitle: 'Znanje za *ljepši dom*',
-    heroText: 'Praktični vodiči naših majstora i savjetnika — kako izabrati materijal, šta očekivati od ugradnje i kako izbjeći skupe greške.',
-    topics: 'Teme',
-    all: 'Sve',
-    more: 'Još savjeta',
-    emptyTitle: 'Još nema objavljenih savjeta',
-    emptyText: 'Uskoro objavljujemo nove vodiče. U međuvremenu, pitajte nas direktno — rado ćemo pomoći.',
-    emptyTagTitle: 'Nema članaka za ovu temu',
-    emptyTagText: 'Pogledajte sve savjete ili izaberite drugu temu.',
-    showAll: 'Prikaži sve savjete',
-    contact: 'Kontaktirajte nas',
-    ask_eyebrow: 'Pitajte stručnjaka',
-    ask_title: 'Imate pitanje o *vašem projektu*?',
-    ask_text: 'Naši savjetnici odgovaraju istog dana — telefonom, porukom ili na besplatnom mjerenju kod vas.',
-    ask_button: 'Pošaljite pitanje',
+  de: {
+    title: 'Ratgeber',
+    eyebrow: 'Ratgeber & Inspiration',
+    heroTitle: 'Wissen für *Ihre Terrasse*',
+    heroText: 'Praktische Leitfäden unserer Monteure und Berater — wie Sie das richtige Material wählen, was Sie bei der Montage erwartet und wie Sie teure Fehler vermeiden.',
+    topics: 'Themen',
+    all: 'Alle',
+    more: 'Weitere Ratgeber',
+    emptyTitle: 'Noch keine Beiträge veröffentlicht',
+    emptyText: 'Neue Leitfäden folgen in Kürze. Fragen Sie uns in der Zwischenzeit gern direkt — wir helfen Ihnen gerne weiter.',
+    emptyTagTitle: 'Keine Beiträge zu diesem Thema',
+    emptyTagText: 'Sehen Sie sich alle Beiträge an oder wählen Sie ein anderes Thema.',
+    showAll: 'Alle Beiträge anzeigen',
+    contact: 'Kontaktieren Sie uns',
+    ask_eyebrow: 'Fragen Sie einen Experten',
+    ask_title: 'Haben Sie eine Frage zu *Ihrem Projekt*?',
+    ask_text: 'Unsere Berater antworten noch am selben Tag — telefonisch, per Nachricht oder bei der kostenlosen Beratung vor Ort.',
+    ask_button: 'Frage senden',
   },
   sq: {
     title: 'Këshilla',
     eyebrow: 'Këshilla dhe frymëzim',
-    heroTitle: 'Dije për një *shtëpi më të bukur*',
+    heroTitle: 'Dije për *tarracën tuaj*',
     heroText: 'Udhëzues praktikë nga mjeshtrit dhe këshilltarët tanë — si të zgjidhni materialin, çfarë të prisni nga montimi dhe si të shmangni gabimet e kushtueshme.',
     topics: 'Temat',
     all: 'Të gjitha',
@@ -49,13 +49,13 @@ const T = defineDict({
     contact: 'Na kontaktoni',
     ask_eyebrow: 'Pyesni ekspertin',
     ask_title: 'Keni pyetje për *projektin tuaj*?',
-    ask_text: 'Këshilltarët tanë përgjigjen të njëjtën ditë — në telefon, me mesazh ose gjatë matjes falas te ju.',
+    ask_text: 'Këshilltarët tanë përgjigjen të njëjtën ditë — në telefon, me mesazh ose gjatë konsultës falas te ju.',
     ask_button: 'Dërgoni pyetjen',
   },
   en: {
     title: 'Advice',
     eyebrow: 'Advice & inspiration',
-    heroTitle: 'Know-how for a *lovelier home*',
+    heroTitle: 'Know-how for *outdoor living*',
     heroText: 'Practical guides from our fitters and advisors — how to choose materials, what to expect from installation and how to avoid costly mistakes.',
     topics: 'Topics',
     all: 'All',
@@ -68,7 +68,7 @@ const T = defineDict({
     contact: 'Contact us',
     ask_eyebrow: 'Ask an expert',
     ask_title: 'Got a question about *your project*?',
-    ask_text: 'Our advisors reply the same day — by phone, message or during a free measurement at your place.',
+    ask_text: 'Our advisors reply the same day — by phone, message or during a free on-site consultation at your place.',
     ask_button: 'Send a question',
   },
 });
@@ -132,7 +132,7 @@ function AskTile() {
         <p className="mt-3 text-[15px] leading-relaxed text-paper/65">{t('ask_text')}</p>
       </div>
       <div className="relative mt-auto flex flex-col gap-2 pt-8">
-        <ButtonLink to="/kontakt" variant="light" iconRight={<ArrowUpRight className="h-4 w-4" />}>
+        <ButtonLink to="/contact" variant="light" iconRight={<ArrowUpRight className="h-4 w-4" />}>
           {t('ask_button')}
         </ButtonLink>
         <a href={telHref(settings.phone)} className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -203,7 +203,7 @@ export default function Blog() {
                 title={t('emptyTitle')}
                 text={t('emptyText')}
                 action={
-                  <ButtonLink to="/kontakt" variant="dark">
+                  <ButtonLink to="/contact" variant="dark">
                     {t('contact')}
                   </ButtonLink>
                 }

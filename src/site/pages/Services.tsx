@@ -16,99 +16,99 @@ import { useCategories, useSettings } from '@/store/hooks';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    heroFact1: 'Sopstveni montažni timovi',
-    heroFact2: '2 godine garancije na radove',
-    heroFact3: 'Dolazimo u sve opštine',
-    index: 'Pregled usluga',
-    included: 'Šta je uključeno',
-    bookVisit: 'Zakaži termin',
-    fromRange: 'Iz asortimana',
-    faqHelp: 'Imate pitanje koje nije na listi? Pozovite nas — savjet je uvijek besplatan.',
-    bookEyebrow: 'Besplatno mjerenje',
-    bookTitle: 'Zakažite *mjerenje* — dolazimo za 48 sati',
-    bookText: 'Ostavite kontakt i opišite šta planirate. Javljamo se istog dana da dogovorimo termin koji vam odgovara.',
-    book1: 'Potpuno besplatno i bez obaveze',
-    book2: 'Tehničar dolazi sa uzorcima materijala',
-    book3: 'Precizna ponuda u roku od 48 sati',
-    preferPhone: 'Radije telefonom?',
+  de: {
+    heroFact1: 'Eigene Montageteams',
+    heroFact2: '2 Jahre Gewährleistung auf die Arbeiten',
+    heroFact3: 'Montage in Europa und den USA',
+    index: 'Leistungen im Überblick',
+    included: 'Was enthalten ist',
+    bookVisit: 'Termin vereinbaren',
+    fromRange: 'Aus unserem Sortiment',
+    faqHelp: 'Ihre Frage ist nicht dabei? Rufen Sie uns an — die Beratung ist immer kostenlos.',
+    bookEyebrow: 'Kostenlose Beratung vor Ort',
+    bookTitle: 'Vereinbaren Sie eine *Beratung* — wir sind in 48 Stunden bei Ihnen',
+    bookText: 'Hinterlassen Sie Ihre Kontaktdaten und beschreiben Sie Ihr Vorhaben. Wir melden uns noch am selben Tag, um einen passenden Termin zu vereinbaren.',
+    book1: 'Völlig kostenlos und unverbindlich',
+    book2: 'Ein Berater bringt Profil-, Glas- und Tuchmuster mit',
+    book3: 'Präzises Angebot innerhalb von 48 Stunden',
+    preferPhone: 'Lieber telefonisch?',
   },
   sq: {
     heroFact1: 'Ekipe tona montimi',
     heroFact2: '2 vjet garanci për punimet',
-    heroFact3: 'Vijmë në të gjitha komunat',
+    heroFact3: 'Montim në Evropë dhe SHBA',
     index: 'Pasqyra e shërbimeve',
     included: 'Çfarë përfshihet',
     bookVisit: 'Cakto terminin',
     fromRange: 'Nga asortimenti',
     faqHelp: 'Keni një pyetje që nuk është në listë? Na telefononi — këshilla është gjithmonë falas.',
-    bookEyebrow: 'Matje falas',
-    bookTitle: 'Caktoni *matjen* — vijmë brenda 48 orëve',
+    bookEyebrow: 'Konsultë falas në vend',
+    bookTitle: 'Caktoni *konsultën* — vijmë brenda 48 orëve',
     bookText: 'Lini kontaktin dhe përshkruani çfarë planifikoni. Ju kontaktojmë të njëjtën ditë për të caktuar një termin që ju përshtatet.',
     book1: 'Plotësisht falas dhe pa detyrim',
-    book2: 'Tekniku vjen me mostra materialesh',
+    book2: 'Këshilltari vjen me mostra profilesh, xhami dhe shtofi',
     book3: 'Ofertë e saktë brenda 48 orëve',
     preferPhone: 'Preferoni telefonin?',
   },
   en: {
-    heroFact1: 'Our own fitting crews',
+    heroFact1: 'Our own installation crews',
     heroFact2: '2-year warranty on workmanship',
-    heroFact3: 'We cover every municipality',
+    heroFact3: 'Installation across Europe and the USA',
     index: 'Services at a glance',
     included: 'What’s included',
     bookVisit: 'Book a visit',
     fromRange: 'From our range',
     faqHelp: 'Got a question that isn’t listed? Give us a call — advice is always free.',
-    bookEyebrow: 'Free measurement',
-    bookTitle: 'Book a *measurement* — we’ll be there in 48 hours',
+    bookEyebrow: 'Free on-site consultation',
+    bookTitle: 'Book a *consultation* — we’ll be there in 48 hours',
     bookText: 'Leave your details and tell us what you’re planning. We’ll call you the same day to arrange a time that suits you.',
     book1: 'Completely free, no obligation',
-    book2: 'A technician brings material samples',
+    book2: 'An advisor brings profile, glass and fabric samples',
     book3: 'A precise quote within 48 hours',
     preferPhone: 'Prefer to call?',
   },
 });
 
-type Tri = { me: string; sq: string; en: string };
-const tri = (me: string, sq: string, en: string): Tri => ({ me, sq, en });
+type Tri = { de: string; sq: string; en: string };
+const tri = (de: string, sq: string, en: string): Tri => ({ de, sq, en });
 
 /** What's included in each service — matched to the CMS service list by position. */
 const INCLUDED: Tri[][] = [
   [
-    tri('Dolazak na adresu u roku od 48h', 'Ardhje në adresë brenda 48 orëve', 'On site within 48 hours'),
-    tri('Lasersko mjerenje otvora i površina', 'Matje me lazer e hapjeve dhe sipërfaqeve', 'Laser measuring of openings and surfaces'),
-    tri('Savjet o materijalima i bojama', 'Këshillë për materialet dhe ngjyrat', 'Advice on materials and colours'),
-    tri('Precizna ponuda bez obaveze kupovine', 'Ofertë e saktë pa detyrim blerjeje', 'A precise quote, no obligation'),
+    tri('Vor Ort innerhalb von 48 Stunden', 'Në adresë brenda 48 orëve', 'On site within 48 hours'),
+    tri('Lasermessung von Terrasse, Fassade und Anschlüssen', 'Matje me lazer e tarracës, fasadës dhe lidhjeve', 'Laser survey of terrace, façade and connections'),
+    tri('Beratung zu Systemen, RAL-Farben und Tüchern', 'Këshillë për sistemet, ngjyrat RAL dhe shtofat', 'Advice on systems, RAL colours and fabrics'),
+    tri('Präzises Angebot ohne Kaufverpflichtung', 'Ofertë e saktë pa detyrim blerjeje', 'A precise quote, no obligation'),
   ],
   [
-    tri('Demontaža i odvoz stare stolarije', 'Çmontimi dhe largimi i dogramës së vjetër', 'Removal and disposal of old frames'),
-    tri('RAL montaža sa paronepropusnim trakama', 'Montim RAL me shirita kundër avullit', 'RAL fitting with vapour-tight tapes'),
-    tri('Podešavanje okova i zaptivki', 'Rregullimi i mekanizmave dhe guarnicioneve', 'Hardware and seal adjustment'),
-    tri('Obrada špaleta i završno čišćenje', 'Rifinimi rreth kornizës dhe pastrimi', 'Reveal finishing and clean-up'),
+    tri('3D-Visualisierung Ihrer Terrasse', 'Vizualizim 3D i tarracës suaj', '3D visualisation of your terrace'),
+    tri('Statik für Wind- und Schneelast', 'Llogaritje statike për erë dhe borë', 'Structural check for wind and snow load'),
+    tri('Lamellen, Glas und Seitenelemente kombinieren', 'Kombinim i lamelave, xhamit dhe elementeve anësore', 'Combine louvres, glass and side elements'),
+    tri('Unterstützung bei Genehmigungen', 'Ndihmë me lejet', 'Help with permits'),
   ],
   [
-    tri('Provjera i niveliranje podloge', 'Kontrolli dhe nivelimi i bazës', 'Subfloor check and levelling'),
-    tri('Podložna folija i parna brana', 'Shtresa izoluese dhe barriera e avullit', 'Underlay and vapour barrier'),
-    tri('Postavljanje laminata, parketa ili vinila', 'Shtrimi i laminatit, parketit ose vinilit', 'Laying laminate, parquet or vinyl'),
-    tri('Lajsne, prelazne letvice i čišćenje', 'Listela, profile kalimi dhe pastrim', 'Skirting, transition strips and clean-up'),
+    tri('Fertigung nach Maß aus pulverbeschichtetem Aluminium', 'Prodhim me masë nga alumin i lyer me pluhur', 'Made to measure in powder-coated aluminium'),
+    tri('Gehärtetes Sicherheitsglas', 'Xham sigurie i kalitur', 'Toughened safety glass'),
+    tri('Deutsche Motoren und Tücher', 'Motorë dhe shtofa gjermane', 'German motors and fabrics'),
+    tri('Qualitätskontrolle vor der Auslieferung', 'Kontroll cilësie para dërgesës', 'Quality check before dispatch'),
   ],
   [
-    tri('Rušenje i odvoz šuta', 'Prishja dhe largimi i mbeturinave', 'Strip-out and rubble removal'),
-    tri('Nove vodovodne i električne instalacije', 'Instalime të reja hidraulike dhe elektrike', 'New plumbing and electrics'),
-    tri('Hidroizolacija i postavljanje keramike', 'Hidroizolim dhe shtrimi i pllakave', 'Waterproofing and tiling'),
-    tri('Montaža sanitarija, tuš kabine i namještaja', 'Montimi i sanitarive, dushit dhe mobiljeve', 'Sanitaryware, shower and furniture fitting'),
+    tri('Eigene, zertifizierte Montageteams', 'Ekipe tona të certifikuara montimi', 'Our own certified installation crews'),
+    tri('Fundamente, Verankerung und Entwässerung', 'Themele, ankorim dhe kullim', 'Foundations, anchoring and drainage'),
+    tri('Elektroanschluss und Inbetriebnahme', 'Lidhja elektrike dhe vënia në punë', 'Electrical connection and commissioning'),
+    tri('Montage in ein bis drei Tagen', 'Montim për një deri në tre ditë', 'Installed in one to three days'),
   ],
   [
-    tri('3D projekat i izbor materijala', 'Projekt 3D dhe zgjedhja e materialeve', '3D design and material selection'),
-    tri('Izrada u našoj radionici', 'Prodhim në punishten tonë', 'Built in our own workshop'),
-    tri('Ugradnja aparata, sudopere i rasvjete', 'Montimi i pajisjeve, lavamanit dhe ndriçimit', 'Appliances, sink and lighting fitted'),
-    tri('Montaža za jedan do dva dana', 'Montim për një deri në dy ditë', 'Installed in one to two days'),
+    tri('LED-Beleuchtung und Infrarot-Heizstrahler', 'Ndriçim LED dhe ngrohës infra të kuqe', 'LED lighting and infrared heaters'),
+    tri('Wind- und Regensensor', 'Sensor ere dhe shiu', 'Wind and rain sensor'),
+    tri('Steuerung per Fernbedienung oder App', 'Kontroll me telekomandë ose aplikacion', 'Control by remote or app'),
+    tri('Einbindung ins Smart Home', 'Integrim në Smart Home', 'Smart-home integration'),
   ],
   [
-    tri('Spušteni plafoni sa LED rasvjetom', 'Tavane të varura me ndriçim LED', 'Suspended ceilings with LED lighting'),
-    tri('Pregradni zidovi i obloge', 'Mure ndarëse dhe veshje', 'Partition walls and linings'),
-    tri('Gletovanje i krečenje', 'Stukim dhe lyerje', 'Skimming and painting'),
-    tri('Zaštita namještaja i čišćenje', 'Mbrojtja e mobiljeve dhe pastrimi', 'Furniture protection and clean-up'),
+    tri('Jährliche Wartung und Reinigung', 'Mirëmbajtje dhe pastrim vjetor', 'Annual maintenance and cleaning'),
+    tri('Prüfung von Motoren, Dichtungen und Lamellen', 'Kontroll i motorëve, guarnicioneve dhe lamelave', 'Check of motors, seals and louvres'),
+    tri('Ersatzteile und Tuchwechsel', 'Pjesë rezervë dhe ndërrim shtofi', 'Spare parts and fabric replacement'),
+    tri('Bis zu 5 Jahre Garantie', 'Deri në 5 vite garanci', 'Up to 5-year warranty'),
   ],
 ];
 
@@ -119,7 +119,7 @@ const HERO_FACTS = [
 ] as const;
 
 /** Related shop categories per service (by slug, also by position). */
-const RELATED: string[][] = [[], ['vrata', 'prozori'], ['podovi'], ['kupatilo', 'keramika'], ['kuhinje'], []];
+const RELATED: string[][] = [[], ['bioclimatic', 'glass-roof'], ['guillotine', 'slide'], ['awning', 'zip-screen'], ['accessories'], []];
 
 export default function Services() {
   const ts = useDict(site);
@@ -143,14 +143,14 @@ export default function Services() {
   return (
     <>
       <PageHero
-        image="/images/s/ugradnja.webp"
+        image="/images/hero/guillotine.webp"
         crumbs={[{ label: ts('nav_services') }]}
         eyebrow={services ? l(services.eyebrow) : ts('nav_services')}
         title={services ? l(services.title) : ts('nav_services')}
         subtitle={services ? l(services.subtitle) : undefined}
       >
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Button size="lg" onClick={() => scrollToId('mjerenje')} iconRight={<ArrowRight className="h-4 w-4" />}>
+          <Button size="lg" onClick={() => scrollToId('consultation')} iconRight={<ArrowRight className="h-4 w-4" />}>
             {tc('bookFree')}
           </Button>
           <a href={telHref(settings.phone)} className="inline-flex h-13 items-center gap-2.5 rounded-full border border-white/40 px-6 text-[15px] font-semibold text-white backdrop-blur-sm transition hover:bg-white/10">
@@ -230,14 +230,14 @@ export default function Services() {
                     </div>
                   )}
                   <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <Button variant="dark" onClick={() => scrollToId('mjerenje')} iconRight={<CalendarCheck className="h-4 w-4" />}>
+                    <Button variant="dark" onClick={() => scrollToId('consultation')} iconRight={<CalendarCheck className="h-4 w-4" />}>
                       {t('bookVisit')}
                     </Button>
                     {rel.length > 0 && <span className="ml-1 text-[12px] font-semibold uppercase tracking-[0.16em] text-muted">{t('fromRange')}</span>}
                     {rel.map((c) => (
                       <Link
                         key={c.id}
-                        to={`/proizvodi/${c.slug}`}
+                        to={`/shop/${c.slug}`}
                         className="group inline-flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-1 pr-3.5 text-[13.5px] font-semibold text-ink transition hover:border-ink/30"
                       >
                         <Img src={c.image} small alt="" className="h-8 w-8 rounded-full object-cover" />
@@ -257,7 +257,7 @@ export default function Services() {
         <ProcessSteps
           data={process}
           action={
-            <Button variant="outline" onClick={() => scrollToId('mjerenje')} iconRight={<ArrowRight className="h-4 w-4" />}>
+            <Button variant="outline" onClick={() => scrollToId('consultation')} iconRight={<ArrowRight className="h-4 w-4" />}>
               {tc('bookFree')}
             </Button>
           }
@@ -285,12 +285,12 @@ export default function Services() {
       )}
 
       {/* Booking */}
-      <section id="mjerenje" className="scroll-mt-24 pb-8">
+      <section id="consultation" className="scroll-mt-24 pb-8">
         <div className="container-x">
           <Reveal>
             <div className="grid gap-4 rounded-[36px] bg-sand/80 p-3 sm:p-4 lg:grid-cols-[0.9fr_1.1fr]">
               <div className="relative isolate flex min-h-[440px] flex-col justify-end overflow-hidden rounded-[28px] bg-ink p-7 sm:p-10">
-                <Img src="/images/s/mjerenje.webp" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                <Img src="/images/misc/builder-day.webp" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
                 <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/10" />
                 <div className="eyebrow text-brand-200">{t('bookEyebrow')}</div>
                 <h2 className="display mt-3 text-[34px] leading-[1.04] text-white sm:text-[46px]">

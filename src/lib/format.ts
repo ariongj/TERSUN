@@ -1,10 +1,10 @@
 import type { Lang, Unit } from './types';
 
-const LOCALE: Record<Lang, string> = { me: 'de-DE', sq: 'de-DE', en: 'en-IE' };
-const DATE_LOCALE: Record<Lang, string> = { me: 'sr-Latn-ME', sq: 'sq-AL', en: 'en-GB' };
+const LOCALE: Record<Lang, string> = { de: 'de-DE', sq: 'de-DE', en: 'en-IE' };
+const DATE_LOCALE: Record<Lang, string> = { de: 'de-DE', sq: 'sq-AL', en: 'en-GB' };
 
-/** 1.249,00 € (ME/SQ) — €1,249.00 (EN) */
-export function money(value: number, lang: Lang = 'me', opts: { decimals?: boolean } = {}) {
+/** 1.249,00 € (DE/SQ) — €1,249.00 (EN) */
+export function money(value: number, lang: Lang = 'de', opts: { decimals?: boolean } = {}) {
   const decimals = opts.decimals ?? true;
   return new Intl.NumberFormat(LOCALE[lang], {
     style: 'currency',
@@ -15,7 +15,7 @@ export function money(value: number, lang: Lang = 'me', opts: { decimals?: boole
 }
 
 /** Compact money for charts/KPIs: 12,4k € */
-export function moneyCompact(value: number, lang: Lang = 'me') {
+export function moneyCompact(value: number, lang: Lang = 'de') {
   if (Math.abs(value) < 10000) return money(value, lang, { decimals: false });
   return new Intl.NumberFormat(LOCALE[lang], {
     style: 'currency',
@@ -25,11 +25,11 @@ export function moneyCompact(value: number, lang: Lang = 'me') {
   }).format(value);
 }
 
-export function num(value: number, lang: Lang = 'me', maxDecimals = 2) {
+export function num(value: number, lang: Lang = 'de', maxDecimals = 2) {
   return new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: maxDecimals }).format(value);
 }
 
-export function date(iso: string | Date, lang: Lang = 'me', opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }) {
+export function date(iso: string | Date, lang: Lang = 'de', opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }) {
   const d = typeof iso === 'string' ? new Date(iso) : iso;
   try {
     return new Intl.DateTimeFormat(DATE_LOCALE[lang], opts).format(d);
@@ -38,17 +38,17 @@ export function date(iso: string | Date, lang: Lang = 'me', opts: Intl.DateTimeF
   }
 }
 
-export function dateTime(iso: string, lang: Lang = 'me') {
+export function dateTime(iso: string, lang: Lang = 'de') {
   return date(iso, lang, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 const REL: Record<Lang, { now: string; min: string; h: string; d: string; ago: (s: string) => string }> = {
-  me: { now: 'upravo sada', min: 'min', h: 'h', d: 'd', ago: (s) => `prije ${s}` },
+  de: { now: 'gerade eben', min: 'Min.', h: 'Std.', d: 'Tg.', ago: (s) => `vor ${s}` },
   sq: { now: 'tani', min: 'min', h: 'orë', d: 'ditë', ago: (s) => `para ${s}` },
   en: { now: 'just now', min: 'min', h: 'h', d: 'd', ago: (s) => `${s} ago` },
 };
 
-export function timeAgo(iso: string, lang: Lang = 'me') {
+export function timeAgo(iso: string, lang: Lang = 'de') {
   const r = REL[lang];
   const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return r.now;
@@ -59,16 +59,16 @@ export function timeAgo(iso: string, lang: Lang = 'me') {
 }
 
 const UNIT_LABEL: Record<Lang, Record<Unit, string>> = {
-  me: { kom: 'kom', m2: 'm²', m: 'm', set: 'set' },
+  de: { kom: 'Stk.', m2: 'm²', m: 'm', set: 'Set' },
   sq: { kom: 'copë', m2: 'm²', m: 'm', set: 'set' },
   en: { kom: 'pc', m2: 'm²', m: 'm', set: 'set' },
 };
 
-export function unitLabel(unit: Unit, lang: Lang = 'me') {
+export function unitLabel(unit: Unit, lang: Lang = 'de') {
   return UNIT_LABEL[lang][unit];
 }
 
 /** "/ m²" style suffix for prices */
-export function perUnit(unit: Unit, lang: Lang = 'me') {
+export function perUnit(unit: Unit, lang: Lang = 'de') {
   return `/ ${unitLabel(unit, lang)}`;
 }

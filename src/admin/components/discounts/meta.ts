@@ -11,7 +11,7 @@ export const isKind = (v: string | null | undefined): v is DiscountKind => !!v &
 export const STATES: DiscountState[] = ['active', 'scheduled', 'draft', 'paused', 'expired'];
 
 /** Same locales the shared date() helper uses. */
-export const DATE_LOCALE: Record<Lang, string> = { me: 'sr-Latn-ME', sq: 'sq-AL', en: 'en-GB' };
+export const DATE_LOCALE: Record<Lang, string> = { de: 'de-DE', sq: 'sq-AL', en: 'en-GB' };
 
 /** A fresh rule with the defaults the PDF form suggests per type. Starts now, status draft. */
 export function newDiscount(kind: DiscountKind, now = new Date()): Discount {
@@ -20,7 +20,7 @@ export function newDiscount(kind: DiscountKind, now = new Date()): Discount {
   const base: Discount = {
     id: `d-${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-3)}`,
     title: '',
-    publicTitle: { me: '', sq: '', en: '' },
+    publicTitle: { de: '', sq: '', en: '' },
     kind,
     method: kind === 'order' ? 'code' : 'auto',
     code: '',
@@ -51,10 +51,10 @@ export function newDiscount(kind: DiscountKind, now = new Date()): Discount {
   return base;
 }
 
-const WORDS = ['SELCA', 'DOM', 'JESEN', 'PODOVI', 'VRATA', 'DOBRODOSLI', 'STAN', 'KUPATILO', 'MONTAZA', 'ZIMA'];
+const WORDS = ['TERSUN', 'SUMMER', 'WINTER', 'PERGOLA', 'LED', 'TERRACE', 'WELCOME', 'GLASS', 'ZIP', 'OUTDOOR'];
 const ALNUM = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-/** A memorable, unique code — WORD + value (SELCA15) when free, otherwise WORD-XXXX. */
+/** A memorable, unique code — WORD + value (TERSUN15) when free, otherwise WORD-XXXX. */
 export function generateCode(d: Pick<Discount, 'id' | 'valueType' | 'value' | 'kind'>, all: Discount[], current?: string) {
   const v = d.kind === 'shipping' || d.kind === 'bxgy' ? '' : String(Math.round(d.value || 0) || '');
   const words = [...WORDS].sort(() => Math.random() - 0.5);
@@ -65,10 +65,10 @@ export function generateCode(d: Pick<Discount, 'id' | 'valueType' | 'value' | 'k
   for (let i = 0; i < 50; i++) {
     let s = '';
     for (let k = 0; k < 5; k++) s += ALNUM[Math.floor(Math.random() * ALNUM.length)];
-    const c = `SELCA-${s}`;
+    const c = `TERSUN-${s}`;
     if (!isDuplicateCode(c, all, d.id)) return c;
   }
-  return `SELCA-${Date.now().toString(36).toUpperCase()}`;
+  return `TERSUN-${Date.now().toString(36).toUpperCase()}`;
 }
 
 export const CODE_RE = /^[A-Z0-9_-]{3,32}$/;
@@ -121,7 +121,7 @@ export function zonedToIso(local: string, tz: string): string | undefined {
   return new Date(t).toISOString();
 }
 
-/** "Europe/Podgorica (UTC+2)" */
+/** "Europe/Berlin (UTC+2)" */
 export function tzLabel(tz: string, at = new Date()) {
   const mins = Math.round(tzOffset(tz, at) / 60000);
   const sign = mins >= 0 ? '+' : '−';

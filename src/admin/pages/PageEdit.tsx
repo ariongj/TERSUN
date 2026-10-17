@@ -24,21 +24,21 @@ import { date, timeAgo } from '@/lib/format';
 import { slugify, uid } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    newPage: 'Nova stranica',
-    newPageText: 'Informativna stranica — dostava, uslovi, reklamacije, privatnost…',
-    title: 'Naslov stranice',
-    titlePh: 'npr. Dostava i ugradnja',
-    body: 'Sadržaj stranice',
-    saved: 'Stranica je sačuvana',
-    created: 'Stranica je kreirana',
-    deleteTitle: 'Obrisati stranicu „{name}“?',
-    deleteText: 'Stranica i svi njeni prevodi biće trajno uklonjeni, a linkovi u menijima prestaju da se prikazuju.',
-    fieldTitle: 'Naslov',
-    fieldBody: 'Tekst',
-    fieldExcerpt: 'Sažetak',
-    created_at: 'Ažurirano',
-    menuFooterAdd: 'Dodaj u podnožje',
+  de: {
+    newPage: 'Neue Seite',
+    newPageText: 'Informationsseite — Lieferung, AGB, Reklamationen, Datenschutz…',
+    title: 'Seitentitel',
+    titlePh: 'z. B. Lieferung & Montage',
+    body: 'Seiteninhalt',
+    saved: 'Seite gespeichert',
+    created: 'Seite erstellt',
+    deleteTitle: 'Seite „{name}“ löschen?',
+    deleteText: 'Die Seite und alle ihre Übersetzungen werden endgültig entfernt, und Menülinks darauf werden nicht mehr angezeigt.',
+    fieldTitle: 'Titel',
+    fieldBody: 'Text',
+    fieldExcerpt: 'Auszug',
+    created_at: 'Aktualisiert',
+    menuFooterAdd: 'Zur Fußzeile hinzufügen',
   },
   sq: {
     newPage: 'Faqe e re',
@@ -129,24 +129,24 @@ function PageEditor({ id }: { id: string }) {
 
   const slugTaken = useMemo(() => !!draft.slug && pages.some((p) => p.id !== draft.id && p.slug === draft.slug), [pages, draft.slug, draft.id]);
   const errors = {
-    title: !draft.title.me.trim() ? te('titleRequired') : undefined,
+    title: !draft.title.de.trim() ? te('titleRequired') : undefined,
     slug: !draft.slug.trim() ? te('slugRequired') : slugTaken ? te('slugTaken') : undefined,
   };
 
   const authors = useMemo(
-    () => Array.from(new Set(['SELCA tim', ...staff.filter((s) => s.active).map((s) => s.name), ...posts.map((p) => p.author), ...pages.map((p) => p.author ?? '')].filter(Boolean))),
+    () => Array.from(new Set(['TERSUN Studio', ...staff.filter((s) => s.active).map((s) => s.name), ...posts.map((p) => p.author), ...pages.map((p) => p.author ?? '')].filter(Boolean))),
     [staff, posts, pages],
   );
   const tagSuggestions = useMemo(() => Array.from(new Set(pages.flatMap((p) => p.tags ?? []))), [pages]);
   const refs = useMemo(() => (isNew ? [] : menuRefs(menus, 'page', [draft.id, source?.slug ?? draft.slug])), [isNew, menus, draft.id, draft.slug, source?.slug]);
   const footer = menus.find((m) => m.handle === 'footer');
 
-  const setTitle = (title: PageX['title']) => patch(slugAuto ? { title, slug: slugify(title.me) } : { title });
+  const setTitle = (title: PageX['title']) => patch(slugAuto ? { title, slug: slugify(title.de) } : { title });
 
   const save = () => {
     if (readOnly || (!dirty && !isNew)) return;
     const clean: PageX = { ...draft, slug: slugify(draft.slug), publishedAt: draft.publishedAt ?? new Date().toISOString() };
-    if (!clean.title.me.trim() || !clean.slug || slugTaken) {
+    if (!clean.title.de.trim() || !clean.slug || slugTaken) {
       setShowErrors(true);
       toast.error(te('fixErrors'));
       return;
@@ -196,7 +196,7 @@ function PageEditor({ id }: { id: string }) {
     );
   }
 
-  const url = `/stranica/${draft.slug || '…'}`;
+  const url = `/page/${draft.slug || '…'}`;
   const vis = visibilityOf(draft);
   const state = contentState(draft, draft.publishedAt);
   const excerpt = draft.excerpt ?? emptyL10n();
@@ -260,7 +260,7 @@ function PageEditor({ id }: { id: string }) {
               onChange={(body) => patch({ body })}
               rows={16}
               previewHeader={(lng) => {
-                const title = draft.title[lng]?.trim() || draft.title.me;
+                const title = draft.title[lng]?.trim() || draft.title.de;
                 return title ? <h1 className="display mb-2 text-[2rem] leading-tight text-ink sm:text-[2.4rem]">{title}</h1> : null;
               }}
             />
@@ -271,12 +271,12 @@ function PageEditor({ id }: { id: string }) {
             onChange={(seo) => patch({ seo })}
             fallbackTitle={l(draft.title) || t('newPage')}
             fallbackDescription={l(excerpt) || mdSummary(l(draft.body))}
-            domain={adminEmail.split('@')[1] || 'selca.me'}
+            domain={adminEmail.split('@')[1] || 'tersun.com'}
             path={['stranica', draft.slug]}
             readOnly={readOnly}
             slugField={
               <SlugField
-                prefix="/stranica/"
+                prefix="/page/"
                 value={draft.slug}
                 onChange={(slug) => {
                   setSlugAuto(false);
@@ -284,10 +284,10 @@ function PageEditor({ id }: { id: string }) {
                 }}
                 onBlur={() => patch({ slug: slugify(draft.slug) })}
                 auto={slugAuto}
-                canRegenerate={!readOnly && !!draft.title.me.trim() && draft.slug !== slugify(draft.title.me)}
+                canRegenerate={!readOnly && !!draft.title.de.trim() && draft.slug !== slugify(draft.title.de)}
                 onRegenerate={() => {
                   setSlugAuto(true);
-                  patch({ slug: slugify(draft.title.me) });
+                  patch({ slug: slugify(draft.title.de) });
                 }}
                 error={slugTaken || showErrors ? errors.slug : undefined}
               />

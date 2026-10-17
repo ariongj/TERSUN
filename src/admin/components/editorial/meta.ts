@@ -56,7 +56,7 @@ export function contentState(r: Visible, date?: string, now = Date.now()): Conte
 /** Listed publicly right now (menus, footer, lists). */
 export const isLive = (r: Visible, date?: string, now?: number) => contentState(r, date, now) === 'published';
 
-export const emptySeo = (): SeoMeta => ({ title: { me: '', sq: '', en: '' }, description: { me: '', sq: '', en: '' } });
+export const emptySeo = (): SeoMeta => ({ title: { de: '', sq: '', en: '' }, description: { de: '', sq: '', en: '' } });
 
 /** "2026-10-05T09:30" for <input type="datetime-local"> in local time. */
 export function toLocalInput(iso?: string) {

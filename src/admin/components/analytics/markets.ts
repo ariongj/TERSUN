@@ -19,22 +19,25 @@ export interface MarketX extends Market {
   catalog?: CatalogMode;
 }
 
-export const CURRENCIES = ['EUR', 'ALL', 'RSD', 'BAM', 'MKD'] as const;
+export const CURRENCIES = ['EUR', 'USD', 'CHF', 'GBP', 'ALL', 'MKD'] as const;
 
 export const COUNTRIES: Record<string, L10n> = {
-  ME: { me: 'Crna Gora', sq: 'Mali i Zi', en: 'Montenegro' },
-  XK: { me: 'Kosovo', sq: 'Kosova', en: 'Kosovo' },
-  AL: { me: 'Albanija', sq: 'Shqipëria', en: 'Albania' },
-  RS: { me: 'Srbija', sq: 'Serbia', en: 'Serbia' },
-  BA: { me: 'Bosna i Hercegovina', sq: 'Bosnja dhe Hercegovina', en: 'Bosnia and Herzegovina' },
-  HR: { me: 'Hrvatska', sq: 'Kroacia', en: 'Croatia' },
-  MK: { me: 'Sjeverna Makedonija', sq: 'Maqedonia e Veriut', en: 'North Macedonia' },
+  XK: { de: 'Kosovo', sq: 'Kosova', en: 'Kosovo' },
+  AL: { de: 'Albanien', sq: 'Shqipëria', en: 'Albania' },
+  MK: { de: 'Nordmazedonien', sq: 'Maqedonia e Veriut', en: 'North Macedonia' },
+  DE: { de: 'Deutschland', sq: 'Gjermania', en: 'Germany' },
+  AT: { de: 'Österreich', sq: 'Austria', en: 'Austria' },
+  CH: { de: 'Schweiz', sq: 'Zvicra', en: 'Switzerland' },
+  IT: { de: 'Italien', sq: 'Italia', en: 'Italy' },
+  NL: { de: 'Niederlande', sq: 'Holanda', en: 'Netherlands' },
+  US: { de: 'USA', sq: 'SHBA', en: 'USA' },
 };
 
 const DEFAULTS: Record<string, Partial<MarketX>> = {
-  'mk-me': { domain: 'selca.me', defaultLang: 'me', fxRate: 1, rounding: 'none', shipping: { mode: 'zones' }, catalog: 'all' },
-  'mk-xk': { domain: 'selca.me/xk', defaultLang: 'sq', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 35, days: '3–5' }, catalog: 'stock' },
-  'mk-al': { domain: 'selca.al', defaultLang: 'sq', fxRate: 98.5, rounding: '10', shipping: { mode: 'flat', fee: 3900, days: '3–6' }, catalog: 'stock' },
+  'mk-xk': { domain: 'tersun.com', defaultLang: 'sq', fxRate: 1, rounding: 'none', shipping: { mode: 'zones' }, catalog: 'all' },
+  'mk-al': { domain: 'tersun.com/al', defaultLang: 'sq', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 15, days: '2–4' }, catalog: 'all' },
+  'mk-dach': { domain: 'tersun.com/de', defaultLang: 'de', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 35, days: '4–7' }, catalog: 'all' },
+  'mk-us': { domain: 'tersun.com/us', defaultLang: 'en', fxRate: 1.08, rounding: '0.99', shipping: { mode: 'flat', fee: 0, days: '' }, catalog: 'stock' },
 };
 const GENERIC: Partial<MarketX> = { domain: '', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 0, days: '' }, catalog: 'stock' };
 
@@ -42,7 +45,7 @@ const GENERIC: Partial<MarketX> = { domain: '', fxRate: 1, rounding: 'none', shi
 export function marketX(m: Market): MarketX {
   const x = m as MarketX;
   const d = DEFAULTS[m.id] ?? GENERIC;
-  return { ...d, ...x, defaultLang: x.defaultLang ?? d.defaultLang ?? m.languages[0] ?? 'me', shipping: x.shipping ?? d.shipping ?? { mode: 'flat' } };
+  return { ...d, ...x, defaultLang: x.defaultLang ?? d.defaultLang ?? m.languages[0] ?? 'de', shipping: x.shipping ?? d.shipping ?? { mode: 'flat' } };
 }
 
 /** Converted price with the stored rate and the market's rounding policy. */

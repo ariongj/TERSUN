@@ -1,4 +1,4 @@
-// Add / edit one field of a content model: type picker, label (ME/SQ/EN), API key, rules and validation preview.
+// Add / edit one field of a content model: type picker, label (DE/SQ/EN), API key, rules and validation preview.
 import { useState } from 'react';
 import { Check, Lock, ShieldCheck, Trash2 } from 'lucide-react';
 import { Modal } from '@/components/ui/Overlay';
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { md } from './dict';
 import { FIELD_ICON, FIELD_TYPES, REF_TARGETS, TRANSLATABLE_TYPES, fieldErrors, keyFromLabel, type FieldX, type RefTarget } from './model';
 
-type T = ReturnType<typeof useDict<typeof md.me>>;
+type T = ReturnType<typeof useDict<typeof md.de>>;
 
 /** "Required · text in 3 languages · up to 80 characters" */
 export function validationHint(f: FieldX, t: T, withRequired = true): string {
@@ -112,7 +112,7 @@ export function FieldEditor({
       setTried(true);
       return;
     }
-    const clean: FieldX = Object.fromEntries(Object.entries({ ...draft, help: draft.help && (draft.help.me || draft.help.sq || draft.help.en) ? draft.help : undefined }).filter(([, v]) => v !== undefined)) as unknown as FieldX;
+    const clean: FieldX = Object.fromEntries(Object.entries({ ...draft, help: draft.help && (draft.help.de || draft.help.sq || draft.help.en) ? draft.help : undefined }).filter(([, v]) => v !== undefined)) as unknown as FieldX;
     onSave(clean);
   };
 
@@ -193,7 +193,7 @@ export function FieldEditor({
               label={t('label')}
               required
               value={draft.label}
-              onChange={(label) => patch(keyAuto && !system ? { label, key: keyFromLabel(label.me) } : { label })}
+              onChange={(label) => patch(keyAuto && !system ? { label, key: keyFromLabel(label.de) } : { label })}
             />
             {show('label') && <FieldError>{t('labelRequired')}</FieldError>}
           </div>
@@ -258,7 +258,7 @@ export function FieldEditor({
           </div>
         )}
 
-        <L10nInput label={t('help')} value={draft.help ?? { me: '', sq: '', en: '' }} onChange={(help) => patch({ help })} hint={t('helpHint')} />
+        <L10nInput label={t('help')} value={draft.help ?? { de: '', sq: '', en: '' }} onChange={(help) => patch({ help })} hint={t('helpHint')} />
 
         {/* Validation preview */}
         <div className="flex items-start gap-2.5 rounded-lg bg-canvas px-3 py-2.5 ring-1 ring-inset ring-line">

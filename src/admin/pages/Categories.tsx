@@ -18,35 +18,35 @@ import { cn, thumb } from '@/lib/utils';
 import { href } from '@/lib/paths';
 
 const T = defineDict({
-  me: {
-    title: 'Kategorije',
-    subtitle: 'Glavne grupe proizvoda. Redoslijed sa ove liste važi za meni, početnu stranicu i prodavnicu.',
-    newCategory: 'Nova kategorija',
-    colOrder: 'Red',
-    colCategory: 'Kategorija',
-    colProducts: 'Proizvodi',
-    colFeatured: 'Istaknuta',
-    activeN: '{n} aktivnih',
-    activeOne: '1 aktivan',
-    draftsN: '+ {n} u nacrtu',
-    noProducts: 'Bez proizvoda',
-    moveUp: 'Pomjeri gore',
-    moveDown: 'Pomjeri dolje',
-    openOnSite: 'Otvori na sajtu',
-    featuredOn: 'Kategorija „{name}“ je istaknuta',
-    featuredOff: 'Kategorija „{name}“ više nije istaknuta',
-    deleteBlocked: 'Kategorija „{name}“ ima proizvoda: {n}',
-    deleteBlockedHint: 'Premjestite proizvode u drugu kategoriju ili ih obrišite, pa pokušajte ponovo.',
-    deleteTitle: 'Obrisati kategoriju „{name}“?',
-    deleteText: 'Kategorija će nestati iz menija i sa početne stranice. Ova radnja se ne može poništiti.',
-    deletedToast: 'Kategorija je obrisana',
-    previewTitle: 'Prikaz na početnoj',
-    previewText: 'Ovim redoslijedom kupci vide kategorije na sajtu.',
-    previewLink: 'Pogledaj početnu',
-    emptyTitle: 'Još nema kategorija',
-    emptyText: 'Dodajte prvu kategoriju da biste rasporedili proizvode u prodavnici.',
-    tipTitle: 'Savjet',
-    tipText: 'Strelicama mijenjate redoslijed — promjena je odmah vidljiva na sajtu.',
+  de: {
+    title: 'Kategorien',
+    subtitle: 'Die wichtigsten Produktgruppen. Die Reihenfolge dieser Liste gilt für Menü, Startseite und Shop.',
+    newCategory: 'Neue Kategorie',
+    colOrder: 'Reihenfolge',
+    colCategory: 'Kategorie',
+    colProducts: 'Produkte',
+    colFeatured: 'Hervorgehoben',
+    activeN: '{n} aktiv',
+    activeOne: '1 aktiv',
+    draftsN: '+ {n} im Entwurf',
+    noProducts: 'Keine Produkte',
+    moveUp: 'Nach oben',
+    moveDown: 'Nach unten',
+    openOnSite: 'Auf der Website öffnen',
+    featuredOn: 'Kategorie „{name}“ wird hervorgehoben',
+    featuredOff: 'Kategorie „{name}“ wird nicht mehr hervorgehoben',
+    deleteBlocked: 'Kategorie „{name}“ enthält noch Produkte: {n}',
+    deleteBlockedHint: 'Verschieben Sie die Produkte in eine andere Kategorie oder löschen Sie sie und versuchen Sie es dann erneut.',
+    deleteTitle: 'Kategorie „{name}“ löschen?',
+    deleteText: 'Die Kategorie verschwindet aus dem Menü und von der Startseite. Dieser Vorgang kann nicht rückgängig gemacht werden.',
+    deletedToast: 'Kategorie gelöscht',
+    previewTitle: 'Vorschau Startseite',
+    previewText: 'In dieser Reihenfolge sehen Kunden die Kategorien auf der Website.',
+    previewLink: 'Startseite ansehen',
+    emptyTitle: 'Noch keine Kategorien',
+    emptyText: 'Fügen Sie die erste Kategorie hinzu, um Produkte im Shop zu ordnen.',
+    tipTitle: 'Tipp',
+    tipText: 'Mit den Pfeilen ändern Sie die Reihenfolge — die Änderung ist sofort auf der Website sichtbar.',
   },
   sq: {
     title: 'Kategoritë',
@@ -257,7 +257,7 @@ export default function Categories() {
                             {l(c.name)}
                           </button>
                           <a
-                            href={href(`/proizvodi/${c.slug}`)}
+                            href={href(`/shop/${c.slug}`)}
                             target="_blank"
                             rel="noreferrer"
                             title={t('openOnSite')}

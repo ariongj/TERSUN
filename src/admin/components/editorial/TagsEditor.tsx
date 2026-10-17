@@ -8,15 +8,15 @@ import { cn } from '@/lib/utils';
 import { ed } from './i18n';
 
 const LANGS: { code: Lang; ph: string }[] = [
-  { code: 'me', ph: 'npr. Prozori' },
-  { code: 'sq', ph: 'p.sh. Dritare' },
-  { code: 'en', ph: 'e.g. Windows' },
+  { code: 'de', ph: 'z. B. Pergola' },
+  { code: 'sq', ph: 'p.sh. Pergolë' },
+  { code: 'en', ph: 'e.g. Pergola' },
 ];
 
-const empty = (): L10n => ({ me: '', sq: '', en: '' });
-const key = (t: L10n) => t.me.trim().toLowerCase();
+const empty = (): L10n => ({ de: '', sq: '', en: '' });
+const key = (t: L10n) => t.de.trim().toLowerCase();
 
-/** Localized tag chips: add (ME/SQ/EN at once), click to edit, × to remove, plus quick picks. */
+/** Localized tag chips: add (DE/SQ/EN at once), click to edit, × to remove, plus quick picks. */
 export function TagsEditor({ value, onChange, suggestions = [] }: { value: L10n[]; onChange: (v: L10n[]) => void; suggestions?: L10n[] }) {
   const t = useDict(ed, 'admin');
   const l = useL('admin');
@@ -25,11 +25,11 @@ export function TagsEditor({ value, onChange, suggestions = [] }: { value: L10n[
 
   const used = new Set(value.map(key));
   const quick = suggestions.filter((s) => !used.has(key(s)));
-  const canSubmit = !!form.me.trim() && (editing !== null || !used.has(key(form)));
+  const canSubmit = !!form.de.trim() && (editing !== null || !used.has(key(form)));
 
   const submit = () => {
     if (!canSubmit) return;
-    const tag: L10n = { me: form.me.trim(), sq: form.sq.trim(), en: form.en.trim() };
+    const tag: L10n = { de: form.de.trim(), sq: form.sq.trim(), en: form.en.trim() };
     onChange(editing === null ? [...value, tag] : value.map((x, i) => (i === editing ? tag : x)));
     setForm(empty());
     setEditing(null);
@@ -60,7 +60,7 @@ export function TagsEditor({ value, onChange, suggestions = [] }: { value: L10n[
               const incomplete = !tag.sq.trim() || !tag.en.trim();
               return (
                 <span
-                  key={`${tag.me}-${i}`}
+                  key={`${tag.de}-${i}`}
                   className={cn(
                     'inline-flex items-center rounded-full text-[12.5px] font-semibold ring-1 transition-colors',
                     editing === i ? 'bg-ink text-paper ring-ink' : 'bg-sand text-ink-soft ring-transparent hover:ring-ink/20',
@@ -72,7 +72,7 @@ export function TagsEditor({ value, onChange, suggestions = [] }: { value: L10n[
                       setEditing(i);
                       setForm({ ...tag });
                     }}
-                    title={`ME: ${tag.me}\nSQ: ${tag.sq || '—'}\nEN: ${tag.en || '—'}`}
+                    title={`DE: ${tag.de}\nSQ: ${tag.sq || '—'}\nEN: ${tag.en || '—'}`}
                     className="relative py-1 pl-3 pr-1.5"
                   >
                     {l(tag)}

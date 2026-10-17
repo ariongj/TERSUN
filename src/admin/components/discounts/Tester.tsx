@@ -540,7 +540,7 @@ function ProductSearch({ products, onPick }: { products: Product[]; onPick: (p: 
   const results = useMemo(() => {
     const live = products.filter((p) => p.status === 'active');
     const terms = fold(q.trim()).split(/\s+/).filter(Boolean);
-    const list = terms.length ? live.filter((p) => terms.every((term) => fold(`${p.name.me} ${p.name.sq} ${p.name.en} ${p.sku}`).includes(term))) : [...live].sort((a, b) => b.sold - a.sold);
+    const list = terms.length ? live.filter((p) => terms.every((term) => fold(`${p.name.de} ${p.name.sq} ${p.name.en} ${p.sku}`).includes(term))) : [...live].sort((a, b) => b.sold - a.sold);
     return list.slice(0, 6);
   }, [products, q]);
   return (

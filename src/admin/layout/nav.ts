@@ -9,7 +9,7 @@ import { can, type Module } from '@/lib/permissions';
 import type { RoleId } from '@/lib/types';
 import type { adm } from '@/admin/i18n';
 
-export type NavKey = Extract<keyof (typeof adm)['me'], `nav_${string}`>;
+export type NavKey = Extract<keyof (typeof adm)['de'], `nav_${string}`>;
 export type NavBadge = 'newOrders' | 'newInquiries' | 'pendingBookings';
 
 export interface NavLeaf {

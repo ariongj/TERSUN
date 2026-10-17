@@ -1,7 +1,7 @@
 // CMS v2 demo data — collections, discounts, offers, placements, staff, appointments, segments,
 // inventory, purchasing, drafts, returns, quotes, menus, content models and the audit log.
 // Everything is relative to `now` so the demo always looks current, and coherent with the
-// SELCA catalogue (doors, windows, floors, tiles, bathroom, kitchens) and Montenegro.
+// TERSUN catalogue (bioclimatic pergolas, glass roofs, awnings, Guillotine, Slide, ZIP, accessories).
 import type {
   AuditEntry, Booking, Collection, ContentModel, Discount, DraftOrder, HomeSection, HomeVersion, Inquiry, InventoryMovement, L10n,
   Menu, Offer, Order, Placement, Product, Project, PurchaseOrder, Quote, ReturnRequest, Segment, Service, Staff,
@@ -9,60 +9,61 @@ import type {
 import { defaultOptions } from '@/lib/pricing';
 import { refundForLines } from '@/lib/orders';
 import { round2 } from '@/lib/utils';
+import { DEFAULT_SETTINGS } from './content';
 
-const T = (me: string, sq: string, en: string): L10n => ({ me, sq, en });
-const E = (): L10n => ({ me: '', sq: '', en: '' });
+const T = (de: string, sq: string, en: string): L10n => ({ de, sq, en });
+const E = (): L10n => ({ de: '', sq: '', en: '' });
 const DAY = 86400000;
 const iso = (now: Date, days: number, hours = 0) => new Date(now.getTime() + days * DAY + hours * 3600000).toISOString();
+
+/** Showroom (default pickup location) and warehouse — taken from the settings so ids always match. */
+const LOCATIONS = DEFAULT_SETTINGS.locations ?? [];
+const LOC_SHOWROOM = LOCATIONS.find((l) => l.isDefault)?.id ?? LOCATIONS[0]?.id ?? 'loc-main';
+const LOC_WAREHOUSE = LOCATIONS.find((l) => !l.pickup)?.id ?? LOCATIONS[1]?.id ?? LOC_SHOWROOM;
 
 /* ================================================================== */
 /* Products — tags, vendors, costs, barcodes, incoming, one archived   */
 /* ================================================================== */
-const COST_FACTOR: Record<string, number> = { 'cat-vrata': 0.58, 'cat-prozori': 0.55, 'cat-podovi': 0.6, 'cat-keramika': 0.57, 'cat-kupatilo': 0.56, 'cat-kuhinje': 0.52 };
-
-const EXTRAS: Record<string, { tags: string[]; vendor: string; incoming?: number; unavailable?: number; channels?: ('online' | 'pos')[] }> = {
-  'p-vrata-linea': { tags: ['sobna', 'hrast', 'novo'], vendor: 'Porta Lux' },
-  'p-vrata-classica': { tags: ['sobna', 'bijela'], vendor: 'Porta Lux' },
-  'p-vrata-flat': { tags: ['sobna', 'orah', 'premium'], vendor: 'Porta Lux', incoming: 10 },
-  'p-vrata-loft': { tags: ['klizna', 'industrijski'], vendor: 'Porta Lux' },
-  'p-vrata-vetro': { tags: ['staklo', 'novo'], vendor: 'Porta Lux', unavailable: 1 },
-  'p-vrata-guardian': { tags: ['sigurnosna', 'ulazna', 'rc3'], vendor: 'SecurDoor', incoming: 4 },
-  'p-kvaka-linea': { tags: ['okov', 'pribor'], vendor: 'Maniglia', incoming: 60 },
-  'p-pvc-bijeli': { tags: ['pvc', 'energetska-efikasnost'], vendor: 'Profilo 76', channels: ['online'] },
-  'p-pvc-antracit': { tags: ['pvc', 'antracit'], vendor: 'Profilo 76', channels: ['online'] },
-  'p-alu-slim': { tags: ['alu', 'premium'], vendor: 'AluMare', channels: ['online'] },
-  'p-hs-panorama': { tags: ['alu', 'klizna', 'po-mjeri'], vendor: 'AluMare', channels: ['online'] },
-  'p-skure': { tags: ['alu', 'zastita-od-sunca'], vendor: 'AluMare', channels: ['online'] },
-  'p-laminat-nordic': { tags: ['laminat', 'svijetlo'], vendor: 'Alpe Floor' },
-  'p-laminat-rustic': { tags: ['laminat', 'akcija'], vendor: 'Alpe Floor' },
-  'p-laminat-grey': { tags: ['laminat', 'akcija'], vendor: 'Alpe Floor', incoming: 80 },
-  'p-parket-natur': { tags: ['parket', 'akcija', 'podno-grijanje'], vendor: 'Hrast & Co.' },
-  'p-parket-bianco': { tags: ['parket', 'podno-grijanje'], vendor: 'Hrast & Co.' },
-  'p-spc-aquastop': { tags: ['vinil', 'vodootporno', 'akcija'], vendor: 'AquaStep' },
-  'p-calacatta': { tags: ['porculan', 'mermer'], vendor: 'Ceramica Adria' },
-  'p-statuario': { tags: ['porculan', 'mermer'], vendor: 'Ceramica Adria' },
-  'p-beton': { tags: ['porculan', 'beton', 'terasa'], vendor: 'Ceramica Adria' },
-  'p-metro': { tags: ['zidna', 'kupatilo'], vendor: 'Ceramica Adria' },
-  'p-lisboa': { tags: ['dekor'], vendor: 'Ceramica Adria' },
-  'p-terrazzo': { tags: ['teraco'], vendor: 'Ceramica Adria' },
-  'p-kada-nera': { tags: ['kada', 'premium'], vendor: 'Pietra Bagno' },
-  'p-kada-ellipse': { tags: ['kada'], vendor: 'Bagno Studio', unavailable: 1 },
-  'p-walkin': { tags: ['tus', 'staklo'], vendor: 'Bagno Studio' },
-  'p-tus-rain': { tags: ['tus', 'termostat'], vendor: 'Bagno Studio' },
-  'p-umivaonik-stone': { tags: ['umivaonik', 'kamen'], vendor: 'Pietra Bagno' },
-  'p-slavina-nero': { tags: ['baterija', 'crna'], vendor: 'Bagno Studio' },
-  'p-ogledalo-luna': { tags: ['ogledalo', 'led'], vendor: 'Bagno Studio' },
-  'p-ormaric-oak': { tags: ['namjestaj', 'hrast'], vendor: 'Bagno Studio' },
-  'p-kuhinja-bianca': { tags: ['kuhinja', 'po-mjeri'], vendor: 'SELCA radionica', channels: ['online'] },
-  'p-kuhinja-noce': { tags: ['kuhinja', 'po-mjeri', 'premium'], vendor: 'SELCA radionica', channels: ['online'] },
-  'p-kuhinja-nero': { tags: ['kuhinja', 'po-mjeri'], vendor: 'SELCA radionica', channels: ['online'] },
-  'p-kvarc': { tags: ['radna-ploca', 'kvarc'], vendor: 'Quarzo Lux' },
-  'p-slavina-pro': { tags: ['baterija', 'crna'], vendor: 'Bagno Studio' },
+const COST_FACTOR: Record<string, number> = {
+  'cat-bioclimatic': 0.56,
+  'cat-glass-roof': 0.55,
+  'cat-awning': 0.52,
+  'cat-guillotine': 0.58,
+  'cat-slide': 0.54,
+  'cat-zip': 0.5,
+  'cat-accessories': 0.48,
 };
 
-/** EAN-13 with the Montenegrin GS1 prefix 389 and a valid check digit. */
+type Extra = { tags: string[]; vendor: string; incoming?: number; unavailable?: number; channels?: ('online' | 'pos')[] };
+const SYSTEM: Pick<Extra, 'vendor' | 'channels'> = { vendor: 'TERSUN', channels: ['online'] };
+
+const EXTRAS: Record<string, Extra> = {
+  'p-bio-free': { ...SYSTEM, tags: ['louvres', 'freestanding', 'becker'] },
+  'p-bio-wall': { ...SYSTEM, tags: ['louvres', 'wall-mounted', 'becker'] },
+  'p-bio-double': { ...SYSTEM, tags: ['louvres', 'hospitality', 'premium'] },
+  'p-bio-modular': { ...SYSTEM, tags: ['louvres', 'hospitality', 'new'] },
+  'p-glass-wall': { ...SYSTEM, tags: ['glass', 'wall-mounted', 'samsung-led'] },
+  'p-glass-free': { ...SYSTEM, tags: ['glass', 'freestanding', 'pool'] },
+  'p-glass-l': { ...SYSTEM, tags: ['glass', 'corner', 'new'] },
+  'p-awning': { ...SYSTEM, tags: ['sattler', 'motorised', 'shade'] },
+  'p-awning-combo': { ...SYSTEM, tags: ['sattler', 'glass', 'set'] },
+  'p-guillotine': { ...SYSTEM, tags: ['becker', 'glass', 'hospitality'] },
+  'p-guillotine-balcony': { ...SYSTEM, tags: ['becker', 'balcony'] },
+  'p-slide': { ...SYSTEM, tags: ['glass', 'winter-garden'] },
+  'p-slide-wintergarden': { ...SYSTEM, tags: ['glass', 'winter-garden', 'set'] },
+  'p-zip': { ...SYSTEM, tags: ['sattler', 'motorised', 'insect-screen'] },
+  'p-zip-facade': { ...SYSTEM, tags: ['sattler', 'facade'] },
+  'p-acc-led': { tags: ['lighting', 'warm', 'led'], vendor: 'Samsung LED', incoming: 40 },
+  'p-acc-heater': { tags: ['heating', 'warm'], vendor: 'TERSUN' },
+  'p-acc-remote': { tags: ['control', 'becker'], vendor: 'Becker' },
+  'p-acc-sensor': { tags: ['control', 'automation'], vendor: 'Becker', incoming: 16 },
+  'p-acc-smart': { tags: ['smart-home', 'app'], vendor: 'Somfy', unavailable: 1 },
+  'p-acc-care': { tags: ['care'], vendor: 'TERSUN' },
+};
+
+/** EAN-13 with the GS1 prefix 530 and a valid check digit. */
 function ean13(n: number) {
-  const body = `389${String(100000000 + n * 7919).slice(-9)}`;
+  const body = `530${String(100000000 + n * 7919).slice(-9)}`;
   const sum = body.split('').reduce((s, d, i) => s + Number(d) * (i % 2 ? 3 : 1), 0);
   return body + ((10 - (sum % 10)) % 10);
 }
@@ -73,7 +74,7 @@ export function enrichProducts(products: Product[]): Product[] {
     const x = EXTRAS[p.id];
     return {
       ...p,
-      cost: round2(p.price * (COST_FACTOR[p.categoryId] ?? 0.6)),
+      cost: round2(p.price * (COST_FACTOR[p.categoryId] ?? 0.55)),
       vendor: x?.vendor,
       tags: x?.tags ?? [],
       barcode: ean13(i + 1),
@@ -86,64 +87,67 @@ export function enrichProducts(products: Product[]): Product[] {
 }
 
 /** Discontinued line: archived after it had sales (orders keep their copy). */
-export const ARCHIVED_PRODUCT = 'p-statuario';
+export const ARCHIVED_PRODUCT = 'p-guillotine-balcony';
 
 /* ================================================================== */
 /* Collections                                                         */
 /* ================================================================== */
+const ACCESSORIES = ['p-acc-led', 'p-acc-heater', 'p-acc-remote', 'p-acc-sensor', 'p-acc-smart', 'p-acc-care'];
+
 export function buildCollections(now: Date): Collection[] {
   return [
     {
-      id: 'col-podovi-akcija',
-      slug: 'podovi-na-akciji',
-      title: T('Podovi na akciji', 'Dysheme në ofertë', 'Flooring on sale'),
+      id: 'col-warm',
+      slug: 'warm-evenings',
+      title: T('Warme Abende', 'Mbrëmje të ngrohta', 'Warm evenings'),
       description: T(
-        'Laminat, parket i SPC vinil iz jesenje akcije — popust se obračunava automatski u korpi.',
-        'Laminat, parket dhe vinil SPC nga oferta e vjeshtës — zbritja llogaritet automatikisht në shportë.',
-        'Laminate, parquet and SPC vinyl from the autumn sale — the discount is applied automatically in the cart.',
+        'Heizstrahler und LED-Licht für die kalte Saison – mit Code WARM15 15 % günstiger.',
+        'Ngrohës dhe drita LED për sezonin e ftohtë – me kodin WARM15 15% më lirë.',
+        'Heaters and LED light for the cold season – 15% off with code WARM15.',
       ),
-      image: '/images/cat/podovi.webp',
+      image: '/images/misc/night.webp',
       kind: 'smart',
       productIds: [],
       match: 'all',
       rules: [
-        { field: 'category', op: 'eq', value: 'cat-podovi' },
-        { field: 'tag', op: 'eq', value: 'akcija' },
+        { field: 'category', op: 'eq', value: 'cat-accessories' },
+        { field: 'tag', op: 'eq', value: 'warm' },
       ],
       sort: 'price-asc',
       published: true,
-      seo: { title: 'Podovi na akciji — SELCA', description: 'Laminat, parket i vinil po akcijskim cijenama uz stručno postavljanje.' },
-      createdAt: iso(now, -9),
+      seo: { title: 'Warme Abende — TERSUN', description: 'Infrarot-Heizstrahler und LED-Lichtsets für Pergola und Glasdach.' },
+      createdAt: iso(now, -25),
     },
     {
-      id: 'col-premium-kupatilo',
-      slug: 'premium-kupatilo',
-      title: T('Premium kupatilo', 'Banjo premium', 'Premium bathroom'),
+      id: 'col-signature',
+      slug: 'signature-systems',
+      title: T('Signature-Systeme', 'Sistemet Signature', 'Signature systems'),
       description: T(
-        'Samostojeće kade, walk-in tuševi i namještaj iznad 300 € — za kupatilo kao mali spa.',
-        'Vaska të lira, dushe walk-in dhe mobilje mbi 300 € — për një banjo si spa e vogël.',
-        'Freestanding tubs, walk-in showers and furniture above €300 — for a bathroom like a little spa.',
+        'Unsere großen Systeme ab 7.000 € – für Villen, Hotels und Gastronomie.',
+        'Sistemet tona të mëdha nga 7.000 € – për vila, hotele dhe gastronomi.',
+        'Our large systems from €7,000 – for villas, hotels and hospitality.',
       ),
-      image: '/images/hero/bath.webp',
+      image: '/images/hero/bioclimatic.webp',
       kind: 'smart',
       productIds: [],
       match: 'all',
-      rules: [
-        { field: 'category', op: 'eq', value: 'cat-kupatilo' },
-        { field: 'price', op: 'gt', value: '300' },
-      ],
+      rules: [{ field: 'price', op: 'gt', value: '7000' }],
       sort: 'price-desc',
       published: true,
       createdAt: iso(now, -40),
     },
     {
-      id: 'col-jesenja-akcija',
-      slug: 'jesenja-akcija',
-      title: T('Jesenja akcija', 'Oferta e vjeshtës', 'Autumn sale'),
-      description: T('Ručno odabrani proizvodi sa sniženom cijenom ove jeseni.', 'Produkte të përzgjedhura me çmim të ulur këtë vjeshtë.', 'Hand-picked products with reduced prices this autumn.'),
-      image: '/images/cat/keramika.webp',
+      id: 'col-winter-garden',
+      slug: 'winter-garden',
+      title: T('Wintergarten', 'Kopsht dimëror', 'Winter garden'),
+      description: T(
+        'Glasdach, Glaswände und Wärme – die Terrasse für das ganze Jahr.',
+        'Mbulojë xhami, mure xhami dhe ngrohje – tarraca për gjithë vitin.',
+        'Glass roof, glass walls and warmth – the terrace for the whole year.',
+      ),
+      image: '/images/cat/slide.webp',
       kind: 'manual',
-      productIds: ['p-laminat-nordic', 'p-beton', 'p-vrata-classica', 'p-kada-ellipse', 'p-tus-rain', 'p-slavina-nero', 'p-vrata-guardian'],
+      productIds: ['p-slide-wintergarden', 'p-glass-wall', 'p-slide', 'p-guillotine', 'p-acc-heater', 'p-acc-led'],
       match: 'all',
       rules: [],
       sort: 'manual',
@@ -151,13 +155,13 @@ export function buildCollections(now: Date): Collection[] {
       createdAt: iso(now, -12),
     },
     {
-      id: 'col-bestseleri',
-      slug: 'bestseleri',
-      title: T('Bestseleri', 'Më të shiturat', 'Bestsellers'),
-      description: T('Proizvodi koje naši kupci najčešće biraju.', 'Produktet që klientët tanë zgjedhin më shpesh.', 'The products our customers choose most often.'),
-      image: '/images/p/laminat-nordic-2.webp',
+      id: 'col-bestsellers',
+      slug: 'bestsellers',
+      title: T('Bestseller', 'Më të shiturat', 'Bestsellers'),
+      description: T('Die Systeme und Extras, die unsere Kunden am häufigsten wählen.', 'Sistemet dhe shtesat që klientët tanë zgjedhin më shpesh.', 'The systems and extras our clients choose most often.'),
+      image: '/images/p/zip-1.webp',
       kind: 'manual',
-      productIds: ['p-laminat-nordic', 'p-calacatta', 'p-parket-natur', 'p-beton', 'p-pvc-bijeli', 'p-slavina-nero', 'p-vrata-classica', 'p-walkin'],
+      productIds: ['p-zip', 'p-slide', 'p-glass-wall', 'p-awning', 'p-bio-free', 'p-acc-remote', 'p-acc-led', 'p-acc-care'],
       match: 'all',
       rules: [],
       sort: 'bestselling',
@@ -165,17 +169,17 @@ export function buildCollections(now: Date): Collection[] {
       createdAt: iso(now, -60),
     },
     {
-      id: 'col-novi-stan',
-      slug: 'za-novi-stan',
-      title: T('Za novi stan', 'Për banesën e re', 'For your new apartment'),
+      id: 'col-smart-terrace',
+      slug: 'smart-terrace',
+      title: T('Smarte Terrasse', 'Tarracë inteligjente', 'Smart terrace'),
       description: T(
-        'Sve što treba za useljenje — od vrata i prozora do poda, kupatila i kuhinje.',
-        'Gjithçka për t’u vendosur — nga dyert dhe dritaret te dyshemeja, banjo dhe kuzhina.',
-        'Everything you need to move in — from doors and windows to floors, bathroom and kitchen.',
+        'Lamellen, Screens und Licht per App und Sensor – die Terrasse reagiert auf das Wetter.',
+        'Lamela, perde dhe dritë me aplikacion dhe sensor – tarraca reagon ndaj motit.',
+        'Louvres, screens and light via app and sensor – the terrace responds to the weather.',
       ),
-      image: '/images/projects/stan-hrast.webp',
+      image: '/images/misc/builder-night.webp',
       kind: 'manual',
-      productIds: ['p-vrata-linea', 'p-pvc-bijeli', 'p-laminat-rustic', 'p-calacatta', 'p-walkin', 'p-slavina-nero', 'p-ogledalo-luna', 'p-kuhinja-bianca'],
+      productIds: ['p-bio-free', 'p-zip', 'p-acc-smart', 'p-acc-sensor', 'p-acc-remote', 'p-acc-led'],
       match: 'all',
       rules: [],
       sort: 'manual',
@@ -188,23 +192,22 @@ export function buildCollections(now: Date): Collection[] {
 /* ================================================================== */
 /* Discounts — all 4 types, code + automatic, every lifecycle state    */
 /* ================================================================== */
-const DOORS = ['p-vrata-linea', 'p-vrata-classica', 'p-vrata-flat', 'p-vrata-loft', 'p-vrata-vetro', 'p-vrata-guardian'];
 const ALL_LINES = { scope: 'all' as const, ids: [] };
 const NO_MIN = { type: 'none' as const, value: 0 };
 const EVERYONE = { type: 'all' as const };
 
-/** End of the autumn floor sale — same moment as the homepage promo countdown. */
+/** End of the WARM15 winter promo — same moment as the homepage promo countdown. */
 export const autumnSaleEnd = (now: Date) => new Date(now.getTime() + 12 * DAY + 5 * 3600000).toISOString();
 
 export function buildDiscounts(now: Date): Discount[] {
   return [
     {
-      id: 'd-selca10',
-      title: 'Dobrodošlica — SELCA10',
-      publicTitle: T('Dobrodošlica −10%', 'Mirëseardhje −10%', 'Welcome −10%'),
+      id: 'd-welcome10',
+      title: 'Willkommen — WELCOME10',
+      publicTitle: T('Willkommen −10 %', 'Mirë se vini −10%', 'Welcome −10%'),
       kind: 'order',
       method: 'code',
-      code: 'SELCA10',
+      code: 'WELCOME10',
       valueType: 'percent',
       value: 10,
       appliesTo: ALL_LINES,
@@ -216,56 +219,57 @@ export function buildDiscounts(now: Date): Discount[] {
       status: 'active',
       uses: 0,
       createdAt: iso(now, -120),
-      tags: ['dobrodoslica'],
+      tags: ['welcome'],
     },
     {
-      id: 'd-podovi15',
-      title: 'Jesen — podovi −15% (automatski)',
-      publicTitle: T('Jesenja akcija podova −15%', 'Oferta e vjeshtës për dysheme −15%', 'Autumn flooring sale −15%'),
+      id: 'd-warm15',
+      title: 'Winter — Heizstrahler & LED −15 % (WARM15)',
+      publicTitle: T('Heizstrahler & LED −15 %', 'Ngrohës & LED −15%', 'Heaters & LED −15%'),
       kind: 'products',
-      method: 'auto',
+      method: 'code',
+      code: 'WARM15',
       valueType: 'percent',
       value: 15,
-      appliesTo: { scope: 'collections', ids: ['col-podovi-akcija'] },
+      appliesTo: { scope: 'collections', ids: ['col-warm'] },
       minimum: NO_MIN,
       audience: EVERYONE,
       combines: { products: true, order: true, shipping: true },
-      startsAt: iso(now, -9),
+      startsAt: iso(now, -24),
       endsAt: autumnSaleEnd(now),
       status: 'active',
       uses: 0,
-      createdAt: iso(now, -10),
-      tags: ['jesen', 'podovi'],
+      createdAt: iso(now, -25),
+      tags: ['winter', 'accessories'],
     },
     {
-      id: 'd-vrata-kvaka',
-      title: 'Kupi 3 vrata — kvaka gratis',
-      publicTitle: T('Uz 3 sobna vrata kvaka gratis', 'Me 3 dyer doreza falas', 'Buy 3 doors, get a handle free'),
+      id: 'd-smart-remote',
+      title: 'Smart-Home-Hub — Fernbedienung gratis',
+      publicTitle: T('Zum Smart-Home-Hub die Fernbedienung gratis', 'Me Smart Home Hub telekomanda falas', 'Smart Home Hub + free remote'),
       kind: 'bxgy',
       method: 'auto',
       valueType: 'percent',
       value: 100,
       appliesTo: ALL_LINES,
       minimum: NO_MIN,
-      bxgy: { buyIds: DOORS, buyScope: 'products', buyQty: 3, getIds: ['p-kvaka-linea'], getScope: 'products', getQty: 1, getType: 'free', getValue: 100, maxUses: 4 },
+      bxgy: { buyIds: ['p-acc-smart'], buyScope: 'products', buyQty: 1, getIds: ['p-acc-remote'], getScope: 'products', getQty: 1, getType: 'free', getValue: 100, maxUses: 2 },
       audience: EVERYONE,
       combines: { products: true, order: true, shipping: true },
       startsAt: iso(now, -30),
       status: 'active',
       uses: 0,
       createdAt: iso(now, -31),
-      tags: ['vrata'],
+      tags: ['smart-home'],
     },
     {
-      id: 'd-dostava300',
-      title: 'Besplatna dostava preko 300 €',
-      publicTitle: T('Besplatna dostava preko 300 €', 'Transport falas mbi 300 €', 'Free delivery over €300'),
+      id: 'd-shipping250',
+      title: 'Kostenloser Versand ab 250 €',
+      publicTitle: T('Kostenloser Versand ab 250 €', 'Dërgesë falas mbi 250 €', 'Free shipping over €250'),
       kind: 'shipping',
       method: 'auto',
       valueType: 'percent',
       value: 100,
       appliesTo: ALL_LINES,
-      minimum: { type: 'amount', value: 300 },
+      minimum: { type: 'amount', value: 250 },
       shipping: { zoneIds: [] },
       audience: EVERYONE,
       combines: { products: true, order: true, shipping: false },
@@ -275,35 +279,33 @@ export function buildDiscounts(now: Date): Discount[] {
       createdAt: iso(now, -200),
     },
     {
-      id: 'd-jesen25',
-      title: 'Jesen — 25 € preko 250 €',
-      publicTitle: T('Jesenji popust 25 €', 'Zbritje vjeshte 25 €', 'Autumn €25 off'),
-      kind: 'order',
-      method: 'code',
-      code: 'JESEN25',
-      valueType: 'fixed',
-      value: 25,
-      appliesTo: ALL_LINES,
-      minimum: { type: 'amount', value: 250 },
-      audience: EVERYONE,
-      combines: { products: true, order: false, shipping: true },
-      usageLimit: 200,
-      startsAt: iso(now, -10),
-      endsAt: iso(now, 20),
-      status: 'active',
-      uses: 0,
-      createdAt: iso(now, -11),
-      tags: ['jesen'],
-    },
-    {
-      id: 'd-bf-vrata',
-      title: 'Black Friday — vrata −20%',
-      publicTitle: T('Black Friday: vrata −20%', 'Black Friday: dyer −20%', 'Black Friday: doors −20%'),
+      id: 'd-care20',
+      title: 'Pflegeset −20 % (automatisch)',
+      publicTitle: T('Pflegeset −20 %', 'Set mirëmbajtjeje −20%', 'Care kit −20%'),
       kind: 'products',
       method: 'auto',
       valueType: 'percent',
       value: 20,
-      appliesTo: { scope: 'products', ids: DOORS },
+      appliesTo: { scope: 'products', ids: ['p-acc-care'] },
+      minimum: NO_MIN,
+      audience: EVERYONE,
+      combines: { products: true, order: true, shipping: true },
+      startsAt: iso(now, -20),
+      endsAt: iso(now, 10),
+      status: 'paused',
+      uses: 0,
+      createdAt: iso(now, -21),
+      tags: ['care'],
+    },
+    {
+      id: 'd-bf-accessories',
+      title: 'Black Friday — Zubehör −20 %',
+      publicTitle: T('Black Friday: Zubehör −20 %', 'Black Friday: aksesorë −20%', 'Black Friday: accessories −20%'),
+      kind: 'products',
+      method: 'auto',
+      valueType: 'percent',
+      value: 20,
+      appliesTo: { scope: 'products', ids: ACCESSORIES },
       minimum: NO_MIN,
       audience: EVERYONE,
       combines: { products: true, order: true, shipping: true },
@@ -312,19 +314,19 @@ export function buildDiscounts(now: Date): Discount[] {
       status: 'active',
       uses: 0,
       createdAt: iso(now, -2),
-      tags: ['black-friday', 'vrata'],
+      tags: ['black-friday', 'accessories'],
     },
     {
-      id: 'd-ljeto15',
-      title: 'Ljetna rasprodaja — LJETO15',
-      publicTitle: T('Ljetna rasprodaja −15%', 'Ulje vere −15%', 'Summer sale −15%'),
+      id: 'd-summer15',
+      title: 'Sommer — SUMMER15',
+      publicTitle: T('Sommeraktion −15 %', 'Oferta e verës −15%', 'Summer sale −15%'),
       kind: 'order',
       method: 'code',
-      code: 'LJETO15',
+      code: 'SUMMER15',
       valueType: 'percent',
       value: 15,
       appliesTo: ALL_LINES,
-      minimum: { type: 'amount', value: 200 },
+      minimum: { type: 'amount', value: 100 },
       audience: EVERYONE,
       combines: { products: true, order: false, shipping: true },
       startsAt: iso(now, -75),
@@ -332,19 +334,19 @@ export function buildDiscounts(now: Date): Discount[] {
       status: 'active',
       uses: 0,
       createdAt: iso(now, -76),
-      tags: ['ljeto'],
+      tags: ['summer'],
     },
     {
       id: 'd-vip50',
-      title: 'VIP kupci — 50 € preko 600 €',
-      publicTitle: T('VIP popust 50 €', 'Zbritje VIP 50 €', 'VIP €50 off'),
+      title: 'VIP-Kunden — 50 € ab 500 €',
+      publicTitle: T('VIP-Rabatt 50 €', 'Zbritje VIP 50 €', 'VIP €50 off'),
       kind: 'order',
       method: 'code',
       code: 'VIP50',
       valueType: 'fixed',
       value: 50,
       appliesTo: ALL_LINES,
-      minimum: { type: 'amount', value: 600 },
+      minimum: { type: 'amount', value: 500 },
       audience: { type: 'segment', segmentId: 'seg-vip' },
       combines: { products: true, order: false, shipping: true },
       oncePerCustomer: true,
@@ -368,7 +370,7 @@ export function countDiscountUses(discounts: Discount[], orders: Order[]): Disco
 }
 
 /* ================================================================== */
-/* Offers (p.30 mock-up: active / active / draft / scheduled)          */
+/* Offers (active / active / draft / scheduled)                        */
 /* ================================================================== */
 const ZERO = { visits: 0, ctaClicks: 0, codeUses: 0, orders: 0, revenue: 0, discountTotal: 0 };
 
@@ -389,113 +391,113 @@ export function buildOffers(now: Date, discounts: Discount[], orders: Order[]): 
   };
   return [
     {
-      id: 'of-jesen',
-      slug: 'jesenja-akcija-podova',
-      name: T('Jesenja akcija podova', 'Oferta e vjeshtës për dysheme', 'Autumn flooring sale'),
+      id: 'of-warm',
+      slug: 'warm-evenings',
+      name: T('Warme Abende — WARM15', 'Mbrëmje të ngrohta — WARM15', 'Warm evenings — WARM15'),
       description: T(
-        'Automatski −15% na odabrane laminate, parket i SPC vinil. Prikazuje se u banneru kataloga, traci obavještenja i promo bloku početne.',
-        'Automatikisht −15% për laminate, parket dhe vinil SPC të përzgjedhur. Shfaqet në banerin e katalogut, shiritin e njoftimeve dhe bllokun promo të ballinës.',
-        'Automatic −15% on selected laminate, parquet and SPC vinyl. Shown in the catalogue banner, announcement bar and homepage promo block.',
+        '−15 % auf Heizstrahler und LED-Sets mit Code WARM15. Im Katalog-Banner, in der Hinweisleiste und im Promo-Block der Startseite.',
+        '−15% për ngrohës dhe sete LED me kodin WARM15. Në banerin e katalogut, shiritin e njoftimeve dhe bllokun promo të ballinës.',
+        '−15% on heaters and LED kits with code WARM15. In the catalogue banner, announcement bar and homepage promo block.',
       ),
       status: 'active',
-      startsAt: d('d-podovi15').startsAt,
-      endsAt: d('d-podovi15').endsAt,
-      discountId: 'd-podovi15',
-      collectionId: 'col-podovi-akcija',
+      startsAt: d('d-warm15').startsAt,
+      endsAt: d('d-warm15').endsAt,
+      discountId: 'd-warm15',
+      collectionId: 'col-warm',
       productIds: [],
-      badge: T('Akcija −15%', 'Ofertë −15%', 'Sale −15%'),
-      image: '/images/cat/podovi.webp',
+      badge: T('−15 % mit WARM15', '−15% me WARM15', '−15% with WARM15'),
+      image: '/images/misc/night.webp',
       landing: {
-        title: T('Jesen je za *nove podove*', 'Vjeshta është për *dysheme të reja*', 'Autumn is for *new floors*'),
+        title: T('Länger draußen, *auch im Winter*', 'Më gjatë jashtë, *edhe në dimër*', 'Longer outside, *even in winter*'),
         text: T(
-          'Do kraja akcije odabrani podovi su 15% jeftiniji — popust vidite odmah u korpi, bez koda. Mjerenje je besplatno.',
-          'Deri në fund të ofertës dyshemetë e përzgjedhura janë 15% më lirë — zbritjen e shihni menjëherë në shportë, pa kod. Matja është falas.',
-          'Until the sale ends, selected floors are 15% off — you see the discount straight away in the cart, no code needed. Measuring is free.',
+          'Infrarot-Wärme und warmweißes LED-Licht für Pergola und Glasdach – mit Code WARM15 15 % günstiger.',
+          'Ngrohje infra e kuqe dhe dritë LED e ngrohtë për pergolë dhe mbulojë xhami – me kodin WARM15 15% më lirë.',
+          'Infrared warmth and warm-white LED light for pergola and glass roof – 15% off with code WARM15.',
         ),
       },
       placements: ['banner', 'announcement', 'home-block'],
       owner: 'st-drita',
-      utm: 'utm_source=selca&utm_medium=banner&utm_campaign=jesen-podovi',
-      metrics: metrics('d-podovi15', 38, 260),
-      createdAt: iso(now, -10),
+      utm: 'utm_source=tersun&utm_medium=banner&utm_campaign=warm15',
+      metrics: metrics('d-warm15', 38, 260),
+      createdAt: iso(now, -25),
     },
     {
-      id: 'of-dobrodoslica',
-      slug: 'dobrodoslica-selca10',
-      name: T('Dobrodošlica — SELCA10', 'Mirëseardhje — SELCA10', 'Welcome — SELCA10'),
+      id: 'of-welcome',
+      slug: 'welcome-welcome10',
+      name: T('Willkommen — WELCOME10', 'Mirë se vini — WELCOME10', 'Welcome — WELCOME10'),
       description: T(
-        'Kod SELCA10 daje 10% na narudžbe od 100 € (poslije popusta na proizvode). Kombinuje se sa popustima na proizvode i dostavu.',
-        'Kodi SELCA10 jep 10% për porosi nga 100 € (pas zbritjeve të produkteve). Kombinohet me zbritje produktesh dhe dërgese.',
-        'Code SELCA10 gives 10% on orders from €100 (after product discounts). Combines with product and shipping discounts.',
+        'Code WELCOME10: 10 % auf Bestellungen ab 100 € (nach Produktrabatten). Kombinierbar mit Produkt- und Versandrabatten.',
+        'Kodi WELCOME10: 10% për porosi nga 100 € (pas zbritjeve të produkteve). Kombinohet me zbritje produktesh dhe dërgese.',
+        'Code WELCOME10: 10% on orders from €100 (after product discounts). Combines with product and shipping discounts.',
       ),
       status: 'active',
-      startsAt: d('d-selca10').startsAt,
-      discountId: 'd-selca10',
+      startsAt: d('d-welcome10').startsAt,
+      discountId: 'd-welcome10',
       productIds: [],
-      badge: T('−10% uz SELCA10', '−10% me SELCA10', '−10% with SELCA10'),
+      badge: T('−10 % mit WELCOME10', '−10% me WELCOME10', '−10% with WELCOME10'),
       image: '/images/misc/about.webp',
       landing: {
-        title: T('Dobro došli u *SELCA*', 'Mirë se vini në *SELCA*', 'Welcome to *SELCA*'),
+        title: T('Willkommen bei *TERSUN*', 'Mirë se vini te *TERSUN*', 'Welcome to *TERSUN*'),
         text: T(
-          'Za prvu kupovinu unesite kod SELCA10 u korpi i ostvarite 10% popusta na narudžbe od 100 €.',
-          'Për blerjen e parë shkruani kodin SELCA10 në shportë dhe përfitoni 10% zbritje për porosi nga 100 €.',
-          'For your first purchase enter code SELCA10 in the cart and get 10% off orders from €100.',
+          'Geben Sie bei Ihrer ersten Bestellung den Code WELCOME10 ein und sparen Sie 10 % ab 100 €.',
+          'Në porosinë e parë shkruani kodin WELCOME10 dhe kurseni 10% nga 100 €.',
+          'Enter code WELCOME10 on your first order and save 10% from €100.',
         ),
       },
       placements: ['banner', 'home-block'],
       owner: 'st-drita',
-      utm: 'utm_source=selca&utm_medium=landing&utm_campaign=dobrodoslica',
-      metrics: metrics('d-selca10', 46, 900),
+      utm: 'utm_source=tersun&utm_medium=landing&utm_campaign=welcome10',
+      metrics: metrics('d-welcome10', 46, 900),
       createdAt: iso(now, -120),
     },
     {
-      id: 'of-kupatilo',
-      slug: 'nova-kupatila-2026',
-      name: T('Nova kupatila 2026', 'Banjot e reja 2026', 'New bathrooms 2026'),
+      id: 'of-season-2027',
+      slug: 'bioclimatic-season-2027',
+      name: T('Bioclimatic Saison 2027', 'Sezoni Bioclimatic 2027', 'Bioclimatic season 2027'),
       description: T(
-        'Editorijalna kampanja bez popusta: nova kolekcija premium kupatila na početnoj i u slideru.',
-        'Fushatë editoriale pa zbritje: koleksioni i ri i banjove premium në ballinë dhe në slider.',
-        'Editorial campaign without a discount: the new premium bathroom collection on the homepage and slider.',
+        'Redaktionelle Kampagne ohne Rabatt: Jetzt planen, im Frühling montieren. Startseite und Slider.',
+        'Fushatë editoriale pa zbritje: planifikoni tani, montoni në pranverë. Ballina dhe slider.',
+        'Editorial campaign without a discount: plan now, install in spring. Homepage and slider.',
       ),
       status: 'draft',
       startsAt: iso(now, 7),
-      collectionId: 'col-premium-kupatilo',
+      collectionId: 'col-signature',
       productIds: [],
-      badge: T('Novo', 'E re', 'New'),
-      image: '/images/projects/kupatilo-travertin.webp',
+      badge: T('Saison 2027', 'Sezoni 2027', 'Season 2027'),
+      image: '/images/misc/builder-day.webp',
       landing: {
-        title: T('Kupatilo kao *mali spa*', 'Banjo si një *spa e vogël*', 'A bathroom like a *little spa*'),
-        text: T('Samostojeće kade, walk-in tuševi i kamen — pogledajte novu kolekciju.', 'Vaska të lira, dushe walk-in dhe gur — shikoni koleksionin e ri.', 'Freestanding tubs, walk-in showers and stone — see the new collection.'),
+        title: T('Jetzt planen, *im Frühling genießen*', 'Planifikoni tani, *shijoni në pranverë*', 'Plan now, *enjoy in spring*'),
+        text: T('Aufmaß und 3D-Planung im Winter – Montage zum Saisonstart.', 'Matje dhe planifikim 3D në dimër – montim në fillim të sezonit.', 'Survey and 3D planning in winter – installation for the start of the season.'),
       },
       placements: ['hero', 'home-block'],
       owner: 'st-ana',
-      utm: 'utm_source=selca&utm_medium=hero&utm_campaign=kupatila-2026',
+      utm: 'utm_source=tersun&utm_medium=hero&utm_campaign=season-2027',
       metrics: { ...ZERO },
       createdAt: iso(now, -1),
     },
     {
       id: 'of-blackfriday',
-      slug: 'black-friday-vrata',
-      name: T('Black Friday — vrata −20%', 'Black Friday — dyer −20%', 'Black Friday — doors −20%'),
+      slug: 'black-friday-accessories',
+      name: T('Black Friday — Zubehör −20 %', 'Black Friday — aksesorë −20%', 'Black Friday — accessories −20%'),
       description: T(
-        'Planirano: sedam dana −20% na sva sobna, klizna i sigurnosna vrata. Slajd i traka se uključuju sami sa početkom akcije.',
-        'E planifikuar: shtatë ditë −20% për të gjitha dyert. Slide-i dhe shiriti aktivizohen vetë me fillimin e ofertës.',
-        'Scheduled: seven days of −20% on all doors. The slide and bar switch on by themselves when the sale starts.',
+        'Geplant: sieben Tage −20 % auf das gesamte Zubehör. Slide und Leiste schalten sich zum Start automatisch ein.',
+        'E planifikuar: shtatë ditë −20% për të gjithë aksesorët. Slide-i dhe shiriti aktivizohen vetë në fillim.',
+        'Scheduled: seven days of −20% on all accessories. The slide and bar switch on by themselves at the start.',
       ),
       status: 'active',
-      startsAt: d('d-bf-vrata').startsAt,
-      endsAt: d('d-bf-vrata').endsAt,
-      discountId: 'd-bf-vrata',
-      productIds: DOORS,
-      badge: T('Black Friday −20%', 'Black Friday −20%', 'Black Friday −20%'),
-      image: '/images/hero/arch.webp',
+      startsAt: d('d-bf-accessories').startsAt,
+      endsAt: d('d-bf-accessories').endsAt,
+      discountId: 'd-bf-accessories',
+      productIds: ACCESSORIES,
+      badge: T('Black Friday −20 %', 'Black Friday −20%', 'Black Friday −20%'),
+      image: '/images/misc/view.webp',
       landing: {
-        title: T('Black Friday: *sva vrata −20%*', 'Black Friday: *të gjitha dyert −20%*', 'Black Friday: *all doors −20%*'),
-        text: T('Sedam dana, besplatno mjerenje i ugradnja našim timovima.', 'Shtatë ditë, matje falas dhe montim nga ekipet tona.', 'Seven days, free measuring and fitting by our own crews.'),
+        title: T('Black Friday: *Zubehör −20 %*', 'Black Friday: *aksesorë −20%*', 'Black Friday: *accessories −20%*'),
+        text: T('LED, Heizstrahler, Sensoren und Steuerung – sieben Tage lang.', 'LED, ngrohës, sensorë dhe kontroll – për shtatë ditë.', 'LED, heaters, sensors and controls – for seven days.'),
       },
       placements: ['hero', 'announcement'],
       owner: 'st-drita',
-      utm: 'utm_source=selca&utm_medium=hero&utm_campaign=black-friday-vrata',
+      utm: 'utm_source=tersun&utm_medium=hero&utm_campaign=black-friday',
       metrics: { ...ZERO },
       createdAt: iso(now, -2),
     },
@@ -505,27 +507,31 @@ export function buildOffers(now: Date, discounts: Discount[], orders: Order[]): 
 /* ================================================================== */
 /* Placements — hero slides, catalogue banners, announcement bar       */
 /* ================================================================== */
+const HERO_ALT: Record<string, L10n> = {
+  '/images/hero/bioclimatic.webp': T('Bioklimatische Pergola auf einer Terrasse', 'Pergolë bioklimatike në tarracë', 'Bioclimatic pergola on a terrace'),
+  '/images/hero/slide.webp': T('Slide-Glaswände an einer Terrasse', 'Mure xhami Slide në tarracë', 'Slide glass walls on a terrace'),
+  '/images/hero/awning.webp': T('Glasdach mit Aufdachmarkise', 'Mbulojë xhami me tendë sipër', 'Glass roof with over-glass awning'),
+  '/images/hero/zip.webp': T('ZIP-Screens an einer Pergola', 'Perde Zip në pergolë', 'ZIP screens on a pergola'),
+  '/images/hero/guillotine.webp': T('Guillotine-Glas an einer Lounge', 'Xham Guillotine në lounge', 'Guillotine glass on a lounge'),
+};
+
 export function buildPlacements(home: HomeSection[]): Placement[] {
   const hero = home.find((h) => h.type === 'hero');
-  const slides = hero && hero.type === 'hero' ? hero.data.slides : [];
+  const slides = hero && hero.type === 'hero' ? hero.data.slides ?? [] : [];
   const base = { textAlign: 'left' as const, status: 'active' as const };
   const fromHero: Placement[] = slides.map((s, i) => ({
     ...base,
     id: `pl-${s.id}`,
     kind: 'slide',
     position: 'home-hero',
-    name: [`Hero — dnevni boravak`, `Hero — kuhinje po mjeri`, `Hero — kupatila`][i] ?? `Hero ${i + 1}`,
+    name: `Hero — ${(s.title?.de ?? '').replace(/\*/g, '').slice(0, 40) || i + 1}`,
     eyebrow: s.eyebrow,
     title: s.title,
     subtitle: s.subtitle,
     cta: s.primary,
     secondary: s.secondary,
     image: s.image,
-    alt: [
-      T('Svijetli dnevni boravak sa hrastovim podom', 'Dhomë ndenjeje e ndritshme me dysheme lisi', 'Bright living room with oak flooring'),
-      T('Kuhinja po mjeri sa ostrvom', 'Kuzhinë me porosi me ishull', 'Made-to-measure kitchen with island'),
-      T('Kupatilo sa samostojećom kadom', 'Banjo me vaskë të lirë', 'Bathroom with freestanding tub'),
-    ][i] ?? E(),
+    alt: HERO_ALT[s.image] ?? E(),
     overlay: 35,
     order: i + 1,
   }));
@@ -534,7 +540,7 @@ export function buildPlacements(home: HomeSection[]): Placement[] {
     id,
     kind: 'announcement',
     position: 'bar',
-    name: `Traka — ${title.me.slice(0, 32)}`,
+    name: `Leiste — ${title.de.slice(0, 32)}`,
     eyebrow: E(),
     title,
     subtitle: E(),
@@ -545,61 +551,58 @@ export function buildPlacements(home: HomeSection[]): Placement[] {
     order,
     ...(offerId ? { offerId } : {}),
   });
+  const n = slides.length;
   return [
     ...fromHero,
     {
       ...base,
-      id: 'pl-s4',
+      id: 'pl-bf',
       kind: 'slide',
       position: 'home-hero',
-      name: 'Hero — Black Friday vrata',
+      name: 'Hero — Black Friday Zubehör',
       eyebrow: T('Black Friday', 'Black Friday', 'Black Friday'),
-      title: T('Sva vrata *−20%*.', 'Të gjitha dyert *−20%*.', 'All doors *−20%*.'),
-      subtitle: T(
-        'Sobna, klizna i sigurnosna vrata uz besplatno mjerenje i ugradnju — samo sedam dana.',
-        'Dyer të brendshme, rrëshqitëse dhe sigurie me matje dhe montim falas — vetëm shtatë ditë.',
-        'Interior, sliding and security doors with free measuring and fitting — seven days only.',
-      ),
-      cta: { label: T('Pogledajte vrata', 'Shikoni dyert', 'Shop doors'), href: '/proizvodi/vrata' },
-      secondary: { label: T('Besplatno mjerenje', 'Matje falas', 'Free measurement'), href: '/#mjerenje' },
-      image: '/images/hero/arch.webp',
-      alt: T('Moderan ulaz sa drvenim vratima', 'Hyrje moderne me derë druri', 'Modern entrance with a wooden door'),
+      title: T('Zubehör *−20 %*.', 'Aksesorë *−20%*.', 'Accessories *−20%*.'),
+      subtitle: T('LED, Heizstrahler, Sensoren und Smart Home – nur sieben Tage.', 'LED, ngrohës, sensorë dhe smart home – vetëm shtatë ditë.', 'LED, heaters, sensors and smart home – seven days only.'),
+      cta: { label: T('Zubehör ansehen', 'Shikoni aksesorët', 'Shop accessories'), href: '/shop/accessories' },
+      secondary: { label: T('Beratung vor Ort', 'Konsultë në vend', 'On-site consultation'), href: '/#consultation' },
+      image: '/images/misc/view.webp',
+      alt: T('Terrasse mit Blick bei Abendlicht', 'Tarracë me pamje në dritën e mbrëmjes', 'Terrace with a view in evening light'),
       overlay: 45,
       offerId: 'of-blackfriday',
-      order: 4,
+      order: n + 1,
     },
     {
       ...base,
-      id: 'pl-s5',
+      id: 'pl-season',
       kind: 'slide',
       position: 'home-hero',
       status: 'draft',
-      name: 'Hero — nova kupatila (draft)',
-      eyebrow: T('Novo u salonu', 'E re në sallon', 'New in the showroom'),
-      title: T('Kamen, svjetlo i *tišina*.', 'Gur, dritë dhe *qetësi*.', 'Stone, light and *calm*.'),
-      subtitle: T('Nova kolekcija premium kupatila — od kade do posljednje slavine.', 'Koleksioni i ri i banjove premium — nga vaska te rubineti i fundit.', 'The new premium bathroom collection — from the tub to the last tap.'),
-      cta: { label: T('Pogledajte kolekciju', 'Shikoni koleksionin', 'See the collection'), href: '/proizvodi/kupatilo' },
-      image: '/images/projects/kupatilo-travertin.webp',
-      alt: T('Kupatilo od travertina sa walk-in tušem', 'Banjo me travertin dhe dush walk-in', 'Travertine bathroom with walk-in shower'),
+      name: 'Hero — Saison 2027 (Entwurf)',
+      eyebrow: T('Saison 2027', 'Sezoni 2027', 'Season 2027'),
+      title: T('Jetzt planen. *Im Frühling genießen*.', 'Planifikoni tani. *Shijoni në pranverë*.', 'Plan now. *Enjoy in spring*.'),
+      subtitle: T('Aufmaß und 3D-Planung im Winter – Montage zum Saisonstart.', 'Matje dhe planifikim 3D në dimër – montim në fillim të sezonit.', 'Survey and 3D planning in winter – installation for the season start.'),
+      cta: { label: T('In 3D gestalten', 'Krijoni në 3D', 'Design in 3D'), href: '/3d' },
+      image: '/images/misc/builder-day.webp',
+      alt: T('Pergola im 3D-Builder bei Tag', 'Pergolë në 3D Builder gjatë ditës', 'Pergola in the 3D Builder by day'),
       textAlign: 'center',
       overlay: 40,
-      offerId: 'of-kupatilo',
-      order: 5,
+      offerId: 'of-season-2027',
+      order: n + 2,
     },
     {
       ...base,
       id: 'pl-b1',
       kind: 'banner',
       position: 'catalog',
-      name: 'Katalog — jesenja akcija podova',
-      eyebrow: T('Jesenja akcija', 'Oferta e vjeshtës', 'Autumn sale'),
-      title: T('Odabrani podovi *−15%*', 'Dysheme të përzgjedhura *−15%*', 'Selected floors *−15%*'),
-      subtitle: T('Popust se obračunava automatski u korpi — bez koda.', 'Zbritja llogaritet automatikisht në shportë — pa kod.', 'The discount is applied automatically in the cart — no code needed.'),
-      cta: { label: T('Pogledajte podove', 'Shikoni dyshemetë', 'Shop flooring'), href: '/proizvodi/podovi' },
-      image: '/images/cat/podovi.webp',
-      alt: T('Hrastov laminat u dnevnom boravku', 'Laminat lisi në dhomën e ndenjes', 'Oak laminate in a living room'),
+      name: 'Katalog — WARM15',
+      eyebrow: T('Wintersaison', 'Sezoni i dimrit', 'Winter season'),
+      title: T('Heizstrahler & LED *−15 %*', 'Ngrohës & LED *−15%*', 'Heaters & LED *−15%*'),
+      subtitle: T('Mit Code WARM15 im Warenkorb.', 'Me kodin WARM15 në shportë.', 'With code WARM15 in the cart.'),
+      cta: { label: T('Zubehör ansehen', 'Shikoni aksesorët', 'Shop accessories'), href: '/shop/accessories' },
+      image: '/images/misc/night.webp',
+      alt: T('Pergola mit LED-Licht bei Nacht', 'Pergolë me dritë LED natën', 'Pergola with LED light at night'),
       overlay: 30,
-      offerId: 'of-jesen',
+      offerId: 'of-warm',
       order: 1,
     },
     {
@@ -607,21 +610,21 @@ export function buildPlacements(home: HomeSection[]): Placement[] {
       id: 'pl-b2',
       kind: 'banner',
       position: 'catalog',
-      name: 'Katalog — SELCA10 dobrodošlica',
-      eyebrow: T('Za prvu kupovinu', 'Për blerjen e parë', 'For your first order'),
-      title: T('−10% uz kod *SELCA10*', '−10% me kodin *SELCA10*', '−10% with code *SELCA10*'),
-      subtitle: T('Za narudžbe od 100 € — kombinuje se sa besplatnom dostavom.', 'Për porosi nga 100 € — kombinohet me transportin falas.', 'On orders from €100 — combines with free delivery.'),
-      cta: { label: T('Kupujte sada', 'Blini tani', 'Shop now'), href: '/proizvodi' },
+      name: 'Katalog — WELCOME10',
+      eyebrow: T('Erste Bestellung', 'Porosia e parë', 'First order'),
+      title: T('−10 % mit *WELCOME10*', '−10% me *WELCOME10*', '−10% with *WELCOME10*'),
+      subtitle: T('Ab 100 € – kombinierbar mit kostenlosem Versand.', 'Nga 100 € – kombinohet me dërgesë falas.', 'From €100 – combines with free shipping.'),
+      cta: { label: T('Jetzt einkaufen', 'Blini tani', 'Shop now'), href: '/shop' },
       image: '/images/misc/about.webp',
-      alt: T('SELCA salon', 'Salloni SELCA', 'SELCA showroom'),
+      alt: T('TERSUN Showroom', 'Showroom TERSUN', 'TERSUN showroom'),
       overlay: 40,
-      offerId: 'of-dobrodoslica',
+      offerId: 'of-welcome',
       order: 2,
     },
-    ann('pl-a1', 1, T('Besplatno mjerenje i stručna ugradnja širom Crne Gore', 'Matje falas dhe montim profesional në gjithë Malin e Zi', 'Free measurement & expert installation across Montenegro'), undefined, '/#mjerenje'),
-    ann('pl-a2', 2, T('Besplatna dostava za narudžbe preko 300 €', 'Transport falas për porosi mbi 300 €', 'Free delivery on orders over €300'), undefined, '/stranica/dostava-i-ugradnja'),
-    ann('pl-a3', 3, T('Jesenja akcija: odabrani podovi −15%, automatski u korpi', 'Oferta e vjeshtës: dysheme të përzgjedhura −15%, automatikisht në shportë', 'Autumn sale: selected floors −15%, applied in the cart'), 'of-jesen', '/proizvodi/podovi'),
-    ann('pl-a4', 4, T('Black Friday: sva vrata −20% — samo sedam dana', 'Black Friday: të gjitha dyert −20% — vetëm shtatë ditë', 'Black Friday: all doors −20% — seven days only'), 'of-blackfriday', '/proizvodi/vrata'),
+    ann('pl-a1', 1, T('Kostenlose Beratung vor Ort · Montage in Europa & USA', 'Konsultë falas në vend · Montim në Evropë & SHBA', 'Free on-site consultation · Installation in Europe & USA'), undefined, '/#consultation'),
+    ann('pl-a2', 2, T('Kostenloser Versand für Zubehör ab 250 €', 'Dërgesë falas për aksesorë mbi 250 €', 'Free shipping on accessories over €250'), undefined, '/page/delivery-installation'),
+    ann('pl-a3', 3, T('Wintersaison: Heizstrahler & LED −15 % mit WARM15', 'Sezoni i dimrit: ngrohës & LED −15% me WARM15', 'Winter season: heaters & LED −15% with WARM15'), 'of-warm', '/shop/accessories'),
+    ann('pl-a4', 4, T('Black Friday: Zubehör −20 % – nur sieben Tage', 'Black Friday: aksesorë −20% – vetëm shtatë ditë', 'Black Friday: accessories −20% – seven days only'), 'of-blackfriday', '/shop/accessories'),
   ];
 }
 
@@ -629,85 +632,120 @@ export function buildPlacements(home: HomeSection[]): Placement[] {
 /* Staff, services, bookings                                           */
 /* ================================================================== */
 export const STAFF: Staff[] = [
-  { id: 'st-gent', name: 'Gent Lulaj', email: 'gent@selca.me', role: 'owner', color: '#1a1a1a', active: true, phone: '+382 67 123 456', title: T('Vlasnik', 'Pronar', 'Owner') },
-  { id: 'st-arta', name: 'Arta Gjokaj', email: 'arta@selca.me', role: 'manager', color: '#6b5b95', active: true, phone: '+382 67 210 334', title: T('Menadžerka prodaje', 'Menaxhere shitjesh', 'Sales manager') },
-  { id: 'st-drita', name: 'Drita Camaj', email: 'drita@selca.me', role: 'marketing', color: '#b5651d', active: true, title: T('Marketing', 'Marketing', 'Marketing') },
-  { id: 'st-milica', name: 'Milica Vuković', email: 'info@selca.me', role: 'reception', color: '#2f7d6d', active: true, phone: '+382 20 610 200', title: T('Recepcija salona', 'Recepsioni i sallonit', 'Showroom reception') },
-  { id: 'st-blerim', name: 'Blerim Dedaj', email: 'blerim@selca.me', role: 'orders', color: '#3d5a80', active: true, phone: '+382 69 330 118', title: T('Tehničar — mjerenje i montaža', 'Teknik — matje dhe montim', 'Technician — measuring & fitting') },
-  { id: 'st-ana', name: 'Ana Perović', email: 'ana@selca.me', role: 'editor', color: '#9c6644', active: true, title: T('Urednica sadržaja', 'Redaktore përmbajtjeje', 'Content editor') },
+  { id: 'st-gent', name: 'Gent Berisha', email: 'gent@tersun.com', role: 'owner', color: '#1a1a1a', active: true, phone: '+383 44 120 456', title: T('Geschäftsführer', 'Drejtor', 'Managing director') },
+  { id: 'st-arta', name: 'Arta Krasniqi', email: 'arta@tersun.com', role: 'manager', color: '#6b5b95', active: true, phone: '+383 44 210 334', title: T('Vertriebsleiterin', 'Menaxhere shitjesh', 'Sales manager') },
+  { id: 'st-drita', name: 'Drita Gashi', email: 'drita@tersun.com', role: 'marketing', color: '#b08d57', active: true, title: T('Marketing', 'Marketing', 'Marketing') },
+  { id: 'st-milica', name: 'Mirlinda Hoxha', email: 'info@tersun.com', role: 'reception', color: '#2f7d6d', active: true, phone: '+383 38 600 200', title: T('Showroom-Empfang', 'Recepsioni i showroom-it', 'Showroom reception') },
+  { id: 'st-blerim', name: 'Blerim Kelmendi', email: 'blerim@tersun.com', role: 'orders', color: '#3d5a80', active: true, phone: '+383 49 330 118', title: T('Techniker — Aufmaß & Montage', 'Teknik — matje & montim', 'Technician — survey & installation') },
+  { id: 'st-markus', name: 'Markus Steiner', email: 'markus@tersun.com', role: 'orders', color: '#8a5a44', active: true, phone: '+49 151 2044 7810', title: T('Montageleiter DACH', 'Udhëheqës montimi DACH', 'Installation lead DACH') },
+  { id: 'st-ana', name: 'Anna Hofmann', email: 'anna@tersun.com', role: 'editor', color: '#9c6644', active: true, title: T('Content-Redakteurin', 'Redaktore përmbajtjeje', 'Content editor') },
 ];
 
 export const SERVICES: Service[] = [
   {
     id: 'sv-mjerenje',
-    name: T('Besplatno mjerenje', 'Matje falas', 'Free measurement'),
-    description: T('Tehničar dolazi na adresu, mjeri i savjetuje.', 'Tekniku vjen në adresë, mat dhe këshillon.', 'A technician visits, measures and advises.'),
-    durationMin: 60,
+    name: T('Aufmaß & Beratung vor Ort', 'Matje & konsultë në vend', 'On-site survey & consultation'),
+    description: T('Ein Techniker misst die Terrasse aus und berät zu System, Statik und Optionen.', 'Tekniku mat tarracën dhe këshillon për sistemin, statikën dhe opsionet.', 'A technician surveys the terrace and advises on system, structure and options.'),
+    durationMin: 90,
     capacity: 1,
     price: 0,
     color: '#3d5a80',
-    staffIds: ['st-blerim', 'st-gent'],
+    staffIds: ['st-blerim', 'st-gent', 'st-markus'],
     location: 'onsite',
   },
   {
     id: 'sv-konsultacija',
-    name: T('Konsultacija u salonu', 'Konsultim në sallon', 'Showroom consultation'),
-    description: T('Izbor materijala uz uzorke i 3D prikaz.', 'Zgjedhja e materialeve me mostra dhe pamje 3D.', 'Choosing materials with samples and a 3D render.'),
-    durationMin: 45,
+    name: T('Beratung im Showroom', 'Konsultë në showroom', 'Showroom consultation'),
+    description: T('Profile, Farben, Glas und Tuch am Muster – mit Angebot.', 'Profile, ngjyra, xham dhe pëlhurë në mostër – me ofertë.', 'Profiles, colours, glass and fabric on samples – with a quote.'),
+    durationMin: 60,
     capacity: 2,
     color: '#2f7d6d',
     staffIds: ['st-arta', 'st-milica', 'st-gent'],
-    location: 'loc-pg',
+    location: LOC_SHOWROOM,
+  },
+  {
+    id: 'sv-3d',
+    name: T('3D-Planung (Videocall)', 'Planifikim 3D (video-thirrje)', '3D planning (video call)'),
+    description: T('Wir planen Ihr System gemeinsam im 3D-Builder.', 'E planifikojmë sistemin tuaj së bashku në 3D Builder.', 'We plan your system together in the 3D Builder.'),
+    durationMin: 45,
+    capacity: 1,
+    price: 0,
+    color: '#6b5b95',
+    staffIds: ['st-arta', 'st-gent'],
+    location: LOC_SHOWROOM,
   },
   {
     id: 'sv-montaza',
-    name: T('Montaža', 'Montim', 'Installation'),
-    description: T('Ugradnja vrata, prozora ili poda — termin za montažni tim.', 'Montimi i dyerve, dritareve ose dyshemesë — termin për ekipën.', 'Fitting doors, windows or floors — a slot for the crew.'),
-    durationMin: 180,
+    name: T('Montage', 'Montim', 'Installation'),
+    description: T('Montagetag für Pergola, Glasdach, Glaswände oder Screens.', 'Ditë montimi për pergolë, mbulojë xhami, mure xhami ose perde.', 'Installation day for pergola, glass roof, glass walls or screens.'),
+    durationMin: 480,
     capacity: 1,
-    color: '#b5651d',
+    color: '#b08d57',
+    staffIds: ['st-blerim', 'st-markus'],
+    location: 'onsite',
+  },
+  {
+    id: 'sv-service',
+    name: T('Wartung & Service', 'Mirëmbajtje & servis', 'Maintenance visit'),
+    description: T('Motoren, Dichtungen, Entwässerung und Lamellen prüfen und einstellen.', 'Kontroll dhe rregullim i motorëve, guarnicioneve, kullimit dhe lamelave.', 'Check and adjust motors, seals, drainage and louvres.'),
+    durationMin: 90,
+    capacity: 1,
+    price: 149,
+    color: '#8a5a44',
+    staffIds: ['st-blerim', 'st-markus'],
+    location: 'onsite',
+  },
+  {
+    id: 'sv-winter',
+    name: T('Winter-Check', 'Kontrolli i dimrit', 'Winter check'),
+    description: T('Schneelast, Rinnen, Sensoren und Tuch vor dem Winter prüfen.', 'Kontroll i ngarkesës së borës, ulluqeve, sensorëve dhe pëlhurës para dimrit.', 'Check snow load, gutters, sensors and fabric before winter.'),
+    durationMin: 60,
+    capacity: 1,
+    price: 89,
+    color: '#4a6d8c',
     staffIds: ['st-blerim'],
     location: 'onsite',
   },
 ];
 
-const BOOKING_PEOPLE: [string, string, string][] = [
-  ['Jelena Radović', '+382 67 441 902', 'Podgorica'],
-  ['Arben Kalaj', '+382 68 220 517', 'Tuzi'],
-  ['Petar Ivanović', '+382 69 715 330', 'Nikšić'],
-  ['Lindita Gjonaj', '+382 67 908 114', 'Ulcinj'],
-  ['Stefan Perović', '+382 68 510 276', 'Podgorica'],
-  ['Amra Hadžić', '+382 69 304 681', 'Bar'],
-  ['Valentina Dreshaj', '+382 67 655 209', 'Podgorica'],
-  ['Nikola Bulatović', '+382 68 147 993', 'Danilovgrad'],
-  ['Teodora Marković', '+382 69 822 460', 'Budva'],
-  ['Besnik Camaj', '+382 67 390 845', 'Tuzi'],
-  ['Maja Vujošević', '+382 68 674 152', 'Podgorica'],
-  ['Edin Mujović', '+382 69 251 738', 'Rožaje'],
-  ['Ivana Kovačević', '+382 67 118 506', 'Cetinje'],
-  ['Driton Lulgjuraj', '+382 68 963 027', 'Ulcinj'],
-  ['Filip Nikač', '+382 69 437 615', 'Podgorica'],
-  ['Elira Dedvukaj', '+382 67 582 394', 'Tuzi'],
+/** [name, phone, city, address] */
+const BOOKING_PEOPLE: [string, string, string, string][] = [
+  ['Arben Krasniqi', '+383 44 441 902', 'Prishtina', 'Rr. Fehmi Agani 24'],
+  ['Sabine Weber', '+49 160 7715 330', 'München', 'Leopoldstraße 118'],
+  ['Valon Morina', '+383 45 220 517', 'Prizren', 'Rr. Remzi Ademaj 9'],
+  ['Elira Hoxha', '+355 69 908 1142', 'Tirana', 'Rruga Myslym Shyri 41'],
+  ['Florian Gruber', '+43 664 510 2760', 'Wien', 'Mariahilfer Straße 72'],
+  ['Besnik Gjonaj', '+383 49 304 681', 'Peja', 'Rr. Mbretëresha Teutë 15'],
+  ['Lindita Berisha', '+383 44 655 209', 'Prishtina', 'Bulevardi Bill Clinton 30'],
+  ['Thomas Keller', '+49 171 4147 993', 'Stuttgart', 'Königstraße 56'],
+  ['Driton Shala', '+389 70 822 460', 'Skopje', 'Bulevar Ilinden 88'],
+  ['Andrea Meier', '+41 79 390 8450', 'Zürich', 'Seefeldstrasse 102'],
+  ['Erion Dervishi', '+355 68 674 1520', 'Durrës', 'Rruga Taulantia 7'],
+  ['Mimoza Rexhepi', '+383 44 251 738', 'Ferizaj', 'Rr. Dëshmorët e Kombit 33'],
+  ['Stefan Huber', '+43 676 118 5060', 'Graz', 'Herrengasse 14'],
+  ['Kujtim Bytyqi', '+383 49 963 027', 'Gjakova', 'Rr. Nëna Terezë 61'],
+  ['Julia Schneider', '+49 151 4376 1150', 'Frankfurt', 'Bockenheimer Landstraße 22'],
+  ['Agron Kelmendi', '+383 45 582 394', 'Peja', 'Rr. Eliot Engel 4'],
 ];
 
 /** [day offset from this Monday, hour, minute, service, staff, note] — no overlaps per staff member. */
 const SLOTS: [number, number, number, string, string, string][] = [
-  [0, 9, 0, 'sv-konsultacija', 'st-arta', 'Izbor sobnih vrata za kuću'],
-  [0, 11, 0, 'sv-mjerenje', 'st-blerim', 'Prozori — stan 80 m²'],
-  [1, 10, 0, 'sv-mjerenje', 'st-gent', 'Laminat, 3 sobe i hodnik'],
-  [1, 13, 0, 'sv-montaza', 'st-blerim', 'Ugradnja 5 sobnih vrata'],
-  [2, 9, 0, 'sv-konsultacija', 'st-milica', 'Keramika za kupatilo'],
-  [2, 9, 30, 'sv-konsultacija', 'st-arta', 'Kuhinja po mjeri — 3D prikaz'],
-  [3, 8, 0, 'sv-montaza', 'st-blerim', 'Postavljanje parketa 32 m²'],
-  [3, 12, 0, 'sv-mjerenje', 'st-blerim', 'Kupatilo — walk-in tuš'],
-  [4, 9, 0, 'sv-konsultacija', 'st-gent', 'Sigurnosna vrata — ponuda'],
-  [4, 15, 0, 'sv-mjerenje', 'st-gent', 'Dritare 9 copë'],
-  [7, 9, 0, 'sv-mjerenje', 'st-blerim', 'Porculan 60 × 120, 45 m²'],
-  [7, 11, 0, 'sv-konsultacija', 'st-arta', 'Klizna HS vrata — PVC ili ALU'],
-  [8, 8, 0, 'sv-montaza', 'st-blerim', 'Ugradnja PVC prozora, 7 kom'],
-  [9, 10, 0, 'sv-konsultacija', 'st-milica', 'Kupatilo — izbor sanitarija'],
-  [10, 12, 0, 'sv-mjerenje', 'st-gent', 'Kuhinja — mjerenje prostora'],
-  [11, 9, 0, 'sv-montaza', 'st-blerim', 'Montaža kuhinje Linea Bianca'],
+  [0, 9, 0, 'sv-konsultacija', 'st-arta', 'Bioclimatic oder Glasdach – Vergleich am Muster'],
+  [0, 10, 0, 'sv-mjerenje', 'st-markus', 'Glasdach Wand 6 × 3,5 m mit LED'],
+  [1, 8, 0, 'sv-montaza', 'st-blerim', 'Montage Glasdach Wand 5 × 3 m'],
+  [1, 10, 0, 'sv-mjerenje', 'st-gent', 'Perde Zip për 4 dritare'],
+  [2, 9, 0, 'sv-konsultacija', 'st-milica', 'Balkon schließen – Guillotine'],
+  [2, 11, 0, 'sv-3d', 'st-arta', 'Bioclimatic Wall – 3D-Planung'],
+  [2, 8, 0, 'sv-montaza', 'st-markus', 'Montage Slide Premium, 5 Paneele'],
+  [3, 9, 0, 'sv-service', 'st-blerim', 'Wartung Bioclimatic – Lamellen einstellen'],
+  [3, 14, 0, 'sv-mjerenje', 'st-gent', 'Aufdachmarkise über bestehendem Glasdach'],
+  [4, 10, 0, 'sv-winter', 'st-blerim', 'Winter-Check Glasdach + Markise'],
+  [7, 9, 0, 'sv-mjerenje', 'st-markus', 'Glasdach L-Form um die Hausecke'],
+  [7, 11, 0, 'sv-konsultacija', 'st-arta', 'Slide oder Guillotine für die Loggia?'],
+  [8, 8, 0, 'sv-montaza', 'st-blerim', 'Montage Bioclimatic Freestanding 4 × 4 m'],
+  [9, 10, 0, 'sv-3d', 'st-arta', 'Pool-Terrasse – 3D-Planung'],
+  [10, 12, 0, 'sv-mjerenje', 'st-gent', 'Bioclimatic Double për hotel'],
+  [11, 8, 0, 'sv-montaza', 'st-markus', 'Montage ZIP-Screens, 6 Stück'],
 ];
 
 function mondayOf(now: Date) {
@@ -720,7 +758,7 @@ function mondayOf(now: Date) {
 
 /**
  * Bookings for this and next week. Scheduled inquiries are linked to future bookings of the matching
- * service (measurement → Besplatno mjerenje, others → Konsultacija) and get the same date.
+ * service (measurement → on-site survey, others → showroom consultation) and get the same date.
  */
 export function buildBookings(now: Date, inquiries: Inquiry[]): { bookings: Booking[]; inquiries: Inquiry[] } {
   const monday = mondayOf(now);
@@ -730,7 +768,7 @@ export function buildBookings(now: Date, inquiries: Inquiry[]): { bookings: Book
     start.setHours(h, m, 0, 0);
     const service = SERVICES.find((s) => s.id === serviceId)!;
     const end = start.getTime() + service.durationMin * 60000;
-    const [customerName, phone, city] = BOOKING_PEOPLE[i % BOOKING_PEOPLE.length];
+    const [customerName, phone, city, address] = BOOKING_PEOPLE[i % BOOKING_PEOPLE.length];
     const past = end < now.getTime();
     const status: Booking['status'] = past ? (i === 4 ? 'noshow' : i === 5 ? 'cancelled' : 'done') : i === 13 || i === 14 ? 'pending' : 'confirmed';
     return {
@@ -744,8 +782,8 @@ export function buildBookings(now: Date, inquiries: Inquiry[]): { bookings: Book
       durationMin: service.durationMin,
       status,
       note,
-      location: service.location ?? 'loc-pg',
-      ...(service.location === 'onsite' ? { address: `${['Njegoševa', 'Ulica Slobode', 'Bulevar Revolucije', 'Mediteranska'][i % 4]} ${12 + i * 3}` } : {}),
+      location: service.location ?? LOC_SHOWROOM,
+      ...(service.location === 'onsite' ? { address } : {}),
       createdAt: new Date(start.getTime() - (3 + (i % 5)) * DAY).toISOString(),
     };
   });
@@ -772,48 +810,48 @@ export function buildBookings(now: Date, inquiries: Inquiry[]): { bookings: Book
 }
 
 /* ================================================================== */
-/* Inquiries — CMS v2 fields + two extra (B2B quote, delivery question) */
+/* Inquiries — CMS v2 fields + two extra (B2B quote, shipping question) */
 /* ================================================================== */
 export function enrichInquiries(now: Date, inquiries: Inquiry[]): Inquiry[] {
   const out: Inquiry[] = inquiries.map((q, i) => ({
     ...q,
     source: q.type === 'measurement' ? 'measurement' : q.type === 'quote' ? 'quote' : 'web-form',
     assignee: q.status === 'new' ? undefined : q.type === 'measurement' ? (i % 2 ? 'st-gent' : 'st-blerim') : q.type === 'quote' ? 'st-arta' : 'st-milica',
-    tags: [q.service ? q.service.toLowerCase() : 'opste', ...(q.type === 'quote' ? ['ponuda'] : [])],
+    tags: [q.service ? q.service.toLowerCase().replace(/\s+/g, '-') : 'general', ...(q.type === 'quote' ? ['quote'] : [])],
   }));
   out.push(
     {
       id: 'inq_120',
       createdAt: iso(now, -4, -3),
       type: 'quote',
-      name: 'Vesna Bulatović',
-      company: 'Hotel Montenegrina d.o.o.',
-      phone: '+382 67 552 301',
-      email: 'nabavka.montenegrina@example.com',
-      city: 'Budva',
-      service: 'Prozori',
-      productId: 'p-pvc-antracit',
-      message: 'Ponuda za 30 PVC prozora u antracitu (120 × 140) sa ugradnjom i demontažom starih, za renoviranje hotela prije sezone.',
+      name: 'Erion Hoxha',
+      company: 'Hotel Adriatik sh.p.k.',
+      phone: '+355 69 552 3011',
+      email: 'projects.adriatik@example.com',
+      city: 'Durrës',
+      service: 'Bioclimatic',
+      productId: 'p-bio-modular',
+      message: 'Ofertë për pergolë Bioclimatic Modular mbi tarracën e pishinës, rreth 18 × 6 m, me perde Zip dhe ngrohës. Hoteli ka 42 dhoma, montimi para sezonit 2027.',
       status: 'contacted',
       seen: true,
       source: 'phone',
       assignee: 'st-arta',
-      tags: ['b2b', 'prozori', 'hotel'],
+      tags: ['b2b', 'bioclimatic', 'hotel'],
       followUpAt: iso(now, 2),
     },
     {
       id: 'inq_121',
       createdAt: iso(now, 0, -5),
       type: 'contact',
-      name: 'Ardit Gjokaj',
-      phone: '+382 68 419 207',
-      email: 'ardit.gjokaj@example.com',
-      city: 'Plav',
-      message: 'Da li dostavljate u Plav i koliko traje isporuka za laminat sa stanja?',
+      name: 'Katrin Bauer',
+      phone: '+43 699 1419 2070',
+      email: 'katrin.bauer@example.com',
+      city: 'Salzburg',
+      message: 'Liefern Sie das LED-Lichtset und den Windsensor auch nach Österreich? Wie lange dauert der Versand?',
       status: 'new',
       seen: false,
       source: 'web-form',
-      tags: ['dostava'],
+      tags: ['shipping'],
     },
   );
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -825,29 +863,29 @@ export function enrichInquiries(now: Date, inquiries: Inquiry[]): Inquiry[] {
 export const SEGMENTS: Segment[] = [
   {
     id: 'seg-vip',
-    name: T('VIP kupci', 'Klientë VIP', 'VIP customers'),
-    description: T('Potrošili više od 4.000 €.', 'Kanë shpenzuar mbi 4.000 €.', 'Spent more than €4,000.'),
+    name: T('VIP-Kunden', 'Klientë VIP', 'VIP customers'),
+    description: T('Mehr als 5.000 € ausgegeben.', 'Kanë shpenzuar mbi 5.000 €.', 'Spent more than €5,000.'),
     match: 'all',
-    rules: [{ field: 'spent', op: 'gt', value: '4000' }],
+    rules: [{ field: 'spent', op: 'gt', value: '5000' }],
   },
   {
-    id: 'seg-povratni',
-    name: T('Povratni kupci', 'Klientë që kthehen', 'Returning customers'),
-    description: T('Više od jedne narudžbe.', 'Më shumë se një porosi.', 'More than one order.'),
+    id: 'seg-returning',
+    name: T('Stammkunden', 'Klientë që kthehen', 'Returning customers'),
+    description: T('Mehr als eine Bestellung.', 'Më shumë se një porosi.', 'More than one order.'),
     match: 'all',
     rules: [{ field: 'orders', op: 'gt', value: '1' }],
   },
   {
-    id: 'seg-primorje',
-    name: T('Primorje', 'Bregdeti', 'Coast'),
-    description: T('Kupci iz primorskih opština.', 'Klientë nga komunat bregdetare.', 'Customers from coastal municipalities.'),
+    id: 'seg-dach',
+    name: T('DACH-Markt', 'Tregu DACH', 'DACH market'),
+    description: T('Kunden aus Deutschland, Österreich und der Schweiz.', 'Klientë nga Gjermania, Austria dhe Zvicra.', 'Customers from Germany, Austria and Switzerland.'),
     match: 'any',
-    rules: ['Bar', 'Ulcinj', 'Budva', 'Kotor', 'Tivat', 'Herceg Novi'].map((c) => ({ field: 'city' as const, op: 'eq' as const, value: c })),
+    rules: ['München', 'Stuttgart', 'Frankfurt', 'Düsseldorf', 'Wien', 'Graz', 'Salzburg', 'Zürich', 'Basel', 'Luzern'].map((c) => ({ field: 'city' as const, op: 'eq' as const, value: c })),
   },
   {
-    id: 'seg-shqip',
-    name: T('Kupci na albanskom', 'Klientë në shqip', 'Albanian-speaking customers'),
-    description: T('Naručivali na albanskom jeziku — za kampanje na SQ.', 'Kanë porositur në shqip — për fushata në SQ.', 'Ordered in Albanian — for SQ campaigns.'),
+    id: 'seg-albanian',
+    name: T('Albanischsprachige Kunden', 'Klientë në shqip', 'Albanian-speaking customers'),
+    description: T('Auf Albanisch bestellt — für Kampagnen auf SQ.', 'Kanë porositur në shqip — për fushata në SQ.', 'Ordered in Albanian — for SQ campaigns.'),
     match: 'all',
     rules: [{ field: 'lang', op: 'eq', value: 'sq' }],
   },
@@ -861,34 +899,57 @@ export function buildPurchaseOrders(now: Date): PurchaseOrder[] {
     {
       id: 'po-014',
       number: 'PO-2026-014',
-      supplier: 'Alpe Floor GmbH',
-      location: 'loc-tz',
+      supplier: 'Becker-Antriebe GmbH',
+      location: LOC_WAREHOUSE,
       status: 'partial',
       lines: [
-        { productId: 'p-laminat-grey', ordered: 200, received: 120, rejected: 0, cost: 6.9 },
-        { productId: 'p-laminat-nordic', ordered: 150, received: 150, rejected: 0, cost: 6.2 },
-        { productId: 'p-laminat-rustic', ordered: 100, received: 96, rejected: 4, cost: 9.4 },
+        { productId: 'p-acc-remote', ordered: 60, received: 60, rejected: 0, cost: 38 },
+        { productId: 'p-acc-sensor', ordered: 40, received: 24, rejected: 0, cost: 84 },
+        { productId: 'p-acc-smart', ordered: 20, received: 18, rejected: 2, cost: 162 },
       ],
-      reference: 'AF-55721',
-      note: 'Ostatak Grey Stone Oak stiže drugim kamionom. 4 paketa Rustic odbijena — oštećeni uglovi.',
+      reference: 'BA-557210',
+      note: 'Restliche 16 Sensoren folgen mit der nächsten Lieferung. 2 Hubs abgelehnt – Gehäuse beschädigt.',
       expectedAt: iso(now, 3),
       createdAt: iso(now, -12),
     },
     {
       id: 'po-015',
       number: 'PO-2026-015',
-      supplier: 'Porta Lux d.o.o.',
-      location: 'loc-pg',
+      supplier: 'Samsung LED Europe',
+      location: LOC_WAREHOUSE,
       status: 'sent',
-      lines: [
-        { productId: 'p-vrata-flat', ordered: 10, received: 0, rejected: 0, cost: 205 },
-        { productId: 'p-vrata-guardian', ordered: 4, received: 0, rejected: 0, cost: 690 },
-        { productId: 'p-kvaka-linea', ordered: 60, received: 0, rejected: 0, cost: 15.5 },
-      ],
-      reference: 'PL-2026/0932',
-      note: 'Za Black Friday akciju vrata.',
+      lines: [{ productId: 'p-acc-led', ordered: 40, received: 0, rejected: 0, cost: 176 }],
+      reference: 'SLE-2026/0932',
+      note: 'LED-Sets für die Wintersaison und Black Friday.',
       expectedAt: iso(now, 9),
       createdAt: iso(now, -3),
+    },
+    {
+      id: 'po-016',
+      number: 'PO-2026-016',
+      supplier: 'Sattler SUN-TEX GmbH',
+      location: LOC_WAREHOUSE,
+      status: 'draft',
+      lines: [
+        { productId: 'p-zip', ordered: 24, received: 0, rejected: 0, cost: 210 },
+        { productId: 'p-awning', ordered: 10, received: 0, rejected: 0, cost: 480 },
+      ],
+      note: 'Tuch für ZIP-Screens und Aufdachmarkisen – Anthrazit und Steingrau.',
+      createdAt: iso(now, -1),
+    },
+    {
+      id: 'po-013',
+      number: 'PO-2026-013',
+      supplier: 'AluProfil sh.p.k.',
+      location: LOC_WAREHOUSE,
+      status: 'closed',
+      lines: [
+        { productId: 'p-bio-free', ordered: 6, received: 6, rejected: 0, cost: 3150 },
+        { productId: 'p-glass-wall', ordered: 8, received: 8, rejected: 0, cost: 1840 },
+      ],
+      reference: 'AP-2026-311',
+      note: 'Aluminiumprofile RAL 7016, pulverbeschichtet.',
+      createdAt: iso(now, -26),
     },
   ];
 }
@@ -905,20 +966,20 @@ export function buildMovements(now: Date, orders: Order[], returns: ReturnReques
     ...(ref ? { ref } : {}),
   });
   const list: InventoryMovement[] = [
-    mv('mv-1', 'p-ogledalo-luna', -1, 'damaged', -2, 'st-blerim', 'Napuklo staklo pri istovaru — otpis'),
-    mv('mv-2', 'p-vrata-vetro', -1, 'damaged', -4, 'st-blerim', 'Ogrebotina na staklu — izloženo u salonu'),
-    mv('mv-3', 'p-laminat-grey', 120, 'received', -5, 'st-arta', 'Alpe Floor GmbH', 'PO-2026-014'),
-    mv('mv-4', 'p-laminat-nordic', 150, 'received', -5, 'st-arta', 'Alpe Floor GmbH', 'PO-2026-014'),
-    mv('mv-5', 'p-laminat-rustic', 96, 'received', -5, 'st-arta', 'Alpe Floor GmbH — 4 paketa odbijena', 'PO-2026-014'),
-    mv('mv-6', 'p-calacatta', -3, 'count', -7, 'st-arta', 'Inventura — razlika u magacinu Tuzi'),
-    mv('mv-7', 'p-parket-natur', 2, 'count', -7, 'st-arta', 'Inventura — pronađena 2 paketa'),
-    mv('mv-9', 'p-beton', -4, 'correction', -11, 'st-gent', 'Uzorci za izložbeni prostor'),
+    mv('mv-1', 'p-acc-heater', -1, 'damaged', -2, 'st-blerim', 'Heizstab beim Entladen gebrochen – abgeschrieben'),
+    mv('mv-2', 'p-acc-smart', -1, 'damaged', -4, 'st-blerim', 'Gehäuse zerkratzt – Ausstellungsstück im Showroom'),
+    mv('mv-3', 'p-acc-remote', 60, 'received', -5, 'st-arta', 'Becker-Antriebe GmbH', 'PO-2026-014'),
+    mv('mv-4', 'p-acc-sensor', 24, 'received', -5, 'st-arta', 'Becker-Antriebe GmbH', 'PO-2026-014'),
+    mv('mv-5', 'p-acc-smart', 18, 'received', -5, 'st-arta', 'Becker-Antriebe GmbH — 2 abgelehnt', 'PO-2026-014'),
+    mv('mv-6', 'p-acc-care', -3, 'count', -7, 'st-arta', 'Inventur – Differenz im Lager'),
+    mv('mv-7', 'p-acc-led', 2, 'count', -7, 'st-arta', 'Inventur – 2 Sets gefunden'),
+    mv('mv-9', 'p-acc-remote', -4, 'correction', -11, 'st-gent', 'Vorführgeräte für den Showroom'),
   ];
   // restocked returns
   for (const r of returns) {
     if (!r.restocked) continue;
     const rec = r.timeline.find((t) => t.status === 'received');
-    for (const l of r.lines) list.push({ id: `mv-${r.id}-${l.productId}`, productId: l.productId, delta: l.qty, reason: 'return', at: rec?.at ?? r.createdAt, by: rec?.by ?? 'st-blerim', note: 'Vraćeno neoštećeno', ref: r.number });
+    for (const l of r.lines) list.push({ id: `mv-${r.id}-${l.productId}`, productId: l.productId, delta: l.qty, reason: 'return', at: rec?.at ?? r.createdAt, by: rec?.by ?? 'st-blerim', note: 'Unbeschädigt zurückgenommen', ref: r.number });
   }
   // the most recent web orders as 'sale' movements
   let n = 10;
@@ -945,25 +1006,26 @@ export function buildDrafts(now: Date, products: Product[]): DraftOrder[] {
       .sort()
       .map((k) => `${k}=${o[k]}`)
       .join('&')}|${inst ? 'i' : ''}`;
-  const classica = opts('p-vrata-classica');
-  const kvaka = opts('p-kvaka-linea');
-  const rustic = opts('p-laminat-rustic');
+  const heater = opts('p-acc-heater');
+  const remote = opts('p-acc-remote');
+  const led = { ...opts('p-acc-led'), length: '10' };
+  const zip = { ...opts('p-zip'), fabric: 'stone' };
   return [
     {
       id: 'dr-1001',
       number: 'D-1001',
       createdAt: iso(now, -1, -2),
-      customer: { firstName: 'Bojana', lastName: 'Kalaj', company: 'Apartmani Bojana d.o.o.', pib: '03187254', email: 'bojana.kalaj@example.com', phone: '+382 69 412 778', city: 'Ulcinj', address: 'Ulica Skenderbega 14' },
+      customer: { firstName: 'Fatmir', lastName: 'Bytyqi', company: 'Restorant Liqeni sh.p.k.', pib: '811458327', email: 'fatmir.bytyqi@example.com', phone: '+383 44 412 778', city: 'Prizren', address: 'Rr. Shën Flori 14' },
       items: [
-        { key: key('p-vrata-classica', classica, true), productId: 'p-vrata-classica', qty: 12, options: classica, installation: true },
-        { key: key('p-kvaka-linea', kvaka, false), productId: 'p-kvaka-linea', qty: 12, options: kvaka, installation: false },
+        { key: key('p-acc-heater', heater, true), productId: 'p-acc-heater', qty: 8, options: heater, installation: true },
+        { key: key('p-acc-remote', remote, false), productId: 'p-acc-remote', qty: 2, options: remote, installation: false },
       ],
-      customLines: [{ title: 'Demontaža i odvoz starih vrata', price: 15, qty: 12 }],
-      discountCodes: ['SELCA10'],
+      customLines: [{ title: 'Elektroanschluss je Heizstrahler', price: 35, qty: 8 }],
+      discountCodes: ['WELCOME10'],
       delivery: 'delivery',
       payment: 'bank',
-      note: 'Apartmani — 12 jedinica, ugradnja u novembru prije sezone. Plaćanje avansno po predračunu.',
-      tags: ['b2b', 'ulcinj'],
+      note: 'Restaurant-Terrasse unter Bioclimatic Double – Montage vor dem Winter. Zahlung per Vorkasse.',
+      tags: ['b2b', 'prizren'],
       status: 'open',
       createdBy: 'st-arta',
       lang: 'sq',
@@ -972,25 +1034,41 @@ export function buildDrafts(now: Date, products: Product[]): DraftOrder[] {
       id: 'dr-1002',
       number: 'D-1002',
       createdAt: iso(now, -4, -1),
-      customer: { firstName: 'Arben', lastName: 'Gjonaj', email: 'arben.gjonaj@example.com', phone: '+382 68 220 517', city: 'Tuzi', address: 'Ulica 13. jula 41' },
-      items: [{ key: key('p-laminat-rustic', rustic, true), productId: 'p-laminat-rustic', qty: 30, options: rustic, installation: true }],
-      customLines: [{ title: 'Lajsne i prelazne lajsne (komplet)', price: 120, qty: 1 }],
+      customer: { firstName: 'Arben', lastName: 'Gjonaj', email: 'arben.gjonaj@example.com', phone: '+383 49 220 517', city: 'Peja', address: 'Rr. Mbretëresha Teutë 41' },
+      items: [{ key: key('p-acc-led', led, true), productId: 'p-acc-led', qty: 2, options: led, installation: true }],
+      customLines: [{ title: 'Anfahrt Peja', price: 40, qty: 1 }],
       discountCodes: [],
       delivery: 'delivery',
       payment: 'cod',
-      note: 'Predračun poslat e-mailom. Kupac dolazi u salon po uzorke lajsni.',
-      tags: ['podovi'],
+      note: 'Rechnung per E-Mail gesendet. LED-Nachrüstung für bestehendes Glasdach.',
+      tags: ['led', 'retrofit'],
       status: 'invoice_sent',
       createdBy: 'st-gent',
-      lang: 'me',
+      lang: 'sq',
+    },
+    {
+      id: 'dr-1003',
+      number: 'D-1003',
+      createdAt: iso(now, -2, -4),
+      customer: { firstName: 'Michael', lastName: 'Gruber', email: 'michael.gruber@example.com', phone: '+43 664 221 4089', city: 'Wien', address: 'Landstraßer Hauptstraße 51' },
+      items: [{ key: key('p-zip', zip, true), productId: 'p-zip', qty: 3, options: zip, installation: true }],
+      customLines: [{ title: 'Anfahrt & Montage Wien (pauschal)', price: 450, qty: 1 }],
+      discountCodes: [],
+      delivery: 'delivery',
+      payment: 'bank',
+      note: 'Nach Aufmaß: 3 ZIP-Screens 3,6 × 2,6 m an der bestehenden Pergola.',
+      tags: ['zip', 'dach'],
+      status: 'open',
+      createdBy: 'st-markus',
+      lang: 'de',
     },
   ];
 }
 
-/** Two returns from real generated orders; the refunded one is also recorded on its order. */
+/** Two returns (accessories only) from real generated orders; the refunded one is also recorded on its order. */
 export function buildReturns(now: Date, orders: Order[]): { returns: ReturnRequest[]; orders: Order[] } {
   const age = (o: Order) => (now.getTime() - new Date(o.createdAt).getTime()) / DAY;
-  const pieceLine = (o: Order) => o.items.find((l) => l.unit === 'kom' || l.unit === 'set');
+  const pieceLine = (o: Order) => o.items.find((l) => !!l.productId && ACCESSORIES.includes(l.productId) && (l.unit === 'kom' || l.unit === 'set'));
   const old = orders.find((o) => o.status === 'completed' && age(o) > 20 && pieceLine(o));
   const recent = orders.find((o) => o !== old && (o.status === 'shipped' || o.status === 'installation' || o.status === 'completed') && age(o) < 15 && pieceLine(o));
   const returns: ReturnRequest[] = [];
@@ -1006,16 +1084,16 @@ export function buildReturns(now: Date, orders: Order[]): { returns: ReturnReque
       number: 'RT-1001',
       orderId: old.id,
       lines,
-      reason: 'Oštećeno pri transportu — kupac traži povrat novca',
+      reason: 'Transportschaden — Kunde wünscht Erstattung',
       status: 'refunded',
       refundAmount: amount,
       restock: true,
       restocked: true,
       createdAt: at(0),
       timeline: [
-        { at: at(0), status: 'requested', by: 'st-milica', note: 'Prijava telefonom, poslate fotografije' },
+        { at: at(0), status: 'requested', by: 'st-milica', note: 'Telefonisch gemeldet, Fotos per WhatsApp' },
         { at: at(5), status: 'approved', by: 'st-arta' },
-        { at: at(50), status: 'received', by: 'st-blerim', note: 'Preuzeto na adresi, vraćeno na stanje' },
+        { at: at(50), status: 'received', by: 'st-blerim', note: 'Abgeholt, Ware wieder auf Lager' },
         { at: at(54), status: 'refunded', by: 'st-arta' },
       ],
     });
@@ -1039,12 +1117,12 @@ export function buildReturns(now: Date, orders: Order[]): { returns: ReturnReque
       number: 'RT-1002',
       orderId: recent.id,
       lines,
-      reason: 'Pogrešna nijansa — kupac želi zamjenu ili povrat',
+      reason: 'Falscher Artikel bestellt — Umtausch oder Erstattung gewünscht',
       status: 'requested',
       refundAmount: refundForLines(recent, lines),
       restock: true,
       createdAt: at,
-      timeline: [{ at, status: 'requested', by: 'web', note: 'Zahtjev preko e-maila sa brojem narudžbe' }],
+      timeline: [{ at, status: 'requested', by: 'web', note: 'Anfrage per E-Mail mit Bestellnummer' }],
     });
   }
   return { returns, orders: out };
@@ -1052,20 +1130,22 @@ export function buildReturns(now: Date, orders: Order[]): { returns: ReturnReque
 
 export function buildQuotes(now: Date): Quote[] {
   const terms = T(
-    'Cijene uključuju PDV 21%. Avans 40%, ostatak po ugradnji. Rok isporuke 3–4 sedmice od potvrde.',
-    'Çmimet përfshijnë TVSH 21%. Avans 40%, pjesa tjetër pas montimit. Afati i dërgesës 3–4 javë nga konfirmimi.',
-    'Prices include 21% VAT. 40% deposit, balance on installation. Delivery 3–4 weeks from confirmation.',
+    'Preise inkl. MwSt. Anzahlung 40 %, Rest nach Montage. Lieferzeit 4–6 Wochen ab Auftragsbestätigung.',
+    'Çmimet përfshijnë TVSH-në. Avans 40%, pjesa tjetër pas montimit. Afati 4–6 javë nga konfirmimi.',
+    'Prices include VAT. 40% deposit, balance after installation. Lead time 4–6 weeks from confirmation.',
   );
   return [
     {
       id: 'q-031',
       number: 'Q-2026-031',
       inquiryId: 'inq_120',
-      customer: { name: 'Vesna Bulatović', company: 'Hotel Montenegrina d.o.o.', email: 'nabavka.montenegrina@example.com', phone: '+382 67 552 301' },
+      customer: { name: 'Erion Hoxha', company: 'Hotel Adriatik sh.p.k.', email: 'projects.adriatik@example.com', phone: '+355 69 552 3011' },
       lines: [
-        { productId: 'p-pvc-antracit', title: 'PVC prozor Thermo 76 — antracit, 120 × 140', qty: 30, price: 229 },
-        { title: 'Ugradnja — RAL montaža sa trakama', qty: 30, price: 45 },
-        { title: 'Demontaža i odvoz starih prozora', qty: 30, price: 12 },
+        { productId: 'p-bio-modular', title: 'Bioclimatic Modular — 3 Felder, 18 × 6 m, RAL 7016', qty: 1, price: 46800 },
+        { productId: 'p-zip', title: 'ZIP-Screen 4,5 × 2,8 m, Sattler Anthrazit', qty: 6, price: 1490 },
+        { productId: 'p-acc-heater', title: 'Infrarot-Heizstrahler 2000 W', qty: 6, price: 389 },
+        { productId: 'p-acc-led', title: 'LED-Lichtset Warmweiß 15 m', qty: 3, price: 680 },
+        { title: 'Fundamente, Montage & Inbetriebnahme', qty: 1, price: 4200 },
       ],
       validUntil: iso(now, 14),
       terms,
@@ -1077,11 +1157,12 @@ export function buildQuotes(now: Date): Quote[] {
     {
       id: 'q-032',
       number: 'Q-2026-032',
-      customer: { name: 'Dejan Marković', company: 'Gradnja Plus d.o.o.', email: 'dejan.markovic@example.com', phone: '+382 68 300 415' },
+      customer: { name: 'Reto Baumann', company: 'Gasthaus Seeblick AG', email: 'reto.baumann@example.com', phone: '+41 79 300 4152' },
       lines: [
-        { productId: 'p-vrata-classica', title: 'Sobna vrata Classica — bijela, 80 cm', qty: 48, price: 179 },
-        { productId: 'p-kvaka-linea', title: 'Kvaka Linea na rozeti', qty: 48, price: 29 },
-        { title: 'Ugradnja sobnih vrata', qty: 48, price: 40 },
+        { productId: 'p-bio-double', title: 'Bioclimatic Double — 10 × 4 m, RAL 9007, Smart Home', qty: 1, price: 18900 },
+        { productId: 'p-guillotine', title: 'Guillotine Premium 4 × 2,5 m, Isolierglas', qty: 3, price: 5800 },
+        { productId: 'p-acc-sensor', title: 'Wind- & Regensensor', qty: 1, price: 189 },
+        { title: 'Montage Schweiz inkl. Anfahrt', qty: 1, price: 3600 },
       ],
       validUntil: iso(now, 30),
       terms,
@@ -1089,6 +1170,37 @@ export function buildQuotes(now: Date): Quote[] {
       status: 'draft',
       createdAt: iso(now, -1),
       owner: 'st-gent',
+    },
+    {
+      id: 'q-029',
+      number: 'Q-2026-029',
+      customer: { name: 'Thomas Keller', company: '', email: 'thomas.keller@example.com', phone: '+49 171 4147 993' },
+      lines: [
+        { productId: 'p-slide-wintergarden', title: 'Wintergarten Slide — 5 × 3,5 m, 4+14+4 Isolierglas', qty: 1, price: 14600 },
+        { productId: 'p-acc-heater', title: 'Infrarot-Heizstrahler 2000 W', qty: 2, price: 389 },
+        { title: 'Montage Stuttgart inkl. Anfahrt', qty: 1, price: 1900 },
+      ],
+      validUntil: iso(now, 6),
+      terms,
+      version: 2,
+      status: 'accepted',
+      createdAt: iso(now, -18),
+      owner: 'st-markus',
+    },
+    {
+      id: 'q-027',
+      number: 'Q-2026-027',
+      customer: { name: 'Besnik Krasniqi', company: '', email: 'besnik.krasniqi@example.com', phone: '+383 44 318 270' },
+      lines: [
+        { productId: 'p-awning-combo', title: 'Glasdach + Markise Set — 6 × 4 m, Sattler Sand', qty: 1, price: 9800 },
+        { productId: 'p-zip', title: 'ZIP-Screen 3 × 2,5 m', qty: 2, price: 1190 },
+      ],
+      validUntil: iso(now, -5),
+      terms,
+      version: 1,
+      status: 'declined',
+      createdAt: iso(now, -35),
+      owner: 'st-arta',
     },
   ];
 }
@@ -1100,54 +1212,49 @@ export function buildMenus(): Menu[] {
   const cat = (id: string, label: L10n) => ({ id: `mi-${id}`, label, type: 'category' as const, target: id });
   const url = (id: string, label: L10n, target: string, children?: Menu['items']) => ({ id, label, type: 'url' as const, target, ...(children ? { children } : {}) });
   const page = (id: string, label: L10n) => ({ id: `mi-${id}`, label, type: 'page' as const, target: id });
+  const categories = () => [
+    cat('cat-bioclimatic', T('Bioklimatische Pergola', 'Sistemi Bioklimatik', 'Bioclimatic System')),
+    cat('cat-glass-roof', T('Glasdach', 'Mbulojë Xhami', 'Glass Roof')),
+    cat('cat-awning', T('Aufdachmarkise', 'Tendë mbi Xham', 'Over-Glass Awning')),
+    cat('cat-guillotine', T('Guillotine Premium', 'Guillotine Premium', 'Guillotine Premium')),
+    cat('cat-slide', T('Slide Premium', 'Slide Premium', 'Slide Premium')),
+    cat('cat-zip', T('ZIP-Screen', 'Perde Zip', 'ZIP Screen')),
+    cat('cat-accessories', T('Zubehör', 'Aksesorë', 'Accessories')),
+  ];
   return [
     {
       id: 'menu-main',
       handle: 'main',
-      title: 'Glavni meni',
+      title: 'Hauptmenü',
       items: [
-        url('mi-products', T('Proizvodi', 'Produktet', 'Products'), '/proizvodi', [
-          cat('cat-vrata', T('Vrata', 'Dyer', 'Doors')),
-          cat('cat-prozori', T('Prozori', 'Dritare', 'Windows')),
-          cat('cat-podovi', T('Podovi', 'Dysheme', 'Flooring')),
-          cat('cat-keramika', T('Keramika', 'Pllaka', 'Tiles')),
-          cat('cat-kupatilo', T('Kupatilo', 'Banjo', 'Bathroom')),
-          cat('cat-kuhinje', T('Kuhinje', 'Kuzhina', 'Kitchens')),
-          url('mi-sale', T('Akcija', 'Ofertë', 'Sale'), '/proizvodi?akcija=1'),
-        ]),
-        url('mi-services', T('Usluge', 'Shërbimet', 'Services'), '/usluge'),
-        url('mi-projects', T('Realizacije', 'Realizimet', 'Projects'), '/projekti'),
-        url('mi-about', T('O nama', 'Rreth nesh', 'About'), '/o-nama'),
-        url('mi-blog', T('Savjeti', 'Këshilla', 'Advice'), '/savjeti'),
-        url('mi-contact', T('Kontakt', 'Kontakt', 'Contact'), '/kontakt'),
+        url('mi-products', T('Systeme', 'Sistemet', 'Systems'), '/shop', [...categories(), url('mi-sale', T('Angebote', 'Oferta', 'Offers'), '/shop?sale=1')]),
+        url('mi-3d', T('3D-Builder', '3D Builder', '3D Builder'), '/3d'),
+        url('mi-services', T('Service', 'Shërbimet', 'Services'), '/services'),
+        url('mi-projects', T('Projekte', 'Projektet', 'Projects'), '/projects'),
+        url('mi-about', T('Über uns', 'Rreth nesh', 'About'), '/about'),
+        url('mi-journal', T('Journal', 'Journal', 'Journal'), '/journal'),
+        url('mi-contact', T('Kontakt', 'Kontakt', 'Contact'), '/contact'),
       ],
     },
     {
       id: 'menu-footer',
       handle: 'footer',
-      title: 'Podnožje',
+      title: 'Fußzeile',
       items: [
-        url('mi-f-shop', T('Kupovina', 'Blerja', 'Shop'), '/proizvodi', [
-          cat('cat-vrata', T('Vrata', 'Dyer', 'Doors')),
-          cat('cat-prozori', T('Prozori', 'Dritare', 'Windows')),
-          cat('cat-podovi', T('Podovi', 'Dysheme', 'Flooring')),
-          cat('cat-keramika', T('Keramika', 'Pllaka', 'Tiles')),
-          cat('cat-kupatilo', T('Kupatilo', 'Banjo', 'Bathroom')),
-          cat('cat-kuhinje', T('Kuhinje', 'Kuzhina', 'Kitchens')),
-          url('mi-f-sale', T('Akcija', 'Ofertë', 'Sale'), '/proizvodi?akcija=1'),
+        url('mi-f-shop', T('Systeme', 'Sistemet', 'Systems'), '/shop', [...categories(), url('mi-f-sale', T('Angebote', 'Oferta', 'Offers'), '/shop?sale=1')]),
+        url('mi-f-company', T('Unternehmen', 'Kompania', 'Company'), '/about', [
+          url('mi-f-about', T('Über uns', 'Rreth nesh', 'About'), '/about'),
+          url('mi-f-services', T('Service', 'Shërbimet', 'Services'), '/services'),
+          url('mi-f-projects', T('Projekte', 'Projektet', 'Projects'), '/projects'),
+          url('mi-f-3d', T('3D-Builder', '3D Builder', '3D Builder'), '/3d'),
+          url('mi-f-journal', T('Journal', 'Journal', 'Journal'), '/journal'),
+          url('mi-f-contact', T('Kontakt', 'Kontakt', 'Contact'), '/contact'),
         ]),
-        url('mi-f-company', T('Kompanija', 'Kompania', 'Company'), '/o-nama', [
-          url('mi-f-about', T('O nama', 'Rreth nesh', 'About'), '/o-nama'),
-          url('mi-f-services', T('Usluge', 'Shërbimet', 'Services'), '/usluge'),
-          url('mi-f-projects', T('Realizacije', 'Realizimet', 'Projects'), '/projekti'),
-          url('mi-f-blog', T('Savjeti', 'Këshilla', 'Advice'), '/savjeti'),
-          url('mi-f-contact', T('Kontakt', 'Kontakt', 'Contact'), '/kontakt'),
-        ]),
-        url('mi-f-help', T('Kupcima', 'Për klientët', 'Customer care'), '', [
-          page('pg-dostava', T('Dostava i ugradnja', 'Dërgesa dhe montimi', 'Delivery & installation')),
-          page('pg-uslovi', T('Uslovi kupovine', 'Kushtet e blerjes', 'Terms of purchase')),
-          page('pg-reklamacije', T('Reklamacije i povrat', 'Reklamacionet dhe kthimi', 'Returns & complaints')),
-          page('pg-privatnost', T('Politika privatnosti', 'Politika e privatësisë', 'Privacy policy')),
+        url('mi-f-help', T('Kundenservice', 'Për klientët', 'Customer care'), '', [
+          page('pg-delivery', T('Lieferung & Montage', 'Dërgesa & montimi', 'Delivery & installation')),
+          page('pg-terms', T('AGB', 'Kushtet', 'Terms')),
+          page('pg-returns', T('Rückgabe & Reklamation', 'Kthimet & reklamimet', 'Returns & complaints')),
+          page('pg-privacy', T('Datenschutz', 'Privatësia', 'Privacy policy')),
         ]),
       ],
     },
@@ -1159,52 +1266,52 @@ export function buildContentModels(projects: Project[], home: HomeSection[], loc
   const services = home.find((h) => h.type === 'services');
   return [
     {
-      id: 'cm-projekti',
-      name: T('Projekti', 'Projektet', 'Projects'),
+      id: 'cm-projects',
+      name: T('Projekte', 'Projektet', 'Projects'),
       source: 'projects',
       fields: [
-        { key: 'title', label: T('Naziv', 'Titulli', 'Title'), type: 'text' },
-        { key: 'location', label: T('Lokacija', 'Vendndodhja', 'Location'), type: 'text' },
-        { key: 'year', label: T('Godina', 'Viti', 'Year'), type: 'number' },
-        { key: 'tags', label: T('Kategorije', 'Kategoritë', 'Categories'), type: 'choice' },
-        { key: 'summary', label: T('Opis', 'Përshkrimi', 'Summary'), type: 'text' },
-        { key: 'image', label: T('Fotografija', 'Fotografia', 'Photo'), type: 'image' },
-        { key: 'featured', label: T('Izdvojeno', 'E veçuar', 'Featured'), type: 'boolean' },
+        { key: 'title', label: T('Titel', 'Titulli', 'Title'), type: 'text' },
+        { key: 'location', label: T('Ort', 'Vendndodhja', 'Location'), type: 'text' },
+        { key: 'year', label: T('Jahr', 'Viti', 'Year'), type: 'number' },
+        { key: 'tags', label: T('Systeme', 'Sistemet', 'Systems'), type: 'choice' },
+        { key: 'summary', label: T('Beschreibung', 'Përshkrimi', 'Summary'), type: 'text' },
+        { key: 'image', label: T('Foto', 'Fotografia', 'Photo'), type: 'image' },
+        { key: 'featured', label: T('Hervorgehoben', 'E veçuar', 'Featured'), type: 'boolean' },
       ],
       entries: projects.length,
     },
     {
       id: 'cm-faq',
-      name: T('Česta pitanja', 'Pyetje të shpeshta', 'FAQ'),
+      name: T('Häufige Fragen', 'Pyetje të shpeshta', 'FAQ'),
       source: 'home.faq',
       fields: [
-        { key: 'q', label: T('Pitanje', 'Pyetja', 'Question'), type: 'text' },
-        { key: 'a', label: T('Odgovor', 'Përgjigjja', 'Answer'), type: 'text' },
+        { key: 'q', label: T('Frage', 'Pyetja', 'Question'), type: 'text' },
+        { key: 'a', label: T('Antwort', 'Përgjigjja', 'Answer'), type: 'text' },
       ],
       entries: faq && faq.type === 'faq' ? faq.data.items.length : 0,
     },
     {
-      id: 'cm-usluge',
-      name: T('Usluge', 'Shërbimet', 'Services'),
+      id: 'cm-services',
+      name: T('Leistungen', 'Shërbimet', 'Services'),
       source: 'home.services',
       fields: [
-        { key: 'image', label: T('Fotografija', 'Fotografia', 'Photo'), type: 'image' },
-        { key: 'title', label: T('Naziv', 'Titulli', 'Title'), type: 'text' },
-        { key: 'text', label: T('Opis', 'Përshkrimi', 'Description'), type: 'text' },
-        { key: 'service', label: T('Termin (usluga)', 'Termini (shërbimi)', 'Booking service'), type: 'reference' },
+        { key: 'image', label: T('Foto', 'Fotografia', 'Photo'), type: 'image' },
+        { key: 'title', label: T('Titel', 'Titulli', 'Title'), type: 'text' },
+        { key: 'text', label: T('Beschreibung', 'Përshkrimi', 'Description'), type: 'text' },
+        { key: 'service', label: T('Termin (Leistung)', 'Termini (shërbimi)', 'Booking service'), type: 'reference' },
       ],
       entries: services && services.type === 'services' ? services.data.items.length : 0,
     },
     {
-      id: 'cm-lokacije',
-      name: T('Lokacije', 'Lokacionet', 'Locations'),
+      id: 'cm-locations',
+      name: T('Standorte', 'Lokacionet', 'Locations'),
       source: 'settings.locations',
       fields: [
-        { key: 'name', label: T('Naziv', 'Emri', 'Name'), type: 'text' },
-        { key: 'address', label: T('Adresa', 'Adresa', 'Address'), type: 'text' },
-        { key: 'city', label: T('Grad', 'Qyteti', 'City'), type: 'text' },
-        { key: 'pickup', label: T('Preuzimanje', 'Marrje në vend', 'Pickup'), type: 'boolean' },
-        { key: 'map', label: T('Mapa', 'Harta', 'Map'), type: 'link' },
+        { key: 'name', label: T('Name', 'Emri', 'Name'), type: 'text' },
+        { key: 'address', label: T('Adresse', 'Adresa', 'Address'), type: 'text' },
+        { key: 'city', label: T('Stadt', 'Qyteti', 'City'), type: 'text' },
+        { key: 'pickup', label: T('Abholung', 'Marrje në vend', 'Pickup'), type: 'boolean' },
+        { key: 'map', label: T('Karte', 'Harta', 'Map'), type: 'link' },
       ],
       entries: locations,
     },
@@ -1237,28 +1344,28 @@ export function buildAudit(now: Date, orders: Order[]): AuditEntry[] {
     ...(detail ? { detail } : {}),
   });
   const list: AuditEntry[] = [
-    a(1, 0.4, 'st-gent', 'login', 'staff', 'st-gent', 'Prijava u CMS'),
+    a(1, 0.4, 'st-gent', 'login', 'staff', 'st-gent', 'CMS-Anmeldung'),
     a(2, 1.2, 'st-arta', 'status', 'order', o(3).id, `${o(3).number}: new → confirmed`),
-    a(3, 3, 'st-milica', 'assign', 'inquiry', 'inq_120', 'Vesna Bulatović → Arta Gjokaj'),
+    a(3, 3, 'st-milica', 'assign', 'inquiry', 'inq_120', 'Erion Hoxha → Arta Krasniqi'),
     a(4, 20, 'st-arta', 'create', 'draft', 'dr-1001', 'D-1001'),
     a(5, 26, 'st-blerim', 'fulfil', 'order', o(8).id, o(8).number),
-    a(6, 30, 'st-milica', 'create', 'booking', 'bk-103', 'Mjerenje — utorak 10:00'),
-    a(7, 47, 'st-drita', 'create', 'offer', 'of-blackfriday', 'Black Friday — vrata −20%'),
-    a(8, 48, 'st-drita', 'create', 'discount', 'd-bf-vrata', 'Black Friday — vrata −20%'),
-    a(9, 50, 'st-drita', 'create', 'placement', 'pl-s4', 'Hero — Black Friday vrata'),
-    a(10, 70, 'st-gent', 'archive', 'product', 'p-statuario', 'Porculan Statuario Gold 60 × 60'),
+    a(6, 30, 'st-milica', 'create', 'booking', 'bk-104', 'Aufmaß — Dienstag 10:00'),
+    a(7, 47, 'st-drita', 'create', 'offer', 'of-blackfriday', 'Black Friday — Zubehör −20 %'),
+    a(8, 48, 'st-drita', 'create', 'discount', 'd-bf-accessories', 'Black Friday — Zubehör −20 %'),
+    a(9, 50, 'st-drita', 'create', 'placement', 'pl-bf', 'Hero — Black Friday Zubehör'),
+    a(10, 70, 'st-gent', 'archive', 'product', ARCHIVED_PRODUCT, 'Guillotine Balkon'),
     a(11, 74, 'st-arta', 'send', 'quote', 'q-031', 'Q-2026-031 v2'),
-    a(12, 96, 'st-blerim', 'adjust', 'inventory', 'p-vrata-vetro', 'SC-VR-105 −1 (damaged)'),
-    a(13, 98, 'st-gent', 'send', 'draft', 'dr-1002', 'D-1002 — predračun'),
-    a(14, 120, 'st-arta', 'receive', 'purchaseOrder', 'po-014', 'PO-2026-014: +366'),
-    a(15, 146, 'st-ana', 'publish', 'home', 'home', 'Početna — promo blok jesen'),
-    a(16, 150, 'st-ana', 'update', 'page', 'pg-dostava', 'Dostava i ugradnja'),
+    a(12, 96, 'st-blerim', 'adjust', 'inventory', 'p-acc-smart', 'TS-AC-705 −1 (damaged)'),
+    a(13, 98, 'st-gent', 'send', 'draft', 'dr-1002', 'D-1002 — Rechnung'),
+    a(14, 120, 'st-arta', 'receive', 'purchaseOrder', 'po-014', 'PO-2026-014: +102'),
+    a(15, 146, 'st-ana', 'publish', 'home', 'home', 'Startseite — Promo WARM15'),
+    a(16, 150, 'st-ana', 'update', 'page', 'pg-delivery', 'Lieferung & Montage'),
     a(17, 200, 'st-gent', 'update', 'settings', 'settings', 'shippingZones'),
-    a(18, 214, 'st-gent', 'publish', 'offer', 'of-jesen', 'Jesenja akcija podova'),
-    a(19, 216, 'st-drita', 'create', 'discount', 'd-podovi15', 'Jesen — podovi −15% (automatski)'),
-    a(20, 218, 'st-drita', 'create', 'collection', 'col-podovi-akcija', 'Podovi na akciji'),
+    a(18, 574, 'st-gent', 'publish', 'offer', 'of-warm', 'Warme Abende — WARM15'),
+    a(19, 590, 'st-drita', 'create', 'discount', 'd-warm15', 'Winter — Heizstrahler & LED −15 % (WARM15)'),
+    a(20, 600, 'st-drita', 'create', 'collection', 'col-warm', 'Warme Abende'),
     a(21, 230, 'st-arta', 'refund', 'return', 'rt-1001', 'RT-1001'),
-    a(22, 240, 'st-drita', 'create', 'discount', 'd-jesen25', 'JESEN25'),
+    a(22, 240, 'st-markus', 'status', 'quote', 'q-029', 'Q-2026-029: accepted'),
   ];
   return list;
 }

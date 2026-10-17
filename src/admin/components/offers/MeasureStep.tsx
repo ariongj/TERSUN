@@ -188,9 +188,9 @@ function UtmBuilder({ offer, data, onUtm }: { offer: OfferX; data: OfferData; on
   const l = useL('admin');
   const collection = offer.collectionId ? data.collections.find((c) => c.id === offer.collectionId) : undefined;
   const parsed = parseUtm(offer.utm);
-  const [f, setF] = useState<UtmFields>({ source: parsed.source || 'selca', medium: parsed.medium || 'email', campaign: parsed.campaign || offer.slug, content: parsed.content });
+  const [f, setF] = useState<UtmFields>({ source: parsed.source || 'tersun', medium: parsed.medium || 'email', campaign: parsed.campaign || offer.slug, content: parsed.content });
   const [dest, setDest] = useState<'landing' | 'collection' | 'catalog'>('landing');
-  const path = dest === 'collection' && collection ? `/kolekcija/${collection.slug}` : dest === 'catalog' ? '/proizvodi' : `/oferta/${offer.slug}`;
+  const path = dest === 'collection' && collection ? `/collection/${collection.slug}` : dest === 'catalog' ? '/shop' : `/offer/${offer.slug}`;
   const qs = buildUtm(f);
   const full = `${window.location.origin}${href(path)}${qs ? `?${qs}` : ''}`;
   const isCurrent = qs === offer.utm;
@@ -224,7 +224,7 @@ function UtmBuilder({ offer, data, onUtm }: { offer: OfferX; data: OfferData; on
                 {t('dest_collection')} — {l(collection.title)}
               </option>
             )}
-            <option value="catalog">{t('dest_catalog')} — /proizvodi</option>
+            <option value="catalog">{t('dest_catalog')} — /shop</option>
           </SelectBox>
         </div>
         {field('source', t('utm_source'))}

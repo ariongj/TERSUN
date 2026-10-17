@@ -1,4 +1,4 @@
-// /oferta/:slug — landing page of an ACTIVE offer (offers centre, PDF pp.28–29): hero with countdown, "how it works"
+// /offer/:slug — landing page of an ACTIVE offer (offers centre, PDF pp.28–29): hero with countdown, "how it works"
 // (code to copy / applied automatically / editorial), participating products, other live offers, help band.
 // Draft, paused, scheduled, expired or unknown → friendly "offer ended" page. `?preview=1` lets a signed-in CMS user
 // see a non-live offer (offer editor device preview), with a notice.
@@ -37,8 +37,8 @@ export default function OfferPage() {
   const cta = () => !preview && bumpOfferMetric(offer.id, 'ctaClicks');
   const shown = products.slice(0, SHOWN);
   const n = products.length;
-  const count = t((lang === 'me' ? n % 10 === 1 && n % 100 !== 11 : n === 1) ? 'prod_one' : 'prod_many', { n });
-  const viewAllTo = collectionSlug ? `/kolekcija/${collectionSlug}` : scope === 'all' ? '/proizvodi' : '/proizvodi?akcija=1';
+  const count = t(n === 1 ? 'prod_one' : 'prod_many', { n });
+  const viewAllTo = collectionSlug ? `/collection/${collectionSlug}` : scope === 'all' ? '/shop' : '/shop?sale=1';
   const titleKey: OTKey = scope === 'all' ? 'prod_title_all' : scope === 'collection' ? 'prod_title_ed' : 'prod_title';
 
   return (

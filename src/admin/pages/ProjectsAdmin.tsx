@@ -23,44 +23,44 @@ import { fold } from '@/lib/search';
 import { cn, uid } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    description: 'Portfolio završenih projekata — unosi modela „Projekti“. Izdvojeni (★) se prikazuju na početnoj, svi na stranici „Realizacije“.',
-    newProject: 'Novi projekat',
-    model: 'Model sadržaja',
-    featured: 'Na početnoj',
-    featuredBadge: 'Na početnoj',
-    featureAdd: 'Izdvoji na početnoj',
-    featureRemove: 'Ukloni sa početne',
-    nowFeatured: 'Projekat je izdvojen na početnoj',
-    nowUnfeatured: 'Projekat više nije na početnoj',
-    searchPh: 'Pretraži po nazivu ili gradu…',
-    empty: 'Još nema realizacija',
-    emptyText: 'Dodajte prvi završeni projekat sa fotografijom — to je najbolja preporuka za nove kupce.',
-    noMatch: 'Nijedan projekat ne odgovara filteru.',
-    addCard: 'Dodaj realizaciju',
-    addCardText: 'Fotografija, lokacija i kratak opis',
-    editTitle: 'Uredi projekat',
-    newTitle: 'Novi projekat',
-    modalText: 'Prikazuje se u portfoliju na sajtu, na sva tri jezika.',
-    fTitle: 'Naziv projekta',
-    fTitlePh: 'npr. Vila sa bazenom — ALU stolarija',
-    fSummary: 'Kratak opis',
-    fSummaryHint: 'Jedna do dvije rečenice — šta je urađeno i od kojih materijala.',
-    fLocation: 'Lokacija',
-    fLocationPh: 'npr. Budva',
-    fYear: 'Godina',
-    fImage: 'Fotografija',
-    fImageHint: 'Najbolje pejzažna fotografija, najmanje 1200 px širine.',
-    fFeatured: 'Izdvoji na početnoj',
-    fFeaturedHint: 'Prikazuje se u sekciji „Realizacije“ na početnoj.',
-    saved: 'Projekat je sačuvan',
-    created: 'Projekat je dodat u portfolio',
-    deleteTitle: 'Obrisati projekat „{name}“?',
-    deleteText: 'Projekat će biti uklonjen iz portfolija na sajtu.',
-    locationRequired: 'Unesite lokaciju.',
-    yearInvalid: 'Unesite ispravnu godinu.',
-    imageRequired: 'Izaberite fotografiju.',
-    stats: '{n} projekata · {f} na početnoj · {c} gradova',
+  de: {
+    description: 'Portfolio abgeschlossener Projekte — Einträge des Modells „Projekte“. Hervorgehobene (★) erscheinen auf der Startseite, alle auf der Seite „Referenzen“.',
+    newProject: 'Neues Projekt',
+    model: 'Inhaltsmodell',
+    featured: 'Auf der Startseite',
+    featuredBadge: 'Auf der Startseite',
+    featureAdd: 'Auf der Startseite hervorheben',
+    featureRemove: 'Von der Startseite entfernen',
+    nowFeatured: 'Projekt wird auf der Startseite hervorgehoben',
+    nowUnfeatured: 'Projekt ist nicht mehr auf der Startseite',
+    searchPh: 'Nach Name oder Stadt suchen…',
+    empty: 'Noch keine Referenzen',
+    emptyText: 'Fügen Sie das erste abgeschlossene Projekt mit Foto hinzu — die beste Empfehlung für neue Kunden.',
+    noMatch: 'Kein Projekt entspricht dem Filter.',
+    addCard: 'Referenz hinzufügen',
+    addCardText: 'Foto, Standort und Kurzbeschreibung',
+    editTitle: 'Projekt bearbeiten',
+    newTitle: 'Neues Projekt',
+    modalText: 'Wird im Portfolio auf der Website angezeigt, in allen drei Sprachen.',
+    fTitle: 'Projektname',
+    fTitlePh: 'z. B. Villa mit Pool — Aluminium-Verglasung',
+    fSummary: 'Kurzbeschreibung',
+    fSummaryHint: 'Ein bis zwei Sätze — was umgesetzt wurde und mit welchen Materialien.',
+    fLocation: 'Standort',
+    fLocationPh: 'z. B. München',
+    fYear: 'Jahr',
+    fImage: 'Foto',
+    fImageHint: 'Am besten ein Foto im Querformat, mindestens 1200 px breit.',
+    fFeatured: 'Auf der Startseite hervorheben',
+    fFeaturedHint: 'Wird im Bereich „Referenzen“ auf der Startseite angezeigt.',
+    saved: 'Projekt gespeichert',
+    created: 'Projekt zum Portfolio hinzugefügt',
+    deleteTitle: 'Projekt „{name}“ löschen?',
+    deleteText: 'Das Projekt wird aus dem Portfolio auf der Website entfernt.',
+    locationRequired: 'Geben Sie einen Standort ein.',
+    yearInvalid: 'Geben Sie ein gültiges Jahr ein.',
+    imageRequired: 'Wählen Sie ein Foto.',
+    stats: '{n} Projekte · {f} auf der Startseite · {c} Städte',
   },
   sq: {
     description: 'Portofoli i projekteve të përfunduara — regjistrimet e modelit „Projektet“. Të veçuarit (★) shfaqen në ballinë, të gjithë në faqen „Realizimet“.',
@@ -86,7 +86,7 @@ const T = defineDict({
     fSummary: 'Përshkrim i shkurtër',
     fSummaryHint: 'Një deri në dy fjali — çfarë u bë dhe me cilat materiale.',
     fLocation: 'Vendndodhja',
-    fLocationPh: 'p.sh. Ulqin',
+    fLocationPh: 'p.sh. Prishtinë',
     fYear: 'Viti',
     fImage: 'Fotografia',
     fImageHint: 'Më mirë foto horizontale, të paktën 1200 px e gjerë.',
@@ -125,7 +125,7 @@ const T = defineDict({
     fSummary: 'Short description',
     fSummaryHint: 'One or two sentences — what was done and with which materials.',
     fLocation: 'Location',
-    fLocationPh: 'e.g. Budva',
+    fLocationPh: 'e.g. Munich',
     fYear: 'Year',
     fImage: 'Photo',
     fImageHint: 'Ideally a landscape photo, at least 1200 px wide.',
@@ -153,7 +153,7 @@ const blankProject = (): Project => ({
   featured: false,
 });
 
-const tagKey = (tag: L10n) => tag.me.trim().toLowerCase();
+const tagKey = (tag: L10n) => tag.de.trim().toLowerCase();
 
 export default function ProjectsAdmin() {
   const t = useDict(T, 'admin');
@@ -197,7 +197,7 @@ export default function ProjectsAdmin() {
     if (deepId || deepNew) setParams({}, { replace: true });
   };
 
-  /** Every tag used across the portfolio (deduplicated on the Montenegrin label). */
+  /** Every tag used across the portfolio (deduplicated on the German label). */
   const allTags = useMemo(() => {
     const map = new Map<string, { tag: L10n; count: number }>();
     projects.forEach((p) =>
@@ -223,7 +223,7 @@ export default function ProjectsAdmin() {
         if (filter === 'featured' && !p.featured) return false;
         if (filter.startsWith('tag:') && !p.tags.some((tag) => tagKey(tag) === filter.slice(4))) return false;
         if (!needle) return true;
-        return fold(`${p.title.me} ${p.title.sq} ${p.title.en} ${p.location} ${p.year}`).includes(needle);
+        return fold(`${p.title.de} ${p.title.sq} ${p.title.en} ${p.location} ${p.year}`).includes(needle);
       });
   }, [projects, q, filter]);
 
@@ -472,7 +472,7 @@ function ProjectModal({
   const currentYear = new Date().getFullYear();
   const errors = d
     ? {
-        title: !d.title.me.trim() ? te('titleRequired') : undefined,
+        title: !d.title.de.trim() ? te('titleRequired') : undefined,
         location: !d.location.trim() ? t('locationRequired') : undefined,
         year: !d.year || d.year < 1990 || d.year > currentYear + 1 ? t('yearInvalid') : undefined,
         image: !d.image ? t('imageRequired') : undefined,
@@ -538,7 +538,7 @@ function ProjectModal({
                 label={t('fLocation')}
                 required
                 value={d.location}
-                list="selca-cities"
+                list="tersun-cities"
                 placeholder={t('fLocationPh')}
                 leading={<MapPin className="h-4 w-4" />}
                 onChange={(e) => patch({ location: e.target.value })}
@@ -555,7 +555,7 @@ function ProjectModal({
                 onChange={(e) => patch({ year: Number(e.target.value) })}
                 error={showErrors ? errors.year : undefined}
               />
-              <datalist id="selca-cities">
+              <datalist id="tersun-cities">
                 {cityList.map((c) => (
                   <option key={c} value={c} />
                 ))}

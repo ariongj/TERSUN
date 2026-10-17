@@ -19,7 +19,7 @@ import { CRIT_KEY, CritSymbol, CriteriaCard, DecisionCard, ModChip, PhaseColumn,
 import { useMT } from '@/admin/components/modulemap/i18n';
 
 type Filter = 'all' | ModStatus;
-const STORE_KEY = 'selca-module-decisions';
+const STORE_KEY = 'tersun-module-decisions';
 const CYCLE: Record<DecisionState, DecisionState> = { open: 'discussed', discussed: 'decided', decided: 'open' };
 const num = (i: number) => String(i + 1).padStart(2, '0');
 
@@ -73,7 +73,7 @@ export default function ModuleMap() {
 
   // values the decision hints quote from the live demo
   const ctx = useMemo(() => {
-    const langs = (['me', 'sq', 'en'] as const).filter((x) => settings.languages[x]).map((x) => x.toUpperCase());
+    const langs = (['de', 'sq', 'en'] as const).filter((x) => settings.languages[x]).map((x) => x.toUpperCase());
     return {
       staff: staff.filter((s) => s.active).length,
       roles: ROLES.length,

@@ -125,7 +125,7 @@ function DesktopPreview({ nodes }: { nodes: NavNode[] }) {
           ))}
           {promo && (
             <div title={promo.to} className="relative col-span-2 mt-1 h-[68px] overflow-hidden rounded-lg bg-ink">
-              <img src={thumb(promo.entity?.image ?? '/images/cat/podovi.webp')} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+              <img src={thumb(promo.entity?.image ?? '/images/cat/bioclimatic.webp')} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
               <div className="absolute inset-0 bg-gradient-to-r from-ink/85 to-transparent" />
               <div className="relative flex h-full flex-col justify-center px-3 text-white">
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-200">{l(promo.label)}</span>
@@ -163,7 +163,7 @@ function MobilePreview({ nodes }: { nodes: NavNode[] }) {
     <div className="mx-auto w-[252px] rounded-[30px] bg-[#111] p-2 shadow-[0_20px_40px_-20px_rgb(0_0_0/0.5)]">
       <div className="h-[470px] overflow-hidden rounded-[23px] bg-paper text-ink">
         <div className="flex items-center justify-between border-b border-line px-3.5 py-2.5">
-          <Logo className="h-6" />
+          <Logo className="h-4" />
           <X className="h-4 w-4 text-ink-soft" />
         </div>
         <div className="no-scrollbar h-[420px] overflow-y-auto px-3.5 py-3">

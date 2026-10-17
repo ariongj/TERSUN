@@ -77,7 +77,7 @@ export function useMediaUsage() {
         if (!live) add(v, { kind: 'homeDraft', id: h.id, section: h.type, to: '/admin/prodavnica/editor' });
       });
     for (const p of s.placements) {
-      const ref: UsageRef = { kind: 'placement', id: p.id, label: p.name, name: p.title.me ? p.title : undefined, to: `/admin/prodavnica/slajdovi/${p.id}` };
+      const ref: UsageRef = { kind: 'placement', id: p.id, label: p.name, name: p.title.de ? p.title : undefined, to: `/admin/prodavnica/slajdovi/${p.id}` };
       add(p.image, ref);
       add(p.imageMobile, ref);
     }

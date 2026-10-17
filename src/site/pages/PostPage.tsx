@@ -19,18 +19,18 @@ import { date } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    blog: 'Savjeti',
+  de: {
+    blog: 'Ratgeber',
     by: 'Autor',
-    toc: 'U ovom članku',
-    related_eyebrow: 'Nastavite čitanje',
-    related_title: 'Još *korisnih savjeta*',
-    allPosts: 'Svi savjeti',
-    nf_eyebrow: 'Članak nije pronađen',
-    nf_title: 'Ovaj savjet je *zalutao*',
-    nf_text: 'Članak je možda uklonjen ili mu je promijenjena adresa. Pogledajte ostale savjete naših majstora.',
-    nf_suggest: 'Možda vas zanima',
-    authorNote: 'Savjeti iz prakse — iz salona i sa terena širom Crne Gore.',
+    toc: 'In diesem Artikel',
+    related_eyebrow: 'Weiterlesen',
+    related_title: 'Weitere *nützliche Tipps*',
+    allPosts: 'Alle Ratgeber',
+    nf_eyebrow: 'Artikel nicht gefunden',
+    nf_title: 'Dieser Artikel hat sich *verirrt*',
+    nf_text: 'Der Artikel wurde möglicherweise entfernt oder seine Adresse geändert. Sehen Sie sich die weiteren Ratgeber unseres Teams an.',
+    nf_suggest: 'Das könnte Sie interessieren',
+    authorNote: 'Tipps aus der Praxis — aus unserem Showroom und von Montagen in ganz Europa.',
   },
   sq: {
     blog: 'Këshilla',
@@ -43,7 +43,7 @@ const T = defineDict({
     nf_title: 'Kjo këshillë *ka humbur rrugën*',
     nf_text: 'Artikulli mund të jetë hequr ose adresa i është ndryshuar. Shikoni këshillat e tjera të mjeshtrave tanë.',
     nf_suggest: 'Mund t’ju interesojë',
-    authorNote: 'Këshilla nga praktika — nga salloni dhe nga terreni në gjithë Malin e Zi.',
+    authorNote: 'Këshilla nga praktika — nga salloni dhe nga montimet në gjithë Evropën.',
   },
   en: {
     blog: 'Advice',
@@ -56,7 +56,7 @@ const T = defineDict({
     nf_title: 'This article has *wandered off*',
     nf_text: 'It may have been removed or its address changed. Have a look at the other guides from our team.',
     nf_suggest: 'You might like',
-    authorNote: 'Advice from practice — from our showroom and job sites across Montenegro.',
+    authorNote: 'Advice from practice — from our showroom and installations across Europe.',
   },
 });
 
@@ -182,7 +182,7 @@ export default function PostPage() {
         text={t('nf_text')}
         actions={
           <>
-            <ButtonLink to="/savjeti" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/journal" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('allPosts')}
             </ButtonLink>
             <ButtonLink to="/" variant="outline">
@@ -222,12 +222,12 @@ export default function PostPage() {
           <div className="container-x">
             <div className="mx-auto max-w-[880px] text-center">
               <div className="flex justify-center">
-                <Breadcrumbs items={[{ label: t('blog'), to: '/savjeti' }, { label: l(post.tag) }]} />
+                <Breadcrumbs items={[{ label: t('blog'), to: '/journal' }, { label: l(post.tag) }]} />
               </div>
               <h1 className="display mt-8 animate-fade-up text-[38px] leading-[1.05] text-ink sm:text-[56px] lg:text-[64px]">{title}</h1>
               <p className="mx-auto mt-5 max-w-2xl animate-fade-up text-[17px] leading-relaxed text-muted [animation-delay:80ms] sm:text-[19px]">{l(post.excerpt)}</p>
               <div className="mt-8 flex animate-fade-up flex-wrap items-center justify-center gap-x-4 gap-y-3 text-[13.5px] font-semibold text-muted [animation-delay:160ms]">
-                <Link to={`/savjeti?tag=${tagKey(post)}`} className="rounded-full bg-brand-50 px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-brand-700 transition-colors hover:bg-brand-100">
+                <Link to={`/journal?tag=${tagKey(post)}`} className="rounded-full bg-brand-50 px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-brand-700 transition-colors hover:bg-brand-100">
                   {l(post.tag)}
                 </Link>
                 <span className="h-1 w-1 rounded-full bg-muted/40" />
@@ -315,7 +315,7 @@ export default function PostPage() {
                 eyebrow={t('related_eyebrow')}
                 title={t('related_title')}
                 action={
-                  <ButtonLink to="/savjeti" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+                  <ButtonLink to="/journal" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
                     {t('allPosts')}
                   </ButtonLink>
                 }

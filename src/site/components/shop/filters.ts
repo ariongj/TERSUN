@@ -17,7 +17,7 @@ export const SORTS: { key: SortKey; param: string | null }[] = [
 export const sortFromParam = (v: string | null): SortKey => SORTS.find((s) => s.param === v)?.key ?? 'popular';
 export const sortToParam = (k: SortKey) => SORTS.find((s) => s.key === k)?.param ?? null;
 
-const COLLATOR: Record<Lang, string> = { me: 'sr-Latn', sq: 'sq', en: 'en' };
+const COLLATOR: Record<Lang, string> = { de: 'de', sq: 'sq', en: 'en' };
 
 export function sortProducts(list: Product[], sort: SortKey, name: (v: L10n) => string, lang: Lang) {
   const out = [...list];
@@ -53,7 +53,7 @@ export const UNIT_KINDS: UnitKind[] = ['piece', 'area', 'length'];
 
 /* ------------------------------------------------------------------ */
 /* Colour families — swatch values aggregated into shopper-friendly    */
-/* groups ("Crna mat", "Crna RAL 9005" → Crna). Label keywords first,  */
+/* groups ("Schwarz matt", "Schwarz RAL 9005" → Schwarz). Keywords 1st,*/
 /* the swatch hex as a fallback for anything typed in the CMS.         */
 /* ------------------------------------------------------------------ */
 export type ColorFamily = 'white' | 'cream' | 'grey' | 'anthracite' | 'black' | 'lightwood' | 'darkwood' | 'gold' | 'metal' | 'green' | 'blue' | 'red';
@@ -76,21 +76,21 @@ export const FAMILY_SWATCH: Record<ColorFamily, string> = {
 };
 
 const RULES: [RegExp, ColorFamily][] = [
-  [/zlat|gold|brass|mesing|bronz|tunxh|\bari\b/, 'gold'],
-  [/\bhrom|chrome|\bkrom|inox|inoks|čelik|celik|steel|nikl|nickel|srebr|silver/, 'metal'],
-  [/\borah|walnut|\barre\b|\bnoce\b|tamn\w* hrast|dark oak|dimljen|smoked|wenge|venge/, 'darkwood'],
-  [/hrast|\boak\b|\bdrv|wood|bukv|beech|jasen|\blis\b/, 'lightwood'],
-  [/antracit|anthracite|grafit|graphite/, 'anthracite'],
-  [/\bcrn|black|\bner[oa]\b|zez/, 'black'],
-  [/\bbijel|white|bianc|krečenj|krecenj|paint|bardh/, 'white'],
-  [/\bkrem\b|cream|bež|beige|ivory|bezh/, 'cream'],
-  [/\bsiv|grey|gray|\bgri\b|beton|concrete/, 'grey'],
-  [/\bzelen|green|žalfij|zalfij|\bsage\b|maslin|olive|gjelb/, 'green'],
-  [/\bplav|blue|navy|\bblu\b/, 'blue'],
-  [/\bcrven|\bred\b|bordo|terakot|kuq/, 'red'],
+  [/zlat|gold|brass|mesing|messing|bronz|tunxh|\bari\b/, 'gold'],
+  [/\bhrom|chrome|\bchrom|\bkrom|inox|inoks|čelik|celik|steel|stahl|nikl|nickel|srebr|silver|silber/, 'metal'],
+  [/\borah|walnut|nussbaum|\barre\b|\bnoce\b|tamn\w* hrast|dark oak|dunkle\w* eiche|dimljen|smoked|räucher|wenge|venge/, 'darkwood'],
+  [/hrast|\boak\b|eiche|\bdrv|wood|holz|bukv|beech|buche|jasen|esche|\blis\b/, 'lightwood'],
+  [/antracit|anthracite|anthrazit|grafit|graphite|graphit/, 'anthracite'],
+  [/\bcrn|black|schwarz|\bner[oa]\b|zez/, 'black'],
+  [/\bbijel|white|weiß|weiss|bianc|krečenj|krecenj|paint|bardh/, 'white'],
+  [/\bkrem\b|cream|creme|bež|beige|ivory|elfenbein|bezh/, 'cream'],
+  [/\bsiv|grey|gray|grau|\bgri\b|beton|concrete/, 'grey'],
+  [/\bzelen|green|grün|gruen|žalfij|zalfij|\bsage\b|salbei|maslin|oliv|gjelb/, 'green'],
+  [/\bplav|blue|\bblau|navy|\bblu\b/, 'blue'],
+  [/\bcrven|\bred\b|\brot\b|bordo|terakot|terrakott|kuq/, 'red'],
 ];
 
-/** Every family a text names ("Sivi hrast" → grey + light wood; "Tamni hrast" → dark wood only). */
+/** Every family a text names ("Graue Eiche" → grey + light wood; "Dunkle Eiche" → dark wood only). */
 function familiesIn(text: string): ColorFamily[] {
   const s = text.toLowerCase();
   const out = RULES.filter(([re]) => re.test(s)).map(([, f]) => f);
@@ -127,7 +127,7 @@ function familyFromHex(hex: string | undefined): ColorFamily | null {
 }
 
 export function colorFamilies(label: L10n, hex?: string): ColorFamily[] {
-  const found = familiesIn(`${label.me} | ${label.en} | ${label.sq}`);
+  const found = familiesIn(`${label.de} | ${label.en} | ${label.sq}`);
   if (found.length) return found;
   const fam = familyFromHex(hex);
   return fam ? [fam] : [];
@@ -135,13 +135,13 @@ export function colorFamilies(label: L10n, hex?: string): ColorFamily[] {
 
 /**
  * Colour families a product comes in: from its swatch options, or — for
- * products without swatches — from its name ("… — bijela", "Grey Stone Oak").
+ * products without swatches — from its name ("… — Weiß", "Grey Stone Oak").
  */
 export function productColors(p: Product): ColorFamily[] {
   const out = new Set<ColorFamily>();
   const swatches = p.options.filter((o) => o.type === 'swatch');
   for (const o of swatches) for (const v of o.values) colorFamilies(v.label, v.swatch).forEach((f) => out.add(f));
-  if (!swatches.length) familiesIn(`${p.name.me} | ${p.name.en}`).forEach((f) => out.add(f));
+  if (!swatches.length) familiesIn(`${p.name.de} | ${p.name.en}`).forEach((f) => out.add(f));
   return FAMILY_ORDER.filter((f) => out.has(f));
 }
 

@@ -82,7 +82,7 @@ export default function Discounts() {
     return rows.filter(({ d }) => {
       if (kind !== 'all' && d.kind !== kind) return false;
       if (terms.length) {
-        const hay = fold(`${d.title} ${d.code ?? ''} ${d.publicTitle.me} ${d.publicTitle.sq} ${d.publicTitle.en} ${(d.tags ?? []).join(' ')}`);
+        const hay = fold(`${d.title} ${d.code ?? ''} ${d.publicTitle.de} ${d.publicTitle.sq} ${d.publicTitle.en} ${(d.tags ?? []).join(' ')}`);
         if (!terms.every((term) => hay.includes(term))) return false;
       }
       return true;
@@ -156,7 +156,7 @@ export default function Discounts() {
   };
   const exportCsv = () => {
     const out = list.map((r) => r.d);
-    download(`selca-zbritjet-${new Date().toISOString().slice(0, 10)}.csv`, discountsCsv(out), 'text/csv;charset=utf-8');
+    download(`tersun-discounts-${new Date().toISOString().slice(0, 10)}.csv`, discountsCsv(out), 'text/csv;charset=utf-8');
     toast.success(t('exported', { n: out.length }));
   };
 

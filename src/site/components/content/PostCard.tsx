@@ -9,9 +9,9 @@ import { cn, initials } from '@/lib/utils';
 import { C } from './dict';
 import { postHref } from './posts';
 
-/** Round author avatar — the SELCA roof mark for the in-house team, initials otherwise. */
+/** Round author avatar — the TERSUN roof mark for the in-house team, initials otherwise. */
 export function AuthorAvatar({ name, className }: { name: string; className?: string }) {
-  const team = /selca/i.test(name);
+  const team = /tersun/i.test(name);
   return (
     <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-full ring-1', team ? 'bg-white ring-line' : 'bg-ink text-paper ring-ink', className)} aria-hidden>
       {team ? <LogoMark className="h-[45%] w-auto" /> : <span className="text-[11px] font-bold tracking-wider">{initials(name)}</span>}

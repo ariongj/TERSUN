@@ -14,25 +14,25 @@ import { useActiveProducts, useSettings } from '@/store/hooks';
 import type { Product } from '@/lib/types';
 
 const T = defineDict({
-  me: {
-    pageTitle: 'Lista želja',
-    eyebrow: 'Sačuvano za kasnije',
-    title: 'Lista *želja*',
-    subtitle: 'Proizvodi koje ste označili srcem čekaju vas ovdje — uporedite ih na miru i vratite im se kada budete spremni.',
-    productOne: '{n} proizvod',
-    productMany: '{n} proizvoda',
-    clearAll: 'Obriši sve',
-    cleared: 'Lista želja je obrisana',
-    undo: 'Poništi',
-    continue: 'Nastavite kupovinu',
-    emptyTitle: 'Vaša lista želja je *prazna*',
-    emptyText: 'Kliknite na srce na bilo kojem proizvodu i sačuvajte ga ovdje — tako ćete lako uporediti opcije prije kupovine.',
-    emptyCta: 'Pogledajte proizvode',
-    inspiration: 'Možda će vam se *dopasti*',
-    helpEyebrow: 'Besplatno mjerenje',
-    helpTitle: 'Dolazimo, mjerimo i *savjetujemo* — besplatno.',
-    helpText: 'Niste sigurni koja dimenzija ili model odgovara vašem prostoru? Naš tehničar dolazi u roku od 48 sati i priprema preciznu ponudu.',
-    helpCta: 'Zakažite mjerenje',
+  de: {
+    pageTitle: 'Wunschliste',
+    eyebrow: 'Für später gespeichert',
+    title: 'Ihre *Wunschliste*',
+    subtitle: 'Alle Produkte, die Sie mit einem Herz markiert haben, warten hier auf Sie — vergleichen Sie in Ruhe und kommen Sie zurück, wenn Sie bereit sind.',
+    productOne: '{n} Produkt',
+    productMany: '{n} Produkte',
+    clearAll: 'Alle entfernen',
+    cleared: 'Wunschliste geleert',
+    undo: 'Rückgängig',
+    continue: 'Weiter einkaufen',
+    emptyTitle: 'Ihre Wunschliste ist *leer*',
+    emptyText: 'Klicken Sie bei einem Produkt auf das Herz, um es hier zu speichern — so können Sie Optionen vor dem Kauf ganz einfach vergleichen.',
+    emptyCta: 'Produkte ansehen',
+    inspiration: 'Das könnte Ihnen *gefallen*',
+    helpEyebrow: 'Kostenlose Beratung vor Ort',
+    helpTitle: 'Wir kommen, messen und *beraten* — kostenlos.',
+    helpText: 'Sie sind unsicher, welche Größe oder welches System zu Ihrer Terrasse passt? Unser Berater kommt innerhalb von 48 Stunden und erstellt ein präzises Angebot.',
+    helpCta: 'Beratung vereinbaren',
   },
   sq: {
     pageTitle: 'Të preferuarat',
@@ -49,10 +49,10 @@ const T = defineDict({
     emptyText: 'Klikoni zemrën në çdo produkt për ta ruajtur këtu — kështu i krahasoni lehtë opsionet para blerjes.',
     emptyCta: 'Shikoni produktet',
     inspiration: 'Mund t’ju *pëlqejnë*',
-    helpEyebrow: 'Matje falas',
+    helpEyebrow: 'Konsultë falas në vend',
     helpTitle: 'Vijmë, masim dhe *këshillojmë* — falas.',
-    helpText: 'Nuk jeni të sigurt cila masë apo model i përshtatet hapësirës suaj? Tekniku ynë vjen brenda 48 orëve dhe përgatit një ofertë të saktë.',
-    helpCta: 'Caktoni matjen',
+    helpText: 'Nuk jeni të sigurt cila masë apo sistem i përshtatet tarracës suaj? Këshilltari ynë vjen brenda 48 orëve dhe përgatit një ofertë të saktë.',
+    helpCta: 'Caktoni konsultën',
   },
   en: {
     pageTitle: 'Wishlist',
@@ -69,10 +69,10 @@ const T = defineDict({
     emptyText: 'Tap the heart on any product to save it here — it makes comparing options before you buy easy.',
     emptyCta: 'Browse products',
     inspiration: 'You might *like*',
-    helpEyebrow: 'Free measurement',
+    helpEyebrow: 'Free on-site consultation',
     helpTitle: 'We visit, measure and *advise* — for free.',
-    helpText: 'Not sure which size or model suits your space? Our technician visits within 48 hours and prepares a precise quote.',
-    helpCta: 'Book a measurement',
+    helpText: 'Not sure which size or system suits your terrace? Our advisor visits within 48 hours and prepares a precise quote.',
+    helpCta: 'Book a consultation',
   },
 });
 
@@ -126,7 +126,7 @@ export default function Wishlist() {
                 <Button variant="ghost" onClick={clearAll} icon={<Trash2 className="h-4 w-4" />} className="text-ink-soft hover:text-brand-700 max-md:-ml-4">
                   {t('clearAll')}
                 </Button>
-                <ButtonLink to="/proizvodi" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+                <ButtonLink to="/shop" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
                   {t('continue')}
                 </ButtonLink>
               </div>
@@ -147,7 +147,7 @@ export default function Wishlist() {
               <Accent text={t('emptyTitle')} />
             </h2>
             <p className="mt-4 text-[16px] leading-relaxed text-muted">{t('emptyText')}</p>
-            <ButtonLink to="/proizvodi" size="lg" className="mt-8" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" size="lg" className="mt-8" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('emptyCta')}
             </ButtonLink>
           </div>
@@ -166,13 +166,13 @@ export default function Wishlist() {
 
         <CtaBand
           className="mt-16 sm:mt-24"
-          image="/images/s/mjerenje.webp"
+          image="/images/misc/builder-day.webp"
           eyebrow={t('helpEyebrow')}
           title={t('helpTitle')}
           text={t('helpText')}
           actions={
             <>
-              <ButtonLink to="/#mjerenje" variant="light" size="lg" icon={<Ruler className="h-4 w-4" />}>
+              <ButtonLink to="/#consultation" variant="light" size="lg" icon={<Ruler className="h-4 w-4" />}>
                 {t('helpCta')}
               </ButtonLink>
               <a href={tel} className="inline-flex h-13 items-center justify-center gap-2.5 rounded-full border border-white/30 px-6 text-[15px] font-semibold text-white transition-colors hover:bg-white/10">

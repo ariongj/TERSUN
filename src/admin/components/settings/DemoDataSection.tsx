@@ -47,7 +47,7 @@ function validate(x: unknown, current: Db): Db | null {
 function storageUsed(): number {
   let stored = 0;
   try {
-    stored = window.localStorage.getItem('selca-db')?.length ?? 0;
+    stored = window.localStorage.getItem('tersun-db')?.length ?? 0;
   } catch {
     /* storage unavailable */
   }
@@ -105,7 +105,7 @@ export function DemoDataSection({ s, set, readOnly, onReplaced }: SecProps & { o
   ];
 
   const onExport = () => {
-    download(`selca-demo-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(snapshot(), null, 2));
+    download(`tersun-demo-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(snapshot(), null, 2));
     toast.success(t('exportDone'));
   };
 

@@ -1,5 +1,5 @@
 /**
- * SELCA discount engine — CMS proposal pp. 20–26.
+ * TERSUN discount engine — CMS proposal pp. 20–26.
  *
  * Pure and framework-free: this module only has *type* imports, so the very same code runs in the
  * storefront (pricing.ts → cart/checkout), in the store (placeOrder) and in plain Node for the check

@@ -1,4 +1,4 @@
-// Device preview of the real landing page (/oferta/:slug) in a scaled iframe — PDF p.29 "Preview në pajisje".
+// Device preview of the real landing page (/offer/:slug) in a scaled iframe — PDF p.29 "Preview në pajisje".
 import { useLayoutEffect, useRef, useState } from 'react';
 import { ExternalLink, Monitor, RotateCw, Smartphone, Tablet } from 'lucide-react';
 import { Card } from '@/admin/components/kit';
@@ -32,7 +32,7 @@ export function DevicePreview({ slug, live, dirty }: { slug: string | null; live
     return () => ro.disconnect();
   }, []);
 
-  const url = slug ? href(`/oferta/${slug}${live ? '' : '?preview=1'}`) : '';
+  const url = slug ? href(`/offer/${slug}${live ? '' : '?preview=1'}`) : '';
   const d = DEVICES[device];
   const pad = 16;
   let scale = 1;
@@ -54,9 +54,9 @@ export function DevicePreview({ slug, live, dirty }: { slug: string | null; live
     // hide the storefront's floating "demo → CMS" badge inside the preview
     try {
       const doc = frame.current?.contentDocument;
-      if (doc && !doc.getElementById('selca-offer-preview')) {
+      if (doc && !doc.getElementById('tersun-offer-preview')) {
         const st = doc.createElement('style');
-        st.id = 'selca-offer-preview';
+        st.id = 'tersun-offer-preview';
         st.textContent = 'a.fixed[href$="/admin"]{display:none!important}';
         doc.head.appendChild(st);
       }

@@ -181,7 +181,7 @@ function labelOf(item: unknown): string | undefined {
   for (const k of ['number', 'code', 'title', 'name', 'customerName']) {
     const v = o?.[k];
     if (typeof v === 'string' && v) return v;
-    if (v && typeof v === 'object' && typeof (v as L10n).me === 'string') return (v as L10n).me;
+    if (v && typeof v === 'object' && typeof (v as L10n).de === 'string') return (v as L10n).de;
   }
   return undefined;
 }
@@ -335,13 +335,13 @@ export const useDb = create<DbStore>()(
           const action: AuditAction = !prev ? 'create' : prev.status !== 'archived' && p.status === 'archived' ? 'archive' : prev.status !== 'active' && p.status === 'active' ? 'publish' : 'update';
           return {
             products: upsertIn(s.products, { ...p, updatedAt: new Date().toISOString() }),
-            audit: pushAudit(s, { action, object: 'product', objectId: p.id, detail: p.name.me }),
+            audit: pushAudit(s, { action, object: 'product', objectId: p.id, detail: p.name.de }),
           };
         }),
       deleteProduct: (id) =>
         set((s) => {
           const p = s.products.find((x) => x.id === id);
-          return { products: s.products.filter((x) => x.id !== id), audit: p ? pushAudit(s, { action: 'delete', object: 'product', objectId: id, detail: p.name.me }) : s.audit };
+          return { products: s.products.filter((x) => x.id !== id), audit: p ? pushAudit(s, { action: 'delete', object: 'product', objectId: id, detail: p.name.de }) : s.audit };
         }),
       duplicateProduct: (id) => {
         const src = get().products.find((p) => p.id === id);
@@ -351,12 +351,12 @@ export const useDb = create<DbStore>()(
           id: uid('p'),
           slug: `${src.slug}-kopija`,
           sku: `${src.sku}-K`,
-          name: { me: `${src.name.me} (kopija)`, sq: `${src.name.sq} (kopje)`, en: `${src.name.en} (copy)` },
+          name: { de: `${src.name.de} (Kopie)`, sq: `${src.name.sq} (kopje)`, en: `${src.name.en} (copy)` },
           status: 'draft',
           sold: 0,
           createdAt: new Date().toISOString(),
         };
-        set((s) => ({ products: [copy, ...s.products], audit: pushAudit(s, { action: 'create', object: 'product', objectId: copy.id, detail: copy.name.me }) }));
+        set((s) => ({ products: [copy, ...s.products], audit: pushAudit(s, { action: 'create', object: 'product', objectId: copy.id, detail: copy.name.de }) }));
         return copy.id;
       },
 
@@ -397,7 +397,7 @@ export const useDb = create<DbStore>()(
             products = s.products.map((p) => {
               const qty = o.items.filter((l) => l.productId === p.id).reduce((n, l) => n + l.qty, 0);
               if (!qty || !isTracked(p)) return p;
-              moves.push(movement(p.id, qty, 'correction', by, `Otkazana narudžba / Porosi e anuluar`, o.number));
+              moves.push(movement(p.id, qty, 'correction', by, `Stornierte Bestellung / Porosi e anuluar`, o.number));
               return { ...p, stock: p.stock + qty };
             });
             movements = [...moves, ...s.movements].slice(0, MOVEMENTS_MAX);
@@ -614,7 +614,7 @@ export const useDb = create<DbStore>()(
         };
         const { order, patch } = buildOrder(
           s,
-          { customer, items: d.items, delivery: d.delivery, payment: d.payment ?? 'bank', codes: d.discountCodes, lang: d.lang ?? 'me' },
+          { customer, items: d.items, delivery: d.delivery, payment: d.payment ?? 'bank', codes: d.discountCodes, lang: d.lang ?? 'de' },
           { customLines: d.customLines, draftId: d.id, by, status: 'confirmed' },
         );
         const withTags: Order = { ...order, tags: d.tags, timeline: [...order.timeline, { at: order.createdAt, status: 'confirmed', note: d.number, by: 'admin' }] };
@@ -720,7 +720,7 @@ export const useDb = create<DbStore>()(
       },
     }),
     {
-      name: 'selca-db',
+      name: 'tersun-db',
       version: DB_VERSION,
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => Object.fromEntries(DATA_KEYS.map((k) => [k, s[k]])) as unknown as DbStore,

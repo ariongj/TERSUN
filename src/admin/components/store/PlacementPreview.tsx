@@ -1,6 +1,6 @@
 // Live preview of a slide / banner / announcement with the storefront's real styling (PDF p.35
 // "Parapamje Desktop / Mobile"). Rendered at the device's real width and scaled down to the panel, inside a
-// wrapper that restores the SELCA brand + warm tokens (the CMS itself stays neutral).
+// wrapper that restores the TERSUN brand + warm tokens (the CMS itself stays neutral).
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { ArrowRight, ChevronLeft, ChevronRight, Phone, Ruler } from 'lucide-react';
@@ -67,7 +67,7 @@ export function PlacementPreview({
   font = 'classic',
   index = 1,
   count = 1,
-  domain = 'selcacompany.com',
+  domain = 'tersun.com',
   placeholders,
 }: {
   p: PlacementX;
@@ -126,7 +126,7 @@ function Media({ p, device, kenburns }: { p: PlacementX; device: Device; kenburn
     <img
       key={src}
       src={src}
-      alt={T(p.alt, 'me')}
+      alt={T(p.alt, 'de')}
       className={cn('absolute inset-0 h-full w-full object-cover', kenburns && !reduce && 'animate-[kenburns_9s_ease-out_both]')}
       style={{ objectPosition: objectPos(focal) }}
       draggable={false}
@@ -163,7 +163,7 @@ function SlideBody({ p, device, lang, font, index, count, placeholders }: { p: P
       <Overlay p={p} />
       {/* faux header (transparent over the hero) */}
       <div className={cn('absolute inset-x-0 top-0 flex items-center justify-between', mobile ? 'h-16 px-4' : 'h-20 px-8')}>
-        <Logo tone="light" className={mobile ? 'h-9!' : 'h-11!'} />
+        <Logo tone="light" className={mobile ? 'h-4!' : 'h-5!'} />
         {!mobile && (
           <div className="flex gap-7 text-[14.5px] font-semibold text-white/85">
             <NavItems lang={lang} />
@@ -193,7 +193,7 @@ function SlideBody({ p, device, lang, font, index, count, placeholders }: { p: P
               )}
               {sec && (
                 <span className={buttonClass({ size: 'lg', variant: 'outlineLight' })}>
-                  {p.secondary!.href.includes('mjerenje') && <Ruler className="h-4 w-4" />}
+                  {p.secondary!.href.includes('consultation') && <Ruler className="h-4 w-4" />}
                   {sec}
                 </span>
               )}
@@ -266,18 +266,18 @@ function AnnouncementBody({ p, device, lang }: { p: PlacementX; device: Device; 
         <div className={cn('flex h-9 items-center justify-between gap-4 text-[12.5px]', mobile ? 'px-4' : 'px-8')}>
           {!mobile && (
             <span className="flex items-center gap-1.5 text-paper/75">
-              <Phone className="h-3.5 w-3.5" /> +382 67 123 456
+              <Phone className="h-3.5 w-3.5" /> +383 44 000 000
             </span>
           )}
           <p className={cn('flex-1 truncate text-center font-medium', !msg && 'opacity-50')}>
             {msg || '—'}
             {p.cta.href && linkLabel && <span className="ml-2 underline underline-offset-2">{linkLabel}</span>}
           </p>
-          {!mobile && <span className="text-[11px] font-bold tracking-wide text-paper/75">ME · SQ · EN</span>}
+          {!mobile && <span className="text-[11px] font-bold tracking-wide text-paper/75">DE · SQ · EN</span>}
         </div>
       </div>
       <div className={cn('flex h-[72px] items-center justify-between border-b border-line bg-paper/95', mobile ? 'px-4' : 'px-8')}>
-        <Logo className={mobile ? 'h-9!' : 'h-11!'} />
+        <Logo className={mobile ? 'h-4!' : 'h-5!'} />
         {!mobile && (
           <div className="flex gap-7 text-[14.5px] font-semibold text-ink-soft">
             <NavItems lang={lang} />

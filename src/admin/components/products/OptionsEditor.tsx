@@ -8,8 +8,8 @@ import { cn, uid } from '@/lib/utils';
 import { pd } from './dict';
 import { IconBtn, LangTabs, MiniL10n, NumInput, Segmented, missingCounts } from './parts';
 
-const L = (me: string, sq: string, en: string): L10n => ({ me, sq, en });
-const empty = (): L10n => ({ me: '', sq: '', en: '' });
+const L = (de: string, sq: string, en: string): L10n => ({ de, sq, en });
+const empty = (): L10n => ({ de: '', sq: '', en: '' });
 
 /** One-click starting points (data in all three languages). */
 const PRESETS: { key: string; make: () => ProductOption }[] = [
@@ -17,12 +17,12 @@ const PRESETS: { key: string; make: () => ProductOption }[] = [
     key: 'color',
     make: () => ({
       id: uid('opt'),
-      name: L('Boja', 'Ngjyra', 'Colour'),
+      name: L('Farbe', 'Ngjyra', 'Colour'),
       type: 'swatch',
       values: [
-        { id: uid('v'), label: L('Bijela', 'E bardhë', 'White'), swatch: '#f3f0ea' },
-        { id: uid('v'), label: L('Antracit', 'Antracit', 'Anthracite'), swatch: '#3b3e42' },
-        { id: uid('v'), label: L('Hrast', 'Lis', 'Oak'), swatch: '#b88a5a', priceDelta: 20 },
+        { id: uid('v'), label: L('Weiß', 'E bardhë', 'White'), swatch: '#f3f0ea' },
+        { id: uid('v'), label: L('Anthrazit', 'Antracit', 'Anthracite'), swatch: '#3b3e42' },
+        { id: uid('v'), label: L('Eiche', 'Lis', 'Oak'), swatch: '#b88a5a', priceDelta: 20 },
       ],
     }),
   },
@@ -30,7 +30,7 @@ const PRESETS: { key: string; make: () => ProductOption }[] = [
     key: 'width',
     make: () => ({
       id: uid('opt'),
-      name: L('Širina', 'Gjerësia', 'Width'),
+      name: L('Breite', 'Gjerësia', 'Width'),
       type: 'button',
       values: ['70 cm', '80 cm', '90 cm'].map((w, i) => ({ id: uid('v'), label: L(w, w, w), priceDelta: i === 2 ? 15 : undefined })),
     }),
@@ -39,11 +39,11 @@ const PRESETS: { key: string; make: () => ProductOption }[] = [
     key: 'opening',
     make: () => ({
       id: uid('opt'),
-      name: L('Smjer otvaranja', 'Drejtimi i hapjes', 'Opening side'),
+      name: L('Öffnungsrichtung', 'Drejtimi i hapjes', 'Opening side'),
       type: 'button',
       values: [
-        { id: uid('v'), label: L('Lijevo', 'Majtas', 'Left') },
-        { id: uid('v'), label: L('Desno', 'Djathtas', 'Right') },
+        { id: uid('v'), label: L('Links', 'Majtas', 'Left') },
+        { id: uid('v'), label: L('Rechts', 'Djathtas', 'Right') },
       ],
     }),
   },
@@ -137,8 +137,8 @@ export function OptionsFields({ value, onChange, lang }: { value: ProductOption[
   const setValues = (i: number, values: ProductOptionValue[]) => update(i, { values });
   const addOption = () => onChange([...value, { id: uid('opt'), name: empty(), type: 'button', values: [{ id: uid('v'), label: empty() }] }]);
   const presets = PRESETS.filter((p) => {
-    const name = p.make().name.me.toLowerCase();
-    return !value.some((o) => o.name.me.trim().toLowerCase() === name);
+    const name = p.make().name.de.toLowerCase();
+    return !value.some((o) => o.name.de.trim().toLowerCase() === name);
   });
 
   return (

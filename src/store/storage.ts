@@ -17,7 +17,7 @@ export const safeStorage: StateStorage = {
     try {
       window.localStorage.setItem(name, value);
     } catch (err) {
-      window.dispatchEvent(new CustomEvent('selca:storage-full', { detail: { name, err } }));
+      window.dispatchEvent(new CustomEvent('tersun:storage-full', { detail: { name, err } }));
     }
   },
   removeItem: (name) => {

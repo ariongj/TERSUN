@@ -17,10 +17,10 @@ export interface ValidateCtx {
   now?: number;
 }
 
-const LANG_ORDER: Lang[] = ['me', 'sq', 'en'];
+const LANG_ORDER: Lang[] = ['de', 'sq', 'en'];
 
 const isL10n = (v: unknown): v is L10n =>
-  !!v && typeof v === 'object' && !Array.isArray(v) && typeof (v as L10n).me === 'string' && typeof (v as L10n).sq === 'string' && typeof (v as L10n).en === 'string';
+  !!v && typeof v === 'object' && !Array.isArray(v) && typeof (v as L10n).de === 'string' && typeof (v as L10n).sq === 'string' && typeof (v as L10n).en === 'string';
 
 const filled = (v: L10n | undefined) => !!v && LANG_ORDER.some((k) => v[k].trim() !== '');
 const first = (v: L10n) => (LANG_ORDER.map((k) => v[k].trim()).find(Boolean) ?? '').replace(/\*/g, '');

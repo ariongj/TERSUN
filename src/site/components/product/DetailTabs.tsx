@@ -113,7 +113,7 @@ function Specs({ product: p, category }: { product: Product; category?: Category
   const t = useDict(PD);
   const l = useL();
   const lang = useLang();
-  const hasWarranty = p.specs.some((s) => /garanc|warrant/i.test(s.label.me + s.label.en));
+  const hasWarranty = p.specs.some((s) => /garanc|warrant/i.test(s.label.de + s.label.en));
   const unitText =
     p.unit === 'm2' && p.packSize ? t('unit_m2', { size: num(p.packSize, lang) }) : p.unit === 'm' ? t('unit_m') : p.unit === 'set' ? t('unit_set') : t('unit_kom');
   const rows: [string, string][] = [

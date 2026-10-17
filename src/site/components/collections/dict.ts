@@ -1,34 +1,34 @@
 import { defineDict } from '@/i18n';
 import type { Lang } from '@/lib/types';
 
-/** Storefront collection page (/kolekcija/:slug) — ME / SQ / EN. */
+/** Storefront collection page (/collection/:slug) — DE / SQ / EN. */
 export const CT = defineDict({
-  me: {
-    eyebrow: 'Kolekcija',
-    countOne: '{n} proizvod',
-    countMany: '{n} proizvoda',
-    fromPrice: 'Već od {price}',
-    install: 'Stručna ugradnja',
-    upTo: 'Do −{pct}%',
-    autoPct: '−{pct}% automatski u korpi',
-    autoFixed: '−{amount} automatski u korpi',
-    browse: 'Pogledajte proizvode',
-    inCollection: 'u kolekciji',
-    sortBy: 'Sortiraj',
-    sort_featured: 'Preporučeno',
-    sort_bestselling: 'Najprodavanije',
-    'sort_price-asc': 'Cijena: rastuće',
-    'sort_price-desc': 'Cijena: opadajuće',
-    sort_newest: 'Najnovije',
-    emptyTitle: 'Kolekcija se uskoro puni',
-    emptyText: 'Proizvodi za ovu kolekciju stižu uskoro — do tada pogledajte cijeli katalog.',
-    otherEyebrow: 'Još inspiracije',
-    otherTitle: 'Druge *kolekcije*',
-    notFoundTitle: 'Ova kolekcija *nije dostupna*',
-    notFoundText: 'Možda je akcija završena ili je link promijenjen. Pogledajte druge kolekcije ili cijeli katalog.',
-    notFoundPageTitle: 'Kolekcija nije pronađena',
-    previewBanner: 'Pregled — kolekcija nije objavljena i kupci je ne vide.',
-    editInCms: 'Uredi u CMS-u',
+  de: {
+    eyebrow: 'Kollektion',
+    countOne: '{n} Produkt',
+    countMany: '{n} Produkte',
+    fromPrice: 'Ab {price}',
+    install: 'Fachgerechte Montage',
+    upTo: 'Bis zu −{pct}%',
+    autoPct: '−{pct}% automatisch im Warenkorb',
+    autoFixed: '−{amount} automatisch im Warenkorb',
+    browse: 'Produkte ansehen',
+    inCollection: 'in der Kollektion',
+    sortBy: 'Sortieren',
+    sort_featured: 'Empfohlen',
+    sort_bestselling: 'Meistverkauft',
+    'sort_price-asc': 'Preis: aufsteigend',
+    'sort_price-desc': 'Preis: absteigend',
+    sort_newest: 'Neueste',
+    emptyTitle: 'Diese Kollektion wird bald gefüllt',
+    emptyText: 'Produkte für diese Kollektion folgen in Kürze — sehen Sie sich bis dahin den gesamten Katalog an.',
+    otherEyebrow: 'Mehr Inspiration',
+    otherTitle: 'Weitere *Kollektionen*',
+    notFoundTitle: 'Diese Kollektion ist *nicht verfügbar*',
+    notFoundText: 'Möglicherweise ist die Aktion beendet oder der Link hat sich geändert. Sehen Sie sich andere Kollektionen oder den gesamten Katalog an.',
+    notFoundPageTitle: 'Kollektion nicht gefunden',
+    previewBanner: 'Vorschau — diese Kollektion ist nicht veröffentlicht und für Kunden nicht sichtbar.',
+    editInCms: 'Im CMS bearbeiten',
   },
   sq: {
     eyebrow: 'Koleksion',
@@ -86,11 +86,11 @@ export const CT = defineDict({
   },
 });
 
-export type CtT = (key: keyof typeof CT.me, vars?: Record<string, string | number>) => string;
+export type CtT = (key: keyof typeof CT.de, vars?: Record<string, string | number>) => string;
 
-/** "1 proizvod" / "5 proizvoda" (ME: 1, 21, 31… are singular). */
-export function countLabel(t: CtT, lang: Lang, n: number) {
-  const one = lang === 'me' ? n % 10 === 1 && n % 100 !== 11 : n === 1;
+/** "1 Produkt" / "5 Produkte" (DE / SQ / EN: only 1 is singular). */
+export function countLabel(t: CtT, _lang: Lang, n: number) {
+  const one = n === 1;
   return t(one ? 'countOne' : 'countMany', { n });
 }
 

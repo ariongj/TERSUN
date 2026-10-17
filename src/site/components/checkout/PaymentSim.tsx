@@ -5,15 +5,15 @@ import { defineDict, useDict, useLang } from '@/i18n';
 import { money } from '@/lib/format';
 
 const T = defineDict({
-  me: {
-    title: 'Simulacija plaćanja',
-    desc: 'Demo — ne izvršava se nikakva stvarna transakcija.',
-    processing: 'Povezivanje sa bankom…',
-    processingText: 'Zaštićena stranica banke (3-D Secure) potvrđuje plaćanje. Ne zatvarajte ovaj prozor.',
-    approved: 'Plaćanje odobreno',
-    approvedText: 'Iznos je uspješno naplaćen. Preusmjeravamo vas na potvrdu narudžbe…',
-    amount: 'Iznos',
-    merchant: 'Trgovac',
+  de: {
+    title: 'Zahlungssimulation',
+    desc: 'Demo — es findet keine echte Transaktion statt.',
+    processing: 'Verbindung zur Bank wird hergestellt…',
+    processingText: 'Die gesicherte Seite Ihrer Bank (3-D Secure) bestätigt die Zahlung. Bitte schließen Sie dieses Fenster nicht.',
+    approved: 'Zahlung genehmigt',
+    approvedText: 'Der Betrag wurde erfolgreich belastet. Wir leiten Sie zur Bestellbestätigung weiter…',
+    amount: 'Betrag',
+    merchant: 'Händler',
   },
   sq: {
     title: 'Simulim pagese',

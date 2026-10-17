@@ -7,17 +7,17 @@ import type { L10n, Lang, ProductSpec } from '@/lib/types';
 import { pd } from './dict';
 import { IconBtn, LangTabs, MiniL10n, missingCounts } from './parts';
 
-const L = (me: string, sq: string, en: string): L10n => ({ me, sq, en });
-const empty = (): L10n => ({ me: '', sq: '', en: '' });
+const L = (de: string, sq: string, en: string): L10n => ({ de, sq, en });
+const empty = (): L10n => ({ de: '', sq: '', en: '' });
 
 /** Common spec labels, ready-translated. */
 const SUGGESTED: L10n[] = [
-  L('Materijal', 'Materiali', 'Material'),
-  L('Dimenzije', 'Dimensionet', 'Dimensions'),
-  L('Debljina', 'Trashësia', 'Thickness'),
-  L('Boja', 'Ngjyra', 'Colour'),
-  L('Porijeklo', 'Origjina', 'Origin'),
-  L('Garancija', 'Garancia', 'Warranty'),
+  L('Material', 'Materiali', 'Material'),
+  L('Abmessungen', 'Dimensionet', 'Dimensions'),
+  L('Stärke', 'Trashësia', 'Thickness'),
+  L('Farbe', 'Ngjyra', 'Colour'),
+  L('Herkunft', 'Origjina', 'Origin'),
+  L('Garantie', 'Garancia', 'Warranty'),
 ];
 
 export function SpecsEditor({ value, onChange }: { value: ProductSpec[]; onChange: (v: ProductSpec[]) => void }) {
@@ -48,7 +48,7 @@ export function SpecsEditor({ value, onChange }: { value: ProductSpec[]; onChang
     onChange(value.filter((_, k) => k !== i));
   };
   const add = (label: L10n = empty()) => onChange([...value, { label: { ...label }, value: empty() }]);
-  const suggestions = SUGGESTED.filter((s) => !value.some((v) => v.label.me.trim().toLowerCase() === s.me.toLowerCase()));
+  const suggestions = SUGGESTED.filter((s) => !value.some((v) => v.label.de.trim().toLowerCase() === s.de.toLowerCase()));
 
   return (
     <Card title={t('c_specs')} description={t('c_specs_d')} actions={value.length > 0 && <LangTabs value={lang} onChange={setLang} missing={missing} title={t('langHint')} />} padded={false}>
@@ -105,7 +105,7 @@ export function SpecsEditor({ value, onChange }: { value: ProductSpec[]; onChang
             <span className="ml-1 text-[12px] font-medium text-muted">{t('quickAdd')}:</span>
             {suggestions.slice(0, 5).map((s) => (
               <button
-                key={s.me}
+                key={s.de}
                 type="button"
                 onClick={() => add(s)}
                 className="inline-flex h-8 items-center gap-1 rounded-lg border border-line bg-white px-2.5 text-[12.5px] font-semibold text-ink-soft transition hover:border-ink/30 hover:text-ink"

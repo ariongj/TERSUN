@@ -24,7 +24,7 @@ import { cn, download } from '@/lib/utils';
 type Filter = 'all' | 'low' | 'out' | 'untracked' | 'incoming';
 type Sort = 'name' | 'available' | 'onHand' | 'incoming';
 const FILTERS: Filter[] = ['all', 'low', 'out', 'untracked', 'incoming'];
-const COLLATOR: Record<string, string> = { me: 'sr-Latn', sq: 'sq', en: 'en' };
+const COLLATOR: Record<string, string> = { de: 'de', sq: 'sq', en: 'en' };
 
 const matches = (r: InvRow, f: Filter) =>
   f === 'all' ||
@@ -104,7 +104,7 @@ export default function Inventory() {
     return rows.filter((r) => {
       if (loc !== 'all' && r.locationId !== loc) return false;
       if (terms.length) {
-        const hay = fold(`${r.p.name.me} ${r.p.name.sq} ${r.p.name.en} ${r.p.sku} ${r.p.vendor ?? ''}`);
+        const hay = fold(`${r.p.name.de} ${r.p.name.sq} ${r.p.name.en} ${r.p.sku} ${r.p.vendor ?? ''}`);
         if (!terms.every((x) => hay.includes(x))) return false;
       }
       return true;

@@ -7,7 +7,7 @@ import { pd } from './dict';
 
 export type OptionalColumn = 'category' | 'vendor' | 'channels' | 'sold' | 'cost' | 'updated';
 export const DEFAULT_COLUMNS: OptionalColumn[] = ['category'];
-const KEY = 'selca-admin-product-columns';
+const KEY = 'tersun-admin-product-columns';
 
 /** Remembered per browser (a viewer convenience) — falls back to the defaults when storage is blocked. */
 export function useColumns() {

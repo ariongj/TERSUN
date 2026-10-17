@@ -76,7 +76,7 @@ export default function DiscountEdit() {
 /* ================================================================== */
 /* Validation                                                          */
 /* ================================================================== */
-type TFn = (key: keyof typeof dd.me & string, vars?: Record<string, string | number>) => string;
+type TFn = (key: keyof typeof dd.de & string, vars?: Record<string, string | number>) => string;
 
 function validate(d: Discount, all: Discount[], t: TFn): Errors {
   const e: Errors = {};
@@ -171,7 +171,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
     const out: Discount = {
       ...v,
       title,
-      publicTitle: pub.me.trim() || pub.sq.trim() || pub.en.trim() ? pub : { me: title, sq: title, en: title },
+      publicTitle: pub.de.trim() || pub.sq.trim() || pub.en.trim() ? pub : { de: title, sq: title, en: title },
       code: v.method === 'code' ? normalizeCode(v.code) : undefined,
       tags: (v.tags ?? []).map((s) => s.trim()).filter(Boolean),
     };
@@ -343,7 +343,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
                       id="disc-code"
                       value={d.code ?? ''}
                       onChange={(e) => set({ code: e.target.value.toUpperCase().replace(/\s+/g, '') })}
-                      placeholder="SELCA10"
+                      placeholder="TERSUN10"
                       autoComplete="off"
                       spellCheck={false}
                       aria-invalid={!!errors.code || undefined}

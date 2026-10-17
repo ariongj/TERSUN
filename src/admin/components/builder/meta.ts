@@ -54,7 +54,7 @@ export function sectionSummary(s: HomeSection, l: (v: L10n) => string, t: (k: BK
   switch (s.type) {
     case 'hero':
       return {
-        line: stripStars(l(s.data.slides[0]?.title ?? { me: '', sq: '', en: '' })),
+        line: stripStars(l(s.data.slides[0]?.title ?? { de: '', sq: '', en: '' })),
         meta: t('count_slides', { n: s.data.slides.length }),
       };
     case 'trust':

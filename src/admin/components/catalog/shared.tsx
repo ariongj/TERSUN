@@ -6,7 +6,7 @@ import type { Lang } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: { copy: 'Kopiraj', copied: 'Kopirano u međuspremnik', copyFailed: 'Kopiranje nije uspjelo' },
+  de: { copy: 'Kopieren', copied: 'In die Zwischenablage kopiert', copyFailed: 'Kopieren fehlgeschlagen' },
   sq: { copy: 'Kopjo', copied: 'U kopjua në kujtesë', copyFailed: 'Kopjimi dështoi' },
   en: { copy: 'Copy', copied: 'Copied to clipboard', copyFailed: 'Could not copy' },
 });
@@ -119,7 +119,7 @@ export function StatTile({ icon, label, value, hint, accent }: { icon: ReactNode
   );
 }
 
-const SIZE_LOCALE: Record<Lang, string> = { me: 'de-DE', sq: 'de-DE', en: 'en-GB' };
+const SIZE_LOCALE: Record<Lang, string> = { de: 'de-DE', sq: 'de-DE', en: 'en-GB' };
 
 /** 1,2 MB · 340 KB */
 export function formatBytes(bytes: number, lang: Lang) {

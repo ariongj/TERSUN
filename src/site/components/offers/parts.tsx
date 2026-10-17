@@ -89,7 +89,7 @@ export function OfferCard({ offer, wide, className }: { offer: Offer; wide?: boo
   const when = left === null ? t('ongoing') : left === 0 ? t('lastDay') : left === 1 ? t('dayLeft') : t('daysLeft', { n: left });
   return (
     <Link
-      to={`/oferta/${offer.slug}`}
+      to={`/offer/${offer.slug}`}
       className={cn(
         'group flex h-full flex-col overflow-hidden rounded-3xl bg-white ring-1 ring-line transition-shadow duration-500 hover:shadow-[0_30px_60px_-36px_rgba(28,26,23,0.5)]',
         wide && 'md:flex-row',

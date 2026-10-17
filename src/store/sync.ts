@@ -8,8 +8,8 @@ import { useUi } from './ui';
  */
 export function startCrossTabSync() {
   const onStorage = (e: StorageEvent) => {
-    if (e.key === 'selca-db') void useDb.persist.rehydrate();
-    if (e.key === 'selca-ui') void useUi.persist.rehydrate();
+    if (e.key === 'tersun-db') void useDb.persist.rehydrate();
+    if (e.key === 'tersun-ui') void useUi.persist.rehydrate();
   };
   window.addEventListener('storage', onStorage);
   return () => window.removeEventListener('storage', onStorage);

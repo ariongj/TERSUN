@@ -32,7 +32,7 @@ import { DensityToggle, FilterButton, FilterPills, SortSelect, type Pill } from 
 import { HelpBand } from '@/site/components/shop/HelpBand';
 
 const PAGE = 24;
-const DENSITY_KEY = 'selca-shop-cols';
+const DENSITY_KEY = 'tersun-shop-cols';
 
 function readDensity(): 3 | 4 {
   try {
@@ -58,7 +58,7 @@ function ShopView({ slug }: { slug?: string }) {
   const [params, setParams] = useSearchParams();
 
   const category = slug ? categories.find((c) => c.slug === slug) : undefined;
-  const sale = params.get('akcija') === '1';
+  const sale = params.get('sale') === '1';
   const sort = sortFromParam(params.get('sort'));
 
   usePageTitle(category ? l(category.name) : slug ? t('notFoundTitle') : sale ? ts('sale') : ts('allProducts'));
@@ -88,7 +88,7 @@ function ShopView({ slug }: { slug?: string }) {
       ),
     [setParams],
   );
-  const setSale = (v: boolean) => patchParams({ akcija: v ? '1' : null });
+  const setSale = (v: boolean) => patchParams({ sale: v ? '1' : null });
   const setSort = (v: SortKey) => patchParams({ sort: sortToParam(v) }, true);
 
   /* ---------------------------- Derived ----------------------------- */
@@ -153,7 +153,7 @@ function ShopView({ slug }: { slug?: string }) {
           title={t('notFoundTitle')}
           text={t('notFoundText')}
           action={
-            <ButtonLink to="/proizvodi" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
               {ts('allProducts')}
             </ButtonLink>
           }
@@ -254,7 +254,7 @@ function ShopView({ slug }: { slug?: string }) {
                     <Button variant="dark" onClick={() => setSale(false)}>
                       {t('allInCategory')}
                     </Button>
-                    <ButtonLink to={shopHref(null, params, { akcija: '1' })} variant="soft">
+                    <ButtonLink to={shopHref(null, params, { sale: '1' })} variant="soft">
                       {t('allOnSale')}
                     </ButtonLink>
                   </div>

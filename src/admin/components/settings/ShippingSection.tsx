@@ -18,24 +18,24 @@ import type { SecProps } from './model';
 import { Block, Note, Panel, StateText } from './ui';
 
 const D = defineDict({
-  me: {
-    zonesTitle: 'Zone i cijene dostave',
-    free: 'Besplatna dostava',
-    free_h: 'Besplatna dostava je sada pravilo popusta — sa rasporedom, segmentima i pravilima kombinovanja.',
-    freeOn: 'Aktivno · besplatno iznad {amount}',
-    freeOff: 'Nema aktivnog pravila',
-    openRule: 'Otvori pravilo',
-    pickup: 'Lično preuzimanje',
-    pickup_h: 'Lokacije sa preuzimanjem nude se na checkout-u bez troškova dostave.',
-    pickupAddr: 'Adresa za preuzimanje na checkout-u',
-    pickupNone: 'Nijedna lokacija nema uključeno preuzimanje.',
-    locations: 'Lokacije',
-    local: 'Lokalna dostava',
-    local_d: 'Sopstvenim vozilima, u dogovorenom terminu.',
-    localFee: 'Cijena',
-    localArea: 'Područje (gradovi)',
-    free0: 'Besplatno',
-    taxNote: 'Cijene uključuju PDV {rate}%. Pakovanje, praćenje i otpremnice zavise od kurirskog partnera. CMS ne zamjenjuje fiskalnu specifikaciju.',
+  de: {
+    zonesTitle: 'Versandzonen & Tarife',
+    free: 'Kostenloser Versand',
+    free_h: 'Kostenloser Versand ist jetzt eine Rabattregel — mit Zeitplan, Segmenten und Kombinationsregeln.',
+    freeOn: 'Aktiv · kostenlos ab {amount}',
+    freeOff: 'Keine aktive Regel',
+    openRule: 'Regel öffnen',
+    pickup: 'Selbstabholung',
+    pickup_h: 'Standorte mit Abholung werden im Checkout ohne Versandkosten angeboten.',
+    pickupAddr: 'Abholadresse im Checkout',
+    pickupNone: 'Für keinen Standort ist die Abholung aktiviert.',
+    locations: 'Standorte',
+    local: 'Lokale Lieferung',
+    local_d: 'Mit eigenen Fahrzeugen, zum vereinbarten Termin.',
+    localFee: 'Gebühr',
+    localArea: 'Gebiet (Städte)',
+    free0: 'Kostenlos',
+    taxNote: 'Preise inkl. {rate}% MwSt. Verpackung, Sendungsverfolgung und Lieferscheine hängen vom Versandpartner ab. Das CMS ersetzt nicht die fiskalische Spezifikation.',
   },
   sq: {
     zonesTitle: 'Zonat dhe tarifat e dërgesës',
@@ -149,7 +149,7 @@ export function ShippingSection({ s, set, setExt, errors }: SecProps) {
                     <TextField className="col-span-2 sm:col-span-1" label={tl('zoneName')} value={z.name} onChange={(v) => patchZone(z.id, { name: v })} placeholder={tl('newZone')} error={errors[`zone_${z.id}`]} autoFocus={focusId === z.id} />
                     <NumberField label={tl('zoneFee')} value={z.fee} onChange={(n) => patchZone(z.id, { fee: n })} trailing="€" />
                     <TextField label={tl('zoneDays')} value={z.days} onChange={(v) => patchZone(z.id, { days: v })} placeholder="1–2" />
-                    <ListField className="col-span-2 sm:col-span-3" label={tl('zoneCities')} value={z.cities} onChange={(v) => patchZone(z.id, { cities: v })} rows={2} placeholder="Podgorica, Danilovgrad, …" />
+                    <ListField className="col-span-2 sm:col-span-3" label={tl('zoneCities')} value={z.cities} onChange={(v) => patchZone(z.id, { cities: v })} rows={2} placeholder="Prishtina, Prizren, …" />
                   </div>
                 </li>
               ))}

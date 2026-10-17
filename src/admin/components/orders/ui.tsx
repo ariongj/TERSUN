@@ -310,7 +310,7 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   return <p className={cn('text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted', className)}>{children}</p>;
 }
 
-/** Inline code chip, e.g. SELCA10. */
+/** Inline code chip, e.g. TERSUN10. */
 export function CodeChip({ children, className }: { children: ReactNode; className?: string }) {
   return <span className={cn('inline-flex h-[20px] items-center rounded-md border border-line bg-canvas px-1.5 font-mono text-[11.5px] font-semibold tracking-wide text-ink', className)}>{children}</span>;
 }

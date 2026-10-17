@@ -44,7 +44,7 @@ export function BookingStatusBadge({ status, className }: { status: BookingStatu
   );
 }
 
-/** Inline "◌ Na čekanju" used inside calendar blocks. */
+/** Inline "◌ Ausstehend" used inside calendar blocks. */
 export function StatusMark({ status, className }: { status: BookingStatus; className?: string }) {
   const t = useDict(ap, 'admin');
   const Icon = STATUS_ICON[status];

@@ -21,44 +21,44 @@ import { cn } from '@/lib/utils';
 import { num } from '@/lib/format';
 
 const T = defineDict({
-  me: {
-    title: 'Kalendar termina',
-    desc: 'Raspored tima, kapacitet usluga i status rezervacija na jednom mjestu.',
-    add: 'Dodaj rezervaciju',
-    services: 'Usluge i radno vrijeme',
-    week: 'Sedmica {range}',
-    today: 'Danas',
-    prev: 'Prethodna',
-    next: 'Sljedeća',
-    viewDay: 'Dan',
-    viewWeek: 'Sedmica',
-    allStatuses: 'Svi statusi',
-    searchPh: 'Klijent, telefon ili grad…',
-    found: '{n} pronađeno',
-    count_one: '{n} termin',
-    count_few: '{n} termina',
-    count_many: '{n} termina',
-    statWeek: 'Ove sedmice',
-    statToday: 'Danas',
-    statPending: 'Čeka potvrdu',
-    statHours: 'Rezervisani sati',
-    statHoursHint: '{pct}% radnog vremena tima',
-    filterHint: 'kliknite za filter',
-    filterOn: 'filter je uključen',
-    pendingTitle: 'Čeka potvrdu',
-    pendingDesc: 'Zahtjevi sa sajta i termini koje treba potvrditi telefonom.',
-    confirm: 'Potvrdi',
-    confirmed: 'Termin je potvrđen — {name}',
-    open: 'Otvori',
-    legend: 'Usluge',
-    capacity: 'kap. {n}',
-    hatched: 'Šrafirano = zatvoreno / van radnog vremena',
-    tz: 'Vremenska zona: {tz}',
-    clickHint: 'Kliknite na prazno polje za novi termin.',
-    noneDay: 'Nema termina za ovaj dan.',
-    closedDay: 'Zatvoreno',
-    web: 'sa sajta',
-    noPending: 'Nema termina na čekanju — sve je potvrđeno.',
+  de: {
+    title: 'Terminkalender',
+    desc: 'Teamplanung, Kapazität der Leistungen und Buchungsstatus an einem Ort.',
+    add: 'Buchung hinzufügen',
+    services: 'Leistungen & Öffnungszeiten',
+    week: 'Woche {range}',
+    today: 'Heute',
+    prev: 'Zurück',
+    next: 'Weiter',
+    viewDay: 'Tag',
+    viewWeek: 'Woche',
+    allStatuses: 'Alle Status',
+    searchPh: 'Kunde, Telefon oder Stadt…',
+    found: '{n} gefunden',
+    count_one: '{n} Termin',
+    count_few: '{n} Termine',
+    count_many: '{n} Termine',
+    statWeek: 'Diese Woche',
+    statToday: 'Heute',
+    statPending: 'Wartet auf Bestätigung',
+    statHours: 'Gebuchte Stunden',
+    statHoursHint: '{pct}% der Teamarbeitszeit',
+    filterHint: 'zum Filtern klicken',
+    filterOn: 'Filter aktiv',
+    pendingTitle: 'Wartet auf Bestätigung',
+    pendingDesc: 'Anfragen über die Website und Termine, die telefonisch bestätigt werden müssen.',
+    confirm: 'Bestätigen',
+    confirmed: 'Termin bestätigt — {name}',
+    open: 'Öffnen',
+    legend: 'Leistungen',
+    capacity: 'Kap. {n}',
+    hatched: 'Schraffiert = geschlossen / außerhalb der Öffnungszeiten',
+    tz: 'Zeitzone: {tz}',
+    clickHint: 'Klicken Sie auf ein leeres Feld für einen neuen Termin.',
+    noneDay: 'Keine Termine an diesem Tag.',
+    closedDay: 'Geschlossen',
+    web: 'über die Website',
+    noPending: 'Nichts ausstehend — alles ist bestätigt.',
   },
   sq: {
     title: 'Kalendari i termineve',
@@ -143,14 +143,7 @@ const T = defineDict({
 type View = 'week' | 'day';
 type StatusFilter = 'all' | BookingStatus;
 
-function plural(n: number, lang: Lang): 'one' | 'few' | 'many' {
-  if (lang === 'me') {
-    const d = n % 10;
-    const h = n % 100;
-    if (d === 1 && h !== 11) return 'one';
-    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return 'few';
-    return 'many';
-  }
+function plural(n: number, _lang: Lang): 'one' | 'few' | 'many' {
   return n === 1 ? 'one' : 'many';
 }
 

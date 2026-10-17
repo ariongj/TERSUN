@@ -9,24 +9,24 @@ export const IMPORT_FIELDS = ['name_me', 'name_sq', 'name_en', 'sku', 'barcode',
 export type ImportField = (typeof IMPORT_FIELDS)[number];
 export type MappedField = ImportField | 'ignore';
 
-/** Header synonyms in ME / SQ / EN and Shopify's export names (folded, lower-case). */
+/** Header synonyms in DE / DE / SQ / EN and Shopify's export names (folded, lower-case). */
 const SYNONYMS: Record<ImportField, string[]> = {
-  name_me: ['name', 'naziv', 'title', 'titulli', 'emri', 'product', 'produkti', 'proizvod', 'name me', 'naziv me', 'emri me', 'title me'],
-  name_sq: ['name sq', 'naziv sq', 'emri sq', 'titulli sq', 'title sq', 'emri shqip'],
-  name_en: ['name en', 'naziv en', 'emri en', 'title en', 'english name'],
-  sku: ['sku', 'sifra', 'kodi', 'code', 'variant sku', 'artikal', 'kod'],
-  barcode: ['barcode', 'barkod', 'barkodi', 'ean', 'gtin', 'variant barcode'],
-  price: ['price', 'cijena', 'cmimi', 'variant price', 'prodajna cijena', 'cmimi i shitjes'],
-  compareAt: ['compare at', 'compare at price', 'compareat', 'variant compare at price', 'cmimi referues', 'referentna cijena', 'redovna cijena', 'stara cijena', 'cmimi i vjeter'],
-  cost: ['cost', 'kosto', 'kosto cope', 'cost per item', 'trosak', 'trosak kom', 'nabavna cijena', 'nabavna'],
-  category: ['category', 'kategorija', 'kategoria', 'product type', 'type', 'grupa'],
-  vendor: ['vendor', 'furnitori', 'dobavljac', 'brand', 'marka', 'proizvodjac', 'prodhuesi'],
-  tags: ['tags', 'etiketat', 'etiketa', 'oznake', 'tagovi'],
-  stock: ['stock', 'zalihe', 'stoku', 'sasia', 'qty', 'quantity', 'inventory', 'variant inventory qty', 'kolicina', 'na stanju'],
-  status: ['status', 'statusi'],
-  unit: ['unit', 'jedinica', 'njesia', 'jedinica mjere'],
-  description: ['description', 'opis', 'pershkrimi', 'body', 'body html'],
-  image: ['image', 'images', 'slika', 'slike', 'imazhi', 'imazhet', 'image src', 'foto'],
+  name_me: ['name', 'naziv', 'title', 'titulli', 'emri', 'product', 'produkti', 'proizvod', 'name me', 'naziv me', 'emri me', 'title me', 'bezeichnung', 'produktname', 'produkt', 'titel', 'name de', 'bezeichnung de', 'titel de'],
+  name_sq: ['name sq', 'naziv sq', 'emri sq', 'titulli sq', 'title sq', 'emri shqip', 'name albanisch', 'bezeichnung sq'],
+  name_en: ['name en', 'naziv en', 'emri en', 'title en', 'english name', 'name englisch', 'bezeichnung en'],
+  sku: ['sku', 'sifra', 'kodi', 'code', 'variant sku', 'artikal', 'kod', 'artikelnummer', 'art nr', 'artikelnr'],
+  barcode: ['barcode', 'barkod', 'barkodi', 'ean', 'gtin', 'variant barcode', 'strichcode'],
+  price: ['price', 'cijena', 'cmimi', 'variant price', 'prodajna cijena', 'cmimi i shitjes', 'preis', 'verkaufspreis'],
+  compareAt: ['compare at', 'compare at price', 'compareat', 'variant compare at price', 'cmimi referues', 'referentna cijena', 'redovna cijena', 'stara cijena', 'cmimi i vjeter', 'vergleichspreis', 'streichpreis', 'alter preis', 'uvp'],
+  cost: ['cost', 'kosto', 'kosto cope', 'cost per item', 'trosak', 'trosak kom', 'nabavna cijena', 'nabavna', 'einkaufspreis', 'kosten', 'kosten pro stuck'],
+  category: ['category', 'kategorija', 'kategoria', 'product type', 'type', 'grupa', 'kategorie', 'warengruppe'],
+  vendor: ['vendor', 'furnitori', 'dobavljac', 'brand', 'marka', 'proizvodjac', 'prodhuesi', 'hersteller', 'lieferant', 'marke'],
+  tags: ['tags', 'etiketat', 'etiketa', 'oznake', 'tagovi', 'schlagworter', 'stichworter'],
+  stock: ['stock', 'zalihe', 'stoku', 'sasia', 'qty', 'quantity', 'inventory', 'variant inventory qty', 'kolicina', 'na stanju', 'bestand', 'lagerbestand', 'menge'],
+  status: ['status', 'statusi', 'zustand'],
+  unit: ['unit', 'jedinica', 'njesia', 'jedinica mjere', 'einheit', 'mengeneinheit', 'masseinheit'],
+  description: ['description', 'opis', 'pershkrimi', 'body', 'body html', 'beschreibung', 'produktbeschreibung'],
+  image: ['image', 'images', 'slika', 'slike', 'imazhi', 'imazhet', 'image src', 'foto', 'bild', 'bilder', 'bild url'],
 };
 
 const norm = (h: string) =>
@@ -42,8 +42,8 @@ export function autoMap(headers: string[]): MappedField[] {
     const n = norm(h);
     let hit = IMPORT_FIELDS.find((f) => !taken.has(f) && SYNONYMS[f].includes(n));
     if (!hit) {
-      const lang = /\b(sq|al|shqip)\b/.test(n) ? 'sq' : /\b(en|eng|english)\b/.test(n) ? 'en' : null;
-      const bare = n.replace(/\b(me|sq|al|en|eng|shqip|english)\b/g, '').trim();
+      const lang = /\b(sq|al|shqip|albanisch)\b/.test(n) ? 'sq' : /\b(en|eng|english|englisch)\b/.test(n) ? 'en' : null;
+      const bare = n.replace(/\b(me|de|deu|deutsch|sq|al|en|eng|shqip|english|albanisch|englisch)\b/g, '').trim();
       if (lang && SYNONYMS.name_me.includes(bare)) hit = lang === 'sq' ? 'name_sq' : 'name_en';
       else hit = IMPORT_FIELDS.find((f) => !taken.has(f) && SYNONYMS[f].some((s) => s.length > 3 && (bare === s || bare.startsWith(`${s} `))));
     }
@@ -87,16 +87,16 @@ export interface ImportOptions {
 }
 
 const STATUS: Record<string, ProductStatus> = {
-  active: 'active', aktiv: 'active', aktivan: 'active', aktivno: 'active', published: 'active', publikuar: 'active', objavljen: 'active',
-  draft: 'draft', nacrt: 'draft', skica: 'draft',
-  archived: 'archived', arkivuar: 'archived', arhiviran: 'archived', arhivirano: 'archived',
+  active: 'active', aktiv: 'active', aktivan: 'active', aktivno: 'active', published: 'active', publikuar: 'active', objavljen: 'active', veroffentlicht: 'active',
+  draft: 'draft', nacrt: 'draft', skica: 'draft', entwurf: 'draft',
+  archived: 'archived', arkivuar: 'archived', arhiviran: 'archived', arhivirano: 'archived', archiviert: 'archived',
 };
-const UNITS: Record<string, Unit> = { kom: 'kom', pc: 'kom', pcs: 'kom', cope: 'kom', piece: 'kom', m2: 'm2', 'm²': 'm2', m: 'm', set: 'set', komplet: 'set' };
+const UNITS: Record<string, Unit> = { kom: 'kom', pc: 'kom', pcs: 'kom', cope: 'kom', piece: 'kom', stk: 'kom', stuck: 'kom', m2: 'm2', 'm²': 'm2', m: 'm', set: 'set', komplet: 'set' };
 
 export function matchCategory(raw: string, categories: Category[]): string | null {
   const v = fold(raw.trim());
   if (!v) return null;
-  const c = categories.find((x) => x.id === raw.trim() || x.slug === slugify(raw) || [x.name.me, x.name.sq, x.name.en].some((n) => fold(n) === v));
+  const c = categories.find((x) => x.id === raw.trim() || x.slug === slugify(raw) || [x.name.de, x.name.sq, x.name.en].some((n) => fold(n) === v));
   return c?.id ?? null;
 }
 
@@ -165,11 +165,11 @@ export function validateRows(rows: string[][], mapping: MappedField[], products:
     const action: ImportRow['action'] = errors.length ? 'skip' : existing ? (opts.onExisting === 'update' ? 'update' : 'skip') : 'create';
     if (action === 'create') {
       const wantActive = opts.newStatus === 'column' && STATUS[fold(values.status?.trim() ?? '')] === 'active';
-      if (wantActive && missingForPublish({ name: { me: name, sq: '', en: '' }, categoryId, price: price ?? 0, images: values.image ? ['x'] : [] }, categories).length) {
+      if (wantActive && missingForPublish({ name: { de: name, sq: '', en: '' }, categoryId, price: price ?? 0, images: values.image ? ['x'] : [] }, categories).length) {
         warnings.push({ code: 'notPublishable' });
       }
     }
-    return { line, values, name: name || existing?.name.me || '', sku, price, categoryId, errors, warnings, existing, dupOfLine, action };
+    return { line, values, name: name || existing?.name.de || '', sku, price, categoryId, errors, warnings, existing, dupOfLine, action };
   });
 }
 
@@ -196,13 +196,13 @@ export function buildProduct(row: ImportRow, opts: ImportOptions, categories: Ca
     const next: ProductX = {
       ...p,
       ...applyPricing(price, compare),
-      name: v.name_me ? { ...p.name, me: v.name_me.trim() } : p.name,
+      name: v.name_me ? { ...p.name, de: v.name_me.trim() } : p.name,
       categoryId: row.categoryId || p.categoryId,
       updatedAt: now,
     };
     if (v.name_sq) next.name = { ...next.name, sq: v.name_sq.trim() };
     if (v.name_en) next.name = { ...next.name, en: v.name_en.trim() };
-    if (v.description) next.description = { ...p.description, me: v.description.trim() };
+    if (v.description) next.description = { ...p.description, de: v.description.trim() };
     if (v.barcode) next.barcode = v.barcode.trim();
     if (n('cost') != null) next.cost = n('cost') as number;
     if (v.vendor) next.vendor = v.vendor.trim();
@@ -217,15 +217,15 @@ export function buildProduct(row: ImportRow, opts: ImportOptions, categories: Ca
   }
 
   const id = uid('p');
-  const name = { me: row.name, sq: v.name_sq?.trim() ?? '', en: v.name_en?.trim() ?? '' };
+  const name = { de: row.name, sq: v.name_sq?.trim() ?? '', en: v.name_en?.trim() ?? '' };
   const base: ProductX = {
     id,
     slug: uniqueSlug(slugify(row.name) || id, id, all),
     sku: row.sku,
     categoryId: row.categoryId,
     name,
-    short: { me: '', sq: '', en: '' },
-    description: { me: v.description?.trim() ?? '', sq: '', en: '' },
+    short: { de: '', sq: '', en: '' },
+    description: { de: v.description?.trim() ?? '', sq: '', en: '' },
     ...applyPricing(n('price'), n('compareAt')),
     unit: unit ?? 'kom',
     ...(unit === 'm2' ? { packSize: 1 } : {}),
@@ -254,14 +254,14 @@ export function buildProduct(row: ImportRow, opts: ImportOptions, categories: Ca
   return base;
 }
 
-/** A ready-made sample (realistic SELCA data incl. one existing SKU, one duplicate and one error). */
+/** A ready-made sample (realistic TERSUN data incl. one existing SKU, one duplicate and one error). */
 export const SAMPLE_CSV = [
-  'Naziv;Emri (SQ);SKU;Barkod;Kategorija;Cijena;Çmimi referues;Kosto;Zalihe;Dobavljač;Oznake',
-  'Sobna vrata Arco — bijeli hrast;Derë e brendshme Arco — lis i bardhë;SC-VR-110;3891000770001;Vrata;319,00;;196,00;8;Porta Lux;sobna|hrast|novo',
-  'Laminat Alpine Oak 10 mm;Laminat Alpine Oak 10 mm;SC-PD-110;3891000770002;Podovi;18,90;22,50;11,40;140;Alpe Floor;laminat|akcija',
-  'Porculanska pločica Marmo Grigio 60×120;Pllakë porcelani Marmo Grigio 60×120;SC-KE-110;3891000770003;Keramika;34,90;;21,10;96;Ceramica Adria;porculan|mermer',
-  'Sobna vrata Linea — rebrasti hrast;Derë e brendshme Linea — lis me brinjë;SC-VR-101;;Vrata;279,00;299,00;;14;Porta Lux;sobna|hrast',
-  'Tuš kanalica Slim 80 cm;Kanal dushi Slim 80 cm;SC-KU-110;3891000770005;Kupatilo;89,00;;48,00;20;Bagno Studio;tus',
-  'Tuš kanalica Slim 90 cm;Kanal dushi Slim 90 cm;SC-KU-110;3891000770006;Kupatilo;95,00;;51,00;12;Bagno Studio;tus',
-  'Radna ploča Quarzo Nero;Sipërfaqe pune Quarzo Nero;SC-KH-110;3891000770007;Kuhinje;;;;4;Quarzo Lux;radna-ploca',
+  'Bezeichnung;Emri (SQ);SKU;Barcode;Kategorie;Preis;Vergleichspreis;Kosten;Bestand;Lieferant;Tags',
+  'LED-Strip RGBW 5 m;Shirit LED RGBW 5 m;TS-AC-707;4260700770001;Zubehör;249,00;;132,00;24;TERSUN;led|rgbw|neu',
+  'Seitenwand Glas fest 3 m;Mur anësor xhami fiks 3 m;TS-AC-708;4260700770002;Zubehör;1290,00;1490,00;780,00;6;TERSUN;glas|seitenwand|aktion',
+  'Lautsprecher-Set Bluetooth;Set altoparlantësh Bluetooth;TS-AC-709;4260700770003;Zubehör;329,00;;188,00;15;TERSUN;audio|smart-home',
+  'Fernbedienung 5 Kanäle;Telekomandë 5 Kanale;TS-AC-703;;Zubehör;89,00;99,00;;40;Becker;steuerung',
+  'ZIP-Tuch Ersatz Soltis 86;Shtof rezervë ZIP Soltis 86;TS-ZP-690;4260700770005;ZIP-Screen;189,00;;96,00;20;Sattler;zip|tuch',
+  'ZIP-Tuch Ersatz Soltis 92;Shtof rezervë ZIP Soltis 92;TS-ZP-690;4260700770006;ZIP-Screen;199,00;;102,00;12;Sattler;zip|tuch',
+  'Dachrinnen-Set Glasdach;Set ulluqesh për mbulojë xhami;TS-GR-290;4260700770007;Glasdach;;;;4;TERSUN;glasdach',
 ].join('\n');

@@ -15,73 +15,73 @@ import type { SecProps } from './model';
 import { Block, Code, Note, Panel, Segmented, StateText } from './ui';
 
 const N = defineDict({
-  me: {
-    sender: 'Pošiljalac i primalac osoblja',
-    sender_h: 'Odakle se šalju e-mailovi i ko u timu prima obavještenja.',
-    from: 'Pošiljalac',
-    staffEmail: 'E-mail za obavještenja osoblja',
-    staffEmail_h: 'Prima nove narudžbe, upite i povrate; koristi se i za prijavu administratora.',
-    customers: 'Za kupce',
-    staff: 'Za osoblje',
-    r_customer: 'Kupac',
-    r_staff: 'Osoblje',
-    preview: 'Pregled',
-    enabledN: 'Uključeno: {n} od {total}',
-    ev_order_placed: 'Narudžba primljena',
-    ev_order_confirmed: 'Narudžba potvrđena',
-    ev_payment_received: 'Uplata evidentirana',
-    ev_order_shipped: 'Narudžba poslata',
-    ev_return_requested: 'Zahtjev za povrat',
-    ev_return_refunded: 'Povrat novca',
-    ev_contact_received: 'Kontakt primljen',
-    ev_booking_confirmed: 'Termin potvrđen',
-    ev_booking_reminder: 'Podsjetnik za termin',
-    ev_staff_new_order: 'Nova narudžba',
-    ev_staff_new_inquiry: 'Novi upit',
-    tr_order_placed: 'Odmah nakon checkout-a',
-    tr_order_confirmed: 'Kada osoblje potvrdi narudžbu',
-    tr_payment_received: 'Kada je uplata evidentirana',
-    tr_order_shipped: 'Kada se narudžba pošalje',
-    tr_return_requested: 'Kada kupac zatraži povrat',
-    tr_return_refunded: 'Kada je novac vraćen',
-    tr_contact_received: 'Nakon forme za kontakt ili mjerenje',
-    tr_booking_confirmed: 'Kada se termin potvrdi',
-    tr_booking_reminder: '24 h prije termina',
-    tr_staff_new_order: 'Svaka nova narudžba',
-    tr_staff_new_inquiry: 'Svaki novi upit',
-    b_order_placed: 'Hvala na narudžbi {number}. Ukupno: {total}. Javićemo vam se radi dogovora o dostavi.',
-    b_order_confirmed: 'Vaša narudžba {number} je potvrđena i ide u pripremu.',
-    b_payment_received: 'Evidentirali smo uplatu od {total} za narudžbu {number}. Hvala!',
-    b_order_shipped: 'Narudžba {number} je na putu. Broj za praćenje: {tracking}.',
-    b_return_requested: 'Kupac {name} je podnio zahtjev za povrat za narudžbu {number}.',
-    b_return_refunded: 'Povrat novca za narudžbu {number} je izvršen.',
-    b_contact_received: 'Primili smo vašu poruku i javićemo vam se danas.',
-    b_booking_confirmed: 'Termin „{service}“ potvrđen je za {date} u {time}.',
-    b_booking_reminder: 'Podsjećamo vas na termin „{service}“ sjutra u {time}.',
-    b_staff_new_order: 'Nova narudžba {number} od kupca {name}, ukupno {total}.',
-    b_staff_new_inquiry: 'Novi upit od {name} čeka odgovor u Kontaktima.',
-    hello: 'Poštovani/a {name},',
-    helloStaff: 'Zdravo,',
-    regards: 'Srdačan pozdrav,',
-    subject: 'Naslov (subject)',
-    subjectShort: 'Naslov',
-    sampleService: 'Mjerenje',
-    variables: 'Dozvoljene varijable',
-    variables_h: 'Kliknite da dodate u naslov.',
-    unknownVar: 'Nepoznata varijabla: {vars}',
-    to: 'Za',
-    lang: 'Jezik',
-    apply: 'Primijeni',
-    emptySubject: 'Naslov ne može biti prazan',
-    log: 'Dnevnik slanja',
-    log_h: 'Posljednji poslati e-mailovi. Neuspjela slanja ponavljaju se automatski do 3 puta.',
-    logEvent: 'Događaj',
-    logTo: 'Primalac',
-    logWhen: 'Vrijeme',
+  de: {
+    sender: 'Absender und Team-Empfänger',
+    sender_h: 'Von wo E-Mails versendet werden und wer im Team Benachrichtigungen erhält.',
+    from: 'Absender',
+    staffEmail: 'E-Mail für Team-Benachrichtigungen',
+    staffEmail_h: 'Erhält neue Bestellungen, Anfragen und Retouren; wird auch für die Admin-Anmeldung verwendet.',
+    customers: 'Für Kunden',
+    staff: 'Für das Team',
+    r_customer: 'Kunde',
+    r_staff: 'Team',
+    preview: 'Vorschau',
+    enabledN: 'Aktiv: {n} von {total}',
+    ev_order_placed: 'Bestellung eingegangen',
+    ev_order_confirmed: 'Bestellung bestätigt',
+    ev_payment_received: 'Zahlung erfasst',
+    ev_order_shipped: 'Bestellung versendet',
+    ev_return_requested: 'Retourenanfrage',
+    ev_return_refunded: 'Rückerstattung',
+    ev_contact_received: 'Kontaktanfrage eingegangen',
+    ev_booking_confirmed: 'Termin bestätigt',
+    ev_booking_reminder: 'Terminerinnerung',
+    ev_staff_new_order: 'Neue Bestellung',
+    ev_staff_new_inquiry: 'Neue Anfrage',
+    tr_order_placed: 'Direkt nach dem Checkout',
+    tr_order_confirmed: 'Wenn das Team die Bestellung bestätigt',
+    tr_payment_received: 'Wenn die Zahlung erfasst ist',
+    tr_order_shipped: 'Wenn die Bestellung versendet wird',
+    tr_return_requested: 'Wenn ein Kunde eine Retoure anfragt',
+    tr_return_refunded: 'Wenn das Geld erstattet wurde',
+    tr_contact_received: 'Nach dem Kontakt- oder Beratungsformular',
+    tr_booking_confirmed: 'Wenn ein Termin bestätigt wird',
+    tr_booking_reminder: '24 h vor dem Termin',
+    tr_staff_new_order: 'Jede neue Bestellung',
+    tr_staff_new_inquiry: 'Jede neue Anfrage',
+    b_order_placed: 'Vielen Dank für Ihre Bestellung {number}. Gesamtbetrag: {total}. Wir melden uns bei Ihnen, um die Lieferung abzustimmen.',
+    b_order_confirmed: 'Ihre Bestellung {number} wurde bestätigt und wird nun vorbereitet.',
+    b_payment_received: 'Wir haben Ihre Zahlung über {total} für die Bestellung {number} erhalten. Vielen Dank!',
+    b_order_shipped: 'Ihre Bestellung {number} ist unterwegs. Sendungsnummer: {tracking}.',
+    b_return_requested: 'Kunde {name} hat eine Retoure für die Bestellung {number} angefragt.',
+    b_return_refunded: 'Die Rückerstattung für die Bestellung {number} wurde durchgeführt.',
+    b_contact_received: 'Wir haben Ihre Nachricht erhalten und melden uns noch heute bei Ihnen.',
+    b_booking_confirmed: 'Ihr Termin „{service}“ ist für den {date} um {time} bestätigt.',
+    b_booking_reminder: 'Wir erinnern Sie an Ihren Termin „{service}“ morgen um {time}.',
+    b_staff_new_order: 'Neue Bestellung {number} von {name}, Gesamtbetrag {total}.',
+    b_staff_new_inquiry: 'Neue Anfrage von {name} wartet unter Kontakte auf eine Antwort.',
+    hello: 'Guten Tag {name},',
+    helloStaff: 'Hallo,',
+    regards: 'Mit freundlichen Grüßen',
+    subject: 'Betreff (Subject)',
+    subjectShort: 'Betreff',
+    sampleService: 'Beratung vor Ort',
+    variables: 'Zulässige Variablen',
+    variables_h: 'Klicken, um sie in den Betreff einzufügen.',
+    unknownVar: 'Unbekannte Variable: {vars}',
+    to: 'An',
+    lang: 'Sprache',
+    apply: 'Übernehmen',
+    emptySubject: 'Der Betreff darf nicht leer sein',
+    log: 'Versandprotokoll',
+    log_h: 'Zuletzt versendete E-Mails. Fehlgeschlagene Sendungen werden automatisch bis zu 3-mal wiederholt.',
+    logEvent: 'Ereignis',
+    logTo: 'Empfänger',
+    logWhen: 'Zeit',
     logStatus: 'Status',
-    sent: 'Poslato',
-    logEmpty: 'Još nema poslatih e-mailova.',
-    smsNote: 'SMS i WhatsApp zahtijevaju posebnog provajdera i podešavanje.',
+    sent: 'Gesendet',
+    logEmpty: 'Noch keine E-Mails versendet.',
+    smsNote: 'SMS und WhatsApp erfordern einen separaten Anbieter und eine Einrichtung.',
   },
   sq: {
     sender: 'Dërguesi dhe marrësi i stafit',
@@ -112,7 +112,7 @@ const N = defineDict({
     tr_order_shipped: 'Kur porosia dërgohet',
     tr_return_requested: 'Kur klienti kërkon kthim',
     tr_return_refunded: 'Kur kryhet rimbursimi',
-    tr_contact_received: 'Pas formularit të kontaktit ose të matjes',
+    tr_contact_received: 'Pas formularit të kontaktit ose të konsultës',
     tr_booking_confirmed: 'Kur termini konfirmohet',
     tr_booking_reminder: '24 orë para terminit',
     tr_staff_new_order: 'Çdo porosi e re',
@@ -133,7 +133,7 @@ const N = defineDict({
     regards: 'Me respekt,',
     subject: 'Titulli (subject)',
     subjectShort: 'Subjekti',
-    sampleService: 'Matje',
+    sampleService: 'Konsultë në vend',
     variables: 'Variablat e lejuara',
     variables_h: 'Klikoni për t’i shtuar në titull.',
     unknownVar: 'Variabël e panjohur: {vars}',
@@ -180,7 +180,7 @@ const N = defineDict({
     tr_order_shipped: 'When the order ships',
     tr_return_requested: 'When a customer requests a return',
     tr_return_refunded: 'When the refund is issued',
-    tr_contact_received: 'After a contact or measurement form',
+    tr_contact_received: 'After a contact or consultation form',
     tr_booking_confirmed: 'When the appointment is confirmed',
     tr_booking_reminder: '24 h before the appointment',
     tr_staff_new_order: 'Every new order',
@@ -201,7 +201,7 @@ const N = defineDict({
     regards: 'Kind regards,',
     subject: 'Subject',
     subjectShort: 'Subject',
-    sampleService: 'Measurement',
+    sampleService: 'On-site consultation',
     variables: 'Allowed variables',
     variables_h: 'Click to add to the subject.',
     unknownVar: 'Unknown variable: {vars}',
@@ -220,7 +220,7 @@ const N = defineDict({
     smsNote: 'SMS and WhatsApp need a separate provider and setup.',
   },
 });
-type NKey = keyof typeof N.me;
+type NKey = keyof typeof N.de;
 
 /** Variables each event may use (PDF p.40 "variabla të lejuara"). */
 const VARS: Record<NotificationEvent, string[]> = {
@@ -269,22 +269,22 @@ function useSamples(lang: Lang) {
     const b = [...bookings].filter((x) => new Date(x.start).getTime() >= now).sort((x, y) => x.start.localeCompare(y.start))[0] ?? bookings[0];
     const svc = services.find((s) => s.id === b?.serviceId);
     const start = b ? new Date(b.start) : new Date();
-    const locale = lang === 'sq' ? 'sq-AL' : lang === 'en' ? 'en-GB' : 'sr-Latn-ME';
+    const locale = lang === 'sq' ? 'sq-AL' : lang === 'en' ? 'en-GB' : 'de-DE';
     return {
       order: {
         number: o?.number ?? 'SC-1042',
         total: money(o?.total ?? 249, lang),
         name: o ? `${o.customer.firstName} ${o.customer.lastName}` : 'Ana Petrović',
-        email: o?.customer.email ?? 'kupac@example.com',
+        email: o?.customer.email ?? 'customer@example.com',
         tracking: 'MNE-48213',
       },
-      inquiry: { name: q?.name ?? 'Vesna Bulatović', email: q?.email ?? 'kupac@example.com' },
+      inquiry: { name: q?.name ?? 'Lukas Becker', email: q?.email ?? 'customer@example.com' },
       booking: {
         name: b?.customerName ?? 'Marko Đurović',
-        email: b?.email ?? 'kupac@example.com',
+        email: b?.email ?? 'customer@example.com',
         date: start.toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
         time: start.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
-        service: svc ? svc.name[lang] || svc.name.me : N[lang].sampleService,
+        service: svc ? svc.name[lang] || svc.name.de : N[lang].sampleService,
       },
     };
   }, [orders, inquiries, bookings, services, lang]);
@@ -332,7 +332,7 @@ function TemplateModal({ open, tpl, onClose, onApply, sender, staffEmail, compan
             {readOnly ? ta('close') : ta('cancel')}
           </Button>
           {!readOnly && (
-            <Button size="sm" shape="rounded" disabled={!subject.me.trim()} onClick={() => onApply({ ...tpl, subject })}>
+            <Button size="sm" shape="rounded" disabled={!subject.de.trim()} onClick={() => onApply({ ...tpl, subject })}>
               {tAdmin('apply')}
             </Button>
           )}
@@ -351,7 +351,7 @@ function TemplateModal({ open, tpl, onClose, onApply, sender, staffEmail, compan
             value={subject[lang]}
             onChange={(v) => setSubject({ ...subject, [lang]: v })}
             readOnly={readOnly}
-            error={!subject.me.trim() ? tAdmin('emptySubject') : unknown.length ? tAdmin('unknownVar', { vars: unknown.map((u) => `{${u}}`).join(', ') }) : undefined}
+            error={!subject.de.trim() ? tAdmin('emptySubject') : unknown.length ? tAdmin('unknownVar', { vars: unknown.map((u) => `{${u}}`).join(', ') }) : undefined}
           />
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             <span className="mr-1 text-[12px] text-muted">{tAdmin('variables')}:</span>
@@ -378,7 +378,7 @@ function TemplateModal({ open, tpl, onClose, onApply, sender, staffEmail, compan
             </div>
             <div className="flex gap-2">
               <span className="w-14 shrink-0 text-muted">{t('subjectShort')}</span>
-              <span className="min-w-0 font-semibold text-ink">{interpolate(subject[lang] || subject.me, vars)}</span>
+              <span className="min-w-0 font-semibold text-ink">{interpolate(subject[lang] || subject.de, vars)}</span>
             </div>
           </div>
           <div className="bg-white px-5 py-5 text-[13.5px] leading-relaxed text-ink-soft">
@@ -419,7 +419,7 @@ export function NotificationsSection({ s, set, errors, readOnly }: SecProps) {
   const [open, setOpen] = useState(false);
 
   const list = s.notifications;
-  const sender = `info@${s.ext.domain || 'selca.me'}`;
+  const sender = `info@${s.ext.domain || 'tersun.com'}`;
   const on = (ev: NotificationEvent) => list.find((n) => n.event === ev)?.enabled ?? false;
   const patch = (id: string, p: Partial<NotificationTemplate>) => set('notifications', list.map((n) => (n.id === id ? { ...n, ...p } : n)));
 
@@ -460,7 +460,7 @@ export function NotificationsSection({ s, set, errors, readOnly }: SecProps) {
                 </div>
               </div>
               <div className={cn('min-w-0 flex-1 pl-12 text-[13px] md:pl-0', n.enabled ? 'text-ink-soft' : 'text-muted')}>
-                <Subject text={n.subject[lang] || n.subject.me} />
+                <Subject text={n.subject[lang] || n.subject.de} />
               </div>
               <div className="flex shrink-0 items-center gap-3 pl-12 md:pl-0">
                 <StateText tone={n.enabled ? 'ok' : 'off'} className="w-[72px]">
@@ -557,7 +557,7 @@ export function NotificationsSection({ s, set, errors, readOnly }: SecProps) {
         )}
       </Panel>
 
-      {list.some((n) => !n.subject.me.trim()) && (
+      {list.some((n) => !n.subject.de.trim()) && (
         <Note tone="amber" icon={TriangleAlert}>
           {t('emptySubject')}
         </Note>

@@ -87,7 +87,7 @@ export function StatusCard({
           <div className="flex items-center justify-between gap-3 border-t border-line/70 pt-3.5">
             <span className="text-[13px] font-semibold text-ink-soft">{t('translations')}</span>
             <div className="flex gap-1.5">
-              {(['me', 'sq', 'en'] as Lang[]).map((lg) => {
+              {(['de', 'sq', 'en'] as Lang[]).map((lg) => {
                 const miss = translations.miss[lg];
                 return (
                   <span
@@ -186,8 +186,8 @@ export function OrganizationCard({
           </SelectInput>
         </FormField>
         <FormField label={t('f_vendor')}>
-          <TextInput value={vendor} onChange={(e) => onVendor(e.target.value)} placeholder={t('f_vendor_ph')} list="selca-vendors" aria-label={t('f_vendor')} />
-          <datalist id="selca-vendors">
+          <TextInput value={vendor} onChange={(e) => onVendor(e.target.value)} placeholder={t('f_vendor_ph')} list="tersun-vendors" aria-label={t('f_vendor')} />
+          <datalist id="tersun-vendors">
             {vendors.map((v) => (
               <option key={v} value={v} />
             ))}

@@ -21,48 +21,48 @@ import { cn, uid } from '@/lib/utils';
 import { href } from '@/lib/paths';
 
 const T = defineDict({
-  me: {
-    description: 'Informativne stranice — dostava, uslovi, reklamacije, privatnost. Svaka ima status, datum objave, šablon i SEO, na tri jezika.',
-    newPage: 'Nova stranica',
-    colPage: 'Stranica',
+  de: {
+    description: 'Informationsseiten — Lieferung, Bedingungen, Reklamationen, Datenschutz. Jede hat Status, Veröffentlichungsdatum, Vorlage und SEO, in drei Sprachen.',
+    newPage: 'Neue Seite',
+    colPage: 'Seite',
     colStatus: 'Status',
-    colTemplate: 'Šablon',
-    colMenus: 'Meniji',
-    colUpdated: 'Ažurirano',
-    hidden: 'Skrivene',
-    drafts: 'Nacrti',
-    scheduled: 'Zakazane',
-    empty: 'Nema stranica',
-    emptyText: 'Kreirajte prvu informativnu stranicu — npr. „Dostava i ugradnja“.',
-    noMatch: 'Nijedna stranica ne odgovara pretrazi.',
-    searchPh: 'Pretraži stranice…',
-    deleteTitle: 'Obrisati stranicu „{name}“?',
-    deleteText: 'Stranica i svi njeni prevodi biće trajno uklonjeni. Linkovi u menijima prestaju da se prikazuju.',
-    removeFromFooter: 'Ukloni iz podnožja',
-    removedFromFooter: 'Link je uklonjen iz podnožja',
-    duplicate: 'Dupliraj kao nacrt',
-    duplicated: 'Kopija je kreirana kao nacrt',
-    copySuffix: '(kopija)',
-    themePages: 'Stranice teme',
-    themePagesText: 'Standardne stranice prodavnice — raspored daje tema, a sadržaj se uređuje u modulu navedenom desno.',
-    editIn: 'Uređuje se u: {where}',
-    tp_home: 'Početna',
-    tp_about: 'O nama',
+    colTemplate: 'Vorlage',
+    colMenus: 'Menüs',
+    colUpdated: 'Aktualisiert',
+    hidden: 'Verborgen',
+    drafts: 'Entwürfe',
+    scheduled: 'Geplant',
+    empty: 'Keine Seiten',
+    emptyText: 'Erstellen Sie die erste Informationsseite — z. B. „Lieferung und Montage“.',
+    noMatch: 'Keine Seite entspricht der Suche.',
+    searchPh: 'Seiten durchsuchen…',
+    deleteTitle: 'Seite „{name}“ löschen?',
+    deleteText: 'Die Seite und alle ihre Übersetzungen werden dauerhaft entfernt. Links in Menüs werden nicht mehr angezeigt.',
+    removeFromFooter: 'Aus der Fußzeile entfernen',
+    removedFromFooter: 'Link wurde aus der Fußzeile entfernt',
+    duplicate: 'Als Entwurf duplizieren',
+    duplicated: 'Kopie wurde als Entwurf erstellt',
+    copySuffix: '(Kopie)',
+    themePages: 'Theme-Seiten',
+    themePagesText: 'Standardseiten des Shops — das Layout liefert das Theme, der Inhalt wird im rechts genannten Modul bearbeitet.',
+    editIn: 'Bearbeitung in: {where}',
+    tp_home: 'Startseite',
+    tp_about: 'Über uns',
     tp_contact: 'Kontakt',
-    tp_services: 'Usluge',
-    tp_projects: 'Realizacije',
-    tp_blog: 'Savjeti (blog)',
-    tp_faq: 'Česta pitanja',
+    tp_services: 'Leistungen',
+    tp_projects: 'Projekte',
+    tp_blog: 'Ratgeber (Blog)',
+    tp_faq: 'Häufige Fragen',
     w_editor: 'Editor',
-    w_settings: 'Konfiguracija',
-    w_projects: 'Realizacije',
+    w_settings: 'Einstellungen',
+    w_projects: 'Projekte',
     w_blog: 'Blog',
-    w_models: 'Modeli',
-    w_services: 'Usluge (termini)',
-    faqWhere: 'sekcija na početnoj',
-    menusManage: 'Meniji',
+    w_models: 'Modelle',
+    w_services: 'Leistungen (Termine)',
+    faqWhere: 'Sektion auf der Startseite',
+    menusManage: 'Menüs',
     noMenus: '—',
-    noFooterPerm: 'Promjena menija se odmah objavljuje — potrebna je dozvola za objavu.',
+    noFooterPerm: 'Menüänderungen werden sofort veröffentlicht — dafür ist eine Veröffentlichungsberechtigung nötig.',
   },
   sq: {
     description: 'Faqet informative — dërgesa, kushtet, reklamacionet, privatësia. Secila ka status, datë publikimi, shabllon dhe SEO, në tre gjuhë.',
@@ -188,7 +188,7 @@ export default function Pages() {
     return pages.filter((p) => {
       if (filter !== 'all' && states.get(p.id) !== filter) return false;
       if (!needle) return true;
-      return fold(`${p.title.me} ${p.title.sq} ${p.title.en} ${p.slug} ${(p.tags ?? []).join(' ')}`).includes(needle);
+      return fold(`${p.title.de} ${p.title.sq} ${p.title.en} ${p.slug} ${(p.tags ?? []).join(' ')}`).includes(needle);
     });
   }, [pages, q, filter, states]);
 
@@ -207,7 +207,7 @@ export default function Pages() {
       ...structuredClone(p),
       id: uid('pg'),
       slug: `${p.slug}-kopija`.slice(0, 80),
-      title: { me: `${p.title.me} ${T.me.copySuffix}`, sq: p.title.sq ? `${p.title.sq} ${T.sq.copySuffix}` : '', en: p.title.en ? `${p.title.en} ${T.en.copySuffix}` : '' },
+      title: { de: `${p.title.de} ${T.de.copySuffix}`, sq: p.title.sq ? `${p.title.sq} ${T.sq.copySuffix}` : '', en: p.title.en ? `${p.title.en} ${T.en.copySuffix}` : '' },
       published: false,
       hidden: false,
       showInFooter: false,
@@ -365,7 +365,7 @@ function RowActions({
     <ActionMenu
       label={ta('actions')}
       items={[
-        { label: te('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/stranica/${p.slug}`), '_blank', 'noopener') },
+        { label: te('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/page/${p.slug}`), '_blank', 'noopener') },
         { label: ta('edit'), icon: Pencil, onSelect: () => navigate(`/admin/stranice/${p.id}`) },
         ...(canFooter
           ? [
@@ -387,11 +387,11 @@ function ThemePages() {
   const te = useDict(ed, 'admin');
   const rows: { name: string; path: string; where: string; to: string }[] = [
     { name: t('tp_home'), path: '/', where: t('w_editor'), to: '/admin/prodavnica/editor' },
-    { name: t('tp_about'), path: '/o-nama', where: t('w_settings'), to: '/admin/konfiguracija' },
-    { name: t('tp_contact'), path: '/kontakt', where: t('w_settings'), to: '/admin/konfiguracija' },
-    { name: t('tp_services'), path: '/usluge', where: t('w_models'), to: '/admin/modeli?model=cm-usluge' },
-    { name: t('tp_projects'), path: '/projekti', where: t('w_projects'), to: '/admin/projekti' },
-    { name: t('tp_blog'), path: '/savjeti', where: t('w_blog'), to: '/admin/savjeti' },
+    { name: t('tp_about'), path: '/about', where: t('w_settings'), to: '/admin/konfiguracija' },
+    { name: t('tp_contact'), path: '/contact', where: t('w_settings'), to: '/admin/konfiguracija' },
+    { name: t('tp_services'), path: '/services', where: t('w_models'), to: '/admin/modeli?model=cm-usluge' },
+    { name: t('tp_projects'), path: '/projects', where: t('w_projects'), to: '/admin/projekti' },
+    { name: t('tp_blog'), path: '/journal', where: t('w_blog'), to: '/admin/savjeti' },
     { name: `${t('tp_faq')} · ${t('faqWhere')}`, path: '/', where: t('w_models'), to: '/admin/modeli?model=cm-faq' },
   ];
   return (

@@ -20,90 +20,90 @@ import { COUNTRIES, CURRENCIES, ROUNDINGS, convert, marketX, moneyIn, type Marke
 import { Callout, Segmented, StatusMark } from '@/admin/components/analytics/ui';
 
 const T = defineDict({
-  me: {
-    all: 'Sva tržišta',
-    desc: 'Države i regioni, status, valuta, jezici, domen, katalog i pravila dostave. Podrazumijevana konfiguracija + izmjene po tržištu.',
-    add: 'Dodaj tržište',
-    readOnly: 'Samo pregled',
-    readOnlyText: 'Vaša uloga može da pregleda tržišta, ali ne i da ih mijenja.',
-    channels: 'Kanali prodaje',
-    channelsDesc: 'Online prodavnica je prvi kanal; dodatni kanali traže integraciju koja se može provjeriti i status sinhronizacije.',
-    ch_online: 'Online prodavnica',
-    ch_online_t: 'Tema, editor, stranice, slajdovi i baneri, SEO i domen. Kontrolisano objavljivanje.',
+  de: {
+    all: 'Alle Märkte',
+    desc: 'Länder und Regionen, Status, Währung, Sprachen, Domain, Katalog und Versandregeln. Standardkonfiguration + Anpassungen pro Markt.',
+    add: 'Markt hinzufügen',
+    readOnly: 'Nur Ansicht',
+    readOnlyText: 'Ihre Rolle kann Märkte ansehen, aber nicht bearbeiten.',
+    channels: 'Vertriebskanäle',
+    channelsDesc: 'Der Online-Shop ist der erste Kanal; weitere Kanäle erfordern eine überprüfbare Integration und einen Synchronisierungsstatus.',
+    ch_online: 'Online-Shop',
+    ch_online_t: 'Theme, Editor, Seiten, Slides und Banner, SEO und Domain. Kontrollierte Veröffentlichung.',
     ch_pos: 'POS',
-    ch_pos_t: 'Mapiranje proizvoda, varijanti, cijena i zaliha — jedan izvor istine za stanje.',
-    ch_social: 'Društvene mreže i marketplace',
-    ch_social_t: 'Bez obećanja „svih kanala“ dok API nije specifikovan. Red čekanja, greške i ponovni pokušaj.',
-    st_base: 'Osnovni kanal',
-    st_need: 'Po potrebi',
-    st_integration: 'Traži integraciju',
-    open: 'Otvori',
-    markets: 'Tržišta',
-    active: 'Aktivno',
-    draft: 'Nacrt',
-    primary: 'Primarno',
-    orders30: '{n} narudžbi · {sum} u 30 dana',
-    noOrders: 'Još bez narudžbi',
-    general: 'Opšte',
-    name: 'Naziv tržišta',
+    ch_pos_t: 'Zuordnung von Produkten, Varianten, Preisen und Beständen — eine einzige verlässliche Quelle für den Bestand.',
+    ch_social: 'Soziale Netzwerke und Marktplätze',
+    ch_social_t: 'Kein Versprechen „aller Kanäle“, solange keine API spezifiziert ist. Warteschlange, Fehler und erneute Versuche.',
+    st_base: 'Basiskanal',
+    st_need: 'Bei Bedarf',
+    st_integration: 'Erfordert Integration',
+    open: 'Öffnen',
+    markets: 'Märkte',
+    active: 'Aktiv',
+    draft: 'Entwurf',
+    primary: 'Primär',
+    orders30: '{n} Bestellungen · {sum} in 30 Tagen',
+    noOrders: 'Noch keine Bestellungen',
+    general: 'Allgemein',
+    name: 'Name des Marktes',
     status: 'Status',
-    activateNo: 'Aktivaciju odobrava uloga sa dozvolom za objavu',
-    countries: 'Države i regioni',
-    addCountry: 'Dodaj državu…',
-    domain: 'Domen',
-    domainHint: 'Primarni domen ili putanja za ovo tržište, npr. selca.al ili selca.me/xk.',
-    currency: 'Valuta i cijene',
-    currencyDesc: 'Cijene se čuvaju u EUR; tržište ih prikazuje u svojoj valuti po sačuvanom kursu.',
-    currencyField: 'Valuta',
+    activateNo: 'Die Aktivierung genehmigt eine Rolle mit Veröffentlichungsrecht',
+    countries: 'Länder und Regionen',
+    addCountry: 'Land hinzufügen…',
+    domain: 'Domain',
+    domainHint: 'Primäre Domain oder Pfad für diesen Markt, z. B. tersun.com/de oder tersun.com/us.',
+    currency: 'Währung und Preise',
+    currencyDesc: 'Preise werden in EUR gespeichert; der Markt zeigt sie zum gespeicherten Kurs in seiner Währung an.',
+    currencyField: 'Währung',
     rate: 'Kurs (1 EUR = ?)',
-    rateHint: 'Sačuvani kurs — ne mijenja se sam od sebe.',
-    rounding: 'Zaokruživanje',
-    r_none: 'Bez zaokruživanja',
-    'r_0.99': 'Na ,99',
-    r_1: 'Na cijeli iznos',
-    r_10: 'Na 10',
-    r_100: 'Na 100',
-    policyTitle: 'Politika konverzije i zaokruživanja',
-    policy: 'Fiksni iznosi u drugoj valuti (npr. popust 10 € ili prag za besplatnu dostavu) preračunavaju se istim sačuvanim kursom i pravilom zaokruživanja — ili se unose posebno za tržište. Popusti se ograničavaju po publici/tržištu.',
-    preview: 'Primjer cijena',
-    col_product: 'Proizvod',
-    col_base: 'Osnovna (EUR)',
-    col_market: 'Na tržištu',
-    languages: 'Jezici',
-    languagesDesc: 'Jezici sajta za ovo tržište i podrazumijevani jezik.',
-    defaultLang: 'Podrazumijevani jezik',
-    lang_me: 'Crnogorski',
-    lang_sq: 'Albanski',
-    lang_en: 'Engleski',
-    shipping: 'Dostava',
-    shippingDesc: 'Pravila dostave za tržište; zone Crne Gore se uređuju u Konfiguraciji.',
-    shipMode: 'Način',
-    ship_zones: 'Zone dostave (Crna Gora)',
-    ship_flat: 'Fiksna cijena',
-    ship_none: 'Bez dostave — samo preuzimanje',
-    fee: 'Cijena dostave',
-    days: 'Rok (dana)',
-    zone: '{name} · {n} gradova · {days} dana',
-    freeFrom: 'Besplatna dostava od {sum} (automatski popust)',
-    editZones: 'Uredi zone',
-    catalog: 'Katalog i popusti',
-    catalogField: 'Katalog na tržištu',
-    cat_all: 'Cijeli katalog',
-    cat_stock: 'Samo proizvodi na stanju (bez mjerenja po mjeri)',
-    discountsNote: 'Aktivni popusti važe za tržišta koja su im dodijeljena kroz publiku. U demo verziji svi popusti važe za Crnu Goru.',
-    saved: 'Tržište je sačuvano',
-    added: 'Dodato je novo tržište (nacrt)',
-    newMarket: 'Novo tržište',
-    deleteTitle: 'Obrisati tržište „{name}“?',
-    deleteText: 'Briše se samo konfiguracija tržišta; narudžbe ostaju.',
-    deleted: 'Tržište je obrisano',
-    switchTitle: 'Odbaciti izmjene?',
-    switchText: 'Izmjene na ovom tržištu nisu sačuvane.',
-    discardYes: 'Odbaci izmjene',
-    needLang: 'Izaberite bar jedan jezik',
-    needCountry: 'Dodajte bar jednu državu',
-    timezone: 'Vremenska zona {tz}',
-    baseCurrency: 'Osnovna valuta EUR',
+    rateHint: 'Gespeicherter Kurs — ändert sich nicht von selbst.',
+    rounding: 'Rundung',
+    r_none: 'Keine Rundung',
+    'r_0.99': 'Auf ,99',
+    r_1: 'Auf ganze Beträge',
+    r_10: 'Auf 10',
+    r_100: 'Auf 100',
+    policyTitle: 'Umrechnungs- und Rundungsrichtlinie',
+    policy: 'Feste Beträge in einer anderen Währung (z. B. ein Rabatt von 10 € oder die Schwelle für kostenlosen Versand) werden mit demselben gespeicherten Kurs und derselben Rundungsregel umgerechnet — oder separat für den Markt festgelegt. Rabatte werden nach Zielgruppe/Markt eingeschränkt.',
+    preview: 'Preisbeispiel',
+    col_product: 'Produkt',
+    col_base: 'Basis (EUR)',
+    col_market: 'Im Markt',
+    languages: 'Sprachen',
+    languagesDesc: 'Website-Sprachen für diesen Markt und die Standardsprache.',
+    defaultLang: 'Standardsprache',
+    lang_de: 'Deutsch',
+    lang_sq: 'Albanisch',
+    lang_en: 'Englisch',
+    shipping: 'Versand',
+    shippingDesc: 'Versandregeln für den Markt; die Zonen für Kosovo werden in den Einstellungen bearbeitet.',
+    shipMode: 'Art',
+    ship_zones: 'Versandzonen (Kosovo)',
+    ship_flat: 'Pauschalpreis',
+    ship_none: 'Kein Versand — nur Abholung',
+    fee: 'Versandkosten',
+    days: 'Lieferzeit (Tage)',
+    zone: '{name} · {n} Orte · {days} Tage',
+    freeFrom: 'Kostenloser Versand ab {sum} (automatischer Rabatt)',
+    editZones: 'Zonen bearbeiten',
+    catalog: 'Katalog und Rabatte',
+    catalogField: 'Katalog im Markt',
+    cat_all: 'Gesamter Katalog',
+    cat_stock: 'Nur lagernde Produkte (keine Maßanfertigung)',
+    discountsNote: 'Aktive Rabatte gelten für die Märkte, die ihnen über die Zielgruppe zugewiesen sind. In der Demo gelten alle Rabatte für Kosovo.',
+    saved: 'Markt gespeichert',
+    added: 'Neuer Markt hinzugefügt (Entwurf)',
+    newMarket: 'Neuer Markt',
+    deleteTitle: 'Markt „{name}“ löschen?',
+    deleteText: 'Nur die Marktkonfiguration wird gelöscht; Bestellungen bleiben erhalten.',
+    deleted: 'Markt gelöscht',
+    switchTitle: 'Änderungen verwerfen?',
+    switchText: 'Die Änderungen an diesem Markt wurden nicht gespeichert.',
+    discardYes: 'Änderungen verwerfen',
+    needLang: 'Wählen Sie mindestens eine Sprache',
+    needCountry: 'Fügen Sie mindestens ein Land hinzu',
+    timezone: 'Zeitzone {tz}',
+    baseCurrency: 'Basiswährung EUR',
   },
   sq: {
     all: 'Të gjitha tregjet',
@@ -136,7 +136,7 @@ const T = defineDict({
     countries: 'Shtete dhe rajone',
     addCountry: 'Shto shtet…',
     domain: 'Domeni',
-    domainHint: 'Domeni primar ose shtegu për këtë treg, p.sh. selca.al ose selca.me/xk.',
+    domainHint: 'Domeni primar ose shtegu për këtë treg, p.sh. tersun.com/de ose tersun.com/us.',
     currency: 'Valuta dhe çmimet',
     currencyDesc: 'Çmimet ruhen në EUR; tregu i shfaq në valutën e vet sipas kursit të ruajtur.',
     currencyField: 'Valuta',
@@ -157,13 +157,13 @@ const T = defineDict({
     languages: 'Gjuhët',
     languagesDesc: 'Gjuhët e faqes për këtë treg dhe gjuha default.',
     defaultLang: 'Gjuha default',
-    lang_me: 'Malazeze',
+    lang_de: 'Gjermanisht',
     lang_sq: 'Shqip',
     lang_en: 'Anglisht',
     shipping: 'Dërgesa',
-    shippingDesc: 'Rregullat e dërgesës për tregun; zonat e Malit të Zi ndryshohen te Konfigurimet.',
+    shippingDesc: 'Rregullat e dërgesës për tregun; zonat e Kosovës ndryshohen te Konfigurimet.',
     shipMode: 'Mënyra',
-    ship_zones: 'Zonat e dërgesës (Mali i Zi)',
+    ship_zones: 'Zonat e dërgesës (Kosova)',
     ship_flat: 'Tarifë fikse',
     ship_none: 'Pa dërgesë — vetëm marrje',
     fee: 'Tarifa e dërgesës',
@@ -174,8 +174,8 @@ const T = defineDict({
     catalog: 'Katalogu dhe zbritjet',
     catalogField: 'Katalogu në treg',
     cat_all: 'I gjithë katalogu',
-    cat_stock: 'Vetëm produktet në stok (pa matje me porosi)',
-    discountsNote: 'Zbritjet aktive vlejnë për tregjet që u caktohen përmes audiencës. Në demo të gjitha zbritjet vlejnë për Malin e Zi.',
+    cat_stock: 'Vetëm produktet në stok (pa sisteme me masë)',
+    discountsNote: 'Zbritjet aktive vlejnë për tregjet që u caktohen përmes audiencës. Në demo të gjitha zbritjet vlejnë për Kosovën.',
     saved: 'Tregu u ruajt',
     added: 'U shtua një treg i ri (draft)',
     newMarket: 'Treg i ri',
@@ -221,7 +221,7 @@ const T = defineDict({
     countries: 'Countries and regions',
     addCountry: 'Add country…',
     domain: 'Domain',
-    domainHint: 'Primary domain or path for this market, e.g. selca.al or selca.me/xk.',
+    domainHint: 'Primary domain or path for this market, e.g. tersun.com/de or tersun.com/us.',
     currency: 'Currency and prices',
     currencyDesc: 'Prices are stored in EUR; the market shows them in its own currency at the stored rate.',
     currencyField: 'Currency',
@@ -242,13 +242,13 @@ const T = defineDict({
     languages: 'Languages',
     languagesDesc: 'Site languages for this market and the default language.',
     defaultLang: 'Default language',
-    lang_me: 'Montenegrin',
+    lang_de: 'German',
     lang_sq: 'Albanian',
     lang_en: 'English',
     shipping: 'Shipping',
-    shippingDesc: 'Shipping rules for the market; Montenegro zones are edited in Settings.',
+    shippingDesc: 'Shipping rules for the market; Kosovo zones are edited in Settings.',
     shipMode: 'Method',
-    ship_zones: 'Shipping zones (Montenegro)',
+    ship_zones: 'Shipping zones (Kosovo)',
     ship_flat: 'Flat rate',
     ship_none: 'No delivery — pickup only',
     fee: 'Shipping fee',
@@ -260,7 +260,7 @@ const T = defineDict({
     catalogField: 'Catalogue in market',
     cat_all: 'Whole catalogue',
     cat_stock: 'In-stock products only (no made-to-measure)',
-    discountsNote: 'Active discounts apply to the markets assigned through their audience. In the demo every discount applies to Montenegro.',
+    discountsNote: 'Active discounts apply to the markets assigned through their audience. In the demo every discount applies to Kosovo.',
     saved: 'Market saved',
     added: 'A new market was added (draft)',
     newMarket: 'New market',
@@ -277,8 +277,8 @@ const T = defineDict({
   },
 });
 
-type Key = keyof (typeof T)['me'];
-const LANGS: Lang[] = ['me', 'sq', 'en'];
+type Key = keyof (typeof T)['de'];
+const LANGS: Lang[] = ['de', 'sq', 'en'];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 export default function Markets() {
@@ -306,18 +306,18 @@ export default function Markets() {
 
   const patch = (p: Partial<MarketX>) => current && setDraft({ ...current, ...p });
 
-  // orders per market: every recorded order ships inside Montenegro
+  // orders per market: every recorded order belongs to the home market (Kosovo)
   const stats = useMemo(() => {
     const from = Date.now() - 30 * 86400000;
     const live = orders.filter((o) => o.status !== 'cancelled' && new Date(o.createdAt).getTime() >= from);
     return { n: live.length, sum: live.reduce((s, o) => s + o.total, 0) };
   }, [orders]);
-  const marketOrders = (m: MarketX) => (m.countries.includes('ME') && m.status === 'active' ? stats : { n: 0, sum: 0 });
+  const marketOrders = (m: MarketX) => (m.countries.includes('XK') && m.status === 'active' ? stats : { n: 0, sum: 0 });
 
   const freeRule = useMemo(() => discounts.find((d) => d.kind === 'shipping' && d.method === 'auto' && d.status === 'active' && d.minimum.type === 'amount'), [discounts]);
   const samples = useMemo(() => {
     const pick = (id: string) => products.find((p) => p.id === id && p.status === 'active');
-    const list = [pick('p-vrata-linea'), products.find((p) => p.status === 'active' && p.unit === 'm2'), pick('p-slavina-pro')].filter((p): p is NonNullable<typeof p> => !!p);
+    const list = [pick('p-bio-free'), pick('p-zip'), pick('p-acc-led')].filter((p): p is NonNullable<typeof p> => !!p);
     return list.length ? list : products.filter((p) => p.status === 'active').slice(0, 3);
   }, [products]);
 
@@ -332,14 +332,14 @@ export default function Markets() {
     if (!draft) return;
     if (!draft.languages.length) return void toast.error(t('needLang'));
     if (!draft.countries.length) return void toast.error(t('needCountry'));
-    const clean: MarketX = { ...draft, defaultLang: draft.languages.includes(draft.defaultLang ?? 'me') ? draft.defaultLang : draft.languages[0] };
+    const clean: MarketX = { ...draft, defaultLang: draft.languages.includes(draft.defaultLang ?? 'de') ? draft.defaultLang : draft.languages[0] };
     updateSettings({ markets: settings.markets.map((m) => (m.id === clean.id ? clean : m)) });
     setDraft(null);
     toast.success(t('saved'));
   };
 
   const add = () => {
-    const m: MarketX = { id: uid('mk'), name: { me: 'Novo tržište', sq: 'Treg i ri', en: 'New market' }, countries: [], currency: 'EUR', languages: ['sq', 'en'], status: 'draft', domain: '', defaultLang: 'sq', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 0, days: '' }, catalog: 'stock' };
+    const m: MarketX = { id: uid('mk'), name: { de: 'Neuer Markt', sq: 'Treg i ri', en: 'New market' }, countries: [], currency: 'EUR', languages: ['sq', 'en'], status: 'draft', domain: '', defaultLang: 'sq', fxRate: 1, rounding: 'none', shipping: { mode: 'flat', fee: 0, days: '' }, catalog: 'stock' };
     updateSettings({ markets: [...settings.markets, m] });
     setDraft(null);
     setSelId(m.id);
@@ -481,7 +481,7 @@ export default function Markets() {
                     />
                   </span>
                 </div>
-                <Input label={t('domain')} value={current.domain ?? ''} onChange={(e) => patch({ domain: e.target.value.trim() })} hint={t('domainHint')} placeholder="selca.me" />
+                <Input label={t('domain')} value={current.domain ?? ''} onChange={(e) => patch({ domain: e.target.value.trim() })} hint={t('domainHint')} placeholder="tersun.com" />
                 <div className="sm:col-span-2">
                   <span className="mb-1.5 block text-[13px] font-semibold text-ink-soft">{t('countries')}</span>
                   <div className="flex flex-wrap items-center gap-2">
@@ -630,7 +630,7 @@ export default function Markets() {
                 <div className="space-y-4">
                   <Select label={t('shipMode')} value={current.shipping?.mode ?? 'flat'} onChange={(e) => patch({ shipping: { ...current.shipping, mode: e.target.value as ShippingMode } })}>
                     {(['zones', 'flat', 'none'] as const).map((x) => (
-                      <option key={x} value={x} disabled={x === 'zones' && !current.countries.includes('ME')}>
+                      <option key={x} value={x} disabled={x === 'zones' && !current.countries.includes('XK')}>
                         {t(`ship_${x}` as Key)}
                       </option>
                     ))}

@@ -21,66 +21,66 @@ import { PaymentSim } from '@/site/components/checkout/PaymentSim';
 import { ck } from '@/site/components/checkout/dict';
 
 const T = defineDict({
-  me: {
-    pageTitle: 'Plaćanje',
-    title: 'Završetak *kupovine*',
-    subtitle: 'Još samo par detalja — potvrdu dobijate odmah, a savjetnik vas zove u roku od 2 sata.',
-    backToCart: 'Nazad u korpu',
-    secure: 'Sigurna kupovina',
-    s1: 'Kontakt i adresa',
-    s1d: 'Na ove podatke šaljemo potvrdu i dogovaramo dostavu.',
-    s2: 'Način preuzimanja',
-    s2d: 'Dostavljamo širom Crne Gore.',
-    s3: 'Način plaćanja',
-    s3d: 'Platite kako vam odgovara — bez skrivenih troškova.',
-    demoFill: 'Popuni demo podacima',
-    firstName: 'Ime',
-    lastName: 'Prezime',
+  de: {
+    pageTitle: 'Kasse',
+    title: 'Bestellung *abschließen*',
+    subtitle: 'Nur noch wenige Angaben — Sie erhalten sofort eine Bestätigung, und ein Berater ruft Sie innerhalb von 2 Stunden an.',
+    backToCart: 'Zurück zum Warenkorb',
+    secure: 'Sicherer Checkout',
+    s1: 'Kontakt & Adresse',
+    s1d: 'An diese Angaben senden wir die Bestätigung und stimmen die Lieferung mit Ihnen ab.',
+    s2: 'Lieferart',
+    s2d: 'Wir liefern und montieren in Kosovo, Europa und den USA.',
+    s3: 'Zahlungsart',
+    s3d: 'Bezahlen Sie, wie es Ihnen passt — ohne versteckte Kosten.',
+    demoFill: 'Mit Demodaten ausfüllen',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
     phone: 'Telefon',
-    phoneHint: 'Zovemo vas radi potvrde narudžbe.',
-    email: 'E-mail',
-    emailHint: 'Ovdje stiže potvrda narudžbe.',
-    emailPh: 'ime@primjer.me',
-    city: 'Grad',
-    chooseCity: 'Izaberite grad',
-    address: 'Adresa',
-    addressPh: 'Ulica i broj, sprat, stan',
-    addressOptional: 'Opciono kod preuzimanja u salonu.',
-    asCompany: 'Kupujem kao firma',
-    asCompanyHint: 'Račun glasi na firmu, sa PIB-om.',
-    company: 'Naziv firme',
-    pib: 'PIB',
-    pibPh: '8 cifara',
-    note: 'Napomena',
-    optional: 'opciono',
-    notePh: 'Npr. sprat, interfon ili najbolje vrijeme za poziv…',
-    err_required: 'Obavezno polje',
-    err_phone: 'Unesite ispravan broj telefona',
-    err_email: 'Unesite ispravnu e-mail adresu',
-    err_city: 'Izaberite grad',
-    err_pib: 'PIB ima 8 cifara',
-    err_terms: 'Potrebno je prihvatiti uslove kupovine',
-    fixErrors: 'Provjerite označena polja',
-    deliveryDays: 'Isporuka za {days} radna dana',
-    deliveryChooseCity: 'Izaberite grad za tačnu cijenu i rok isporuke',
-    freeThreshold: 'Besplatno za narudžbe preko {amount}',
-    freeInstallation: 'Besplatno uz naručenu ugradnju',
-    pickupNote: 'Za ugradnju nam je potrebna adresa — upišite je u kontakt podacima.',
-    codDesc: 'Plaćate kuriru ili u salonu — gotovinom ili karticom.',
-    bankDesc: 'Podatke za uplatu (banka, broj računa i poziv na broj) dobijate uz potvrdu narudžbe.',
-    cardDesc: 'Visa, Mastercard ili Maestro — na zaštićenoj stranici banke.',
-    cardPanelTitle: 'Podatke o kartici unosite samo kod banke',
-    cardPanelText: 'Nakon potvrde otvara se zaštićena stranica banke (3-D Secure). SELCA nikada ne vidi niti čuva podatke vaše kartice.',
-    termsPre: 'Prihvatam ',
-    termsLink: 'uslove kupovine',
-    termsDesc: 'Vaše podatke koristimo isključivo za obradu narudžbe, dostavu i ugradnju.',
-    placeOrder: 'Potvrdi narudžbu',
-    payNow: 'Plati {amount}',
-    afterNote: 'Potvrdu narudžbe odmah šaljemo na vaš e-mail.',
-    yourOrder: 'Vaša narudžba',
-    edit: 'Uredi',
-    showSummary: 'Prikaži pregled narudžbe',
-    hideSummary: 'Sakrij pregled narudžbe',
+    phoneHint: 'Wir rufen Sie zur Bestätigung der Bestellung an.',
+    email: 'E-Mail',
+    emailHint: 'Hierhin senden wir Ihre Bestellbestätigung.',
+    emailPh: 'name@beispiel.de',
+    city: 'Ort',
+    chooseCity: 'Ort auswählen',
+    address: 'Adresse',
+    addressPh: 'Straße und Hausnummer, Etage, Wohnung',
+    addressOptional: 'Optional bei Abholung im Showroom.',
+    asCompany: 'Ich kaufe als Firma',
+    asCompanyHint: 'Die Rechnung wird auf Ihre Firma ausgestellt, mit Steuernummer.',
+    company: 'Firmenname',
+    pib: 'Steuernummer / USt-IdNr.',
+    pibPh: 'z. B. DE123456789',
+    note: 'Anmerkung',
+    optional: 'optional',
+    notePh: 'Z. B. Etage, Gegensprechanlage oder die beste Zeit für einen Anruf…',
+    err_required: 'Pflichtfeld',
+    err_phone: 'Bitte geben Sie eine gültige Telefonnummer ein',
+    err_email: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+    err_city: 'Bitte wählen Sie einen Ort',
+    err_pib: 'Bitte geben Sie eine gültige Steuernummer ein',
+    err_terms: 'Bitte akzeptieren Sie die Verkaufsbedingungen',
+    fixErrors: 'Bitte prüfen Sie die markierten Felder',
+    deliveryDays: 'Lieferung in {days} Werktagen',
+    deliveryChooseCity: 'Wählen Sie einen Ort für den genauen Preis und die Lieferzeit',
+    freeThreshold: 'Kostenlos bei Bestellungen über {amount}',
+    freeInstallation: 'Kostenlos bei gebuchter Montage',
+    pickupNote: 'Für die Montage benötigen wir eine Adresse — bitte tragen Sie sie bei den Kontaktdaten ein.',
+    codDesc: 'Sie zahlen beim Kurier oder im Showroom — bar oder mit Karte.',
+    bankDesc: 'Die Zahlungsdaten (Bank, Kontonummer und Verwendungszweck) erhalten Sie mit der Bestellbestätigung.',
+    cardDesc: 'Visa, Mastercard oder Maestro — auf der sicheren Seite der Bank.',
+    cardPanelTitle: 'Kartendaten geben Sie nur bei der Bank ein',
+    cardPanelText: 'Nach der Bestätigung öffnet sich die sichere Seite der Bank (3-D Secure). TERSUN sieht oder speichert Ihre Kartendaten zu keinem Zeitpunkt.',
+    termsPre: 'Ich akzeptiere die ',
+    termsLink: 'Verkaufsbedingungen',
+    termsDesc: 'Wir verwenden Ihre Daten ausschließlich zur Bearbeitung, Lieferung und Montage Ihrer Bestellung.',
+    placeOrder: 'Bestellung bestätigen',
+    payNow: '{amount} bezahlen',
+    afterNote: 'Die Bestellbestätigung senden wir Ihnen sofort per E-Mail.',
+    yourOrder: 'Ihre Bestellung',
+    edit: 'Bearbeiten',
+    showSummary: 'Bestellübersicht anzeigen',
+    hideSummary: 'Bestellübersicht ausblenden',
   },
   sq: {
     pageTitle: 'Pagesa',
@@ -91,7 +91,7 @@ const T = defineDict({
     s1: 'Kontakti dhe adresa',
     s1d: 'Në këto të dhëna dërgojmë konfirmimin dhe caktojmë dërgesën.',
     s2: 'Mënyra e marrjes',
-    s2d: 'Dërgojmë në gjithë Malin e Zi.',
+    s2d: 'Dërgojmë dhe montojmë në Kosovë, Evropë dhe SHBA.',
     s3: 'Mënyra e pagesës',
     s3d: 'Paguani si ju përshtatet — pa kosto të fshehura.',
     demoFill: 'Plotëso me të dhëna demo',
@@ -101,17 +101,17 @@ const T = defineDict({
     phoneHint: 'Ju telefonojmë për konfirmimin e porosisë.',
     email: 'E-mail',
     emailHint: 'Këtu vjen konfirmimi i porosisë.',
-    emailPh: 'emri@shembull.me',
+    emailPh: 'emri@shembull.com',
     city: 'Qyteti',
     chooseCity: 'Zgjidhni qytetin',
     address: 'Adresa',
     addressPh: 'Rruga dhe numri, kati, banesa',
     addressOptional: 'Opsionale për marrje në sallon.',
     asCompany: 'Blej si kompani',
-    asCompanyHint: 'Fatura lëshohet në emër të kompanisë, me PIB.',
+    asCompanyHint: 'Fatura lëshohet në emër të kompanisë, me numrin tatimor.',
     company: 'Emri i kompanisë',
-    pib: 'PIB',
-    pibPh: '8 shifra',
+    pib: 'Numri tatimor (NUI)',
+    pibPh: 'p.sh. 811234567',
     note: 'Shënim',
     optional: 'opsionale',
     notePh: 'P.sh. kati, interfoni ose koha më e mirë për t’ju telefonuar…',
@@ -119,7 +119,7 @@ const T = defineDict({
     err_phone: 'Shkruani një numër telefoni të saktë',
     err_email: 'Shkruani një adresë e-maili të saktë',
     err_city: 'Zgjidhni qytetin',
-    err_pib: 'PIB-i ka 8 shifra',
+    err_pib: 'Shkruani një numër tatimor të vlefshëm',
     err_terms: 'Duhet të pranoni kushtet e blerjes',
     fixErrors: 'Kontrolloni fushat e shënuara',
     deliveryDays: 'Dorëzim për {days} ditë pune',
@@ -131,7 +131,7 @@ const T = defineDict({
     bankDesc: 'Të dhënat për pagesë (banka, llogaria dhe referenca) i merrni bashkë me konfirmimin e porosisë.',
     cardDesc: 'Visa, Mastercard ose Maestro — në faqen e mbrojtur të bankës.',
     cardPanelTitle: 'Të dhënat e kartelës i shkruani vetëm te banka',
-    cardPanelText: 'Pas konfirmimit hapet faqja e mbrojtur e bankës (3-D Secure). SELCA nuk i sheh dhe nuk i ruan kurrë të dhënat e kartelës suaj.',
+    cardPanelText: 'Pas konfirmimit hapet faqja e mbrojtur e bankës (3-D Secure). TERSUN nuk i sheh dhe nuk i ruan kurrë të dhënat e kartelës suaj.',
     termsPre: 'Pranoj ',
     termsLink: 'kushtet e blerjes',
     termsDesc: 'Të dhënat tuaja i përdorim vetëm për përpunimin e porosisë, dërgesën dhe montimin.',
@@ -152,7 +152,7 @@ const T = defineDict({
     s1: 'Contact & address',
     s1d: 'We send the confirmation here and arrange delivery with you.',
     s2: 'Delivery method',
-    s2d: 'We deliver all over Montenegro.',
+    s2d: 'We deliver and install across Kosovo, Europe and the USA.',
     s3: 'Payment method',
     s3d: 'Pay the way that suits you — no hidden costs.',
     demoFill: 'Fill with demo details',
@@ -171,8 +171,8 @@ const T = defineDict({
     asCompany: 'Buying as a company',
     asCompanyHint: 'Invoice issued to your company, with tax ID.',
     company: 'Company name',
-    pib: 'Tax ID (PIB)',
-    pibPh: '8 digits',
+    pib: 'Tax ID / VAT no.',
+    pibPh: 'e.g. DE123456789',
     note: 'Note',
     optional: 'optional',
     notePh: 'E.g. floor, intercom or the best time to call…',
@@ -180,7 +180,7 @@ const T = defineDict({
     err_phone: 'Enter a valid phone number',
     err_email: 'Enter a valid e-mail address',
     err_city: 'Choose a city',
-    err_pib: 'The tax ID has 8 digits',
+    err_pib: 'Enter a valid tax ID',
     err_terms: 'Please accept the terms of sale',
     fixErrors: 'Please check the highlighted fields',
     deliveryDays: 'Delivered in {days} working days',
@@ -192,7 +192,7 @@ const T = defineDict({
     bankDesc: 'Bank details (bank, account number and reference) come with your order confirmation.',
     cardDesc: 'Visa, Mastercard or Maestro — on the bank’s secure page.',
     cardPanelTitle: 'Card details are entered only at the bank',
-    cardPanelText: 'After you confirm, the bank’s secure page (3-D Secure) opens. SELCA never sees or stores your card details.',
+    cardPanelText: 'After you confirm, the bank’s secure page (3-D Secure) opens. TERSUN never sees or stores your card details.',
     termsPre: 'I accept the ',
     termsLink: 'terms of sale',
     termsDesc: 'We use your details only to process, deliver and install your order.',
@@ -229,12 +229,12 @@ const CONTACT_FIELDS: FieldKey[] = FIELD_ORDER.filter((k) => k !== 'terms');
 const EMPTY: FormState = { firstName: '', lastName: '', phone: '', email: '', city: '', address: '', isCompany: false, company: '', pib: '', note: '' };
 
 const DEMO: Record<Lang, Omit<FormState, 'isCompany' | 'company' | 'pib' | 'note'>> = {
-  me: { firstName: 'Marko', lastName: 'Vuković', phone: '+382 67 555 210', email: 'marko.vukovic@example.com', city: 'Podgorica', address: 'Njegoševa 24, stan 7' },
-  sq: { firstName: 'Arben', lastName: 'Gjokaj', phone: '+382 68 412 337', email: 'arben.gjokaj@example.com', city: 'Ulcinj', address: 'Bulevar Skenderbeg 12' },
-  en: { firstName: 'Ana', lastName: 'Radović', phone: '+382 69 220 418', email: 'ana.radovic@example.com', city: 'Budva', address: 'Mediteranska 8' },
+  de: { firstName: 'Lukas', lastName: 'Becker', phone: '+49 151 2345 6780', email: 'lukas.becker@example.com', city: 'München', address: 'Isartalstraße 24' },
+  sq: { firstName: 'Arben', lastName: 'Krasniqi', phone: '+383 44 412 337', email: 'arben.krasniqi@example.com', city: 'Prishtina', address: 'Rr. Nëna Terezë 12' },
+  en: { firstName: 'Emma', lastName: 'Carter', phone: '+1 305 555 0148', email: 'emma.carter@example.com', city: 'Miami', address: '1200 Brickell Ave' },
 };
 
-const DRAFT_KEY = 'selca-checkout-draft';
+const DRAFT_KEY = 'tersun-checkout-draft';
 interface Draft {
   form: FormState;
   delivery: DeliveryMethod;
@@ -369,7 +369,7 @@ export default function Checkout() {
     if (addressRequired && !form.address.trim()) e.address = t('err_required');
     if (form.isCompany) {
       if (!form.company.trim()) e.company = t('err_required');
-      if (!/^\d{8}$/.test(form.pib.replace(/\s/g, ''))) e.pib = form.pib.trim() ? t('err_pib') : t('err_required');
+      if (!/^[A-Z0-9-]{5,15}$/i.test(form.pib.replace(/\s/g, ''))) e.pib = form.pib.trim() ? t('err_pib') : t('err_required');
     }
     if (!terms) e.terms = t('err_terms');
     return e;
@@ -406,7 +406,7 @@ export default function Checkout() {
     placed.current = true;
     saveDraft(null);
     clearCart();
-    navigate('/narudzba/' + order.id);
+    navigate('/order/' + order.id);
   };
 
   const onSubmit = (e: FormEvent) => {
@@ -432,7 +432,7 @@ export default function Checkout() {
   };
 
   if (!totals.lines.length) {
-    return placed.current ? <div className="min-h-[60vh]" /> : <Navigate to="/korpa" replace />;
+    return placed.current ? <div className="min-h-[60vh]" /> : <Navigate to="/cart" replace />;
   }
 
   /* ---------- delivery card copy ---------- */
@@ -469,7 +469,7 @@ export default function Checkout() {
       {/* Checkout bar */}
       <div className="border-b border-line bg-white/55">
         <div className="container-x flex h-[60px] items-center justify-between gap-4">
-          <Link to="/korpa" className="group hidden items-center gap-2 text-[13.5px] font-semibold text-ink-soft hover:text-ink md:inline-flex">
+          <Link to="/cart" className="group hidden items-center gap-2 text-[13.5px] font-semibold text-ink-soft hover:text-ink md:inline-flex">
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
             {t('backToCart')}
           </Link>
@@ -536,7 +536,7 @@ export default function Checkout() {
                     label={t('phone')}
                     required
                     autoComplete="tel"
-                    placeholder="+382 6_ ___ ___"
+                    placeholder="+383 4_ ___ ___"
                     hint={t('phoneHint')}
                     value={form.phone}
                     onChange={set('phone')}
@@ -597,7 +597,7 @@ export default function Checkout() {
                       <motion.div {...reveal} className="overflow-hidden">
                         <div className="grid gap-x-4 gap-y-5 pt-4 sm:grid-cols-[minmax(0,1fr)_200px]">
                           <Input id="f-company" label={t('company')} required autoComplete="organization" value={form.company} onChange={set('company')} onBlur={touch('company')} error={err('company')} />
-                          <Input id="f-pib" label={t('pib')} required inputMode="numeric" maxLength={9} placeholder={t('pibPh')} value={form.pib} onChange={set('pib')} onBlur={touch('pib')} error={err('pib')} />
+                          <Input id="f-pib" label={t('pib')} required maxLength={20} placeholder={t('pibPh')} value={form.pib} onChange={set('pib')} onBlur={touch('pib')} error={err('pib')} />
                         </div>
                       </motion.div>
                     )}
@@ -701,7 +701,7 @@ export default function Checkout() {
                     label={
                       <>
                         {t('termsPre')}
-                        <Link to="/stranica/uslovi-kupovine" target="_blank" className="text-brand-700 underline decoration-brand-700/30 underline-offset-[3px] hover:decoration-brand-700">
+                        <Link to="/page/uslovi-kupovine" target="_blank" className="text-brand-700 underline decoration-brand-700/30 underline-offset-[3px] hover:decoration-brand-700">
                           {t('termsLink')}
                         </Link>
                       </>
@@ -728,7 +728,7 @@ export default function Checkout() {
                 <h2 className="text-[15px] font-bold text-ink">
                   {t('yourOrder')} <span className="font-medium text-muted">· {items(totals.count)}</span>
                 </h2>
-                <Link to="/korpa" className="text-[13px] font-semibold text-brand-700 hover:underline">
+                <Link to="/cart" className="text-[13px] font-semibold text-brand-700 hover:underline">
                   {t('edit')}
                 </Link>
               </div>

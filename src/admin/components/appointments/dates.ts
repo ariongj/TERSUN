@@ -80,38 +80,38 @@ export function sameDay(a: Date | string, b: Date | string) {
 /* Names — written out so Albanian reads like the proposal ("Hënë 05") */
 /* ------------------------------------------------------------------ */
 const DAYS: Record<Lang, string[]> = {
-  me: ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja'],
+  de: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
   sq: ['Hënë', 'Martë', 'Mërkurë', 'Enjte', 'Premte', 'Shtunë', 'Diel'],
   en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
 };
 const DAYS_SHORT: Record<Lang, string[]> = {
-  me: ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'],
+  de: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
   sq: ['Hën', 'Mar', 'Mër', 'Enj', 'Pre', 'Sht', 'Die'],
   en: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
 };
-/** ME uses the genitive after a day number ("5. oktobra") */
+/** DE writes the day number with a period ("5. Oktober") */
 const MONTHS: Record<Lang, string[]> = {
-  me: ['januara', 'februara', 'marta', 'aprila', 'maja', 'juna', 'jula', 'avgusta', 'septembra', 'oktobra', 'novembra', 'decembra'],
+  de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
   sq: ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'],
   en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 };
 const MONTHS_SHORT: Record<Lang, string[]> = {
-  me: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'],
+  de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
   sq: ['jan', 'shk', 'mar', 'pri', 'maj', 'qer', 'kor', 'gus', 'sht', 'tet', 'nën', 'dhj'],
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 };
 
 export const dayName = (i: number, lang: Lang, short = false) => (short ? DAYS_SHORT : DAYS)[lang][i];
 
-/** "Hënë 05" / "Pon 05" — calendar column header */
+/** "Hënë 05" / "Mo 05" — calendar column header */
 export function dayHeader(d: Date, lang: Lang, short = false) {
   return `${dayName(weekdayIndex(d), lang, short)} ${pad(d.getDate())}`;
 }
 
-/** "05 tetor" / "5. oktobra" / "5 October" */
+/** "05 tetor" / "5. Oktober" / "5 October" */
 export function dayMonth(d: Date, lang: Lang, short = false) {
   const m = (short ? MONTHS_SHORT : MONTHS)[lang][d.getMonth()];
-  if (lang === 'me') return `${d.getDate()}. ${m}`;
+  if (lang === 'de') return `${d.getDate()}. ${m}`;
   if (lang === 'sq') return `${pad(d.getDate())} ${m}`;
   return `${d.getDate()} ${m}`;
 }
@@ -128,7 +128,7 @@ export function rangeLabel(from: Date, to: Date, lang: Lang) {
   const sameMonth = from.getMonth() === to.getMonth();
   if (!sameMonth) return `${dayMonth(from, lang, true)} – ${dayMonth(to, lang, true)}`;
   const m = MONTHS[lang][to.getMonth()];
-  if (lang === 'me') return `${from.getDate()}–${to.getDate()}. ${m}`;
+  if (lang === 'de') return `${from.getDate()}.–${to.getDate()}. ${m}`;
   if (lang === 'sq') return `${pad(from.getDate())}–${pad(to.getDate())} ${m}`;
   return `${from.getDate()}–${to.getDate()} ${m}`;
 }

@@ -9,28 +9,28 @@ import { defineDict, useDict } from '@/i18n';
 import { useCategories } from '@/store/hooks';
 
 const T = defineDict({
-  me: {
-    pageTitle: 'Stranica nije pronađena',
-    eyebrow: 'Greška 404',
-    title: 'Ova vrata vode *nigdje*.',
-    text: 'Stranica koju tražite ne postoji ili je premještena. Ostatak doma je otvoren — krenite odavde.',
-    requested: 'Tražena adresa',
-    home: 'Na početnu',
-    products: 'Pogledajte proizvode',
-    searchPh: 'Pretražite vrata, podove, pločice…',
-    searchBtn: 'Traži',
-    maybeEyebrow: 'Možda tražite',
-    maybeTitle: 'Krenite od *kategorije*',
+  de: {
+    pageTitle: 'Seite nicht gefunden',
+    eyebrow: 'Fehler 404',
+    title: 'Dieser Weg führt *nirgendwohin*.',
+    text: 'Die gesuchte Seite existiert nicht oder wurde verschoben. Der Rest der Terrasse steht Ihnen offen — beginnen Sie hier.',
+    requested: 'Angeforderte Adresse',
+    home: 'Zur Startseite',
+    products: 'Produkte ansehen',
+    searchPh: 'Pergola, Glasdach, ZIP suchen…',
+    searchBtn: 'Suchen',
+    maybeEyebrow: 'Vielleicht suchen Sie',
+    maybeTitle: 'Beginnen Sie mit einer *Kategorie*',
   },
   sq: {
     pageTitle: 'Faqja nuk u gjet',
     eyebrow: 'Gabim 404',
-    title: 'Kjo derë nuk të çon *askund*.',
-    text: 'Faqja që kërkoni nuk ekziston ose është zhvendosur. Pjesa tjetër e shtëpisë është e hapur — nisni nga këtu.',
+    title: 'Kjo rrugë nuk të çon *askund*.',
+    text: 'Faqja që kërkoni nuk ekziston ose është zhvendosur. Pjesa tjetër e tarracës është e hapur — nisni nga këtu.',
     requested: 'Adresa e kërkuar',
     home: 'Në ballinë',
     products: 'Shikoni produktet',
-    searchPh: 'Kërkoni dyer, dysheme, pllaka…',
+    searchPh: 'Kërkoni pergolë, xham, Zip…',
     searchBtn: 'Kërko',
     maybeEyebrow: 'Ndoshta kërkoni',
     maybeTitle: 'Nisni nga një *kategori*',
@@ -38,12 +38,12 @@ const T = defineDict({
   en: {
     pageTitle: 'Page not found',
     eyebrow: 'Error 404',
-    title: 'This door leads *nowhere*.',
-    text: 'The page you’re looking for doesn’t exist or has moved. The rest of the house is open — start here.',
+    title: 'This path leads *nowhere*.',
+    text: 'The page you’re looking for doesn’t exist or has moved. The rest of the terrace is open — start here.',
     requested: 'Requested address',
     home: 'Back to home',
     products: 'Browse products',
-    searchPh: 'Search doors, floors, tiles…',
+    searchPh: 'Search pergola, glass roof, ZIP…',
     searchBtn: 'Search',
     maybeEyebrow: 'You might be looking for',
     maybeTitle: 'Start with a *category*',
@@ -59,7 +59,7 @@ export default function NotFound() {
   usePageTitle(t('pageTitle'));
 
   // The "0" is a doorway: an arched photo of the doors category
-  const door = cats.find((c) => c.slug === 'vrata') ?? cats[0];
+  const door = cats.find((c) => c.slug === 'bioclimatic') ?? cats[0];
 
   return (
     <>
@@ -94,7 +94,7 @@ export default function NotFound() {
             <ButtonLink to="/" size="lg" icon={<Home className="h-4 w-4" />}>
               {t('home')}
             </ButtonLink>
-            <ButtonLink to="/proizvodi" size="lg" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" size="lg" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('products')}
             </ButtonLink>
           </div>
@@ -104,7 +104,7 @@ export default function NotFound() {
             onSubmit={(e) => {
               e.preventDefault();
               const v = q.trim();
-              navigate(v ? `/pretraga?q=${encodeURIComponent(v)}` : '/pretraga');
+              navigate(v ? `/search?q=${encodeURIComponent(v)}` : '/search');
             }}
             className="mt-6 flex w-full max-w-md animate-fade-up items-center gap-2 rounded-full border border-line bg-white p-1.5 pl-5 shadow-[0_14px_40px_-28px_rgba(28,26,23,0.5)] transition-colors [animation-delay:260ms] focus-within:border-ink/30"
           >

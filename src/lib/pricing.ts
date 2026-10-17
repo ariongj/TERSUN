@@ -110,7 +110,7 @@ export function couponToDiscount(c: Coupon): Discount {
   return {
     id: c.id,
     title: c.description || c.code,
-    publicTitle: { me: c.code, sq: c.code, en: c.code },
+    publicTitle: { de: c.code, sq: c.code, en: c.code },
     kind: 'order',
     method: 'code',
     code: normalizeCode(c.code),

@@ -7,7 +7,7 @@ import { adm } from '@/admin/i18n';
 import { cn } from '@/lib/utils';
 
 const LANGS: { code: Lang; short: string }[] = [
-  { code: 'me', short: 'ME' },
+  { code: 'de', short: 'DE' },
   { code: 'sq', short: 'SQ' },
   { code: 'en', short: 'EN' },
 ];
@@ -43,7 +43,7 @@ export function L10nInput({
   const [lang, setLang] = useState<Lang>(adminLang);
   const t = useDict(adm, 'admin');
   const id = useId();
-  const v = value ?? { me: '', sq: '', en: '' };
+  const v = value ?? { de: '', sq: '', en: '' };
   const set = (text: string) => onChange({ ...v, [lang]: text });
   const ctl =
     'w-full rounded-lg border border-line bg-white px-3 text-[14px] text-ink outline-none transition focus:border-ink/40 focus:ring-4 focus:ring-ink/5';
@@ -59,9 +59,9 @@ export function L10nInput({
           <span />
         )}
         <div className="flex items-center gap-1">
-          {lang !== 'me' && !v[lang]?.trim() && v.me?.trim() && (
-            <button type="button" onClick={() => set(v.me)} className="mr-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-muted hover:bg-canvas hover:text-ink" title={t('copyFromMe')}>
-              <Copy className="h-3 w-3" /> ME
+          {lang !== 'de' && !v[lang]?.trim() && v.de?.trim() && (
+            <button type="button" onClick={() => set(v.de)} className="mr-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-muted hover:bg-canvas hover:text-ink" title={t('copyFromMe')}>
+              <Copy className="h-3 w-3" /> DE
             </button>
           )}
           <div className="flex rounded-lg bg-canvas p-0.5">

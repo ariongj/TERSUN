@@ -33,7 +33,7 @@ type StockF = 'all' | 'in' | 'low' | 'out' | 'untracked';
 type ChannelF = 'all' | 'online' | 'pos' | 'none';
 type SortKey = 'newest' | 'updated' | 'name' | 'price' | 'stock' | 'sold';
 const DEFAULT_DIR: Record<SortKey, 'asc' | 'desc'> = { newest: 'desc', updated: 'desc', name: 'asc', price: 'asc', stock: 'asc', sold: 'desc' };
-const COLLATOR: Record<string, string> = { me: 'sr-Latn', sq: 'sq', en: 'en' };
+const COLLATOR: Record<string, string> = { de: 'de', sq: 'sq', en: 'en' };
 const PAGE = 25;
 
 /** Price with the compare-at price struck through, a unit suffix and "from" for quote products. */
@@ -143,7 +143,7 @@ export default function Products() {
         if (channel === 'none' ? ch.length > 0 : !ch.includes(channel)) return false;
       }
       if (terms.length) {
-        const hay = fold([p.name.me, p.name.sq, p.name.en, ...skusOf(p), p.barcode ?? '', ...(p.tags ?? []), p.vendor ?? ''].join(' '));
+        const hay = fold([p.name.de, p.name.sq, p.name.en, ...skusOf(p), p.barcode ?? '', ...(p.tags ?? []), p.vendor ?? ''].join(' '));
         if (!terms.every((term) => hay.includes(term))) return false;
       }
       return true;
@@ -270,7 +270,7 @@ export default function Products() {
   const menuFor = (p: ProductX): MenuItem[] => {
     const items: MenuItem[] = [{ label: canEdit ? t('edit') : ta('open'), icon: Pencil, onSelect: () => navigate(`/admin/proizvodi/${p.id}`) }];
     if (canEdit) items.push({ label: t('duplicate'), icon: Copy, onSelect: () => duplicate(p) });
-    if (p.status === 'active') items.push({ label: t('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/proizvod/${p.slug}`), '_blank', 'noopener') });
+    if (p.status === 'active') items.push({ label: t('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/product/${p.slug}`), '_blank', 'noopener') });
     if (p.status !== 'active') items.push({ label: t('publish'), icon: Eye, onSelect: () => one(p, 'active'), disabled: !canPublish, hint: t('noPermPublish'), divider: true });
     if (p.status === 'active') items.push({ label: t('toDraft'), icon: CircleDashed, onSelect: () => one(p, 'draft'), disabled: !canEdit, hint: t('noPerm'), divider: true });
     if (p.status === 'archived') items.push({ label: t('restore'), icon: ArchiveRestore, onSelect: () => one(p, 'draft'), disabled: !canArchive, hint: t('noPerm') });

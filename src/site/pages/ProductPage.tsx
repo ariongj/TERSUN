@@ -46,7 +46,7 @@ function NotFoundProduct() {
           text={t('notFoundText')}
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <ButtonLink to="/proizvodi" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/shop" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {t('browse')}
               </ButtonLink>
               <ButtonLink to="/" variant="outline">
@@ -109,7 +109,7 @@ function ProductView({ product }: { product: Product }) {
   return (
     <div>
       <div className="container-x pt-6 sm:pt-8">
-        <Breadcrumbs items={[...(category ? [{ label: l(category.name), to: `/proizvodi/${category.slug}` }] : []), { label: l(product.name) }]} />
+        <Breadcrumbs items={[...(category ? [{ label: l(category.name), to: `/shop/${category.slug}` }] : []), { label: l(product.name) }]} />
 
         <div className="mt-6 grid gap-8 sm:mt-8 lg:grid-cols-12 lg:gap-12 xl:gap-16">
           <div className="lg:col-span-7">
@@ -134,7 +134,7 @@ function ProductView({ product }: { product: Product }) {
         products={related}
         action={
           category && (
-            <ButtonLink to={`/proizvodi/${category.slug}`} variant="outline" size="sm" iconRight={<ArrowRight className="h-4 w-4" />} className="hidden sm:inline-flex">
+            <ButtonLink to={`/shop/${category.slug}`} variant="outline" size="sm" iconRight={<ArrowRight className="h-4 w-4" />} className="hidden sm:inline-flex">
               {t('seeCategory')}
             </ButtonLink>
           )

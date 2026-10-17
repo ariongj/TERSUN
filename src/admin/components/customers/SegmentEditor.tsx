@@ -20,61 +20,61 @@ import { isNumericField, ruleValid, useExplain } from './explain';
 import { Avatar, Gate, LangChip } from './parts';
 
 export const SEG = defineDict({
-  me: {
-    newTitle: 'Novi segment',
-    details: 'Detalji',
-    name: 'Naziv',
-    namePh: 'npr. Kupci iz Ulcinja',
-    description: 'Opis (interno)',
-    conditions: 'Uslovi',
-    conditionsHint: 'Segment je dinamičan: kupac ulazi ili izlazi čim se promijene njegove narudžbe ili podaci.',
-    mustMeet: 'Kupac mora ispuniti',
-    addCondition: 'Dodaj uslov',
-    removeCondition: 'Ukloni uslov',
+  de: {
+    newTitle: 'Neues Segment',
+    details: 'Details',
+    name: 'Name',
+    namePh: 'z. B. Kunden aus München',
+    description: 'Beschreibung (intern)',
+    conditions: 'Bedingungen',
+    conditionsHint: 'Das Segment ist dynamisch: Kunden kommen hinzu oder fallen heraus, sobald sich ihre Bestellungen oder Daten ändern.',
+    mustMeet: 'Kunde muss erfüllen',
+    addCondition: 'Bedingung hinzufügen',
+    removeCondition: 'Bedingung entfernen',
     operator: 'Operator',
-    templates: 'Brzi početak',
-    tpl_dormant: 'Neaktivni 60+ dana',
-    tpl_big: 'Potrošili 2.000 €+',
-    tpl_new: 'Novi ovog mjeseca',
-    tpl_tag: 'Arhitekti i izvođači',
-    explanation: 'Objašnjenje',
-    live: 'Poklapanja uživo',
-    liveOf: 'od {n} kupaca · {pct}%',
-    previewEmpty: 'Nijedan kupac trenutno ne ispunjava uslove.',
-    previewMore: '+ još {n}',
-    openList: 'Otvori u listi kupaca',
-    consentIn: 'E-mail saglasnost: {n} od {total}',
-    exportMembers: 'Izvezi članove (CSV)',
-    usage: 'Upotreba',
-    usageEmpty: 'Segment još nije publika nijednog popusta ili ponude.',
-    usageHint: 'Publiku birate u popustu: Popusti → Publika → Segment.',
-    noAuto: 'Segmenti ne šalju marketing automatski. Služe kao publika za popuste i ponude i za izvještaje; kampanju pokrećete sami, samo kupcima sa saglasnošću.',
-    saved: 'Segment je sačuvan',
-    created: 'Segment je kreiran',
-    errName: 'Unesite naziv segmenta',
-    errRules: 'Popunite vrijednost u svim uslovima',
-    readOnly: 'Samo pregled — vaša uloga ne može mijenjati segmente.',
-    notFound: 'Segment nije pronađen',
-    notFoundText: 'Možda je obrisan. Vratite se na listu segmenata.',
-    backToList: 'Nazad na segmente',
-    duplicate: 'Dupliraj',
-    copySuffix: ' (kopija)',
-    duplicated: 'Segment je dupliran',
-    delete: 'Obriši',
-    deleteTitle: 'Obrisati segment „{name}“?',
-    deleteText: 'Kupci se ne brišu — briše se samo filter.',
-    deleteBlocked: 'Segment je publika popusta — prvo promijenite publiku popusta.',
-    deleted: 'Segment je obrisan',
-    discount: 'Popust',
-    offer: 'Ponuda',
-    valuePh: 'Vrijednost',
-    customersCol: 'Kupci',
+    templates: 'Schnellstart',
+    tpl_dormant: 'Inaktiv seit 60+ Tagen',
+    tpl_big: 'Umsatz 2.000 €+',
+    tpl_new: 'Neu in diesem Monat',
+    tpl_tag: 'Architekten und Handwerksbetriebe',
+    explanation: 'Erklärung',
+    live: 'Live-Treffer',
+    liveOf: 'von {n} Kunden · {pct}%',
+    previewEmpty: 'Derzeit erfüllt kein Kunde die Bedingungen.',
+    previewMore: '+ {n} weitere',
+    openList: 'In der Kundenliste öffnen',
+    consentIn: 'E-Mail-Einwilligung: {n} von {total}',
+    exportMembers: 'Mitglieder exportieren (CSV)',
+    usage: 'Verwendung',
+    usageEmpty: 'Das Segment ist noch keine Zielgruppe eines Rabatts oder Angebots.',
+    usageHint: 'Die Zielgruppe wählen Sie im Rabatt: Rabatte → Zielgruppe → Segment.',
+    noAuto: 'Segmente versenden kein Marketing automatisch. Sie dienen als Zielgruppe für Rabatte und Angebote sowie für Berichte; Kampagnen starten Sie selbst, nur an Kunden mit Einwilligung.',
+    saved: 'Segment gespeichert',
+    created: 'Segment erstellt',
+    errName: 'Segmentnamen eingeben',
+    errRules: 'Wert in allen Bedingungen ausfüllen',
+    readOnly: 'Nur Ansicht — Ihre Rolle kann Segmente nicht ändern.',
+    notFound: 'Segment nicht gefunden',
+    notFoundText: 'Möglicherweise wurde es gelöscht. Kehren Sie zur Segmentliste zurück.',
+    backToList: 'Zurück zu den Segmenten',
+    duplicate: 'Duplizieren',
+    copySuffix: ' (Kopie)',
+    duplicated: 'Segment dupliziert',
+    delete: 'Löschen',
+    deleteTitle: 'Segment „{name}“ löschen?',
+    deleteText: 'Kunden werden nicht gelöscht — nur der Filter wird entfernt.',
+    deleteBlocked: 'Das Segment ist Zielgruppe eines Rabatts — ändern Sie zuerst die Zielgruppe des Rabatts.',
+    deleted: 'Segment gelöscht',
+    discount: 'Rabatt',
+    offer: 'Angebot',
+    valuePh: 'Wert',
+    customersCol: 'Kunden',
   },
   sq: {
     newTitle: 'Segment i ri',
     details: 'Detajet',
     name: 'Emri',
-    namePh: 'p.sh. Klientë nga Ulqini',
+    namePh: 'p.sh. Klientë nga Prizreni',
     description: 'Përshkrimi (i brendshëm)',
     conditions: 'Kushtet',
     conditionsHint: 'Segmenti është dinamik: klienti hyn ose del sapo ndryshojnë porositë ose të dhënat e tij.',
@@ -124,7 +124,7 @@ export const SEG = defineDict({
     newTitle: 'New segment',
     details: 'Details',
     name: 'Name',
-    namePh: 'e.g. Customers from Ulcinj',
+    namePh: 'e.g. Customers from Munich',
     description: 'Description (internal)',
     conditions: 'Conditions',
     conditionsHint: 'Segments are dynamic: a customer joins or leaves as soon as their orders or data change.',
@@ -173,7 +173,7 @@ export const SEG = defineDict({
 });
 
 const FIELDS: SegmentField[] = ['orders', 'spent', 'lastOrderDays', 'city', 'lang', 'tag'];
-const blankSegment = (): Segment => ({ id: '', name: { me: '', sq: '', en: '' }, description: { me: '', sq: '', en: '' }, match: 'all', rules: [{ field: 'orders', op: 'gt', value: '' }] });
+const blankSegment = (): Segment => ({ id: '', name: { de: '', sq: '', en: '' }, description: { de: '', sq: '', en: '' }, match: 'all', rules: [{ field: 'orders', op: 'gt', value: '' }] });
 const TEMPLATES: { id: 'tpl_dormant' | 'tpl_big' | 'tpl_new' | 'tpl_tag'; match: Segment['match']; rules: SegmentRule[] }[] = [
   { id: 'tpl_dormant', match: 'all', rules: [{ field: 'orders', op: 'gt', value: '0' }, { field: 'lastOrderDays', op: 'gt', value: '60' }] },
   { id: 'tpl_big', match: 'all', rules: [{ field: 'spent', op: 'gt', value: '2000' }] },
@@ -247,7 +247,7 @@ function RuleRow({ rule, onChange, onRemove, count, cities, tags, disabled, canR
         <div className="relative sm:col-start-3 sm:row-start-1">
           {rule.field === 'lang' ? (
             <select value={rule.value} disabled={disabled} onChange={(e) => onChange({ ...rule, value: e.target.value })} aria-label={tx('f_lang')} className={cn(ctl, 'cursor-pointer appearance-none border-line')}>
-              {(['me', 'sq', 'en'] as const).map((x) => (
+              {(['de', 'sq', 'en'] as const).map((x) => (
                 <option key={x} value={x}>
                   {tx(`lang_${x}`)}
                 </option>
@@ -327,7 +327,7 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
   }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(original);
-  const nameOk = !!(draft.name.me.trim() || draft.name.sq.trim() || draft.name.en.trim());
+  const nameOk = !!(draft.name.de.trim() || draft.name.sq.trim() || draft.name.en.trim());
   const rulesOk = draft.rules.length > 0 && draft.rules.every(ruleValid);
   const usage = usageMap.get(draft.id);
   const used = !!usage?.discounts.length;
@@ -343,8 +343,8 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
     if (!nameOk) return toast.error(t('errName'));
     if (!rulesOk) return toast.error(t('errRules'));
     // fill empty translations from the first one given
-    const first = draft.name.sq || draft.name.me || draft.name.en;
-    const name: L10n = { me: draft.name.me || first, sq: draft.name.sq || first, en: draft.name.en || first };
+    const first = draft.name.sq || draft.name.de || draft.name.en;
+    const name: L10n = { de: draft.name.de || first, sq: draft.name.sq || first, en: draft.name.en || first };
     const next: Segment = { ...draft, id: draft.id || uid('seg'), name, rules: draft.rules.map((r) => ({ ...r, value: String(r.value).trim().replace(',', '.') })) };
     upsert('segments', next);
     toast.success(isNew ? t('created') : t('saved'), { description: l(name) });
@@ -356,7 +356,7 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
     setTried(false);
   };
   const duplicateSeg = () => {
-    const copy: Segment = { ...structuredClone(original), id: uid('seg'), name: { me: original.name.me + t('copySuffix'), sq: original.name.sq + t('copySuffix'), en: original.name.en + t('copySuffix') } };
+    const copy: Segment = { ...structuredClone(original), id: uid('seg'), name: { de: original.name.de + t('copySuffix'), sq: original.name.sq + t('copySuffix'), en: original.name.en + t('copySuffix') } };
     upsert('segments', copy);
     toast.success(t('duplicated'));
     navigate(`/admin/segmenti?id=${copy.id}`);
@@ -406,7 +406,7 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
                 <>
                   <L10nInput label={t('name')} required value={draft.name} onChange={(name) => patch({ name })} placeholder={t('namePh')} />
                   {tried && !nameOk && <p className="-mt-2 text-[12px] font-medium text-red-600">{t('errName')}</p>}
-                  <L10nInput label={t('description')} value={draft.description ?? { me: '', sq: '', en: '' }} onChange={(description) => patch({ description })} multiline rows={2} />
+                  <L10nInput label={t('description')} value={draft.description ?? { de: '', sq: '', en: '' }} onChange={(description) => patch({ description })} multiline rows={2} />
                 </>
               ) : (
                 <div>

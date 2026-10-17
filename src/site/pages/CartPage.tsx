@@ -16,26 +16,26 @@ import { ProductCard } from '@/site/components/ProductCard';
 import { CheckoutSteps, CouponBox, TotalsRows, TrustNotes, useItemsLabel, useTotalsView } from '@/site/components/checkout/parts';
 
 const T = defineDict({
-  me: {
-    pageTitle: 'Korpa',
-    title: 'Vaša *korpa*',
-    summary: 'Pregled narudžbe',
-    toCheckout: 'Nastavi na plaćanje',
-    continue: 'Nastavi kupovinu',
-    clear: 'Isprazni korpu',
-    cleared: 'Korpa je ispražnjena',
-    undo: 'Vrati',
-    payMethods: 'Pouzeće · Uplata na račun · Kartica',
-    measureTitle: 'Niste sigurni u mjere?',
-    measureText: 'Naš tim dolazi besplatno, mjeri na licu mjesta i savjetuje vas prije kupovine.',
-    measureCta: 'Zakaži mjerenje',
-    emptyTitle: 'Vaša korpa je prazna',
-    emptyText: 'Pogledajte ponudu vrata, podova, keramike i opreme za kupatilo — ili zakažite besplatno mjerenje pa vam pripremimo ponudu.',
-    browse: 'Pogledaj proizvode',
-    recoEyebrow: 'Preporuka',
-    recoTitle: 'Možda vam se *dopadne*',
-    recoTitleEmpty: 'Najprodavanije *ovog mjeseca*',
-    viewAll: 'Svi proizvodi',
+  de: {
+    pageTitle: 'Warenkorb',
+    title: 'Ihr *Warenkorb*',
+    summary: 'Bestellübersicht',
+    toCheckout: 'Weiter zur Zahlung',
+    continue: 'Weiter einkaufen',
+    clear: 'Warenkorb leeren',
+    cleared: 'Warenkorb geleert',
+    undo: 'Rückgängig',
+    payMethods: 'Nachnahme · Überweisung · Karte',
+    measureTitle: 'Unsicher bei den Maßen?',
+    measureText: 'Unser Team kommt kostenlos zu Ihnen, misst vor Ort und berät Sie vor dem Kauf.',
+    measureCta: 'Beratung vereinbaren',
+    emptyTitle: 'Ihr Warenkorb ist leer',
+    emptyText: 'Entdecken Sie Pergolen, Glasdächer, Glassysteme und Zubehör — oder vereinbaren Sie eine kostenlose Beratung vor Ort, und wir erstellen Ihnen ein Angebot.',
+    browse: 'Produkte ansehen',
+    recoEyebrow: 'Empfehlung',
+    recoTitle: 'Das könnte Ihnen *gefallen*',
+    recoTitleEmpty: 'Bestseller *des Monats*',
+    viewAll: 'Alle Produkte',
   },
   sq: {
     pageTitle: 'Shporta',
@@ -49,9 +49,9 @@ const T = defineDict({
     payMethods: 'Në dorëzim · Transfertë bankare · Kartelë',
     measureTitle: 'Nuk jeni të sigurt për masat?',
     measureText: 'Ekipi ynë vjen falas, mat në vend dhe ju këshillon para blerjes.',
-    measureCta: 'Cakto matjen',
+    measureCta: 'Cakto konsultën',
     emptyTitle: 'Shporta juaj është bosh',
-    emptyText: 'Shikoni ofertën e dyerve, dyshemeve, pllakave dhe pajisjeve të banjos — ose caktoni matje falas dhe ne ju përgatisim ofertën.',
+    emptyText: 'Shikoni pergolat, mbulojat e xhamit, sistemet e xhamit dhe aksesorët — ose caktoni konsultë falas dhe ne ju përgatisim ofertën.',
     browse: 'Shiko produktet',
     recoEyebrow: 'Rekomandim',
     recoTitle: 'Mund t’ju *pëlqejnë*',
@@ -68,11 +68,11 @@ const T = defineDict({
     cleared: 'Cart emptied',
     undo: 'Undo',
     payMethods: 'Cash on delivery · Bank transfer · Card',
-    measureTitle: 'Not sure about the measurements?',
+    measureTitle: 'Not sure about the dimensions?',
     measureText: 'Our team visits for free, measures on site and advises you before you buy.',
-    measureCta: 'Book a visit',
+    measureCta: 'Book a consultation',
     emptyTitle: 'Your cart is empty',
-    emptyText: 'Browse doors, flooring, tiles and bathroom fittings — or book a free measurement and we’ll prepare a quote for you.',
+    emptyText: 'Browse pergolas, glass roofs, glass systems and accessories — or book a free on-site consultation and we’ll prepare a quote for you.',
     browse: 'Browse products',
     recoEyebrow: 'Recommended',
     recoTitle: 'You may also *like*',
@@ -143,10 +143,10 @@ export default function CartPage() {
               <h1 className="display relative mt-6 text-[34px] leading-tight text-ink sm:text-5xl">{t('emptyTitle')}</h1>
               <p className="relative mt-3 max-w-lg text-[15.5px] leading-relaxed text-muted">{t('emptyText')}</p>
               <div className="relative mt-8 flex flex-wrap justify-center gap-3">
-                <ButtonLink to="/proizvodi" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+                <ButtonLink to="/shop" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
                   {t('browse')}
                 </ButtonLink>
-                <ButtonLink to="/#mjerenje" size="lg" variant="outline" icon={<Ruler className="h-4 w-4" />}>
+                <ButtonLink to="/#consultation" size="lg" variant="outline" icon={<Ruler className="h-4 w-4" />}>
                   {t('measureCta')}
                 </ButtonLink>
               </div>
@@ -163,7 +163,7 @@ export default function CartPage() {
                   {items(totals.count)} · <span className="font-semibold text-ink">{money(totals.total, lang)}</span>
                 </p>
               </div>
-              <Link to="/proizvodi" className="group hidden items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink sm:inline-flex">
+              <Link to="/shop" className="group hidden items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink sm:inline-flex">
                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
                 {t('continue')}
               </Link>
@@ -181,7 +181,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-3 px-1 sm:justify-end">
-                  <Link to="/proizvodi" className="group inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink sm:hidden">
+                  <Link to="/shop" className="group inline-flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-ink sm:hidden">
                     <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
                     {t('continue')}
                   </Link>
@@ -201,7 +201,7 @@ export default function CartPage() {
                     <h2 className="font-display text-[22px] leading-tight text-white">{t('measureTitle')}</h2>
                     <p className="mt-1 text-[14px] leading-relaxed text-paper/65">{t('measureText')}</p>
                   </div>
-                  <ButtonLink to="/#mjerenje" variant="light" className="relative self-start sm:self-center">
+                  <ButtonLink to="/#consultation" variant="light" className="relative self-start sm:self-center">
                     {t('measureCta')}
                   </ButtonLink>
                 </div>
@@ -214,7 +214,7 @@ export default function CartPage() {
                   <CouponBox totals={totals} className="mt-5" />
                   <div className="my-5 h-px bg-line" />
                   <TotalsRows v={view} big />
-                  <Button size="lg" className="mt-6 w-full" iconRight={<ArrowRight className="h-4 w-4" />} onClick={() => navigate('/placanje')}>
+                  <Button size="lg" className="mt-6 w-full" iconRight={<ArrowRight className="h-4 w-4" />} onClick={() => navigate('/checkout')}>
                     {t('toCheckout')}
                   </Button>
                   <p className="mt-3 flex items-center justify-center gap-1.5 text-[12px] text-muted">
@@ -235,7 +235,7 @@ export default function CartPage() {
             eyebrow={t('recoEyebrow')}
             title={empty ? t('recoTitleEmpty') : t('recoTitle')}
             action={
-              <Link to="/proizvodi" className="group inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-brand-700">
+              <Link to="/shop" className="group inline-flex items-center gap-2 text-sm font-semibold text-ink hover:text-brand-700">
                 {t('viewAll')} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             }

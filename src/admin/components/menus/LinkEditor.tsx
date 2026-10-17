@@ -1,4 +1,4 @@
-// One menu link: label (ME/SQ/EN), what it points to and the destination picker (PDF p.36
+// One menu link: label (DE/SQ/EN), what it points to and the destination picker (PDF p.36
 // "Lidhje te faqe, produkt, koleksion, ofertë ose URL").
 import { useMemo, useState } from 'react';
 import { Check, CornerDownRight, Link2, Trash2, Wand2 } from 'lucide-react';
@@ -35,21 +35,21 @@ interface Opt {
 }
 
 const MAX_OPTS = 40;
-const QUICK_PATHS = ['/proizvodi', '/proizvodi?akcija=1', '/usluge', '/projekti', '/o-nama', '/savjeti', '/kontakt', '/#mjerenje'];
+const QUICK_PATHS = ['/shop', '/shop?sale=1', '/services', '/projects', '/about', '/journal', '/contact', '/#consultation'];
 
 function optionsFor(type: MenuItemType, src: LinkSources): Opt[] {
   const res = (id: string) => resolveLink({ type, target: id }, src);
   switch (type) {
     case 'page':
-      return (src.pages as PageX[]).map((p) => ({ id: p.id, title: p.title, sub: `/stranica/${p.slug}`, image: p.cover, res: res(p.id) }));
+      return (src.pages as PageX[]).map((p) => ({ id: p.id, title: p.title, sub: `/page/${p.slug}`, image: p.cover, res: res(p.id) }));
     case 'product':
-      return src.products.map((p) => ({ id: p.id, title: p.name, sub: `${p.sku} · /proizvod/${p.slug}`, image: p.images[0], res: res(p.id) }));
+      return src.products.map((p) => ({ id: p.id, title: p.name, sub: `${p.sku} · /product/${p.slug}`, image: p.images[0], res: res(p.id) }));
     case 'collection':
-      return src.collections.map((c) => ({ id: c.id, title: c.title, sub: `/kolekcija/${c.slug}`, image: c.image, res: res(c.id) }));
+      return src.collections.map((c) => ({ id: c.id, title: c.title, sub: `/collection/${c.slug}`, image: c.image, res: res(c.id) }));
     case 'category':
-      return [...src.categories].sort((a, b) => a.order - b.order).map((c) => ({ id: c.id, title: c.name, sub: `/proizvodi/${c.slug}`, image: c.image, res: res(c.id) }));
+      return [...src.categories].sort((a, b) => a.order - b.order).map((c) => ({ id: c.id, title: c.name, sub: `/shop/${c.slug}`, image: c.image, res: res(c.id) }));
     case 'offer':
-      return src.offers.map((o) => ({ id: o.id, title: o.name, sub: `/oferta/${o.slug}`, image: o.image, res: res(o.id) }));
+      return src.offers.map((o) => ({ id: o.id, title: o.name, sub: `/offer/${o.slug}`, image: o.image, res: res(o.id) }));
     default:
       return [];
   }
@@ -64,7 +64,7 @@ function Thumbnail({ src, type }: { src?: string; type: MenuItemType }) {
   );
 }
 
-const sameL10n = (a: L10n, b: L10n) => a.me === b.me && a.sq === b.sq && a.en === b.en;
+const sameL10n = (a: L10n, b: L10n) => a.de === b.de && a.sq === b.sq && a.en === b.en;
 
 export function LinkEditor({
   open,
@@ -95,7 +95,7 @@ export function LinkEditor({
   const filtered = useMemo(() => {
     const needle = fold(q.trim());
     if (!needle) return options;
-    return options.filter((o) => fold(`${o.title.me} ${o.title.sq} ${o.title.en} ${o.sub}`).includes(needle));
+    return options.filter((o) => fold(`${o.title.de} ${o.title.sq} ${o.title.en} ${o.sub}`).includes(needle));
   }, [options, q]);
 
   if (!ctx || !draft) return <Drawer open={false} onClose={onClose}>{null}</Drawer>;
@@ -114,7 +114,7 @@ export function LinkEditor({
   };
   const pick = (o: Opt) => {
     // Fill the label from the destination while it is still empty or follows the previous destination's name.
-    const followsName = !draft.label.me.trim() || (entityTitle && sameL10n(draft.label, entityTitle));
+    const followsName = !draft.label.de.trim() || (entityTitle && sameL10n(draft.label, entityTitle));
     patch({ target: o.id, ...(followsName ? { label: { ...o.title } } : {}) });
   };
   const apply = () => {

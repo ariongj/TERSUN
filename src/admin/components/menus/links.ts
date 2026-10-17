@@ -23,7 +23,7 @@ export interface LinkEntity {
 }
 
 export interface ResolvedLink {
-  /** Router path ("/stranica/x") or absolute URL; '' = no link (column heading) */
+  /** Router path ("/page/x") or absolute URL; '' = no link (column heading) */
   to: string;
   external: boolean;
   /** Visible on the storefront right now */
@@ -36,7 +36,7 @@ export const LINK_TYPES: MenuItemType[] = ['page', 'product', 'collection', 'cat
 
 const EXTERNAL = /^(?:https?:|mailto:|tel:|\/\/)/i;
 
-/** Validate a free URL target: in-app path ("/kontakt", "/proizvodi?akcija=1", "#mjerenje") or http(s)/mailto/tel. */
+/** Validate a free URL target: in-app path ("/contact", "/shop?sale=1", "#consultation") or http(s)/mailto/tel. */
 export function validUrl(target: string) {
   const v = target.trim();
   if (!v) return true; // empty = heading without a link
@@ -52,7 +52,7 @@ export function resolveLink(item: Pick<MenuItem, 'type' | 'target'>, src: LinkSo
       const p = src.pages.find((x) => x.id === key || x.slug === key) as PageX | undefined;
       if (!p) return none('missing');
       const state = contentState(p, p.publishedAt, now);
-      const res: ResolvedLink = { to: `/stranica/${p.slug}`, external: false, live: state === 'published', entity: { title: p.title, image: p.cover, subtitle: p.excerpt } };
+      const res: ResolvedLink = { to: `/page/${p.slug}`, external: false, live: state === 'published', entity: { title: p.title, image: p.cover, subtitle: p.excerpt } };
       if (state !== 'published') res.issue = state === 'draft' ? 'draft' : state === 'hidden' ? 'hidden' : 'scheduled';
       return res;
     }
@@ -60,24 +60,24 @@ export function resolveLink(item: Pick<MenuItem, 'type' | 'target'>, src: LinkSo
       const p = src.products.find((x) => x.id === key || x.slug === key);
       if (!p) return none('missing');
       const live = p.status === 'active';
-      return { to: `/proizvod/${p.slug}`, external: false, live, issue: live ? undefined : p.status === 'archived' ? 'archived' : 'draft', entity: { title: p.name, image: p.images[0], subtitle: p.short } };
+      return { to: `/product/${p.slug}`, external: false, live, issue: live ? undefined : p.status === 'archived' ? 'archived' : 'draft', entity: { title: p.name, image: p.images[0], subtitle: p.short } };
     }
     case 'collection': {
       const c = src.collections.find((x) => x.id === key || x.slug === key);
       if (!c) return none('missing');
-      return { to: `/kolekcija/${c.slug}`, external: false, live: c.published, issue: c.published ? undefined : 'draft', entity: { title: c.title, image: c.image, subtitle: c.description } };
+      return { to: `/collection/${c.slug}`, external: false, live: c.published, issue: c.published ? undefined : 'draft', entity: { title: c.title, image: c.image, subtitle: c.description } };
     }
     case 'category': {
       const c = src.categories.find((x) => x.id === key || x.slug === key);
       if (!c) return none('missing');
-      return { to: `/proizvodi/${c.slug}`, external: false, live: true, entity: { title: c.name, image: c.image, subtitle: c.tagline } };
+      return { to: `/shop/${c.slug}`, external: false, live: true, entity: { title: c.name, image: c.image, subtitle: c.tagline } };
     }
     case 'offer': {
       const o = src.offers.find((x) => x.id === key || x.slug === key);
       if (!o) return none('missing');
       const st = offerState(o, now);
       const issue: LinkIssue | undefined = st === 'active' ? undefined : st === 'draft' ? 'draft' : st === 'paused' ? 'paused' : st === 'scheduled' ? 'scheduled' : 'expired';
-      return { to: `/oferta/${o.slug}`, external: false, live: st === 'active', issue, entity: { title: o.name, image: o.image, subtitle: o.badge } };
+      return { to: `/offer/${o.slug}`, external: false, live: st === 'active', issue, entity: { title: o.name, image: o.image, subtitle: o.badge } };
     }
     case 'url':
     default: {
@@ -121,7 +121,7 @@ export function liveTree(items: MenuItem[], src: LinkSources, now = Date.now()):
 export const isVisual = (n: NavNode) => !!n.entity?.image && (n.type === 'category' || n.type === 'collection' || n.type === 'product' || n.type === 'offer');
 
 /** Sale / campaign links get the accent treatment. */
-export const isPromo = (n: Pick<NavNode, 'type' | 'to'>) => n.type === 'offer' || /[?&]akcija=1/.test(n.to);
+export const isPromo = (n: Pick<NavNode, 'type' | 'to'>) => n.type === 'offer' || /[?&]sale=1/.test(n.to);
 
 /* ------------------------------------------------------------------ */
 /* Where an entity is linked from (pages list, page editor…)           */

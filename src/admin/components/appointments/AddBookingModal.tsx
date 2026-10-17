@@ -17,41 +17,41 @@ import { checkSlot, slotsForDay, windowFor } from './rules';
 import { CHEVRON, ServiceDot, StaffAvatar, useBookingRules, useLocationLabel, useReasonText } from './shared';
 
 const T = defineDict({
-  me: {
-    title: 'Nova rezervacija',
-    desc: 'Usluga → osoblje/lokacija → termin → kontakt → potvrda. Preklapanja preko kapaciteta se odbijaju.',
-    s1: 'Usluga',
-    s2: 'Osoblje i lokacija',
+  de: {
+    title: 'Neue Buchung',
+    desc: 'Leistung → Mitarbeiter/Ort → Termin → Kontakt → Bestätigung. Überschneidungen über die Kapazität hinaus werden abgelehnt.',
+    s1: 'Leistung',
+    s2: 'Mitarbeiter & Ort',
     s3: 'Termin',
     s4: 'Kontakt',
-    s5: 'Potvrda',
-    capacityN: 'kapacitet {n}',
-    hoursOf: 'Radno vrijeme: {from}–{to}',
-    noSlots: 'Nema slobodnih termina ovog dana — izaberite drugi dan ili osobu.',
-    freeN: '{n} slobodnih od {total}',
-    autoStaff: 'Dodjeljuje se: {name}',
-    contactSearch: 'Postojeći upit ili kupac — ime, telefon, e-mail…',
-    fromInquiry: 'Upit',
-    fromCustomer: 'Kupac',
-    linked: 'Povezano sa upitom',
-    unlink: 'Ukloni vezu',
-    noMatch: 'Nema postojećeg kontakta — unesite novi ispod.',
-    name: 'Ime i prezime',
+    s5: 'Bestätigung',
+    capacityN: 'Kapazität {n}',
+    hoursOf: 'Öffnungszeiten: {from}–{to}',
+    noSlots: 'An diesem Tag sind keine Termine frei — wählen Sie einen anderen Tag oder eine andere Person.',
+    freeN: '{n} von {total} frei',
+    autoStaff: 'Zugewiesen an: {name}',
+    contactSearch: 'Bestehende Anfrage oder Kunde — Name, Telefon, E-Mail…',
+    fromInquiry: 'Anfrage',
+    fromCustomer: 'Kunde',
+    linked: 'Mit Anfrage verknüpft',
+    unlink: 'Verknüpfung lösen',
+    noMatch: 'Kein bestehender Kontakt — geben Sie unten einen neuen ein.',
+    name: 'Vor- und Nachname',
     phone: 'Telefon',
-    email: 'E-mail',
-    city: 'Grad',
-    address: 'Adresa za dolazak',
-    required: 'Obavezno polje',
+    email: 'E-Mail',
+    city: 'Ort',
+    address: 'Adresse für den Termin',
+    required: 'Pflichtfeld',
     initial: 'Status',
-    notePh: 'Napomena za tim (npr. sprat, šta ponijeti)…',
-    pickSlot: 'Izaberite termin',
-    submit: 'Dodaj rezervaciju',
-    added: 'Rezervacija je dodata — {name}, {when}',
-    rejected: 'Rezervacija nije moguća',
-    summaryEmpty: 'Izaberite termin da biste vidjeli pregled.',
-    pendingHint: 'Klijent još treba da potvrdi',
-    confirmedHint: 'Dogovoreno sa klijentom',
-    close: 'Zatvori',
+    notePh: 'Notiz für das Team (z. B. Zugang zur Terrasse, was mitzubringen ist)…',
+    pickSlot: 'Termin wählen',
+    submit: 'Buchung hinzufügen',
+    added: 'Buchung hinzugefügt — {name}, {when}',
+    rejected: 'Buchung nicht möglich',
+    summaryEmpty: 'Wählen Sie einen Termin, um die Übersicht zu sehen.',
+    pendingHint: 'Der Kunde muss noch bestätigen',
+    confirmedHint: 'Mit dem Kunden vereinbart',
+    close: 'Schließen',
   },
   sq: {
     title: 'Rezervim i ri',
@@ -79,7 +79,7 @@ const T = defineDict({
     address: 'Adresa e vizitës',
     required: 'Fushë e detyrueshme',
     initial: 'Statusi',
-    notePh: 'Shënim për ekipin (p.sh. kati, çfarë të merret)…',
+    notePh: 'Shënim për ekipin (p.sh. qasja në tarracë, çfarë të merret)…',
     pickSlot: 'Zgjidhni intervalin',
     submit: 'Shto rezervim',
     added: 'Rezervimi u shtua — {name}, {when}',
@@ -115,7 +115,7 @@ const T = defineDict({
     address: 'Visit address',
     required: 'Required',
     initial: 'Status',
-    notePh: 'Note for the team (e.g. floor, what to bring)…',
+    notePh: 'Note for the team (e.g. terrace access, what to bring)…',
     pickSlot: 'Pick a slot',
     submit: 'Add booking',
     added: 'Booking added — {name}, {when}',
@@ -358,7 +358,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
               </select>
             </label>
             {location === 'onsite' && (
-              <Input label={t('address')} value={address} onChange={(e) => setAddress(e.target.value)} error={errors.address} wrapClassName="sm:col-span-2" className="h-10! text-[13.5px]!" placeholder="Njegoševa 12, Podgorica" />
+              <Input label={t('address')} value={address} onChange={(e) => setAddress(e.target.value)} error={errors.address} wrapClassName="sm:col-span-2" className="h-10! text-[13.5px]!" placeholder="Rr. Nëna Terezë 12, Prishtina" />
             )}
           </div>
         </Step>
@@ -485,7 +485,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <Input label={t('name')} required value={contact.name} onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))} error={errors.name} className="h-10! text-[13.5px]!" />
-            <Input label={t('phone')} required type="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} error={errors.phone} placeholder="+382 6_ ___ ___" className="h-10! text-[13.5px]!" />
+            <Input label={t('phone')} required type="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} error={errors.phone} placeholder="+383 4_ ___ ___" className="h-10! text-[13.5px]!" />
             <Input label={t('email')} type="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} className="h-10! text-[13.5px]!" />
             <Input label={t('city')} value={contact.city} onChange={(e) => setContact((c) => ({ ...c, city: e.target.value }))} className="h-10! text-[13.5px]!" />
           </div>

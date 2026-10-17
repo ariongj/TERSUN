@@ -13,21 +13,21 @@ import { customerFor, kindOf, phoneKey, type CustomerIndex, type InquiryX } from
 import { cx } from './i18n';
 
 const T = defineDict({
-  me: {
-    orders: 'Narudžbe',
-    spent: 'Potrošeno',
-    since: 'Kupac od',
-    openProfile: 'Otvori profil',
-    auto: 'Povezano automatski (e-mail / telefon)',
-    manual: 'Povezano ručno',
-    unlink: 'Ukloni vezu',
-    relink: 'Poveži automatski',
-    none: 'Nema profila kupca sa ovim e-mailom ili telefonom.',
-    noneHint: 'Profil nastaje sa prvom narudžbom. Možete povezati postojećeg kupca:',
-    searchPh: 'Pretraži kupce po imenu, e-mailu ili telefonu…',
-    noMatch: 'Nema kupaca za ovu pretragu.',
-    link: 'Poveži',
-    other: 'Drugi upiti istog kontakta',
+  de: {
+    orders: 'Bestellungen',
+    spent: 'Ausgegeben',
+    since: 'Kunde seit',
+    openProfile: 'Profil öffnen',
+    auto: 'Automatisch verknüpft (E-Mail / Telefon)',
+    manual: 'Manuell verknüpft',
+    unlink: 'Verknüpfung lösen',
+    relink: 'Automatisch verknüpfen',
+    none: 'Kein Kundenprofil mit dieser E-Mail oder Telefonnummer.',
+    noneHint: 'Ein Profil entsteht mit der ersten Bestellung. Sie können einen bestehenden Kunden verknüpfen:',
+    searchPh: 'Kunden nach Name, E-Mail oder Telefon suchen…',
+    noMatch: 'Keine Kunden für diese Suche.',
+    link: 'Verknüpfen',
+    other: 'Weitere Anfragen desselben Kontakts',
   },
   sq: {
     orders: 'Porosi',

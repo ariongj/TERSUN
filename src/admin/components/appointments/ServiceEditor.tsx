@@ -15,32 +15,32 @@ import { ap } from './i18n';
 import { CHEVRON, StaffAvatar, isLive } from './shared';
 
 const T = defineDict({
-  me: {
-    newTitle: 'Nova usluga',
-    editTitle: 'Uredi uslugu',
-    name: 'Naziv usluge',
-    description: 'Kratak opis',
-    durationHint: 'Koliko traje jedan termin',
-    capacityHint: 'Paralelnih termina u istom periodu',
-    pricing: 'Cijena',
-    noPrice: 'Bez cijene',
-    freeOpt: 'Besplatno',
-    paid: 'Naplaćuje se',
-    priceLabel: 'Cijena sa PDV-om',
-    color: 'Boja u kalendaru',
-    team: 'Ko radi ovu uslugu',
-    teamHint: 'Samo izabrane osobe mogu dobiti termin za ovu uslugu.',
-    where: 'Gdje se odvija',
-    save: 'Sačuvaj uslugu',
-    saved: 'Usluga je sačuvana',
-    nameRequired: 'Unesite naziv',
-    staffRequired: 'Izaberite bar jednu osobu',
-    deleteTitle: 'Obrisati uslugu?',
-    deleteText: 'Usluga „{name}“ biće uklonjena iz kalendara i forme za termine.',
-    deleteBlocked: 'Usluga ima {n} predstojećih termina — prvo ih pomjerite ili otkažite.',
-    deleted: 'Usluga je obrisana',
-    delete: 'Obriši',
-    cancel: 'Odustani',
+  de: {
+    newTitle: 'Neue Leistung',
+    editTitle: 'Leistung bearbeiten',
+    name: 'Name der Leistung',
+    description: 'Kurzbeschreibung',
+    durationHint: 'Dauer eines Termins',
+    capacityHint: 'Parallele Termine im selben Zeitfenster',
+    pricing: 'Preis',
+    noPrice: 'Ohne Preis',
+    freeOpt: 'Kostenlos',
+    paid: 'Kostenpflichtig',
+    priceLabel: 'Preis inkl. MwSt.',
+    color: 'Farbe im Kalender',
+    team: 'Wer bietet diese Leistung an',
+    teamHint: 'Nur die ausgewählten Personen können für diese Leistung gebucht werden.',
+    where: 'Ort',
+    save: 'Leistung speichern',
+    saved: 'Leistung gespeichert',
+    nameRequired: 'Geben Sie einen Namen ein',
+    staffRequired: 'Wählen Sie mindestens eine Person',
+    deleteTitle: 'Leistung löschen?',
+    deleteText: 'Die Leistung „{name}“ wird aus dem Kalender und dem Buchungsformular entfernt.',
+    deleteBlocked: 'Die Leistung hat {n} anstehende Termine — verschieben oder stornieren Sie diese zuerst.',
+    deleted: 'Leistung gelöscht',
+    delete: 'Löschen',
+    cancel: 'Abbrechen',
   },
   sq: {
     newTitle: 'Shërbim i ri',
@@ -102,7 +102,7 @@ const T = defineDict({
 export const SERVICE_COLORS = ['#3d5a80', '#2f7d6d', '#b5651d', '#6b5b95', '#9c6644', '#4a7c59', '#8a5a83', '#5c6b73'];
 
 export function newService(): Service {
-  return { id: uid('sv'), name: { me: '', sq: '', en: '' }, description: { me: '', sq: '', en: '' }, durationMin: 60, capacity: 1, color: SERVICE_COLORS[3], staffIds: [], location: 'onsite' };
+  return { id: uid('sv'), name: { de: '', sq: '', en: '' }, description: { de: '', sq: '', en: '' }, durationMin: 60, capacity: 1, color: SERVICE_COLORS[3], staffIds: [], location: 'onsite' };
 }
 
 const labelCls = 'mb-1.5 block text-[13px] font-semibold text-ink-soft';
@@ -137,11 +137,11 @@ function Form({ initial, exists, onClose }: { initial: Service; exists: boolean;
 
   const save = () => {
     const err: Record<string, string> = {};
-    if (!d.name.me.trim() && !d.name.sq.trim()) err.name = t('nameRequired');
+    if (!d.name.de.trim() && !d.name.sq.trim()) err.name = t('nameRequired');
     if (!d.staffIds.length) err.staff = t('staffRequired');
     setErrors(err);
     if (Object.keys(err).length) return;
-    const name = { me: d.name.me.trim() || d.name.sq.trim(), sq: d.name.sq.trim() || d.name.me.trim(), en: d.name.en.trim() || d.name.me.trim() || d.name.sq.trim() };
+    const name = { de: d.name.de.trim() || d.name.sq.trim(), sq: d.name.sq.trim() || d.name.de.trim(), en: d.name.en.trim() || d.name.de.trim() || d.name.sq.trim() };
     const next: Service = {
       ...d,
       name,
@@ -175,7 +175,7 @@ function Form({ initial, exists, onClose }: { initial: Service; exists: boolean;
           <L10nInput label={t('name')} value={d.name} onChange={(v) => set('name', v)} required />
           {errors.name && <p className="mt-1.5 text-xs font-medium text-red-600">{errors.name}</p>}
         </div>
-        <L10nInput label={t('description')} value={d.description ?? { me: '', sq: '', en: '' }} onChange={(v) => set('description', v)} multiline rows={2} />
+        <L10nInput label={t('description')} value={d.description ?? { de: '', sq: '', en: '' }} onChange={(v) => set('description', v)} multiline rows={2} />
 
         <div className="grid grid-cols-2 gap-3">
           <Input label={ta('duration')} type="number" min={5} step={15} value={d.durationMin} onChange={(e) => set('durationMin', Number(e.target.value))} trailing="min" hint={t('durationHint')} className="h-10! text-[14px]!" />

@@ -26,7 +26,7 @@ type Tab = 'all' | ReturnStatus;
 const TABS: Tab[] = ['all', ...RETURN_STATUSES];
 const DAY = 86400000;
 
-const timeOf = (iso: string, lang: Lang) => new Date(iso).toLocaleTimeString(lang === 'en' ? 'en-GB' : lang === 'sq' ? 'sq-AL' : 'sr-Latn-ME', { hour: '2-digit', minute: '2-digit' });
+const timeOf = (iso: string, lang: Lang) => new Date(iso).toLocaleTimeString(lang === 'en' ? 'en-GB' : lang === 'sq' ? 'sq-AL' : 'de-DE', { hour: '2-digit', minute: '2-digit' });
 
 export default function Returns() {
   const t = useDict(rd, 'admin');

@@ -12,7 +12,7 @@ import { useDb } from '@/store/db';
 import { sleep } from '@/lib/utils';
 
 // Demo credentials (local demo only — not a real auth system)
-const DEMO_PASSWORD = 'selca2026';
+const DEMO_PASSWORD = 'tersun2026';
 
 export default function Login() {
   const t = useDict(adm, 'admin');
@@ -43,10 +43,10 @@ export default function Login() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="relative hidden overflow-hidden bg-ink lg:block">
-        <img src="/images/hero/arch.webp" alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <img src="/images/misc/view.webp" alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/10" />
         <div className="relative flex h-full flex-col justify-between p-12 text-white">
-          <Logo tone="light" className="h-14" />
+          <Logo tone="light" tagline className="h-12" />
           <div>
             <p className="display max-w-md text-4xl leading-tight">{t('loginHero')}</p>
             <p className="mt-4 max-w-sm text-paper/70">{t('loginHeroText')}</p>
@@ -63,7 +63,7 @@ export default function Login() {
         <div className="flex flex-1 items-center justify-center px-6 pb-16">
           <form onSubmit={submit} className="w-full max-w-sm">
             <div className="lg:hidden">
-              <Logo className="mb-10 h-12" />
+              <Logo tagline className="mb-10 h-10" />
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight">{t('loginTitle')}</h1>
             <p className="mt-2 text-muted">{t('loginText')}</p>

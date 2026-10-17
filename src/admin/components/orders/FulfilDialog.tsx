@@ -13,20 +13,20 @@ import { Check, SelectInput, TextInput } from './ui';
 import { od } from './dict';
 
 const T = defineDict({
-  me: {
-    title: 'Pripremi isporuku',
-    description: 'Izaberite stavke koje idu u ovu pošiljku. Ostatak ostaje „djelimično poslato“.',
-    items: 'Stavke u pošiljci',
-    carrier: 'Način slanja',
-    tracking: 'Broj za praćenje',
-    trackingPh: 'npr. SC-4471-PG',
-    trackingHint: 'Upisuje se u istoriju narudžbe i na karticu „Isporuka“.',
-    submit: 'Označi kao poslato',
-    submitPartial: 'Pošalji izabrane ({n})',
-    done: 'Narudžba {n} je označena kao poslata',
-    donePartial: 'Djelimična isporuka evidentirana za {n}',
-    partialNote: 'Djelimična isporuka: {items}',
-    noneSelected: 'Izaberite bar jednu stavku',
+  de: {
+    title: 'Versand vorbereiten',
+    description: 'Wählen Sie die Positionen für diese Sendung. Der Rest bleibt „teilweise versendet“.',
+    items: 'Positionen in der Sendung',
+    carrier: 'Versandart',
+    tracking: 'Sendungsnummer',
+    trackingPh: 'z. B. SC-4471-PG',
+    trackingHint: 'Wird im Bestellverlauf und auf der Karte „Lieferung“ gespeichert.',
+    submit: 'Als versendet markieren',
+    submitPartial: 'Ausgewählte versenden ({n})',
+    done: 'Bestellung {n} als versendet markiert',
+    donePartial: 'Teillieferung für {n} erfasst',
+    partialNote: 'Teillieferung: {items}',
+    noneSelected: 'Wählen Sie mindestens eine Position aus',
   },
   sq: {
     title: 'Përgatit dërgesën',
@@ -71,13 +71,13 @@ export function FulfilDialog({ order, open, onClose }: { order: Order; open: boo
   const addOrderNote = useDb((s) => s.addOrderNote);
 
   const [lines, setLines] = useState<Set<number>>(new Set());
-  const [carrier, setCarrier] = useState<CarrierKey>('selca');
+  const [carrier, setCarrier] = useState<CarrierKey>('tersun');
   const [tracking, setTracking] = useState('');
 
   useEffect(() => {
     if (!open) return;
     setLines(new Set(order.items.map((_, i) => i)));
-    setCarrier(order.delivery.method === 'pickup' ? 'pickup' : order.fulfillment?.carrier && (CARRIERS as readonly string[]).includes(order.fulfillment.carrier) ? (order.fulfillment.carrier as CarrierKey) : 'selca');
+    setCarrier(order.delivery.method === 'pickup' ? 'pickup' : order.fulfillment?.carrier && (CARRIERS as readonly string[]).includes(order.fulfillment.carrier) ? (order.fulfillment.carrier as CarrierKey) : 'tersun');
     setTracking('');
   }, [open, order]);
 

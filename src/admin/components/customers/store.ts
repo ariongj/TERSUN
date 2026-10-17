@@ -2,7 +2,7 @@
 // staff / CSV import, and merged duplicates.
 //
 // The shared Db has no `customers` list yet (customers are derived from orders), so this module keeps
-// the profile layer in its own persisted store (`selca-customers`). It is bound to `db.seededAt`:
+// the profile layer in its own persisted store (`tersun-customers`). It is bound to `db.seededAt`:
 // when the demo data is re-seeded (Settings → reset), the profiles are re-seeded too (see useCustomers).
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -196,7 +196,7 @@ export const useCustomerStore = create<State & Actions>()(
       dismissPair: (a, b) => set((s) => ({ dismissed: uniq([...s.dismissed, pairKey(a, b)]) })),
     }),
     {
-      name: 'selca-customers',
+      name: 'tersun-customers',
       version: 1,
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({ seed: s.seed, profiles: s.profiles, manual: s.manual, merges: s.merges, dismissed: s.dismissed }),

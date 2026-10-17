@@ -228,7 +228,7 @@ function FieldRow({ f, canEdit, onEdit }: { f: FieldX; canEdit: boolean; onEdit:
           )}
           {f.translatable && (
             <span title={t('translatableHint')} className="inline-flex items-center gap-0.5 rounded-md bg-ink/[0.06] px-1.5 py-px text-[11px] font-semibold text-ink-soft">
-              <Languages className="h-3 w-3" /> ME · SQ · EN
+              <Languages className="h-3 w-3" /> DE · SQ · EN
             </span>
           )}
         </div>

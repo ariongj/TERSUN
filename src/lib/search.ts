@@ -1,12 +1,12 @@
 import type { Category, Lang, Product } from './types';
 
-const FOLD: Record<string, string> = { č: 'c', ć: 'c', š: 's', ž: 'z', đ: 'dj', ë: 'e', ç: 'c' };
+const FOLD: Record<string, string> = { č: 'c', ć: 'c', š: 's', ž: 'z', đ: 'dj', ë: 'e', ç: 'c', ä: 'a', ö: 'o', ü: 'u', ß: 'ss' };
 
-/** Lower-case and strip diacritics so "šipka", "sipka" and "ŠIPKA" all match. */
+/** Lower-case and strip diacritics so "šipka", "sipka" and "ŠIPKA" (or "Markise"/"MARKISE", "Glasdächer"/"glasdacher") all match. */
 export function fold(s: string) {
   return s
     .toLowerCase()
-    .replace(/[čćšžđëç]/g, (c) => FOLD[c] ?? c)
+    .replace(/[čćšžđëçäöüß]/g, (c) => FOLD[c] ?? c)
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '');
 }
@@ -18,8 +18,8 @@ export function searchProducts(products: Product[], categories: Category[], quer
   const scored: { p: Product; score: number }[] = [];
   for (const p of products) {
     const cat = categories.find((c) => c.id === p.categoryId);
-    const name = fold(`${p.name[lang]} ${p.name.me}`);
-    const hay = fold(`${p.name[lang]} ${p.name.me} ${p.name.en} ${p.short[lang]} ${p.sku} ${cat ? `${cat.name[lang]} ${cat.name.me}` : ''}`);
+    const name = fold(`${p.name[lang]} ${p.name.de}`);
+    const hay = fold(`${p.name[lang]} ${p.name.de} ${p.name.en} ${p.short[lang]} ${p.sku} ${cat ? `${cat.name[lang]} ${cat.name.de}` : ''}`);
     let score = 0;
     let all = true;
     for (const term of terms) {

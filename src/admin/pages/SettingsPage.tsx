@@ -32,7 +32,7 @@ import { ActivitySection } from '@/admin/components/settings/ActivitySection';
 import { DemoDataSection } from '@/admin/components/settings/DemoDataSection';
 
 const P = defineDict({
-  me: { invalidEmail: 'E-mail adresa nije ispravna' },
+  de: { invalidEmail: 'Die E-Mail-Adresse ist ungültig' },
   sq: { invalidEmail: 'Adresa e e-mailit nuk është e saktë' },
   en: { invalidEmail: 'The e-mail address is not valid' },
 });
@@ -45,7 +45,7 @@ function validate(d: SettingsX, t: (k: 'invalidPrefix' | 'needLocation' | 'subje
   if (d.adminEmail && !isEmail(d.adminEmail)) e.adminEmail = invalidEmail;
   const locs = d.locations ?? [];
   if (!locs.length || !locs.some((l) => l.isDefault)) e.locations = t('needLocation');
-  if ((d.notifications ?? []).some((n) => !n.subject?.me?.trim())) e.notifications = t('subjectMissing');
+  if ((d.notifications ?? []).some((n) => !n.subject?.de?.trim())) e.notifications = t('subjectMissing');
   return e;
 }
 

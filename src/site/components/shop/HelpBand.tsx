@@ -30,7 +30,7 @@ export function HelpBand() {
               ))}
             </ul>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <ButtonLink to="/#mjerenje" size="lg" icon={<Ruler className="h-4 w-4" />}>
+              <ButtonLink to="/#consultation" size="lg" icon={<Ruler className="h-4 w-4" />}>
                 {t('helpCta')}
               </ButtonLink>
               <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className={buttonClass({ variant: 'outline', size: 'lg', className: 'tabular-nums' })}>
@@ -39,7 +39,7 @@ export function HelpBand() {
             </div>
           </div>
           <div className="relative min-h-[260px] lg:min-h-full">
-            <Img src="/images/s/mjerenje.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <Img src="/images/misc/builder-day.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/35 via-transparent to-transparent lg:bg-gradient-to-r lg:from-sand/30 lg:via-transparent" />
             <div className="absolute bottom-5 left-5 flex items-center gap-3 rounded-2xl bg-white/95 p-3 pr-5 shadow-xl backdrop-blur sm:bottom-7 sm:left-7">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-600 text-white">

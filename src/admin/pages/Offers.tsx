@@ -59,7 +59,7 @@ export default function Offers() {
         const { collection, list } = offerProducts(o, data.products, data.collections);
         const stats = state === 'expired' ? null : checkStats(check(o));
         const hay = fold(
-          [o.name.me, o.name.sq, o.name.en, o.slug, discount?.code ?? '', discount?.title ?? '', collection ? `${collection.title.me} ${collection.title.sq} ${collection.title.en}` : '', ...list.map((p) => `${p.name.me} ${p.name.sq} ${p.name.en} ${p.sku}`)].join(' '),
+          [o.name.de, o.name.sq, o.name.en, o.slug, discount?.code ?? '', discount?.title ?? '', collection ? `${collection.title.de} ${collection.title.sq} ${collection.title.en}` : '', ...list.map((p) => `${p.name.de} ${p.name.sq} ${p.name.en} ${p.sku}`)].join(' '),
         );
         return { o, state, discount, linked, stats, hay, owner: data.staff.find((s) => s.id === o.owner) };
       })
@@ -101,7 +101,7 @@ export default function Offers() {
   const menuFor = (o: Offer, state: OfferState): MenuItem[] => {
     const items: MenuItem[] = [
       { label: ta('edit'), icon: Pencil, onSelect: () => navigate(`/admin/ponude/${o.id}`) },
-      { label: t('a_viewPage'), icon: ExternalLink, onSelect: () => window.open(href(`/oferta/${o.slug}${state === 'active' ? '' : '?preview=1'}`), '_blank', 'noopener') },
+      { label: t('a_viewPage'), icon: ExternalLink, onSelect: () => window.open(href(`/offer/${o.slug}${state === 'active' ? '' : '?preview=1'}`), '_blank', 'noopener') },
     ];
     if (can('offers', 'edit')) items.push({ label: ta('duplicate'), icon: Copy, onSelect: () => navigate(`/admin/ponude/${act.duplicate(o)}`) });
     if (state === 'active' || state === 'scheduled') items.push({ label: t('a_pause'), icon: Pause, divider: true, disabled: !canPublish, reason: t('noPublishPerm'), onSelect: () => act.setStatus(o, 'paused') });
@@ -196,7 +196,7 @@ export default function Offers() {
               </thead>
               <tbody>
                 {visible.map(({ o, state, discount, linked, stats, owner }) => {
-                  const c = contentLines(linked, o.placements.includes('home-block'), !!(o.landing.title.me || o.landing.title.sq), t);
+                  const c = contentLines(linked, o.placements.includes('home-block'), !!(o.landing.title.de || o.landing.title.sq), t);
                   const p = periodLines(o, state, t, lang);
                   const issues = stats ? stats.fail + stats.warn : 0;
                   return (
@@ -246,7 +246,7 @@ export default function Offers() {
             {/* Phone: stacked cards */}
             <ul className="divide-y divide-line/70 md:hidden">
               {visible.map(({ o, state, discount, linked, stats }) => {
-                const c = contentLines(linked, o.placements.includes('home-block'), !!(o.landing.title.me || o.landing.title.sq), t);
+                const c = contentLines(linked, o.placements.includes('home-block'), !!(o.landing.title.de || o.landing.title.sq), t);
                 const p = periodLines(o, state, t, lang);
                 const issues = stats ? stats.fail + stats.warn : 0;
                 return (
@@ -293,7 +293,7 @@ export default function Offers() {
   );
 }
 
-const pct = (v: number, lang: 'me' | 'sq' | 'en') => `${num(v * 100, lang, 1)}%`;
+const pct = (v: number, lang: 'de' | 'sq' | 'en') => `${num(v * 100, lang, 1)}%`;
 
 function Kpi({ label, value, hint }: { label: string; value: ReactNode; hint: ReactNode }) {
   return (

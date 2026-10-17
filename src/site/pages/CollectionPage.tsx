@@ -1,4 +1,4 @@
-// /kolekcija/:slug — public collection page (CMS proposal p.14). Only ACTIVE products of a PUBLISHED collection show;
+// /collection/:slug — public collection page (CMS proposal p.14). Only ACTIVE products of a PUBLISHED collection show;
 // staff can preview an unpublished one with ?preview=1 while logged into the CMS.
 import { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
@@ -57,7 +57,7 @@ function CollectionView({ collection, products, preview }: { collection: Collect
   const cheapest = useMemo(() => products.filter((p) => !p.quoteOnly).sort((a, b) => basePrice(a) - basePrice(b))[0], [products]);
   const maxPct = Math.max(0, ...products.map(discountPct));
   const installs = products.some((p) => p.installation?.available);
-  // an automatic product discount on this collection (e.g. "Jesen — podovi −15%") is applied in the cart — say so up front
+  // an automatic product discount on this collection (e.g. "Winter — heaters & LED −15%") is applied in the cart — say so up front
   const discounts = useDb((s) => s.discounts);
   const auto = useMemo(
     () => discounts.find((d) => d.kind === 'products' && d.method === 'auto' && d.audience.type === 'all' && d.appliesTo.scope === 'collections' && d.appliesTo.ids.includes(collection.id) && discountState(d) === 'active'),
@@ -84,7 +84,7 @@ function CollectionView({ collection, products, preview }: { collection: Collect
       <section className="relative overflow-hidden border-b border-line bg-paper">
         <div className="bg-grain pointer-events-none absolute inset-0 opacity-70" />
         <div className="container-x relative pb-12 pt-7 sm:pb-16 sm:pt-9">
-          <Breadcrumbs items={[{ label: ts('nav_products'), to: '/proizvodi' }, { label: title }]} />
+          <Breadcrumbs items={[{ label: ts('nav_products'), to: '/shop' }, { label: title }]} />
           <div className="mt-8 grid gap-10 sm:mt-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14">
             <div className="animate-fade-up">
               <div className="eyebrow">{t('eyebrow')}</div>
@@ -162,7 +162,7 @@ function CollectionView({ collection, products, preview }: { collection: Collect
             title={t('emptyTitle')}
             text={t('emptyText')}
             action={
-              <ButtonLink to="/proizvodi" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/shop" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {ts('allProducts')}
               </ButtonLink>
             }
@@ -242,7 +242,7 @@ function CollectionTiles({ list }: { list: { c: Collection; items: Product[] }[]
       {list.slice(0, 4).map(({ c, items }, i) => (
         <Link
           key={c.id}
-          to={`/kolekcija/${c.slug}`}
+          to={`/collection/${c.slug}`}
           className={cn('group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-ink animate-fade-up sm:aspect-[5/4]', list.length > 1 && i === Math.min(list.length, 4) - 1 && Math.min(list.length, 4) % 2 === 1 && 'max-lg:hidden')}
           style={{ animationDelay: `${i * 60}ms` }}
         >
@@ -304,10 +304,10 @@ function NotFoundCollection({ current }: { current?: string }) {
           </h1>
           <p className="mt-5 max-w-xl animate-fade-up text-[16px] leading-relaxed text-muted [animation-delay:120ms] sm:text-[17px]">{t('notFoundText')}</p>
           <div className="mt-8 flex w-full animate-fade-up flex-col justify-center gap-3 [animation-delay:180ms] sm:w-auto sm:flex-row">
-            <ButtonLink to="/proizvodi" variant="dark" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" variant="dark" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
               {ts('allProducts')}
             </ButtonLink>
-            <ButtonLink to="/proizvodi?akcija=1" variant="outline" size="lg" icon={<Percent className="h-4 w-4" />}>
+            <ButtonLink to="/shop?sale=1" variant="outline" size="lg" icon={<Percent className="h-4 w-4" />}>
               {ts('sale')}
             </ButtonLink>
           </div>

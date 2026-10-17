@@ -40,12 +40,12 @@ export function SeoCard({
   const lang = useLang('admin');
   const adminEmail = useDb((s) => s.settings.adminEmail);
   const company = useDb((s) => s.settings.companyName);
-  const domain = adminEmail.split('@')[1] || 'selca.me';
+  const domain = adminEmail.split('@')[1] || 'tersun.com';
   const seo = draft.seo ?? {};
   // Mirrors the storefront <title>: "{name} — {company}" (see usePageTitle).
-  const autoTitle = `${draft.name.me.trim() || t('f_title')} — ${company}`;
+  const autoTitle = `${draft.name.de.trim() || t('f_title')} — ${company}`;
   const title = seo.title?.trim() || autoTitle;
-  const autoDesc = draft.short.me.trim() || draft.description.me.trim();
+  const autoDesc = draft.short.de.trim() || draft.description.de.trim();
   const desc = seo.description?.trim() || autoDesc;
   const price = basePrice(draft);
   const toOrder = draft.stock >= 999 || draft.stock <= 0;
@@ -74,7 +74,7 @@ export function SeoCard({
               <span className="flex items-center gap-1.5">
                 <Link2 className="h-3.5 w-3.5" />
                 <span>
-                  <span className="max-sm:hidden">{domain}</span>/proizvod/
+                  <span className="max-sm:hidden">{domain}</span>/product/
                 </span>
               </span>
             }
@@ -115,7 +115,7 @@ export function SeoCard({
               <div className="min-w-0 leading-tight">
                 <div className="truncate text-[13.5px] text-[#202124]">{company}</div>
                 <div className="truncate text-[12px] text-[#4d5156]">
-                  https://{domain} › proizvod › {draft.slug || '…'}
+                  https://{domain} › product › {draft.slug || '…'}
                 </div>
               </div>
             </div>

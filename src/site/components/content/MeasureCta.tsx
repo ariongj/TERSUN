@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { C } from './dict';
 import { telHref } from './posts';
 
-/** Dark call-to-action box: book a free measurement (links to the homepage form at /#mjerenje). */
+/** Dark call-to-action box: book a free on-site consultation (links to the homepage form at /#consultation). */
 export function MeasureCta({ image, className }: { image?: string; className?: string }) {
   const c = useDict(C);
   const settings = useSettings();
@@ -31,7 +31,7 @@ export function MeasureCta({ image, className }: { image?: string; className?: s
           ))}
         </ul>
         <div className="mt-9 flex flex-wrap gap-3">
-          <ButtonLink to="/#mjerenje" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+          <ButtonLink to="/#consultation" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
             {c('cta_button')}
           </ButtonLink>
           <a href={telHref(settings.phone)} className={buttonClass({ variant: 'outlineLight', size: 'lg' })}>

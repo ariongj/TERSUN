@@ -9,18 +9,18 @@ import { cn, initials } from '@/lib/utils';
 /* Strings shared by the CRM screens (customers + inquiries)           */
 /* ------------------------------------------------------------------ */
 export const crm = defineDict({
-  me: {
-    call: 'Pozovi',
-    email: 'E-mail',
+  de: {
+    call: 'Anrufen',
+    email: 'E-Mail',
     whatsapp: 'WhatsApp',
-    sendEmail: 'Pošalji e-mail',
+    sendEmail: 'E-Mail senden',
     phone: 'Telefon',
-    city: 'Grad',
-    address: 'Adresa',
-    noEmail: 'E-mail nije naveden',
-    today: 'Danas',
-    tomorrow: 'Sjutra',
-    yesterday: 'Juče',
+    city: 'Stadt',
+    address: 'Adresse',
+    noEmail: 'Keine E-Mail angegeben',
+    today: 'Heute',
+    tomorrow: 'Morgen',
+    yesterday: 'Gestern',
   },
   sq: {
     call: 'Telefono',
@@ -51,18 +51,11 @@ export const crm = defineDict({
 });
 
 /* ------------------------------------------------------------------ */
-/* Plurals: Montenegrin has one / few (2–4) / many; SQ + EN one / many */
+/* Plurals: DE, SQ and EN all use one / many (the 'few' slot is unused) */
 /* ------------------------------------------------------------------ */
 export type PluralForm = 'one' | 'few' | 'many';
-export function pluralForm(n: number, lang: Lang): PluralForm {
+export function pluralForm(n: number, _lang: Lang): PluralForm {
   const abs = Math.abs(Math.trunc(n));
-  if (lang === 'me') {
-    const d = abs % 10;
-    const h = abs % 100;
-    if (d === 1 && h !== 11) return 'one';
-    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return 'few';
-    return 'many';
-  }
   return abs === 1 ? 'one' : 'many';
 }
 
@@ -73,12 +66,12 @@ export function telHref(phone: string) {
   return `tel:${phone.replace(/[^\d+]/g, '')}`;
 }
 
-/** wa.me link — local "067 …" numbers are assumed Montenegrin (+382). */
+/** wa.me link — local "044 …" numbers are assumed Kosovar (+383). */
 export function waHref(phone: string) {
   let d = phone.replace(/[^\d+]/g, '');
   if (d.startsWith('+')) d = d.slice(1);
   else if (d.startsWith('00')) d = d.slice(2);
-  else if (d.startsWith('0')) d = `382${d.slice(1)}`;
+  else if (d.startsWith('0')) d = `383${d.slice(1)}`;
   return `https://wa.me/${d}`;
 }
 

@@ -50,7 +50,7 @@ export function PresentStep(p: PresentProps) {
   const lang = useLang('admin');
   const { draft, set } = p;
   const sample = p.participating.find((x) => x.status === 'active') ?? p.participating[0];
-  const url = `/oferta/${draft.slug}`;
+  const url = `/offer/${draft.slug}`;
 
   const copy = async () => {
     try {
@@ -96,7 +96,7 @@ export function PresentStep(p: PresentProps) {
                 <Copy className="h-4 w-4" />
               </button>
               {p.savedSlug && (
-                <a href={href(`/oferta/${p.savedSlug}${p.live ? '' : '?preview=1'}`)} target="_blank" rel="noreferrer" title={t('openNew')} aria-label={t('openNew')} className="grid h-8 w-8 place-items-center rounded-lg text-ink-soft hover:bg-canvas hover:text-ink">
+                <a href={href(`/offer/${p.savedSlug}${p.live ? '' : '?preview=1'}`)} target="_blank" rel="noreferrer" title={t('openNew')} aria-label={t('openNew')} className="grid h-8 w-8 place-items-center rounded-lg text-ink-soft hover:bg-canvas hover:text-ink">
                   <ExternalLink className="h-4 w-4" />
                 </a>
               )}
@@ -106,7 +106,7 @@ export function PresentStep(p: PresentProps) {
       >
         <div id="of-landing" className="scroll-mt-32" />
         <div className="mb-4 flex min-w-0 items-center gap-2 rounded-lg bg-canvas/70 px-3 py-2 font-mono text-[12.5px] text-ink-soft">
-          <span className="truncate">selca.me{url}</span>
+          <span className="truncate">tersun.com{url}</span>
         </div>
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
           <div className="space-y-4">

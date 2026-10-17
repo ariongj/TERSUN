@@ -21,7 +21,7 @@ export function LanguagesSection({ s, set }: SectionProps) {
     <SectionCard id="languages" icon={Languages} title={t('s_languages')} description={t('s_languages_d')}>
       <div className="divide-y divide-line/70">
         {LANGS.map((l) => {
-          const primary = l.code === 'me';
+          const primary = l.code === 'de';
           return (
             <ToggleRow
               key={l.code}
@@ -31,7 +31,7 @@ export function LanguagesSection({ s, set }: SectionProps) {
               description={t(`lang_${l.code}_d` as Key)}
               checked={primary || s.languages[l.code]}
               disabled={primary}
-              onChange={(v) => set('languages', { ...s.languages, me: true, [l.code]: v })}
+              onChange={(v) => set('languages', { ...s.languages, de: true, [l.code]: v })}
             />
           );
         })}
@@ -146,7 +146,7 @@ export function AnnouncementsSection({ s, set }: SectionProps) {
 export const DEFAULT_BRAND = '#9a2e2e';
 
 const PRESETS: { hex: string; key: Key }[] = [
-  { hex: DEFAULT_BRAND, key: 'preset_selca' },
+  { hex: DEFAULT_BRAND, key: 'preset_tersun' },
   { hex: '#b0532c', key: 'preset_terracotta' },
   { hex: '#8a6235', key: 'preset_oak' },
   { hex: '#5a6b3f', key: 'preset_olive' },
@@ -202,7 +202,7 @@ export function AppearanceSection({ s, set, savedBrand }: SectionProps & { saved
             />
             {normHex(s.brandColor) !== DEFAULT_BRAND && (
               <Button variant="ghost" size="sm" shape="rounded" icon={<RotateCcw className="h-3.5 w-3.5" />} onClick={() => pick(DEFAULT_BRAND)}>
-                {t('preset_selca')}
+                {t('preset_tersun')}
               </Button>
             )}
           </div>
@@ -256,7 +256,7 @@ export function AppearanceSection({ s, set, savedBrand }: SectionProps & { saved
         {/* Live sample of the storefront in the chosen colour */}
         <div aria-hidden className="pointer-events-none select-none self-start overflow-hidden rounded-2xl border border-line bg-paper shadow-[0_12px_32px_-20px_rgb(28_26_23/0.35)]">
           <div className="flex items-center justify-between border-b border-line/70 bg-white px-4 py-2.5">
-            <Logo className="h-8!" />
+            <Logo className="h-5!" />
             <span className="flex gap-1">
               <span className="h-1.5 w-5 rounded-full bg-ink/10" />
               <span className="h-1.5 w-5 rounded-full bg-ink/10" />
@@ -266,7 +266,7 @@ export function AppearanceSection({ s, set, savedBrand }: SectionProps & { saved
           <div className="p-5">
             <p className="eyebrow">{t('sampleEyebrow')}</p>
             <p className="display mt-2 text-[28px] leading-[1.08] text-ink">
-              <Accent text={accentLast(l(s.tagline) || 'SELCA')} />
+              <Accent text={accentLast(l(s.tagline) || 'TERSUN')} />
             </p>
             <div className="mt-4 flex items-center gap-2">
               <Badge tone="brand">{t('sampleBadge')}</Badge>
@@ -305,7 +305,7 @@ const clip = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1
 
 function siteHost() {
   const h = typeof window !== 'undefined' ? window.location.hostname : '';
-  return !h || h === 'localhost' || /^[\d.]+$/.test(h) ? 'selca.me' : h;
+  return !h || h === 'localhost' || /^[\d.]+$/.test(h) ? 'tersun.com' : h;
 }
 
 export function SeoSection({ s, set }: SectionProps) {
@@ -328,7 +328,7 @@ export function SeoSection({ s, set }: SectionProps) {
               <LogoMark className="h-3.5!" />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block truncate text-[14px] text-[#202124]">{s.companyName || 'SELCA'}</span>
+              <span className="block truncate text-[14px] text-[#202124]">{s.companyName || 'TERSUN'}</span>
               <span className="block truncate text-[12px] text-[#4d5156]">https://{siteHost()}</span>
             </span>
           </div>

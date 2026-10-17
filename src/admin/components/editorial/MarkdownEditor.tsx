@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { ed } from './i18n';
 import { countWords, readMinutesFor } from './hooks';
 
-const LANGS: Lang[] = ['me', 'sq', 'en'];
+const LANGS: Lang[] = ['de', 'sq', 'en'];
 type Mode = 'write' | 'split' | 'preview';
 type BlockKind = 'h2' | 'h3' | 'ul' | 'ol' | 'quote';
 
@@ -44,10 +44,10 @@ export function MarkdownEditor({
   const [help, setHelp] = useState(true);
   const ta = useRef<HTMLTextAreaElement>(null);
 
-  const v = value ?? { me: '', sq: '', en: '' };
+  const v = value ?? { de: '', sq: '', en: '' };
   const text = v[lang] ?? '';
-  const usingFallback = lang !== 'me' && !text.trim() && !!v.me.trim();
-  const previewSource = usingFallback ? v.me : text;
+  const usingFallback = lang !== 'de' && !text.trim() && !!v.de.trim();
+  const previewSource = usingFallback ? v.de : text;
   const words = countWords(previewSource);
 
   const commit = (next: string, selStart?: number, selEnd?: number) => {
@@ -84,7 +84,7 @@ export function MarkdownEditor({
     const { s, e } = selection();
     const sel = text.slice(s, e);
     const inner = sel || t('ph_link');
-    const url = '/kontakt';
+    const url = '/contact';
     const md = `[${inner}](${url})`;
     const next = text.slice(0, s) + md + text.slice(e);
     // With a selection, jump to the URL; otherwise select the placeholder text.
@@ -190,7 +190,7 @@ export function MarkdownEditor({
     [`- ${t('cs_example_item')}`, t('cs_ul')],
     [`1. ${t('cs_example_item')}`, t('cs_ol')],
     [`> ${t('cs_example_quote')}`, t('cs_quote')],
-    [`[${t('cs_example_link')}](/kontakt)`, t('cs_link')],
+    [`[${t('cs_example_link')}](/contact)`, t('cs_link')],
     ['↵ ↵', t('cs_para')],
   ];
 
@@ -262,10 +262,10 @@ export function MarkdownEditor({
             </span>
           ))}
         </div>
-        {lang !== 'me' && !text.trim() && v.me.trim() && (
+        {lang !== 'de' && !text.trim() && v.de.trim() && (
           <button
             type="button"
-            onClick={() => commit(v.me)}
+            onClick={() => commit(v.de)}
             className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[12px] font-semibold text-muted transition-colors hover:bg-white hover:text-ink"
           >
             <Copy className="h-3.5 w-3.5" /> {t('copyFromMe')}
@@ -284,7 +284,7 @@ export function MarkdownEditor({
               onChange={(e) => commit(e.target.value)}
               onKeyDown={onKeyDown}
               spellCheck={lang !== 'sq'}
-              placeholder={usingFallback ? v.me.slice(0, 220) + '…' : '## …'}
+              placeholder={usingFallback ? v.de.slice(0, 220) + '…' : '## …'}
               className={cn(
                 'block w-full resize-y bg-white px-5 py-4 font-mono text-[13px] leading-[1.75] text-ink-soft outline-none placeholder:text-muted/45',
                 mode === 'split' && 'lg:h-full lg:resize-none',

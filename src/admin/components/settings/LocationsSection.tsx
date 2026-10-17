@@ -16,31 +16,31 @@ import type { SecProps } from './model';
 import { Note, Panel, StateText } from './ui';
 
 const L = defineDict({
-  me: {
-    addLoc: 'Dodaj lokaciju',
-    colName: 'Lokacija',
-    colPickup: 'Preuzimanje',
-    colDefault: 'Podrazumijevana',
-    colBookings: 'Predstojeći termini',
-    defaultBadge: 'Podrazumijevana',
-    makeDefault: 'Postavi kao podrazumijevanu',
-    editLoc: 'Izmijeni lokaciju',
-    newLoc: 'Nova lokacija',
-    name: 'Naziv',
-    pickupLabel: 'Lično preuzimanje',
-    pickupHint: 'Kupci mogu ovdje preuzeti narudžbe.',
-    defaultLabel: 'Podrazumijevana lokacija',
-    defaultHint: 'Koristi se za zalihe, fakture i nove termine.',
-    apply: 'Primijeni',
-    applyHint: 'Promjene se upisuju dugmetom „Sačuvaj“ na dnu ekrana.',
-    removeLoc: 'Ukloni lokaciju',
-    cantRemoveDefault: 'Podrazumijevana lokacija se ne može ukloniti',
-    inUse: 'Lokacija ima predstojeće termine ({n}) — premjestite ih prije uklanjanja.',
-    note: 'Lokacije se koriste za zalihe, lično preuzimanje i termine (kalendar po osoblju ili lokaciji).',
-    pickupOn: 'Da',
-    pickupOff: 'Ne',
-    count: 'Lokacija: {n}',
-    noPickup: 'Nijedna lokacija nema lično preuzimanje — ta opcija neće biti ponuđena na checkout-u.',
+  de: {
+    addLoc: 'Standort hinzufügen',
+    colName: 'Standort',
+    colPickup: 'Abholung',
+    colDefault: 'Standard',
+    colBookings: 'Anstehende Termine',
+    defaultBadge: 'Standard',
+    makeDefault: 'Als Standard festlegen',
+    editLoc: 'Standort bearbeiten',
+    newLoc: 'Neuer Standort',
+    name: 'Name',
+    pickupLabel: 'Selbstabholung',
+    pickupHint: 'Kunden können Bestellungen hier abholen.',
+    defaultLabel: 'Standardstandort',
+    defaultHint: 'Wird für Bestand, Rechnungen und neue Termine verwendet.',
+    apply: 'Übernehmen',
+    applyHint: 'Änderungen werden mit der Schaltfläche „Speichern“ unten auf dem Bildschirm gespeichert.',
+    removeLoc: 'Standort entfernen',
+    cantRemoveDefault: 'Der Standardstandort kann nicht entfernt werden',
+    inUse: 'Der Standort hat anstehende Termine ({n}) — verlegen Sie diese vor dem Entfernen.',
+    note: 'Standorte werden für Bestand, Selbstabholung und Termine verwendet (Kalender nach Mitarbeiter oder Standort).',
+    pickupOn: 'Ja',
+    pickupOff: 'Nein',
+    count: 'Standorte: {n}',
+    noPickup: 'Kein Standort bietet Selbstabholung an — diese Option wird im Checkout nicht angeboten.',
   },
   sq: {
     addLoc: 'Shto lokacion',
@@ -127,7 +127,7 @@ function LocationModal({ open, loc, onClose, onApply }: { open: boolean; loc: St
       }
     >
       <div className="grid gap-5 px-6 py-5 sm:grid-cols-2">
-        <TextField className="sm:col-span-2" label={t('name')} value={d.name} onChange={(v) => setD({ ...d, name: v })} leading={<Store className="h-4 w-4" />} error={tried ? err.name : undefined} autoFocus placeholder="Salon Bar" />
+        <TextField className="sm:col-span-2" label={t('name')} value={d.name} onChange={(v) => setD({ ...d, name: v })} leading={<Store className="h-4 w-4" />} error={tried ? err.name : undefined} autoFocus placeholder="Showroom München" />
         <TextField label={tl('address')} value={d.address} onChange={(v) => setD({ ...d, address: v })} leading={<MapPin className="h-4 w-4" />} error={tried ? err.address : undefined} />
         <TextField label={tl('city')} value={d.city} onChange={(v) => setD({ ...d, city: v })} error={tried ? err.city : undefined} />
         <div className="space-y-3 sm:col-span-2">

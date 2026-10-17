@@ -35,7 +35,7 @@ export function ProductCard({ product, className, priority }: { product: Product
   const toggleWishlist = useUi((s) => s.toggleWishlist);
   const addToCart = useUi((s) => s.addToCart);
   const setCartOpen = useUi((s) => s.setCartOpen);
-  const href = `/proizvod/${product.slug}`;
+  const href = `/product/${product.slug}`;
   const simple = !product.quoteOnly && product.options.length === 0 && product.unit !== 'm2' && product.unit !== 'm';
   const swatches = product.options.find((o) => o.type === 'swatch');
 

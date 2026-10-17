@@ -104,10 +104,10 @@ export const MODEL_ICON: Record<string, ComponentType<{ className?: string }>> =
 export const modelIcon = (source: string) => MODEL_ICON[source] ?? Boxes;
 
 export const EDITORS: Record<string, { to: string; label: 'ed_projects' | 'ed_editor' | 'ed_locations'; usedOn: string[] }> = {
-  projects: { to: '/admin/projekti', label: 'ed_projects', usedOn: ['/projekti', '/'] },
+  projects: { to: '/admin/projekti', label: 'ed_projects', usedOn: ['/projects', '/'] },
   'home.faq': { to: '/admin/prodavnica/editor', label: 'ed_editor', usedOn: ['/'] },
-  'home.services': { to: '/admin/prodavnica/editor', label: 'ed_editor', usedOn: ['/usluge', '/'] },
-  'settings.locations': { to: '/admin/konfiguracija/lokacionet', label: 'ed_locations', usedOn: ['/kontakt', '/placanje'] },
+  'home.services': { to: '/admin/prodavnica/editor', label: 'ed_editor', usedOn: ['/services', '/'] },
+  'settings.locations': { to: '/admin/konfiguracija/lokacionet', label: 'ed_locations', usedOn: ['/contact', '/checkout'] },
 };
 
 export const DESCRIPTION_KEY: Record<string, 'md_projects' | 'md_faq' | 'md_services' | 'md_locations'> = {
@@ -126,7 +126,7 @@ export interface EntryPreview {
   to?: string;
 }
 
-const same = (s: string): L10n => ({ me: s, sq: s, en: s });
+const same = (s: string): L10n => ({ de: s, sq: s, en: s });
 
 /** Live entries of a model, read from the list that owns them. */
 export function entriesOf(m: Pick<ModelX, 'source' | 'entries'>, db: Pick<Db, 'projects' | 'home' | 'settings'>): { count: number; items: EntryPreview[] } {
@@ -156,7 +156,7 @@ export function entriesOf(m: Pick<ModelX, 'source' | 'entries'>, db: Pick<Db, 'p
 
 /** Distinct option values already used by the entries (choice fields without stored options). */
 export function usedOptions(m: Pick<ModelX, 'source'>, key: string, db: Pick<Db, 'projects'>): string[] {
-  if (m.source === 'projects' && key === 'tags') return Array.from(new Set(db.projects.flatMap((p) => p.tags.map((x) => x.me)).filter(Boolean)));
+  if (m.source === 'projects' && key === 'tags') return Array.from(new Set(db.projects.flatMap((p) => p.tags.map((x) => x.de)).filter(Boolean)));
   return [];
 }
 
@@ -184,7 +184,7 @@ export type FieldError = 'label' | 'key' | 'keyTaken' | 'options' | 'ref';
 
 export function fieldErrors(f: FieldX, others: FieldX[]): FieldError[] {
   const out: FieldError[] = [];
-  if (!f.label.me.trim()) out.push('label');
+  if (!f.label.de.trim()) out.push('label');
   if (!KEY_RE.test(f.key)) out.push('key');
   else if (others.some((o) => o.key.toLowerCase() === f.key.toLowerCase())) out.push('keyTaken');
   if (f.type === 'choice' && f.custom && (f.options?.length ?? 0) < 2) out.push('options');

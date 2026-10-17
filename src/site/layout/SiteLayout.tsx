@@ -35,10 +35,10 @@ export function SiteLayout() {
   const heroFirst = useDb((s) => s.home.find((h) => h.enabled)?.type === 'hero');
 
   useEffect(() => {
-    document.documentElement.lang = LANGS.find((l) => l.code === lang)?.htmlLang ?? 'sr-Latn-ME';
+    document.documentElement.lang = LANGS.find((l) => l.code === lang)?.htmlLang ?? 'de-DE';
   }, [lang]);
 
-  // Smooth-scroll to in-page anchors like /#mjerenje after navigation
+  // Smooth-scroll to in-page anchors like /#consultation after navigation
   useEffect(() => {
     if (!location.hash) return;
     const id = location.hash.slice(1);

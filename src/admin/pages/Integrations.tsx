@@ -79,7 +79,7 @@ export default function Integrations() {
         at,
         level: 'ok',
         text: l10nOf(connect.mode === 'connect' ? 'ev_connected' : 'ev_configured', { provider, by }, {
-          me: { env: d.env === 'live' ? 'produkcija' : 'test' },
+          de: { env: d.env === 'live' ? 'Produktion' : 'Test' },
           sq: { env: d.env === 'live' ? 'live' : 'prove' },
           en: { env: d.env === 'live' ? 'live' : 'test' },
         }),

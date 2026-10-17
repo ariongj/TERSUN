@@ -31,7 +31,7 @@ import { Attention } from '@/admin/components/dashboard/Attention';
 import { Campaigns } from '@/admin/components/dashboard/Campaigns';
 
 /** Last period the viewer picked — a per-browser convenience; the URL (?period=) wins. */
-const PERIOD_KEY = 'selca-overview-period';
+const PERIOD_KEY = 'tersun-overview-period';
 function storedPeriod(): Period | null {
   try {
     const v = localStorage.getItem(PERIOD_KEY);

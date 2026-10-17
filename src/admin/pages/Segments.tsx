@@ -18,28 +18,28 @@ import type { Segment } from '@/lib/types';
 import { uid } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    subtitle: 'Dinamičke grupe kupaca prema pravilima — publika za popuste, ponude i izvještaje.',
-    newSegment: 'Novi segment',
-    infoTitle: 'Segmenti ne šalju marketing automatski.',
-    infoText: 'Segment je živi filter, ne kopija kupaca: članstvo se mijenja čim se promijene narudžbe ili podaci kupca. Koristi se kao publika za popuste i ponude i u izvještajima.',
+  de: {
+    subtitle: 'Dynamische Kundengruppen auf Basis von Regeln — Zielgruppen für Rabatte, Angebote und Berichte.',
+    newSegment: 'Neues Segment',
+    infoTitle: 'Segmente versenden niemals automatisch Marketing.',
+    infoText: 'Ein Segment ist ein Live-Filter, keine Kopie der Kunden: Die Zugehörigkeit ändert sich, sobald sich Bestellungen oder Kundendaten ändern. Es dient als Zielgruppe für Rabatte und Angebote sowie in Berichten.',
     col_segment: 'Segment',
-    col_rules: 'Uslovi',
-    col_matches: 'Poklapanja',
-    col_usage: 'Koristi se u',
-    pct: '{pct}% kupaca',
-    usageNone: 'Nije u upotrebi',
-    disc_one: '{n} popust',
-    disc_few: '{n} popusta',
-    disc_many: '{n} popusta',
-    off_one: '{n} ponuda',
-    off_few: '{n} ponude',
-    off_many: '{n} ponuda',
-    viewCustomers: 'Prikaži kupce',
-    edit: 'Uredi',
-    footer: 'Ukupno kupaca: {n} · poklapanja se računaju uživo',
-    emptyTitle: 'Još nema segmenata',
-    emptyText: 'Napravite prvi segment — npr. VIP kupci, kupci sa primorja ili kupci koji dugo nijesu naručivali.',
+    col_rules: 'Bedingungen',
+    col_matches: 'Treffer',
+    col_usage: 'Verwendet in',
+    pct: '{pct}% der Kunden',
+    usageNone: 'Nicht verwendet',
+    disc_one: '{n} Rabatt',
+    disc_few: '{n} Rabatte',
+    disc_many: '{n} Rabatte',
+    off_one: '{n} Angebot',
+    off_few: '{n} Angebote',
+    off_many: '{n} Angebote',
+    viewCustomers: 'Kunden anzeigen',
+    edit: 'Bearbeiten',
+    footer: 'Kunden gesamt: {n} · Treffer werden live berechnet',
+    emptyTitle: 'Noch keine Segmente',
+    emptyText: 'Erstellen Sie Ihr erstes Segment — z. B. VIP-Kunden, Kunden von der Küste oder Kunden, die länger nicht bestellt haben.',
   },
   sq: {
     subtitle: 'Grupe dinamike klientësh sipas rregullave — audiencë për zbritjet, ofertat dhe raportet.',
@@ -119,7 +119,7 @@ function SegmentList() {
 
   const open = (s: Segment) => navigate(`/admin/segmenti?id=${s.id}`);
   const duplicate = (s: Segment) => {
-    const copy: Segment = { ...structuredClone(s), id: uid('seg'), name: { me: s.name.me + ts('copySuffix'), sq: s.name.sq + ts('copySuffix'), en: s.name.en + ts('copySuffix') } };
+    const copy: Segment = { ...structuredClone(s), id: uid('seg'), name: { de: s.name.de + ts('copySuffix'), sq: s.name.sq + ts('copySuffix'), en: s.name.en + ts('copySuffix') } };
     upsert('segments', copy);
     toast.success(ts('duplicated'), { description: l(copy.name) });
   };

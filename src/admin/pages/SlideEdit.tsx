@@ -138,7 +138,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
   }, [placements, offers, draft]);
 
   /* ---------------- validation ---------------- */
-  const titleMissing = !draft.title.me.trim() && !draft.title.sq.trim() && !draft.title.en.trim();
+  const titleMissing = !draft.title.de.trim() && !draft.title.sq.trim() && !draft.title.en.trim();
   const imageMissing = !isBar && draft.status === 'active' && !draft.image;
   const datesBad = !!(draft.startsAt && draft.endsAt && new Date(draft.endsAt) <= new Date(draft.startsAt));
   const lockedLive = !canPublish && base.status === 'active' && !isNew;
@@ -149,7 +149,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
       toast.error(titleMissing ? t('needTitle') : imageMissing ? t('needImage') : t('dateInvalid'));
       return;
     }
-    let next: PlacementX = { ...draft, name: draft.name.trim() || plain(lt(draft.title, 'me')).slice(0, 60) };
+    let next: PlacementX = { ...draft, name: draft.name.trim() || plain(lt(draft.title, 'de')).slice(0, 60) };
     if (!ownSchedule && next.offerId) next = { ...next, startsAt: undefined, endsAt: undefined };
     if (!next.startsAt) delete next.startsAt;
     if (!next.endsAt) delete next.endsAt;
@@ -196,7 +196,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
     }
     const patch: Partial<PlacementX> = { offerId: o.id };
     // a fresh link points the CTA at the offer's landing page
-    if (!draft.cta.href) patch.cta = { href: `/oferta/${o.slug}`, label: isEmpty(draft.cta.label) ? { me: SE.me.previewCta, sq: SE.sq.previewCta, en: SE.en.previewCta } : draft.cta.label };
+    if (!draft.cta.href) patch.cta = { href: `/offer/${o.slug}`, label: isEmpty(draft.cta.label) ? { de: SE.de.previewCta, sq: SE.sq.previewCta, en: SE.en.previewCta } : draft.cta.label };
     if (!ownSchedule) Object.assign(patch, { startsAt: undefined, endsAt: undefined });
     set(patch);
   };
@@ -434,7 +434,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
                     size="xs"
                     shape="rounded"
                     icon={<Plus className="h-3.5 w-3.5" />}
-                    onClick={() => set({ secondary: { label: { me: SE.me.dest_measure, sq: SE.sq.dest_measure, en: SE.en.dest_measure }, href: '/#mjerenje' } })}
+                    onClick={() => set({ secondary: { label: { de: SE.de.dest_measure, sq: SE.sq.dest_measure, en: SE.en.dest_measure }, href: '/#consultation' } })}
                   >
                     {t('addSecondary')}
                   </Button>
@@ -561,7 +561,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
 /* ------------------------------------------------------------------ */
 /* Pieces                                                              */
 /* ------------------------------------------------------------------ */
-const isEmpty = (v: L10n) => !v.me.trim() && !v.sq.trim() && !v.en.trim();
+const isEmpty = (v: L10n) => !v.de.trim() && !v.sq.trim() && !v.en.trim();
 
 const OFFER_RANK = { active: 0, scheduled: 1, draft: 2, paused: 3, expired: 4 } as const;
 function sortOffers(list: Offer[]) {
@@ -618,17 +618,17 @@ function Destination({ label, value, onChange, ctx }: { label: string; value: st
   const lang = useLang('admin');
   const resolved = resolveHref(value, ctx, lang);
   const groups: { label: string; items: { href: string; label: string }[] }[] = [
-    { label: t('dest_offers'), items: sortOffers(ctx.offers).filter((o) => offerState(o) !== 'expired').map((o) => ({ href: `/oferta/${o.slug}`, label: lt(o.name, lang) })) },
-    { label: t('dest_collections'), items: ctx.collections.map((c) => ({ href: `/kolekcija/${c.slug}`, label: `${lt(c.title, lang)}${c.published ? '' : ` ${t('unpublished')}`}` })) },
-    { label: t('dest_categories'), items: [...ctx.categories].sort((a, b) => a.order - b.order).map((c) => ({ href: `/proizvodi/${c.slug}`, label: lt(c.name, lang) })) },
-    { label: t('dest_pages'), items: ctx.pages.filter((p) => p.published).map((p) => ({ href: `/stranica/${p.slug}`, label: lt(p.title, lang) })) },
+    { label: t('dest_offers'), items: sortOffers(ctx.offers).filter((o) => offerState(o) !== 'expired').map((o) => ({ href: `/offer/${o.slug}`, label: lt(o.name, lang) })) },
+    { label: t('dest_collections'), items: ctx.collections.map((c) => ({ href: `/collection/${c.slug}`, label: `${lt(c.title, lang)}${c.published ? '' : ` ${t('unpublished')}`}` })) },
+    { label: t('dest_categories'), items: [...ctx.categories].sort((a, b) => a.order - b.order).map((c) => ({ href: `/shop/${c.slug}`, label: lt(c.name, lang) })) },
+    { label: t('dest_pages'), items: ctx.pages.filter((p) => p.published).map((p) => ({ href: `/page/${p.slug}`, label: lt(p.title, lang) })) },
     {
       label: t('dest_other'),
       items: [
-        { href: '/proizvodi', label: t('dest_all') },
-        { href: '/#mjerenje', label: t('dest_measure') },
-        { href: '/usluge', label: t('dest_services') },
-        { href: '/kontakt', label: t('dest_contact') },
+        { href: '/shop', label: t('dest_all') },
+        { href: '/#consultation', label: t('dest_measure') },
+        { href: '/services', label: t('dest_services') },
+        { href: '/contact', label: t('dest_contact') },
       ],
     },
   ];
@@ -636,7 +636,7 @@ function Destination({ label, value, onChange, ctx }: { label: string; value: st
     <div>
       <FieldLabel>{label}</FieldLabel>
       <div className="flex gap-1.5">
-        <input value={value} onChange={(e) => onChange(e.target.value.trim())} placeholder="/oferta/…" className={cn(ctl, 'h-10 min-w-0 flex-1 font-mono text-[13px]')} aria-label={label} spellCheck={false} />
+        <input value={value} onChange={(e) => onChange(e.target.value.trim())} placeholder="/offer/…" className={cn(ctl, 'h-10 min-w-0 flex-1 font-mono text-[13px]')} aria-label={label} spellCheck={false} />
         <label className="relative grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-lg border border-line bg-white text-ink-soft transition-colors hover:border-ink/30 hover:text-ink" title={t('destPick')}>
           <ListTree className="h-4 w-4" />
           <select value="" onChange={(e) => e.target.value && onChange(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label={t('destPick')}>

@@ -74,7 +74,7 @@ export default function Collections() {
     const q = fold(query.trim());
     const list = [...rows].sort((a, b) => Number(b.c.published) - Number(a.c.published) || (b.c.createdAt ?? '').localeCompare(a.c.createdAt ?? ''));
     if (!q) return list;
-    return list.filter(({ c }) => fold(`${c.title.me} ${c.title.sq} ${c.title.en} ${c.slug}`).includes(q));
+    return list.filter(({ c }) => fold(`${c.title.de} ${c.title.sq} ${c.title.en} ${c.slug}`).includes(q));
   }, [rows, query]);
   const counts = { all: searched.length, manual: searched.filter((r) => r.c.kind === 'manual').length, smart: searched.filter((r) => r.c.kind === 'smart').length };
   const filtered = tab === 'all' ? searched : searched.filter((r) => r.c.kind === tab);
@@ -93,7 +93,7 @@ export default function Collections() {
       ...structuredClone(c),
       id,
       slug: uniqueCollectionSlug(`${c.slug}-2`, id, collections),
-      title: { me: sfx(c.title.me, cd.me.copySuffix), sq: sfx(c.title.sq, cd.sq.copySuffix), en: sfx(c.title.en, cd.en.copySuffix) },
+      title: { de: sfx(c.title.de, cd.de.copySuffix), sq: sfx(c.title.sq, cd.sq.copySuffix), en: sfx(c.title.en, cd.en.copySuffix) },
       published: false,
       createdAt: new Date().toISOString(),
     };
@@ -121,7 +121,7 @@ export default function Collections() {
   };
   const menuFor = (c: Collection): MenuItem[] => [
     { label: t('edit'), icon: Pencil, onSelect: () => navigate(`/admin/kolekcije/${c.id}`) },
-    { label: c.published ? t('viewOnSite') : t('previewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/kolekcija/${c.slug}${c.published ? '' : '?preview=1'}`), '_blank', 'noopener') },
+    { label: c.published ? t('viewOnSite') : t('previewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/collection/${c.slug}${c.published ? '' : '?preview=1'}`), '_blank', 'noopener') },
     { label: t('duplicate'), icon: Copy, onSelect: () => duplicate(c), disabled: !canEdit, hint: t('noPerm') },
     { label: t('delete'), icon: Trash2, onSelect: () => del(c), danger: true, divider: true, disabled: !canDelete, hint: t('noPerm') },
   ];

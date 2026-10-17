@@ -34,7 +34,7 @@ export function ProductPicker({ rows, exclude, onPick, showCost, className }: { 
       .filter((r) => r.lv.tracked && r.p.status !== 'archived' && !exclude.has(r.p.id))
       .filter((r) => {
         if (!terms.length) return true;
-        const hay = fold(`${r.p.name.me} ${r.p.name.sq} ${r.p.name.en} ${r.p.sku} ${r.p.vendor ?? ''}`);
+        const hay = fold(`${r.p.name.de} ${r.p.name.sq} ${r.p.name.en} ${r.p.sku} ${r.p.vendor ?? ''}`);
         return terms.every((x) => hay.includes(x));
       })
       .sort((a, b) => a.lv.available - b.lv.available)

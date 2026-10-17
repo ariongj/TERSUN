@@ -39,8 +39,8 @@ export function IntegrationCard({
   const Icon = meta.icon;
   const on = x.status !== 'disconnected';
   const provider = providerName(x);
-  // The stored note is Montenegrin only — the seeded ones have translations.
-  const note = x.note ? (SEEDED_NOTES[x.id] && SEEDED_NOTES[x.id].me === x.note ? l(SEEDED_NOTES[x.id]) : x.note) : on ? '' : t('notConfigured');
+  // The stored note is German only — the seeded ones have translations.
+  const note = x.note ? (SEEDED_NOTES[x.id] && SEEDED_NOTES[x.id].de === x.note ? l(SEEDED_NOTES[x.id]) : x.note) : on ? '' : t('notConfigured');
   const scopes = meta.scopes.filter((s) => x.scopes?.includes(s.id));
 
   return (

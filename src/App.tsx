@@ -31,6 +31,9 @@ import CollectionPage from '@/site/pages/CollectionPage';
 import OfferPage from '@/site/pages/OfferPage';
 import NotFound from '@/site/pages/NotFound';
 
+// 3D builder (lazy — three.js is a separate bundle)
+const Builder3DPage = lazy(() => import('@/site/builder3d/Builder3DPage'));
+
 // CMS (lazy — separate bundle)
 const AdminLayout = lazy(() => import('@/admin/layout/AdminLayout'));
 const Login = lazy(() => import('@/admin/pages/Login'));
@@ -97,7 +100,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 }
 
 const STORAGE_FULL = defineDict({
-  me: { full: 'Prostor za demo podatke je pun — obrišite neke otpremljene slike ili resetujte demo.' },
+  de: { full: 'Der Speicher für Demodaten ist voll — löschen Sie einige hochgeladene Bilder oder setzen Sie die Demo zurück.' },
   sq: { full: 'Hapësira për të dhënat e demos është plot — fshini disa imazhe të ngarkuara ose rivendosni demon.' },
   en: { full: 'Demo data storage is full — delete some uploaded images or reset the demo.' },
 });
@@ -112,7 +115,7 @@ function Root() {
   const brand = useDb((s) => s.settings.brandColor);
   const { pathname } = useLocation();
   const admin = pathname === '/admin' || pathname.startsWith('/admin/');
-  // Neutral CMS theme under /admin (PDF p.07); the storefront (and the builder's preview iframe) keeps the SELCA red.
+  // Neutral CMS theme under /admin (PDF p.07); the storefront (and the builder's preview iframe) keeps the TERSUN red.
   useLayoutEffect(() => setAdminTheme(admin), [admin]);
   useEffect(() => applyBrand(brand), [brand]);
   useEffect(() => startCrossTabSync(), []);
@@ -122,8 +125,8 @@ function Root() {
       const lang = document.documentElement.hasAttribute('data-admin') ? ui.adminLang : ui.lang;
       toast.error(STORAGE_FULL[lang].full);
     };
-    window.addEventListener('selca:storage-full', fn);
-    return () => window.removeEventListener('selca:storage-full', fn);
+    window.addEventListener('tersun:storage-full', fn);
+    return () => window.removeEventListener('tersun:storage-full', fn);
   }, []);
   return (
     <>
@@ -217,23 +220,24 @@ const router = createBrowserRouter([
         element: <SiteLayout />,
         children: [
           { index: true, element: <Home /> },
-          { path: 'proizvodi', element: <Shop /> },
-          { path: 'proizvodi/:category', element: <Shop /> },
-          { path: 'proizvod/:slug', element: <ProductPage /> },
-          { path: 'kolekcija/:slug', element: <CollectionPage /> },
-          { path: 'oferta/:slug', element: <OfferPage /> },
-          { path: 'korpa', element: <CartPage /> },
-          { path: 'placanje', element: <Checkout /> },
-          { path: 'narudzba/:id', element: <OrderSuccess /> },
-          { path: 'usluge', element: <Services /> },
-          { path: 'projekti', element: <Projects /> },
-          { path: 'o-nama', element: <About /> },
-          { path: 'kontakt', element: <Contact /> },
-          { path: 'savjeti', element: <Blog /> },
-          { path: 'savjeti/:slug', element: <PostPage /> },
-          { path: 'stranica/:slug', element: <CmsPageView /> },
-          { path: 'pretraga', element: <SearchPage /> },
-          { path: 'lista-zelja', element: <Wishlist /> },
+          { path: 'shop', element: <Shop /> },
+          { path: 'shop/:category', element: <Shop /> },
+          { path: 'product/:slug', element: <ProductPage /> },
+          { path: 'collection/:slug', element: <CollectionPage /> },
+          { path: 'offer/:slug', element: <OfferPage /> },
+          { path: 'cart', element: <CartPage /> },
+          { path: 'checkout', element: <Checkout /> },
+          { path: 'order/:id', element: <OrderSuccess /> },
+          { path: 'services', element: <Services /> },
+          { path: 'projects', element: <Projects /> },
+          { path: 'about', element: <About /> },
+          { path: 'contact', element: <Contact /> },
+          { path: 'journal', element: <Blog /> },
+          { path: 'journal/:slug', element: <PostPage /> },
+          { path: 'page/:slug', element: <CmsPageView /> },
+          { path: 'search', element: <SearchPage /> },
+          { path: 'wishlist', element: <Wishlist /> },
+          { path: '3d', element: <Suspense fallback={<Loader />}><Builder3DPage /></Suspense> },
           { path: '*', element: <NotFound /> },
         ],
       },

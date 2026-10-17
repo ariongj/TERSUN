@@ -71,12 +71,12 @@ function HeroForm({ data, set }: { data: DataOf<'hero'>; set: SetData<'hero'> })
     const first = data.slides[0];
     return {
       id: uid('s'),
-      image: first?.image ?? '/images/hero/living.webp',
+      image: first?.image ?? '/images/hero/bioclimatic.webp',
       eyebrow: emptyL10n(),
-      title: { me: B.me.newSlideTitle, sq: B.sq.newSlideTitle, en: B.en.newSlideTitle },
+      title: { de: B.de.newSlideTitle, sq: B.sq.newSlideTitle, en: B.en.newSlideTitle },
       subtitle: emptyL10n(),
-      primary: first ? structuredClone(first.primary) : { label: emptyL10n(), href: '/proizvodi' },
-      secondary: first ? structuredClone(first.secondary) : { label: emptyL10n(), href: '/kontakt' },
+      primary: first ? structuredClone(first.primary) : { label: emptyL10n(), href: '/shop' },
+      secondary: first ? structuredClone(first.secondary) : { label: emptyL10n(), href: '/contact' },
     };
   };
   return (
@@ -231,7 +231,7 @@ function PromoForm({ data, set }: { data: DataOf<'promo'>; set: SetData<'promo'>
             value={data.code}
             onChange={(v) => set({ ...data, code: v.toUpperCase().replace(/\s+/g, '') })}
             leading={<Ticket className="h-4 w-4" />}
-            placeholder="SELCA10"
+            placeholder="TERSUN10"
             className="font-mono uppercase tracking-wider"
             hint={t('codeHint')}
             spellCheck={false}

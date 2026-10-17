@@ -11,6 +11,7 @@ export function uid(prefix = 'id') {
 const MAP: Record<string, string> = {
   č: 'c', ć: 'c', š: 's', ž: 'z', đ: 'dj', ë: 'e', ç: 'c', ś: 's', ź: 'z',
   Č: 'c', Ć: 'c', Š: 's', Ž: 'z', Đ: 'dj', Ë: 'e', Ç: 'c',
+  ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss', Ä: 'ae', Ö: 'oe', Ü: 'ue', ẞ: 'ss',
 };
 
 export function slugify(input: string) {

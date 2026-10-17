@@ -107,7 +107,7 @@ export function PublishCard({
 /* ------------------------------------------------------------------ */
 /* SEO: Google preview + SEO title / description per language + slug   */
 /* ------------------------------------------------------------------ */
-const LANGS: Lang[] = ['me', 'sq', 'en'];
+const LANGS: Lang[] = ['de', 'sq', 'en'];
 
 function CountHint({ value, limit }: { value: L10n; limit: number }) {
   const t = useDict(cx, 'admin');
@@ -150,11 +150,11 @@ export function SeoCard({
   const t = useDict(cx, 'admin');
   const lang = useLang('admin');
   const s = seo ?? emptySeo();
-  const title = s.title[lang]?.trim() || s.title.me.trim() || fallbackTitle;
-  const description = s.description[lang]?.trim() || s.description.me.trim() || fallbackDescription;
+  const title = s.title[lang]?.trim() || s.title.de.trim() || fallbackTitle;
+  const description = s.description[lang]?.trim() || s.description.de.trim() || fallbackDescription;
   return (
     <Card title={t('seo')} description={`${t('seoHint')} ${t('seoFallback')}`} bodyClassName="space-y-5">
-      <SearchPreview domain={domain} path={path} title={`${title} | SELCA COMPANY`} description={description} />
+      <SearchPreview domain={domain} path={path} title={`${title} | TERSUN`} description={description} />
       <fieldset disabled={readOnly} className="space-y-5">
         <L10nInput label={t('seoTitle')} value={s.title} onChange={(title) => onChange({ ...s, title })} placeholder={fallbackTitle} hint={<CountHint value={s.title} limit={60} />} />
         <L10nInput label={t('seoDesc')} value={s.description} onChange={(description) => onChange({ ...s, description })} multiline rows={3} placeholder={fallbackDescription} hint={<CountHint value={s.description} limit={160} />} />

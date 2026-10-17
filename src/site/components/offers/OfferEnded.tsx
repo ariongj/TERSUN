@@ -43,14 +43,14 @@ export function OfferEnded({ slug, offer, state, others }: { slug?: string; offe
           {slug && (
             <div className="mt-5 inline-flex max-w-full animate-fade-up items-center gap-2 rounded-full bg-white/80 px-3.5 py-1.5 text-[12.5px] text-muted ring-1 ring-line [animation-delay:180ms]">
               <span className="shrink-0 font-semibold">{t('requested')}:</span>
-              <code className="truncate font-mono text-ink-soft">/oferta/{slug}</code>
+              <code className="truncate font-mono text-ink-soft">/offer/{slug}</code>
             </div>
           )}
           <div className="mt-8 flex w-full animate-fade-up flex-col items-stretch justify-center gap-3 [animation-delay:220ms] sm:w-auto sm:flex-row sm:items-center">
-            <ButtonLink to="/proizvodi?akcija=1" size="lg" icon={<Percent className="h-4 w-4" />}>
+            <ButtonLink to="/shop?sale=1" size="lg" icon={<Percent className="h-4 w-4" />}>
               {t('onSale')}
             </ButtonLink>
-            <ButtonLink to="/proizvodi" size="lg" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/shop" size="lg" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('allProducts')}
             </ButtonLink>
           </div>

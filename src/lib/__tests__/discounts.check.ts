@@ -14,7 +14,7 @@ const { applyDiscounts, allocateCents, normalizeCode } = (await import(new URL('
 const BASE: Discount = {
   id: '',
   title: '',
-  publicTitle: { me: '', sq: '', en: '' },
+  publicTitle: { de: '', sq: '', en: '' },
   kind: 'order',
   method: 'auto',
   valueType: 'percent',
@@ -166,15 +166,15 @@ const bxgy = D({
 /* ------------------------------------------------------------------ */
 section('Threshold exactly at the boundary (order minimum €100 after product discounts)');
 {
-  const code = D({ id: 'S10', method: 'code', code: 'SELCA10', kind: 'order', valueType: 'percent', value: 10, minimum: { type: 'amount', value: 100 } });
-  const at = applyDiscounts({ now: NOW, lines: [{ id: 'l', productId: 'P', qty: 1, unitPrice: 100 }], codes: ['selca10'], discounts: [code] });
+  const code = D({ id: 'S10', method: 'code', code: 'TERSUN10', kind: 'order', valueType: 'percent', value: 10, minimum: { type: 'amount', value: 100 } });
+  const at = applyDiscounts({ now: NOW, lines: [{ id: 'l', productId: 'P', qty: 1, unitPrice: 100 }], codes: ['tersun10'], discounts: [code] });
   check('€100.00 → applies (−€10)', eq(at.orderDiscount, 10), at.rejected);
-  const below = applyDiscounts({ now: NOW, lines: [{ id: 'l', productId: 'P', qty: 1, unitPrice: 99.99 }], codes: ['SELCA10'], discounts: [code] });
+  const below = applyDiscounts({ now: NOW, lines: [{ id: 'l', productId: 'P', qty: 1, unitPrice: 99.99 }], codes: ['TERSUN10'], discounts: [code] });
   check('€99.99 → minimum, €0.01 missing', below.rejected[0]?.reason === 'minimum' && eq(below.rejected[0].missing ?? 0, 0.01), below.rejected);
   const afterProduct = applyDiscounts({
     now: NOW,
     lines: [{ id: 'l', productId: 'P', qty: 1, unitPrice: 110 }],
-    codes: ['SELCA10'],
+    codes: ['TERSUN10'],
     discounts: [code, D({ id: 'auto15', kind: 'products', valueType: 'percent', value: 15 })],
   });
   check('€110 − 15% product discount = €93.50 → order code below minimum (€6.50 missing)', afterProduct.rejected.find((x) => x.id === 'S10')?.reason === 'minimum' && eq(afterProduct.rejected[0].missing ?? 0, 6.5), afterProduct.rejected);
@@ -303,7 +303,7 @@ section('Rejection reasons');
   check('audience', reasons.VIP === 'audience');
   check('duplicate code entered twice is ignored', r.rejected.filter((x) => x.code === 'DRAFT').length === 1);
   check('nothing applied, total unchanged', r.applied.length === 0 && eq(r.total, 100));
-  check('normalizeCode(" selca 10 ") = "SELCA10"', normalizeCode(' selca 10 ') === 'SELCA10');
+  check('normalizeCode(" tersun 10 ") = "TERSUN10"', normalizeCode(' tersun 10 ') === 'TERSUN10');
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

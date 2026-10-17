@@ -22,7 +22,7 @@ export const KIND_POSITIONS: Record<PlacementKind, PlacementPosition[]> = {
 export const POSITION_PATH: Record<PlacementPosition, string> = {
   'home-hero': '/',
   'home-banner': '/',
-  catalog: '/proizvodi',
+  catalog: '/shop',
   bar: '/',
 };
 
@@ -58,7 +58,7 @@ const dd = (iso: string) => String(new Date(iso).getDate()).padStart(2, '0');
 const SQ_MONTHS = ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'];
 const SQ_SHORT = ['jan', 'shk', 'mar', 'pri', 'maj', 'qer', 'kor', 'gus', 'sht', 'tet', 'nën', 'dhj'];
 
-/** "04 tetor", "04 tet 2027", "04 tetor, 09:00" — Albanian without Intl, ME / EN through Intl. */
+/** "04 tetor", "04 tet 2027", "04 tetor, 09:00" — Albanian without Intl, DE / EN through Intl. */
 export function dayLabel(iso: string, lang: Lang, opts: { month?: 'long' | 'short'; year?: boolean; time?: boolean } = {}) {
   const d = new Date(iso);
   const month = opts.month ?? 'long';
@@ -116,36 +116,36 @@ const slugAfter = (href: string, prefix: string) => {
   return decodeURIComponent(href.slice(prefix.length).split(/[?#/]/)[0] ?? '') || null;
 };
 
-/** What a CTA path points to: { type: 'collection', label: 'Premium kupatilo' } — used by "Lidhja" and the destination field. */
+/** What a CTA path points to: { type: 'collection', label: 'Signature Systems' } — used by "Lidhja" and the destination field. */
 export function resolveHref(href: string, ctx: LinkCtx, lang: Lang): { type: LinkType; label: string } {
   const h = href.trim();
   if (!h) return { type: 'none', label: '' };
   let slug: string | null;
-  if ((slug = slugAfter(h, '/oferta/'))) {
+  if ((slug = slugAfter(h, '/offer/'))) {
     const o = ctx.offers.find((x) => x.slug === slug);
     if (o) return { type: 'offer', label: lt(o.name, lang) };
   }
-  if ((slug = slugAfter(h, '/kolekcija/'))) {
+  if ((slug = slugAfter(h, '/collection/'))) {
     const c = ctx.collections.find((x) => x.slug === slug);
     if (c) return { type: 'collection', label: lt(c.title, lang) };
   }
-  if ((slug = slugAfter(h, '/proizvodi/'))) {
+  if ((slug = slugAfter(h, '/shop/'))) {
     const c = ctx.categories.find((x) => x.slug === slug);
     if (c) return { type: 'category', label: lt(c.name, lang) };
   }
-  if ((slug = slugAfter(h, '/proizvod/'))) {
+  if ((slug = slugAfter(h, '/product/'))) {
     const p = ctx.products.find((x) => x.slug === slug);
     if (p) return { type: 'product', label: lt(p.name, lang) };
   }
-  if ((slug = slugAfter(h, '/stranica/'))) {
+  if ((slug = slugAfter(h, '/page/'))) {
     const p = ctx.pages.find((x) => x.slug === slug);
     if (p) return { type: 'page', label: lt(p.title, lang) };
   }
   // fixed storefront pages
   const path = h.split(/[?#]/)[0] || '/';
-  if (h === '/#mjerenje') return { type: 'page', label: SE[lang].dest_measure };
-  if (path === '/proizvodi' && !h.includes('#')) return { type: 'category', label: site[lang].allProducts };
-  const fixed: Record<string, 'nav_services' | 'nav_contact' | 'nav_projects' | 'nav_about' | 'nav_blog'> = { '/usluge': 'nav_services', '/kontakt': 'nav_contact', '/projekti': 'nav_projects', '/o-nama': 'nav_about', '/savjeti': 'nav_blog' };
+  if (h === '/#consultation') return { type: 'page', label: SE[lang].dest_measure };
+  if (path === '/shop' && !h.includes('#')) return { type: 'category', label: site[lang].allProducts };
+  const fixed: Record<string, 'nav_services' | 'nav_contact' | 'nav_projects' | 'nav_about' | 'nav_blog'> = { '/services': 'nav_services', '/contact': 'nav_contact', '/projects': 'nav_projects', '/about': 'nav_about', '/journal': 'nav_blog' };
   if (fixed[path]) return { type: 'page', label: site[lang][fixed[path]] };
   return { type: 'url', label: h };
 }
@@ -172,7 +172,7 @@ export function commitOrder(position: PlacementPosition, ids: string[], detail: 
   useDb.getState().logAudit({ action: 'update', object: 'placement', objectId: position, detail });
 }
 
-const E = (): L10n => ({ me: '', sq: '', en: '' });
+const E = (): L10n => ({ de: '', sq: '', en: '' });
 
 export function blankPlacement(id: string, kind: PlacementKind, position: PlacementPosition, order: number): PlacementX {
   return {

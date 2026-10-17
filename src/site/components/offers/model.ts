@@ -15,7 +15,7 @@ export type ProductScope = 'offer' | 'all' | 'collection';
 export interface OfferLanding {
   offer?: Offer;
   state: OfferState | null;
-  /** /oferta/x?preview=1 opened by a signed-in CMS user — renders a non-live offer with a notice */
+  /** /offer/x?preview=1 opened by a signed-in CMS user — renders a non-live offer with a notice */
   preview: boolean;
   /** render the landing page (live, or authorised preview) */
   visible: boolean;
@@ -134,7 +134,7 @@ export function useCountVisit(offer: Offer | undefined, live: boolean) {
   const id = offer?.id;
   useEffect(() => {
     if (!id || !live) return;
-    const key = `selca-offer-visit:${id}`;
+    const key = `tersun-offer-visit:${id}`;
     try {
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, '1');

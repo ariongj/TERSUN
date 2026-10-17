@@ -21,35 +21,35 @@ import { cn, slugify, uid } from '@/lib/utils';
 import { href } from '@/lib/paths';
 
 const T = defineDict({
-  me: {
-    description: 'Članci sa savjetima — stranica „Savjeti“ i sekcija na početnoj. Kategorija, autor, sažetak, oznake, SEO i datum objave.',
-    newPost: 'Novi članak',
-    colPost: 'Članak',
-    colCategory: 'Kategorija',
+  de: {
+    description: 'Ratgeberartikel — die Seite „Ratgeber“ und der Bereich auf der Startseite. Kategorie, Autor, Auszug, Tags, SEO und Veröffentlichungsdatum.',
+    newPost: 'Neuer Artikel',
+    colPost: 'Artikel',
+    colCategory: 'Kategorie',
     colAuthor: 'Autor',
     colStatus: 'Status',
-    colDate: 'Datum objave',
-    scheduled: 'Zakazani',
-    hidden: 'Skriveni',
-    drafts: 'Nacrti',
-    searchPh: 'Pretraži članke…',
-    allCategories: 'Sve kategorije',
-    empty: 'Još nema članaka',
-    emptyText: 'Napišite prvi članak — kupci vole praktične vodiče za izbor i održavanje.',
-    noMatch: 'Nijedan članak ne odgovara filterima.',
-    deleteTitle: 'Obrisati članak „{name}“?',
-    deleteText: 'Članak i svi njegovi prevodi biće trajno uklonjeni.',
-    duplicate: 'Dupliraj kao nacrt',
-    duplicated: 'Kopija je kreirana kao nacrt',
-    copySuffix: '(kopija)',
-    categories: 'Kategorije bloga',
-    categoriesText: 'Kategorija se bira u članku i prikazuje kao tema na sajtu.',
-    uncategorized: 'Bez kategorije',
-    comments: 'Komentari',
-    commentsOff: 'Isključeno',
-    commentsText: 'Komentari se uključuju kao poseban modul, uz moderaciju prije javnog prikaza.',
-    moduleMap: 'Mapa modula',
-    articles: '{n} čl.',
+    colDate: 'Veröffentlichungsdatum',
+    scheduled: 'Geplant',
+    hidden: 'Ausgeblendet',
+    drafts: 'Entwürfe',
+    searchPh: 'Artikel suchen…',
+    allCategories: 'Alle Kategorien',
+    empty: 'Noch keine Artikel',
+    emptyText: 'Schreiben Sie Ihren ersten Artikel — Kunden schätzen praktische Kauf- und Pflegeratgeber.',
+    noMatch: 'Kein Artikel entspricht den Filtern.',
+    deleteTitle: 'Artikel „{name}“ löschen?',
+    deleteText: 'Der Artikel und alle seine Übersetzungen werden dauerhaft entfernt.',
+    duplicate: 'Als Entwurf duplizieren',
+    duplicated: 'Kopie als Entwurf erstellt',
+    copySuffix: '(Kopie)',
+    categories: 'Blog-Kategorien',
+    categoriesText: 'Die Kategorie wird im Artikel gewählt und auf der Website als Thema angezeigt.',
+    uncategorized: 'Ohne Kategorie',
+    comments: 'Kommentare',
+    commentsOff: 'Aus',
+    commentsText: 'Kommentare werden als separates Modul aktiviert, mit Moderation vor der Veröffentlichung.',
+    moduleMap: 'Modulübersicht',
+    articles: '{n} Art.',
   },
   sq: {
     description: 'Artikuj me këshilla — faqja „Këshilla“ dhe seksioni në ballinë. Kategoria, autori, përmbledhja, etiketat, SEO dhe data e publikimit.',
@@ -115,7 +115,7 @@ const T = defineDict({
 
 type Filter = 'all' | ContentState;
 const COLS = 'md:grid-cols-[72px_minmax(0,1fr)_128px_118px_104px_40px] lg:grid-cols-[72px_minmax(0,1fr)_128px_120px_118px_104px_40px]';
-const catKey = (tag: L10n) => slugify(tag.me) || '_';
+const catKey = (tag: L10n) => slugify(tag.de) || '_';
 
 export default function Posts() {
   const t = useDict(T, 'admin');
@@ -162,7 +162,7 @@ export default function Posts() {
         if (filter !== 'all' && states.get(p.id) !== filter) return false;
         if (cat !== 'all' && catKey(p.tag) !== cat) return false;
         if (!needle) return true;
-        return fold(`${p.title.me} ${p.title.sq} ${p.title.en} ${p.slug} ${p.tag.me} ${p.author} ${(p.tags ?? []).join(' ')}`).includes(needle);
+        return fold(`${p.title.de} ${p.title.sq} ${p.title.en} ${p.slug} ${p.tag.de} ${p.author} ${(p.tags ?? []).join(' ')}`).includes(needle);
       });
   }, [posts, q, filter, cat, states]);
 
@@ -171,7 +171,7 @@ export default function Posts() {
       ...structuredClone(p),
       id: uid('post'),
       slug: `${p.slug}-kopija`.slice(0, 80),
-      title: { me: `${p.title.me} ${T.me.copySuffix}`, sq: p.title.sq ? `${p.title.sq} ${T.sq.copySuffix}` : '', en: p.title.en ? `${p.title.en} ${T.en.copySuffix}` : '' },
+      title: { de: `${p.title.de} ${T.de.copySuffix}`, sq: p.title.sq ? `${p.title.sq} ${T.sq.copySuffix}` : '', en: p.title.en ? `${p.title.en} ${T.en.copySuffix}` : '' },
       published: false,
       hidden: false,
       publishedAt: new Date().toISOString(),
@@ -206,7 +206,7 @@ export default function Posts() {
     <ActionMenu
       label={ta('actions')}
       items={[
-        { label: te('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/savjeti/${p.slug}`), '_blank', 'noopener') },
+        { label: te('viewOnSite'), icon: ExternalLink, onSelect: () => window.open(href(`/journal/${p.slug}`), '_blank', 'noopener') },
         { label: ta('edit'), icon: Pencil, onSelect: () => navigate(`/admin/savjeti/${p.id}`) },
         { label: t('duplicate'), icon: Copy, onSelect: () => duplicate(p), disabled: !canEdit },
         { label: ta('delete'), icon: Trash2, onSelect: () => remove(p), danger: true, divider: true, disabled: !canDelete, title: canDelete ? undefined : tc('noDeletePerm') },

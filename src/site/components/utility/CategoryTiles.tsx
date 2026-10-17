@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { pluralOne } from './shared';
 
 const T = defineDict({
-  me: { one: '{n} proizvod', many: '{n} proizvoda' },
+  de: { one: '{n} Produkt', many: '{n} Produkte' },
   sq: { one: '{n} produkt', many: '{n} produkte' },
   en: { one: '{n} product', many: '{n} products' },
 });
@@ -41,7 +41,7 @@ export function CategoryTiles({ variant = 'tile', limit, className }: { variant?
         {list.map((c) => (
           <Link
             key={c.id}
-            to={`/proizvodi/${c.slug}`}
+            to={`/shop/${c.slug}`}
             className="group flex items-center gap-4 rounded-2xl border border-line bg-white p-2.5 pr-4 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-[0_18px_40px_-24px_rgba(28,26,23,0.35)]"
           >
             <span className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-sand">
@@ -64,7 +64,7 @@ export function CategoryTiles({ variant = 'tile', limit, className }: { variant?
   return (
     <div className={cn('grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6', className)}>
       {list.map((c) => (
-        <Link key={c.id} to={`/proizvodi/${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-ink sm:rounded-3xl">
+        <Link key={c.id} to={`/shop/${c.slug}`} className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-ink sm:rounded-3xl">
           <Img src={c.image} small alt={l(c.name)} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.07]" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
           <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm transition-all duration-300 group-hover:opacity-100 max-md:hidden">

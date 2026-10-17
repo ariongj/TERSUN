@@ -1,10 +1,10 @@
 // Core data model shared by the storefront and the CMS.
 // Everything the client can edit lives in the persisted `db` store (see store/db.ts).
 
-export type Lang = 'me' | 'sq' | 'en';
+export type Lang = 'de' | 'sq' | 'en';
 
-/** A localized string: Montenegrin (default), Albanian, English. */
-export type L10n = { me: string; sq: string; en: string };
+/** A localized string: German (default), Albanian, English. */
+export type L10n = { de: string; sq: string; en: string };
 
 /** Units a product can be sold in. */
 export type Unit = 'kom' | 'm2' | 'm' | 'set';
@@ -388,7 +388,7 @@ export interface Settings {
   shippingZones: ShippingZone[];
   pickupAddress: string;
   payments: { cod: boolean; bank: boolean; card: boolean };
-  languages: { me: boolean; sq: boolean; en: boolean };
+  languages: { de: boolean; sq: boolean; en: boolean };
   announcements: L10n[];
   brandColor: string;
   demoBanner: boolean;
@@ -455,7 +455,7 @@ export interface Integration {
 export interface Market {
   id: string;
   name: L10n;
-  /** ISO country codes, e.g. ['ME'] */
+  /** ISO country codes, e.g. ['XK'] */
   countries: string[];
   currency: string;
   languages: Lang[];
@@ -476,7 +476,7 @@ export type RuleOp = 'eq' | 'neq' | 'gt' | 'lt' | 'contains';
 export interface CollectionRule {
   field: CollectionRuleField;
   op: RuleOp;
-  /** Always stored as text: numbers as "300", booleans as "true", ids as "cat-podovi" */
+  /** Always stored as text: numbers as "300", booleans as "true", ids as "cat-bioclimatic" */
   value: string;
 }
 export type CollectionSort = 'manual' | 'bestselling' | 'price-asc' | 'price-desc' | 'newest';
@@ -596,7 +596,7 @@ export interface Offer {
   placements: OfferSlot[];
   /** Staff id responsible */
   owner: string;
-  /** e.g. "utm_source=site&utm_campaign=jesen-podovi" */
+  /** e.g. "utm_source=site&utm_campaign=summer-pergola" */
   utm: string;
   metrics: OfferMetrics;
   createdAt?: string;

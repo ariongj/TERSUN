@@ -64,7 +64,7 @@ export function matchesRule(p: Product, r: CollectionRule): boolean {
     case 'tag':
       return cmpText(p.tags ?? [], r.op, r.value);
     case 'title':
-      return cmpText([p.name.me, p.name.sq, p.name.en], r.op === 'eq' ? 'contains' : r.op, r.value);
+      return cmpText([p.name.de, p.name.sq, p.name.en], r.op === 'eq' ? 'contains' : r.op, r.value);
     case 'vendor':
       return cmpText(p.vendor ? [p.vendor] : [], r.op, r.value);
     case 'onSale': {

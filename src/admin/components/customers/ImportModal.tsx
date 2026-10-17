@@ -11,41 +11,41 @@ import { ConsentSummary, LangChip } from './parts';
 import { CHANNELS, snapshotCustomers, useCustomerStore, type Marketing } from './store';
 
 const T = defineDict({
-  me: {
-    title: 'Uvoz kupaca (CSV)',
-    description: 'Postojeći kupci se prepoznaju po e-mailu ili telefonu i ažuriraju (oznake, saglasnosti); ostali se dodaju kao novi.',
-    drop: 'Izaberite CSV fajl ili ga prevucite ovdje',
-    dropHint: 'UTF-8 · separator zarez ili tačka-zarez · prvi red = nazivi kolona',
-    template: 'Preuzmi šablon',
-    sample: 'Probaj sa primjerom',
-    columns: 'Podržane kolone',
-    note: 'Kupci koji su se odjavili sa marketinga neće biti ponovo prijavljeni uvozom.',
-    change: 'Drugi fajl',
-    sumNew: '{n} novih',
-    sumUpdate: '{n} ažuriranja',
-    sumError: '{n} sa greškom',
-    recognized: 'Prepoznate kolone',
-    unknown: 'Zanemarene kolone: {list}',
-    col_line: 'Red',
-    col_customer: 'Kupac',
+  de: {
+    title: 'Kundenimport (CSV)',
+    description: 'Bestehende Kunden werden anhand von E-Mail oder Telefon erkannt und aktualisiert (Tags, Einwilligungen); alle anderen werden neu angelegt.',
+    drop: 'CSV-Datei auswählen oder hierher ziehen',
+    dropHint: 'UTF-8 · Trennzeichen Komma oder Semikolon · erste Zeile = Spaltennamen',
+    template: 'Vorlage herunterladen',
+    sample: 'Mit Beispiel testen',
+    columns: 'Unterstützte Spalten',
+    note: 'Kunden, die sich vom Marketing abgemeldet haben, werden durch den Import nicht erneut angemeldet.',
+    change: 'Andere Datei',
+    sumNew: '{n} neu',
+    sumUpdate: '{n} Aktualisierungen',
+    sumError: '{n} fehlerhaft',
+    recognized: 'Erkannte Spalten',
+    unknown: 'Ignorierte Spalten: {list}',
+    col_line: 'Zeile',
+    col_customer: 'Kunde',
     col_contact: 'Kontakt',
-    col_city: 'Grad',
-    col_tags: 'Oznake',
+    col_city: 'Ort',
+    col_tags: 'Tags',
     col_marketing: 'Marketing',
-    col_status: 'Rezultat',
-    st_new: 'Novi kupac',
-    st_update: 'Ažurira: {name}',
-    err_noName: 'Nedostaje ime',
-    err_noContact: 'Nedostaje e-mail ili telefon',
-    err_badEmail: 'Neispravan e-mail',
-    err_dupInFile: 'Duplikat u fajlu',
-    empty: 'Fajl nema redova sa podacima.',
-    cancel: 'Otkaži',
-    import: 'Uvezi {n} kupaca',
-    imported: 'Uvoz završen',
-    importedText: '{a} novih, {b} ažurirano',
-    undo: 'Poništi',
-    readError: 'Fajl nije moguće pročitati',
+    col_status: 'Ergebnis',
+    st_new: 'Neuer Kunde',
+    st_update: 'Aktualisiert: {name}',
+    err_noName: 'Name fehlt',
+    err_noContact: 'E-Mail oder Telefon fehlt',
+    err_badEmail: 'Ungültige E-Mail',
+    err_dupInFile: 'Duplikat in der Datei',
+    empty: 'Die Datei enthält keine Datenzeilen.',
+    cancel: 'Abbrechen',
+    import: '{n} Kunden importieren',
+    imported: 'Import abgeschlossen',
+    importedText: '{a} neu, {b} aktualisiert',
+    undo: 'Rückgängig',
+    readError: 'Datei kann nicht gelesen werden',
   },
   sq: {
     title: 'Importo klientë (CSV)',
@@ -125,12 +125,12 @@ function sampleCsv(existing: CustomerRecord[]) {
   const known = [...existing].filter((c) => c.email && c.count > 0).sort((a, b) => b.spent - a.spent)[0];
   const rows = [
     IMPORT_TEMPLATE_HEAD.join(','),
-    'Danijela,Šćepanović,danijela.scepanovic@example.com,+382 67 245 118,Podgorica,Ulica Slobode 22,me,arhitekta,yes,no',
-    'Fatmir,Hoxha,fatmir.hoxha@example.com,+382 68 731 402,Ulcinj,Ulica Skenderbega 9,sq,"apartmani;sajam-2026",yes,yes',
-    'Goran,Lakić,goran.lakic@example.com,+382 69 118 240,Budva,Mediteranska 31,me,izvođač,no,no',
-    known ? `${known.firstName},${known.lastName},${known.email},,${known.city},,${known.lang},sajam-2026,yes,` : '',
-    'Marta,Jovanović,,,Kotor,,en,,yes,no',
-    'Ilir,Berisha,ilir.berisha@example,+382 67 902 331,Tuzi,,sq,,no,no',
+    'Sabine,Hofmann,sabine.hofmann@example.com,+49 171 245 1180,Stuttgart,Gartenstraße 22,de,architect,yes,no',
+    'Fatmir,Hoxha,fatmir.hoxha@example.com,+383 44 731 402,Prizren,Rr. Remzi Ademaj 9,sq,"villa;fair-2026",yes,yes',
+    'Markus,Weber,markus.weber@example.com,+43 664 118 2400,Wien,Praterstraße 31,de,contractor,no,no',
+    known ? `${known.firstName},${known.lastName},${known.email},,${known.city},,${known.lang},fair-2026,yes,` : '',
+    'Emily,Turner,,,Zürich,,en,,yes,no',
+    'Ilir,Berisha,ilir.berisha@example,+383 49 902 331,Prishtina,,sq,,no,no',
   ].filter(Boolean);
   return rows.join('\n');
 }
@@ -241,7 +241,7 @@ export function ImportModal({ open, onClose, customers }: { open: boolean; onClo
               <span className="mt-1 text-[12.5px] text-muted">{t('dropHint')}</span>
             </label>
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" shape="rounded" size="sm" icon={<Download className="h-4 w-4" />} onClick={() => download('selca-klijenti-sablon.csv', '﻿' + IMPORT_TEMPLATE_HEAD.join(',') + '\n', 'text/csv;charset=utf-8')}>
+              <Button variant="outline" shape="rounded" size="sm" icon={<Download className="h-4 w-4" />} onClick={() => download('tersun-customers-template.csv', '﻿' + IMPORT_TEMPLATE_HEAD.join(',') + '\n', 'text/csv;charset=utf-8')}>
                 {t('template')}
               </Button>
               <Button variant="outline" shape="rounded" size="sm" icon={<Sparkles className="h-4 w-4" />} onClick={() => setFile({ name: 'shembull.csv', text: sampleCsv(customers) })}>

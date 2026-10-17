@@ -33,7 +33,7 @@ export function defaultRule(field: CollectionRuleField = 'category', categories:
 export function ruleText(r: CollectionRule, ctx: { t: T; l: (v: L10n) => string; categories: Category[]; badge: (b: string) => string; status: (s: string) => string; money: (v: number) => string }) {
   const { t, l, categories } = ctx;
   let value = r.value;
-  if (r.field === 'category') value = l(categories.find((c) => c.id === r.value)?.name ?? { me: r.value, sq: r.value, en: r.value });
+  if (r.field === 'category') value = l(categories.find((c) => c.id === r.value)?.name ?? { de: r.value, sq: r.value, en: r.value });
   else if (r.field === 'onSale') value = /^(true|1|da|po|yes)$/i.test(r.value) ? t('yes') : t('no');
   else if (r.field === 'badge') value = ctx.badge(r.value);
   else if (r.field === 'status') value = ctx.status(r.value);

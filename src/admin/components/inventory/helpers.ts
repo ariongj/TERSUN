@@ -16,7 +16,7 @@ export function stockState(lv: StockLevels): StockState {
   return 'ok';
 }
 
-const PACKS: Record<Lang, string> = { me: 'pak.', sq: 'pako', en: 'packs' };
+const PACKS: Record<Lang, string> = { de: 'Pkg.', sq: 'pako', en: 'packs' };
 /** Stock unit: m² products are stocked in packs, everything else in its sales unit. */
 export const stockUnit = (p: Pick<Product, 'unit'>, lang: Lang) => (p.unit === 'm2' ? PACKS[lang] : unitLabel(p.unit, lang));
 
@@ -27,8 +27,8 @@ export function variantCount(p: Pick<Product, 'options'>): number {
   return withValues.reduce((n, o) => n * o.values.length, 1);
 }
 
-/** Floor coverings and tiles are kept in the warehouse; the rest in the showroom (seed: PO-2026-014 → Tuzi). */
-const CATEGORY_LOCATION: Record<string, string> = { 'cat-podovi': 'loc-tz', 'cat-keramika': 'loc-tz' };
+/** Profiles, glass and fabrics for the systems are kept in the warehouse (Fushë Kosovë); accessories in the showroom. */
+const CATEGORY_LOCATION: Record<string, string> = { 'cat-bioclimatic': 'loc-wh', 'cat-glass-roof': 'loc-wh', 'cat-awning': 'loc-wh', 'cat-guillotine': 'loc-wh', 'cat-slide': 'loc-wh', 'cat-zip': 'loc-wh' };
 
 /**
  * Where a product is stocked: the destination of its latest purchase order, else its category's
@@ -103,7 +103,7 @@ export function fromDateInput(v: string) {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-/** CSV with ; separators (Excel in ME/AL locales) and quoted cells. */
+/** CSV with ; separators (Excel in DE/AL locales) and quoted cells. */
 export function toCsv(rows: (string | number)[][]) {
   const cell = (v: string | number) => {
     const s = String(v);

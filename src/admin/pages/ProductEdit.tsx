@@ -53,9 +53,9 @@ const blankProduct = (): ProductX => ({
   slug: '',
   sku: '',
   categoryId: '',
-  name: { me: '', sq: '', en: '' },
-  short: { me: '', sq: '', en: '' },
-  description: { me: '', sq: '', en: '' },
+  name: { de: '', sq: '', en: '' },
+  short: { de: '', sq: '', en: '' },
+  description: { de: '', sq: '', en: '' },
   price: 0,
   salePrice: null,
   unit: 'kom',
@@ -168,7 +168,7 @@ function Editor({ source }: { source?: ProductX }) {
 
   const [original, setOriginal] = useState<Form>(() => formFrom(source, collections));
   const [form, setForm] = useState<Form>(original);
-  const autoFor = (p: ProductX) => !p.slug || p.slug === slugify(p.name.me);
+  const autoFor = (p: ProductX) => !p.slug || p.slug === slugify(p.name.de);
   const [slugAuto, setSlugAuto] = useState(() => autoFor(original.p));
   const [tried, setTried] = useState(false);
   const [deleting, setDeleting] = useState<ProductX[]>([]);
@@ -193,13 +193,13 @@ function Editor({ source }: { source?: ProductX }) {
   const translations = useMemo(() => {
     const p = form.p;
     const all = [p.name, p.short, p.description, ...p.options.flatMap((o) => [o.name, ...o.values.map((v) => v.label)]), ...p.specs.flatMap((s) => [s.label, s.value])];
-    return { total: all.filter((v) => v.me.trim() || v.sq.trim() || v.en.trim()).length, miss: missingCounts(all) };
+    return { total: all.filter((v) => v.de.trim() || v.sq.trim() || v.en.trim()).length, miss: missingCounts(all) };
   }, [form.p]);
 
   const validate = (f: Form): Errors => {
     const p = compose(f);
     const e: Errors = {};
-    if (!p.name.me.trim()) e.name = t('e_name');
+    if (!p.name.de.trim()) e.name = t('e_name');
     const own = p.sku.trim().toUpperCase();
     if (own && takenSkus.has(own)) e.sku = t('e_skuDup', { sku: p.sku.trim(), name: takenSkus.get(own) ?? '' });
     const vs = f.variants.map((v) => v.sku.trim().toUpperCase()).filter(Boolean);
@@ -245,7 +245,7 @@ function Editor({ source }: { source?: ProductX }) {
     const now = new Date().toISOString();
     const pid = next0.id || uid('p');
     const seo = { title: next0.seo?.title?.trim() || undefined, description: next0.seo?.description?.trim() || undefined };
-    const slug = uniqueSlug(slugify(next0.slug) || slugify(next0.name.me) || pid, pid, allProducts);
+    const slug = uniqueSlug(slugify(next0.slug) || slugify(next0.name.de) || pid, pid, allProducts);
     const oldSlug = source?.slug;
     const redirects = [...(source?.redirects ?? [])];
     if (oldSlug && oldSlug !== slug && f.redirect && !redirects.includes(oldSlug)) redirects.push(oldSlug);
@@ -386,7 +386,7 @@ function Editor({ source }: { source?: ProductX }) {
       )}
     </span>
   );
-  const preview = useMemo<ProductX>(() => ({ ...composed, id: composed.id || 'preview', name: composed.name.me.trim() ? composed.name : { me: t('f_title'), sq: t('f_title'), en: t('f_title') } }), [composed, t]);
+  const preview = useMemo<ProductX>(() => ({ ...composed, id: composed.id || 'preview', name: composed.name.de.trim() ? composed.name : { de: t('f_title'), sq: t('f_title'), en: t('f_title') } }), [composed, t]);
   const slugChanged = !isNew && !!source?.slug && slugify(form.p.slug) !== source.slug && !!slugify(form.p.slug);
 
   return (
@@ -400,7 +400,7 @@ function Editor({ source }: { source?: ProductX }) {
         actions={
           <>
             {!isNew && origStatus === 'active' && (
-              <a href={href(`/proizvod/${original.p.slug}`)} target="_blank" rel="noreferrer" className={buttonClass({ variant: 'outline', size: 'sm', shape: 'rounded' })}>
+              <a href={href(`/product/${original.p.slug}`)} target="_blank" rel="noreferrer" className={buttonClass({ variant: 'outline', size: 'sm', shape: 'rounded' })}>
                 <ExternalLink className="h-4 w-4" /> <span className="max-sm:sr-only">{t('viewOnSite')}</span>
               </a>
             )}
@@ -443,7 +443,7 @@ function Editor({ source }: { source?: ProductX }) {
                       label={t('f_title')}
                       required
                       value={form.p.name}
-                      onChange={(name) => setForm((f) => ({ ...f, p: { ...f.p, name, slug: slugAuto ? slugify(name.me) : f.p.slug } }))}
+                      onChange={(name) => setForm((f) => ({ ...f, p: { ...f.p, name, slug: slugAuto ? slugify(name.de) : f.p.slug } }))}
                       className={cn(errors.name && '[&_input]:border-red-500 [&_input]:ring-4 [&_input]:ring-red-500/10')}
                     />
                     <FieldError>{errors.name}</FieldError>
@@ -511,7 +511,7 @@ function Editor({ source }: { source?: ProductX }) {
               }}
               onResetSlug={() => {
                 setSlugAuto(true);
-                setP({ slug: slugify(form.p.name.me) });
+                setP({ slug: slugify(form.p.name.de) });
               }}
               onSeo={(seo) => setP({ seo })}
               redirectFrom={slugChanged ? source?.slug : undefined}

@@ -13,30 +13,30 @@ import { manualKey, phone8, type CustomerRecord } from './model';
 import { useCustomerStore, type Marketing } from './store';
 
 const T = defineDict({
-  me: {
-    title: 'Novi kupac',
-    description: 'Za kupce iz salona, sa telefona ili sajma. Web kupci se dodaju automatski uz prvu narudžbu.',
-    firstName: 'Ime',
-    lastName: 'Prezime',
-    email: 'E-mail',
+  de: {
+    title: 'Neuer Kunde',
+    description: 'Für Kunden aus dem Showroom, per Telefon oder von Messen. Webkunden werden mit ihrer ersten Bestellung automatisch angelegt.',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    email: 'E-Mail',
     phone: 'Telefon',
-    city: 'Grad',
-    address: 'Adresa',
-    company: 'Firma (opciono)',
-    lang: 'Jezik komunikacije',
-    tags: 'Oznake',
-    tagsHint: 'Odvojite zarezom, npr. arhitekta, novogradnja',
-    consentTitle: 'Marketing saglasnost',
-    consentEmail: 'Pristaje na e-mail marketing',
-    consentSms: 'Pristaje na SMS poruke',
-    consentHint: 'Označite samo uz izričitu saglasnost kupca.',
-    errName: 'Unesite ime',
-    errContact: 'Unesite e-mail ili telefon',
-    errEmail: 'Neispravan e-mail',
-    errExists: 'Već postoji kupac sa ovim kontaktom: {name}',
-    cancel: 'Otkaži',
-    save: 'Dodaj kupca',
-    added: 'Kupac je dodat',
+    city: 'Stadt',
+    address: 'Adresse',
+    company: 'Firma (optional)',
+    lang: 'Kommunikationssprache',
+    tags: 'Tags',
+    tagsHint: 'Durch Kommas trennen, z. B. Architekt, Neubau',
+    consentTitle: 'Marketing-Einwilligung',
+    consentEmail: 'Stimmt E-Mail-Marketing zu',
+    consentSms: 'Stimmt SMS-Nachrichten zu',
+    consentHint: 'Nur mit ausdrücklicher Einwilligung des Kunden ankreuzen.',
+    errName: 'Geben Sie einen Vornamen ein',
+    errContact: 'Geben Sie eine E-Mail oder Telefonnummer ein',
+    errEmail: 'Ungültige E-Mail-Adresse',
+    errExists: 'Es gibt bereits einen Kunden mit diesem Kontakt: {name}',
+    cancel: 'Abbrechen',
+    save: 'Kunde hinzufügen',
+    added: 'Kunde hinzugefügt',
   },
   sq: {
     title: 'Klient i ri',
@@ -167,7 +167,7 @@ export function AddCustomerModal({ open, onClose, customers, cities, onCreated }
         <Input label={t('firstName')} required value={f.firstName} onChange={(e) => set('firstName', e.target.value)} error={tried ? errors.firstName : undefined} className="h-10! text-[14px]!" />
         <Input label={t('lastName')} value={f.lastName} onChange={(e) => set('lastName', e.target.value)} className="h-10! text-[14px]!" />
         <Input label={t('email')} type="email" value={f.email} onChange={(e) => set('email', e.target.value)} error={tried ? errors.email ?? errors.contact : undefined} className="h-10! text-[14px]!" />
-        <Input label={t('phone')} type="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+382 6_ ___ ___" error={tried && !errors.email ? errors.contact : undefined} className="h-10! text-[14px]!" />
+        <Input label={t('phone')} type="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+383 4_ ___ ___" error={tried && !errors.email ? errors.contact : undefined} className="h-10! text-[14px]!" />
         <div>
           <Input label={t('city')} value={f.city} list={listId} onChange={(e) => set('city', e.target.value)} className="h-10! text-[14px]!" />
           <datalist id={listId}>
@@ -179,7 +179,7 @@ export function AddCustomerModal({ open, onClose, customers, cities, onCreated }
         <Input label={t('address')} value={f.address} onChange={(e) => set('address', e.target.value)} className="h-10! text-[14px]!" />
         <Input label={t('company')} value={f.company} onChange={(e) => set('company', e.target.value)} className="h-10! text-[14px]!" />
         <Select label={t('lang')} value={f.lang} onChange={(e) => set('lang', e.target.value as Lang)} className="h-10! text-[14px]!">
-          {(['sq', 'me', 'en'] as Lang[]).map((l) => (
+          {(['sq', 'de', 'en'] as Lang[]).map((l) => (
             <option key={l} value={l}>
               {tx(`lang_${l}`)}
             </option>

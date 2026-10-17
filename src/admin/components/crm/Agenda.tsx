@@ -8,17 +8,17 @@ import { cn } from '@/lib/utils';
 import { dueOf, dueState } from '@/admin/components/contacts/model';
 
 const T = defineDict({
-  me: {
-    new: 'Novi upiti',
-    newSub: '{n} nepregledano',
-    newSubNone: 'Sve je pregledano',
-    unassigned: 'Bez odgovornog',
-    unassignedSub: 'Otvoreni upiti bez osobe',
-    overdue: 'Rok je prošao',
-    overdueSub: 'Danas na redu: {n}',
-    visits: 'Termini (7 dana)',
-    visitsSub: 'Iz upita · otvori kalendar',
-    filterOn: 'Filter je uključen — kliknite da ga uklonite',
+  de: {
+    new: 'Neue Anfragen',
+    newSub: '{n} ungelesen',
+    newSubNone: 'Alles gelesen',
+    unassigned: 'Ohne Zuständigen',
+    unassignedSub: 'Offene Anfragen ohne zuständige Person',
+    overdue: 'Überfällig',
+    overdueSub: 'Heute fällig: {n}',
+    visits: 'Termine (7 Tage)',
+    visitsSub: 'Aus Anfragen · Kalender öffnen',
+    filterOn: 'Filter aktiv — zum Entfernen klicken',
   },
   sq: {
     new: 'Kërkesa të reja',

@@ -178,7 +178,7 @@ export function ImportModal({ open, onClose, onImported }: { open: boolean; onCl
                 <Button variant="outline" shape="rounded" size="xs" icon={<Download className="h-3.5 w-3.5" />} onClick={() => downloadTemplate(t, lang)}>
                   {t('imp_template')}
                 </Button>
-                <Button variant="outline" shape="rounded" size="xs" icon={<Sparkles className="h-3.5 w-3.5" />} onClick={() => load(SAMPLE_CSV, 'selca-primjer.csv')}>
+                <Button variant="outline" shape="rounded" size="xs" icon={<Sparkles className="h-3.5 w-3.5" />} onClick={() => load(SAMPLE_CSV, 'tersun-sample.csv')}>
                   {t('imp_sample')}
                 </Button>
               </span>
@@ -188,7 +188,7 @@ export function ImportModal({ open, onClose, onImported }: { open: boolean; onCl
               onChange={(e) => load(e.target.value, null)}
               rows={7}
               spellCheck={false}
-              placeholder={'Naziv;SKU;Kategorija;Cijena;Zalihe\nSobna vrata Arco;SC-VR-110;Vrata;319,00;8'}
+              placeholder={'Bezeichnung;SKU;Kategorie;Preis;Bestand\nLED-Strip RGBW 5 m;TS-AC-707;Zubehör;249,00;24'}
               className="w-full resize-y rounded-lg border border-line bg-white px-3 py-2.5 font-mono text-[12px] leading-relaxed text-ink outline-none transition placeholder:text-muted/50 focus:border-ink/40 focus:ring-4 focus:ring-ink/5"
             />
           </div>
@@ -427,7 +427,7 @@ function DuplicateReport({ rows, opts }: { rows: ImportRow[]; opts: ImportOption
           {inCatalog.map((r) => (
             <li key={`c${r.line}`} className="flex items-start gap-1.5">
               <RefreshCw className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-soft" />
-              {t('imp_dupInCatalog', { sku: r.sku, name: r.existing?.name.me ?? '', action: opts.onExisting === 'update' ? t('imp_actUpdate') : t('imp_actSkip') })}
+              {t('imp_dupInCatalog', { sku: r.sku, name: r.existing?.name.de ?? '', action: opts.onExisting === 'update' ? t('imp_actUpdate') : t('imp_actSkip') })}
             </li>
           ))}
         </ul>

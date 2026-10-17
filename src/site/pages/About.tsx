@@ -12,53 +12,53 @@ import { useSettings } from '@/store/hooks';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    eyebrow: 'O nama',
-    title: 'Gradimo povjerenje, *ugrađujemo kvalitet*.',
-    ourWork: 'Naše realizacije',
-    country: 'Crna Gora',
-    floatSub: 'Prodaja & ugradnja',
-    valuesEyebrow: 'Naše vrijednosti',
-    valuesTitle: 'Ono u šta *vjerujemo*',
-    valuesText: 'Četiri principa koja prate svaki projekat — od prvog poziva do posljednje lajsne.',
-    v1t: 'Kvalitet',
-    v1: 'Radimo samo sa provjerenim proizvođačima i materijalima koje bismo ugradili i u sopstveni dom.',
-    v2t: 'Pouzdanost',
-    v2: 'Dogovoreni rokovi i cijene se poštuju. Ono što piše u ponudi — to i dobijate, bez skrivenih troškova.',
-    v3t: 'Preciznost',
-    v3: 'Svaki milimetar je važan — zato sami mjerimo, sami ugrađujemo i provjeravamo svaki detalj prije primopredaje.',
-    v4t: 'Lokalno znanje',
-    v4: 'Poznajemo crnogorsku klimu, od primorske vlage do sjevernih zima, i biramo rješenja koja traju.',
-    allServices: 'Sve usluge',
-    showEyebrow: 'Salon',
-    showTitle: 'Posjetite naš *salon*',
-    showText: 'Pogledajte i dodirnite uzorke vrata, podova i keramike, i uz kafu razgovarajte sa našim savjetnicima o svom projektu.',
-    address: 'Adresa',
+  de: {
+    eyebrow: 'Über uns',
+    title: 'Wir gestalten Räume *unter freiem Himmel*.',
+    ourWork: 'Unsere Projekte',
+    country: 'Kosovo · Europa · USA',
+    floatSub: 'Planung & Montage',
+    valuesEyebrow: 'Unsere Werte',
+    valuesTitle: 'Woran wir *glauben*',
+    valuesText: 'Vier Prinzipien, die jedes Projekt begleiten — vom ersten Entwurf bis zur Übergabe auf Ihrer Terrasse.',
+    v1t: 'Qualität',
+    v1: 'Pulverbeschichtetes Aluminium, gehärtetes Glas, deutsche Motoren und Tücher — nur Komponenten, die jahrzehntelang halten.',
+    v2t: 'Zuverlässigkeit',
+    v2: 'Vereinbarte Termine und Preise werden eingehalten. Was im Angebot steht, bekommen Sie auch — ohne versteckte Kosten.',
+    v3t: 'Präzision',
+    v3: 'Jeder Millimeter zählt — deshalb vermessen wir vor Ort, planen in 3D, montieren mit eigenen Teams und prüfen jedes Detail vor der Übergabe.',
+    v4t: 'Für jedes Klima',
+    v4: 'Unsere Systeme sind für Sonne, Wind, Regen und Schneelast ausgelegt — vom Balkan über die Alpen bis in die USA.',
+    allServices: 'Alle Leistungen',
+    showEyebrow: 'Showroom',
+    showTitle: 'Besuchen Sie unseren *Showroom*',
+    showText: 'Erleben Sie Pergolen, Glassysteme und ZIP-Screens in Bewegung und besprechen Sie Ihr Projekt bei einem Kaffee mit unseren Beratern.',
+    address: 'Adresse',
     phone: 'Telefon',
-    email: 'E-mail',
-    openMap: 'Otvori mapu',
+    email: 'E-Mail',
+    openMap: 'Karte öffnen',
   },
   sq: {
     eyebrow: 'Rreth nesh',
-    title: 'Ndërtojmë besim, *montojmë cilësi*.',
+    title: 'Krijojmë hapësira *nën qiell të hapur*.',
     ourWork: 'Realizimet tona',
-    country: 'Mali i Zi',
-    floatSub: 'Shitje & montim',
+    country: 'Kosovë · Evropë · SHBA',
+    floatSub: 'Projektim & montim',
     valuesEyebrow: 'Vlerat tona',
     valuesTitle: 'Ajo në të cilën *besojmë*',
-    valuesText: 'Katër parime që udhëheqin çdo projekt — nga thirrja e parë deri te listela e fundit.',
+    valuesText: 'Katër parime që udhëheqin çdo projekt — nga skica e parë deri te dorëzimi në tarracën tuaj.',
     v1t: 'Cilësia',
-    v1: 'Punojmë vetëm me prodhues të verifikuar dhe me materiale që do t’i montonim edhe në shtëpinë tonë.',
+    v1: 'Alumin i lyer me pluhur, xham i kalitur, motorë dhe shtofa gjermane — vetëm komponentë që zgjasin dekada.',
     v2t: 'Besueshmëria',
     v2: 'Afatet dhe çmimet e dakorduara respektohen. Ajo që shkruan në ofertë — atë merrni, pa kosto të fshehura.',
     v3t: 'Saktësia',
-    v3: 'Çdo milimetër ka rëndësi — prandaj masim vetë, montojmë vetë dhe kontrollojmë çdo detaj para dorëzimit.',
-    v4t: 'Njohuri vendore',
-    v4: 'E njohim klimën e Malit të Zi, nga lagështia bregdetare te dimrat e veriut, dhe zgjedhim zgjidhje që zgjasin.',
+    v3: 'Çdo milimetër ka rëndësi — prandaj masim në vend, projektojmë në 3D, montojmë me ekipet tona dhe kontrollojmë çdo detaj para dorëzimit.',
+    v4t: 'Për çdo klimë',
+    v4: 'Sistemet tona janë ndërtuar për diell, erë, shi dhe ngarkesë bore — nga Ballkani te Alpet e deri në SHBA.',
     allServices: 'Të gjitha shërbimet',
     showEyebrow: 'Salloni',
     showTitle: 'Vizitoni *sallonin* tonë',
-    showText: 'Shikoni dhe prekni mostrat e dyerve, dyshemeve dhe pllakave, dhe me një kafe bisedoni me këshilltarët tanë për projektin tuaj.',
+    showText: 'Shikoni pergolat, sistemet e xhamit dhe perdet ZIP në lëvizje dhe me një kafe bisedoni me këshilltarët tanë për projektin tuaj.',
     address: 'Adresa',
     phone: 'Telefoni',
     email: 'E-mail',
@@ -66,25 +66,25 @@ const T = defineDict({
   },
   en: {
     eyebrow: 'About us',
-    title: 'We build trust and *install quality*.',
+    title: 'We shape spaces *under the open sky*.',
     ourWork: 'Our projects',
-    country: 'Montenegro',
-    floatSub: 'Supply & installation',
+    country: 'Kosovo · Europe · USA',
+    floatSub: 'Design & installation',
     valuesEyebrow: 'Our values',
     valuesTitle: 'What we *stand for*',
-    valuesText: 'Four principles behind every project — from the first call to the last skirting board.',
+    valuesText: 'Four principles behind every project — from the first sketch to handover on your terrace.',
     v1t: 'Quality',
-    v1: 'We only work with proven manufacturers and materials we would happily fit in our own homes.',
+    v1: 'Powder-coated aluminium, toughened glass, German motors and fabrics — only components built to last for decades.',
     v2t: 'Reliability',
     v2: 'Agreed deadlines and prices are kept. What’s in the quote is what you get — no hidden costs.',
     v3t: 'Precision',
-    v3: 'Every millimetre matters — so we measure, fit and check every detail ourselves before handover.',
-    v4t: 'Local know-how',
-    v4: 'We know Montenegro’s climate, from coastal humidity to northern winters, and choose solutions that last.',
+    v3: 'Every millimetre matters — so we survey on site, design in 3D, install with our own crews and check every detail before handover.',
+    v4t: 'Built for every climate',
+    v4: 'Our systems are engineered for sun, wind, rain and snow load — from the Balkans to the Alps and the USA.',
     allServices: 'All services',
     showEyebrow: 'Showroom',
     showTitle: 'Visit our *showroom*',
-    showText: 'See and touch samples of doors, floors and tiles, and talk your project through with our advisers over a coffee.',
+    showText: 'See pergolas, glass systems and ZIP screens in motion, and talk your project through with our advisers over a coffee.',
     address: 'Address',
     phone: 'Phone',
     email: 'E-mail',
@@ -133,10 +133,10 @@ export default function About() {
             </h1>
             <p className="mt-7 max-w-xl text-[17.5px] leading-[1.7] text-ink-soft">{l(settings.about)}</p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <ButtonLink to="/projekti" variant="dark" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+              <ButtonLink to="/projects" variant="dark" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {t('ourWork')}
               </ButtonLink>
-              <ButtonLink to="/kontakt" variant="outline" size="lg">
+              <ButtonLink to="/contact" variant="outline" size="lg">
                 {ts('nav_contact')}
               </ButtonLink>
             </div>
@@ -202,7 +202,7 @@ export default function About() {
         <ProcessSteps
           data={process}
           action={
-            <ButtonLink to="/usluge" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
+            <ButtonLink to="/services" variant="outline" iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('allServices')}
             </ButtonLink>
           }
@@ -215,7 +215,7 @@ export default function About() {
           <Reveal>
             <div className="grid overflow-hidden rounded-[36px] bg-white ring-1 ring-line lg:grid-cols-[1.05fr_1fr]">
               <div className="relative min-h-[300px] bg-sand sm:min-h-[380px] lg:min-h-[600px]">
-                <Img src="/images/hero/arch.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
+                <Img src="/images/misc/view.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-1.5 text-[12px] font-bold text-ink shadow-sm backdrop-blur-md">
                   <MapPin className="h-3.5 w-3.5 text-brand-600" /> {settings.city}
                 </div>
@@ -271,7 +271,7 @@ export default function About() {
         </div>
       </section>
 
-      <CtaBand image="/images/misc/house-dusk.webp" />
+      <CtaBand image="/images/misc/night.webp" />
     </>
   );
 }

@@ -1,5 +1,5 @@
 // Mini storefront that shows the theme settings BEFORE they are saved (logo, brand colour, fonts, spacing).
-// It sits inside the neutral CMS, so the warm SELCA tokens + brand scale are restored locally (storefrontVars).
+// It sits inside the neutral CMS, so the warm TERSUN tokens + brand scale are restored locally (storefrontVars).
 import { useMemo } from 'react';
 import { ArrowRight, Search, ShoppingBag } from 'lucide-react';
 import type { Lang } from '@/lib/types';

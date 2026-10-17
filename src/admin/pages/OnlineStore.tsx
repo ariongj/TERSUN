@@ -169,7 +169,7 @@ export default function OnlineStore() {
                   </div>
                   {normHex(form.brandColor) !== DEFAULT_BRAND && (
                     <Button variant="ghost" size="sm" shape="rounded" icon={<RotateCcw className="h-3.5 w-3.5" />} onClick={() => pickColor(DEFAULT_BRAND)}>
-                      {t('preset_selca')}
+                      {t('preset_tersun')}
                     </Button>
                   )}
                 </div>
@@ -353,7 +353,7 @@ export default function OnlineStore() {
                     <div className="mb-1.5 text-[13px] font-semibold text-ink-soft">{t('maintPreview')}</div>
                     <div className="grid min-h-[132px] place-items-center rounded-xl border border-line bg-paper px-5 py-6 text-center" style={storefrontVars(form.brandColor)}>
                       <div>
-                        <Logo className="mx-auto h-9!" />
+                        <Logo className="mx-auto h-5!" />
                         <p className="mx-auto mt-3 max-w-[300px] text-[12.5px] leading-relaxed text-ink-soft">{lt(form.theme.maintenance.message, lang)}</p>
                       </div>
                     </div>
@@ -367,10 +367,10 @@ export default function OnlineStore() {
                   <div>
                     <div className="text-[14px] font-semibold text-ink">{t('languages')}</div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {LANGS.filter((x) => settings.languages[x.code] || x.code === 'me').map((x) => (
+                      {LANGS.filter((x) => settings.languages[x.code] || x.code === 'de').map((x) => (
                         <span key={x.code} className="inline-flex h-7 items-center gap-1.5 rounded-full border border-line bg-white px-2.5 text-[12.5px] font-semibold text-ink">
                           <Check className="h-3.5 w-3.5" /> {x.label}
-                          {x.code === 'me' && <span className="font-normal text-muted">· {t('langDefault')}</span>}
+                          {x.code === 'de' && <span className="font-normal text-muted">· {t('langDefault')}</span>}
                         </span>
                       ))}
                     </div>
@@ -446,7 +446,7 @@ function ThemeCard() {
         <div className="flex flex-col p-5 sm:p-6">
           <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted">{t('currentTheme')}</div>
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
-            <h2 className="text-[20px] font-bold tracking-tight text-ink">SELCA Home</h2>
+            <h2 className="text-[20px] font-bold tracking-tight text-ink">TERSUN Home</h2>
             <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 text-[12px] font-semibold text-emerald-800 ring-1 ring-inset ring-emerald-700/15">
               <span className="h-2 w-2 rounded-full bg-emerald-600" /> {t('live')}
             </span>

@@ -56,7 +56,7 @@ export function Footer() {
         {/* Columns */}
         <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <Logo tone="light" className="h-14" />
+            <Logo tone="light" tagline className="h-12" />
             <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-paper/60">{t('footerAbout')}</p>
             <div className="mt-6 flex gap-2">
               <a href={`https://www.instagram.com/${settings.instagram}/`} target="_blank" rel="noreferrer" className="grid h-10 w-10 place-items-center rounded-full bg-white/[0.08] transition-colors hover:bg-white hover:text-ink" aria-label="Instagram">
@@ -219,13 +219,13 @@ function DefaultColumns() {
             <ul className="space-y-2.5 text-[14.5px]">
               {cats.map((c) => (
                 <li key={c.id}>
-                  <Link to={`/proizvodi/${c.slug}`} className="link-u text-paper/80 hover:text-white">
+                  <Link to={`/shop/${c.slug}`} className="link-u text-paper/80 hover:text-white">
                     {l(c.name)}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link to="/proizvodi?akcija=1" className="link-u font-semibold text-brand-200 hover:text-white">
+                <Link to="/shop?sale=1" className="link-u font-semibold text-brand-200 hover:text-white">
                   {t('sale')}
                 </Link>
               </li>
@@ -236,11 +236,11 @@ function DefaultColumns() {
             <h3 className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-paper/45">{t('footer_company')}</h3>
             <ul className="space-y-2.5 text-[14.5px]">
               {[
-                ['/o-nama', t('nav_about')],
-                ['/usluge', t('nav_services')],
-                ['/projekti', t('nav_projects')],
-                ['/savjeti', t('nav_blog')],
-                ['/kontakt', t('nav_contact')],
+                ['/about', t('nav_about')],
+                ['/services', t('nav_services')],
+                ['/projects', t('nav_projects')],
+                ['/journal', t('nav_blog')],
+                ['/contact', t('nav_contact')],
               ].map(([to, label]) => (
                 <li key={to}>
                   <Link to={to} className="link-u text-paper/80 hover:text-white">
@@ -253,7 +253,7 @@ function DefaultColumns() {
             <ul className="space-y-2.5 text-[14.5px]">
               {pages.map((p) => (
                 <li key={p.id}>
-                  <Link to={`/stranica/${p.slug}`} className="link-u text-paper/80 hover:text-white">
+                  <Link to={`/page/${p.slug}`} className="link-u text-paper/80 hover:text-white">
                     {l(p.title)}
                   </Link>
                 </li>

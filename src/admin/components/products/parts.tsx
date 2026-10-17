@@ -137,7 +137,7 @@ export function TextInput({ prefix, suffix, invalid, mono, size = 'md', wrapClas
 
 /**
  * Numeric text field that accepts "12,90" as well as "12.90" and allows an empty value.
- * Values are shown with the admin locale's decimal separator (12,90 in ME/SQ, 12.90 in EN);
+ * Values are shown with the admin locale's decimal separator (12,90 in DE/SQ, 12.90 in EN);
  * `money` pads fractions to two decimals. `zeroAsEmpty` shows 0 as an empty field (with the placeholder).
  */
 export function NumInput({
@@ -244,11 +244,11 @@ export function Segmented<T extends string>({ value, onChange, options, size = '
   );
 }
 
-/** ME / SQ / EN switch for a whole card; amber dot = translations missing in that language. */
+/** DE / SQ / EN switch for a whole card; amber dot = translations missing in that language. */
 export function LangTabs({ value, onChange, missing, title }: { value: Lang; onChange: (l: Lang) => void; missing?: Partial<Record<Lang, number>>; title?: string }) {
   return (
     <div className="flex rounded-lg bg-canvas p-0.5" title={title}>
-      {(['me', 'sq', 'en'] as Lang[]).map((l) => (
+      {(['de', 'sq', 'en'] as Lang[]).map((l) => (
         <button
           key={l}
           type="button"
@@ -263,15 +263,15 @@ export function LangTabs({ value, onChange, missing, title }: { value: Lang; onC
   );
 }
 
-/** Single-line localized input driven by an external language (see LangTabs). Shows the ME text as a hint when a translation is missing. */
+/** Single-line localized input driven by an external language (see LangTabs). Shows the DE text as a hint when a translation is missing. */
 export function MiniL10n({ value, lang, onChange, placeholder, className, invalid }: { value: L10n; lang: Lang; onChange: (v: L10n) => void; placeholder?: string; className?: string; invalid?: boolean }) {
-  const v = value ?? { me: '', sq: '', en: '' };
-  const missing = lang !== 'me' && !v[lang]?.trim() && !!v.me?.trim();
+  const v = value ?? { de: '', sq: '', en: '' };
+  const missing = lang !== 'de' && !v[lang]?.trim() && !!v.de?.trim();
   return (
     <div className={cn('relative min-w-0', className)}>
       <input
         value={v[lang] ?? ''}
-        placeholder={missing ? v.me : placeholder}
+        placeholder={missing ? v.de : placeholder}
         aria-invalid={invalid || undefined}
         onChange={(e) => onChange({ ...v, [lang]: e.target.value })}
         className={cn(
@@ -286,10 +286,10 @@ export function MiniL10n({ value, lang, onChange, placeholder, className, invali
 
 /** Count empty translations per language among a set of localized values. */
 export function missingCounts(values: L10n[]): Record<Lang, number> {
-  const out: Record<Lang, number> = { me: 0, sq: 0, en: 0 };
+  const out: Record<Lang, number> = { de: 0, sq: 0, en: 0 };
   for (const v of values) {
-    if (!v || !(v.me?.trim() || v.sq?.trim() || v.en?.trim())) continue;
-    for (const l of ['me', 'sq', 'en'] as Lang[]) if (!v[l]?.trim()) out[l] += 1;
+    if (!v || !(v.de?.trim() || v.sq?.trim() || v.en?.trim())) continue;
+    for (const l of ['de', 'sq', 'en'] as Lang[]) if (!v[l]?.trim()) out[l] += 1;
   }
   return out;
 }

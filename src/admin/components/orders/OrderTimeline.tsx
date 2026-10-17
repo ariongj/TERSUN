@@ -13,20 +13,20 @@ import { actorName, isCarrierKey, isRecent } from './helpers';
 import { od } from './dict';
 
 const T = defineDict({
-  me: {
-    placeholder: 'Dodajte internu napomenu (vidi je samo tim)…',
-    add: 'Dodaj',
-    added: 'Napomena je dodata',
+  de: {
+    placeholder: 'Interne Notiz hinzufügen (nur für Ihr Team sichtbar)…',
+    add: 'Hinzufügen',
+    added: 'Notiz hinzugefügt',
     shortcut: 'Ctrl + Enter',
-    ev_created: 'Narudžba primljena preko web prodavnice',
-    ev_createdStaff: 'Narudžbu je kreirao tim',
-    ev_fromDraft: 'Konvertovana iz nacrta {n}',
+    ev_created: 'Bestellung über den Onlineshop eingegangen',
+    ev_createdStaff: 'Bestellung vom Team erstellt',
+    ev_fromDraft: 'Aus Entwurf {n} umgewandelt',
     ev_status: 'Status: „{s}“',
-    ev_cancelled: 'Narudžba je otkazana',
-    ev_note: 'Interna napomena',
-    ev_payment: 'Uplata je evidentirana',
-    ev_refund: 'Refundacija',
-    empty: 'Još nema aktivnosti.',
+    ev_cancelled: 'Bestellung wurde storniert',
+    ev_note: 'Interne Notiz',
+    ev_payment: 'Zahlung erfasst',
+    ev_refund: 'Erstattung',
+    empty: 'Noch keine Aktivitäten.',
   },
   sq: {
     placeholder: 'Shtoni një shënim të brendshëm (e sheh vetëm ekipi)…',

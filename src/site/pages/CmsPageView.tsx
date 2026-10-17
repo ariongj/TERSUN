@@ -15,16 +15,16 @@ import { date } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    eyebrow: 'Informacije za kupce',
-    updated: 'Ažurirano {date}',
-    pages: 'Korisne informacije',
-    help_title: 'Imate pitanje?',
-    help_text: 'Naš tim vam rado pomaže — pozovite nas ili pošaljite poruku, odgovaramo istog dana.',
-    contact: 'Pišite nam',
-    nf_eyebrow: 'Stranica nije pronađena',
-    nf_title: 'Ova stranica *ne postoji*',
-    nf_text: 'Možda je uklonjena ili je adresa pogrešno unesena. Evo stranica koje bi vam mogle pomoći.',
+  de: {
+    eyebrow: 'Kundeninformationen',
+    updated: 'Aktualisiert am {date}',
+    pages: 'Nützliche Informationen',
+    help_title: 'Haben Sie eine Frage?',
+    help_text: 'Unser Team hilft Ihnen gerne — rufen Sie uns an oder schreiben Sie uns, wir antworten noch am selben Tag.',
+    contact: 'Schreiben Sie uns',
+    nf_eyebrow: 'Seite nicht gefunden',
+    nf_title: 'Diese Seite *existiert nicht*',
+    nf_text: 'Möglicherweise wurde sie entfernt oder die Adresse wurde falsch eingegeben. Hier sind Seiten, die Ihnen weiterhelfen könnten.',
     nf_contact: 'Kontakt',
   },
   sq: {
@@ -81,7 +81,7 @@ export default function CmsPageView() {
           return (
             <li key={p.id}>
               <Link
-                to={`/stranica/${p.slug}`}
+                to={`/page/${p.slug}`}
                 aria-current={current ? 'page' : undefined}
                 className={cn(
                   'group flex items-center gap-3 rounded-2xl px-3 py-3 text-[14.5px] font-semibold transition-colors',
@@ -113,7 +113,7 @@ export default function CmsPageView() {
             <ButtonLink to="/" variant="dark" iconRight={<ArrowRight className="h-4 w-4" />}>
               {c('home')}
             </ButtonLink>
-            <ButtonLink to="/kontakt" variant="outline">
+            <ButtonLink to="/contact" variant="outline">
               {t('nf_contact')}
             </ButtonLink>
           </>
@@ -174,7 +174,7 @@ export default function CmsPageView() {
                     {l(settings.hours)}
                   </li>
                 </ul>
-                <ButtonLink to="/kontakt" variant="light" className="mt-7 w-full" iconRight={<ArrowRight className="h-4 w-4" />}>
+                <ButtonLink to="/contact" variant="light" className="mt-7 w-full" iconRight={<ArrowRight className="h-4 w-4" />}>
                   {t('contact')}
                 </ButtonLink>
               </div>

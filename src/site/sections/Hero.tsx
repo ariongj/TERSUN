@@ -33,12 +33,16 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
       {/* Images */}
       {slides.map((sl, k) => (
         <div key={sl.id} className={cn('absolute inset-0 -z-20 transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
-          <img
-            src={sl.image}
-            alt=""
-            loading={k === 0 ? 'eager' : 'lazy'}
-            className={cn('h-full w-full object-cover will-change-transform', k === i ? 'animate-[kenburns_9s_ease-out_both]' : '')}
-          />
+          {/\.mp4$/i.test(sl.image) ? (
+            <video src={sl.image} poster={sl.image.replace(/\.mp4$/i, '-poster.jpg')} autoPlay muted loop playsInline preload={k === 0 ? 'auto' : 'metadata'} className="h-full w-full object-cover" />
+          ) : (
+            <img
+              src={sl.image}
+              alt=""
+              loading={k === 0 ? 'eager' : 'lazy'}
+              className={cn('h-full w-full object-cover will-change-transform', k === i ? 'animate-[kenburns_9s_ease-out_both]' : '')}
+            />
+          )}
         </div>
       ))}
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/80 via-ink/40 to-ink/5" />
@@ -73,7 +77,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
               <ButtonLink to={s.primary.href} size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
                 {l(s.primary.label)}
               </ButtonLink>
-              <ButtonLink to={s.secondary.href} size="lg" variant="outlineLight" icon={s.secondary.href.includes('mjerenje') ? <Ruler className="h-4 w-4" /> : undefined}>
+              <ButtonLink to={s.secondary.href} size="lg" variant="outlineLight" icon={s.secondary.href.includes('consultation') ? <Ruler className="h-4 w-4" /> : undefined}>
                 {l(s.secondary.label)}
               </ButtonLink>
             </motion.div>
@@ -111,7 +115,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
         </div>
       )}
 
-      <Link to="/proizvodi" className="sr-only">
+      <Link to="/shop" className="sr-only">
         {t('allProducts')}
       </Link>
     </section>

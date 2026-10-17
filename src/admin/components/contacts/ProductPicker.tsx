@@ -10,7 +10,7 @@ import { searchProducts } from '@/lib/search';
 import type { Product } from '@/lib/types';
 
 const T = defineDict({
-  me: { title: 'Dodaj iz kataloga', searchPh: 'Naziv ili SKU…', empty: 'Nema proizvoda za ovu pretragu.', onRequest: 'na upit', draft: 'nacrt' },
+  de: { title: 'Aus dem Katalog hinzufügen', searchPh: 'Name oder SKU…', empty: 'Keine Produkte für diese Suche.', onRequest: 'auf Anfrage', draft: 'Entwurf' },
   sq: { title: 'Shto nga katalogu', searchPh: 'Emri ose SKU…', empty: 'Nuk ka produkte për këtë kërkim.', onRequest: 'sipas kërkesës', draft: 'draft' },
   en: { title: 'Add from catalogue', searchPh: 'Name or SKU…', empty: 'No products for this search.', onRequest: 'on request', draft: 'draft' },
 });

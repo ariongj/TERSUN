@@ -24,35 +24,35 @@ import { date, timeAgo } from '@/lib/format';
 import { cn, slugify, thumb, uid } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    newPost: 'Novi članak',
-    newPostText: 'Članak za blog „Savjeti“ — vodiči, savjeti i inspiracija za kupce.',
-    title: 'Naslov članka',
-    titlePh: 'npr. Kako izabrati pravi laminat',
-    category: 'Kategorija',
-    categoryHint: 'Prikazuje se kao tema članka na sajtu.',
-    quickPick: 'Postojeće:',
-    body: 'Tekst članka',
-    cover: 'Naslovna fotografija',
-    coverHint: 'Preporučeno 1600 × 1000 px, pejzažni format.',
-    readMinutes: 'Vrijeme čitanja',
-    min: 'min',
-    auto: 'Izračunaj iz teksta (~{n} min)',
-    saved: 'Članak je sačuvan',
-    created: 'Članak je kreiran',
-    deleteTitle: 'Obrisati članak „{name}“?',
-    deleteText: 'Članak i svi njegovi prevodi biće trajno uklonjeni.',
-    fieldTitle: 'Naslov',
-    fieldExcerpt: 'Sažetak',
-    fieldBody: 'Tekst',
-    fieldTag: 'Kategorija',
-    readMeta: '{n} min čitanja',
+  de: {
+    newPost: 'Neuer Artikel',
+    newPostText: 'Artikel für den Blog „Ratgeber“ — Leitfäden, Tipps und Inspiration für Kunden.',
+    title: 'Artikeltitel',
+    titlePh: 'z. B. So wählen Sie die richtige Pergola',
+    category: 'Kategorie',
+    categoryHint: 'Wird auf der Website als Thema des Artikels angezeigt.',
+    quickPick: 'Vorhanden:',
+    body: 'Artikeltext',
+    cover: 'Titelbild',
+    coverHint: 'Empfohlen 1600 × 1000 px, Querformat.',
+    readMinutes: 'Lesezeit',
+    min: 'Min.',
+    auto: 'Aus dem Text berechnen (~{n} Min.)',
+    saved: 'Artikel gespeichert',
+    created: 'Artikel erstellt',
+    deleteTitle: 'Artikel „{name}“ löschen?',
+    deleteText: 'Der Artikel und alle seine Übersetzungen werden dauerhaft entfernt.',
+    fieldTitle: 'Titel',
+    fieldExcerpt: 'Auszug',
+    fieldBody: 'Text',
+    fieldTag: 'Kategorie',
+    readMeta: '{n} Min. Lesezeit',
   },
   sq: {
     newPost: 'Artikull i ri',
     newPostText: 'Artikull për blogun „Këshilla“ — udhëzues, këshilla dhe frymëzim për klientët.',
     title: 'Titulli i artikullit',
-    titlePh: 'p.sh. Si të zgjidhni laminatin e duhur',
+    titlePh: 'p.sh. Si të zgjidhni pergolën e duhur',
     category: 'Kategoria',
     categoryHint: 'Shfaqet si tema e artikullit në faqe.',
     quickPick: 'Ekzistuese:',
@@ -76,7 +76,7 @@ const T = defineDict({
     newPost: 'New article',
     newPostText: 'An article for the “Advice” blog — guides, tips and inspiration for customers.',
     title: 'Article title',
-    titlePh: 'e.g. How to choose the right laminate',
+    titlePh: 'e.g. How to choose the right pergola',
     category: 'Category',
     categoryHint: 'Shown as the article topic on the site.',
     quickPick: 'Existing:',
@@ -106,7 +106,7 @@ const blankPost = (): PostX => ({
   body: emptyL10n(),
   cover: '',
   tag: emptyL10n(),
-  author: 'SELCA tim',
+  author: 'TERSUN Studio',
   readMinutes: 3,
   publishedAt: new Date().toISOString(),
   published: false,
@@ -151,26 +151,26 @@ function PostEditor({ id }: { id: string }) {
 
   const slugTaken = useMemo(() => !!draft.slug && posts.some((p) => p.id !== draft.id && p.slug === draft.slug), [posts, draft.slug, draft.id]);
   const errors = {
-    title: !draft.title.me.trim() ? te('titleRequired') : undefined,
+    title: !draft.title.de.trim() ? te('titleRequired') : undefined,
     slug: !draft.slug.trim() ? te('slugRequired') : slugTaken ? te('slugTaken') : undefined,
   };
 
   /** Categories already used by other articles — one-click reuse keeps them consistent. */
   const knownCats = useMemo(() => {
     const seen = new Map<string, L10n>();
-    posts.forEach((p) => p.tag.me.trim() && !seen.has(p.tag.me.trim().toLowerCase()) && seen.set(p.tag.me.trim().toLowerCase(), p.tag));
+    posts.forEach((p) => p.tag.de.trim() && !seen.has(p.tag.de.trim().toLowerCase()) && seen.set(p.tag.de.trim().toLowerCase(), p.tag));
     return [...seen.values()];
   }, [posts]);
-  const authors = useMemo(() => Array.from(new Set(['SELCA tim', ...staff.filter((s) => s.active).map((s) => s.name), ...posts.map((p) => p.author)].filter(Boolean))), [staff, posts]);
+  const authors = useMemo(() => Array.from(new Set(['TERSUN Studio', ...staff.filter((s) => s.active).map((s) => s.name), ...posts.map((p) => p.author)].filter(Boolean))), [staff, posts]);
   const tagSuggestions = useMemo(() => Array.from(new Set(posts.flatMap((p) => p.tags ?? []))), [posts]);
 
-  const suggestedMinutes = readMinutesFor(draft.body.me);
-  const setTitle = (title: L10n) => patch(slugAuto ? { title, slug: slugify(title.me) } : { title });
+  const suggestedMinutes = readMinutesFor(draft.body.de);
+  const setTitle = (title: L10n) => patch(slugAuto ? { title, slug: slugify(title.de) } : { title });
 
   const save = () => {
     if (readOnly || (!dirty && !isNew)) return;
     const clean: PostX = { ...draft, slug: slugify(draft.slug), readMinutes: Math.max(1, Math.round(draft.readMinutes || 1)) };
-    if (!clean.title.me.trim() || !clean.slug || slugTaken) {
+    if (!clean.title.de.trim() || !clean.slug || slugTaken) {
       setShowErrors(true);
       toast.error(te('fixErrors'));
       return;
@@ -212,7 +212,7 @@ function PostEditor({ id }: { id: string }) {
     );
   }
 
-  const url = `/savjeti/${draft.slug || '…'}`;
+  const url = `/journal/${draft.slug || '…'}`;
 
   return (
     <div className="pb-24">
@@ -307,12 +307,12 @@ function PostEditor({ id }: { id: string }) {
             onChange={(seo) => patch({ seo })}
             fallbackTitle={l(draft.title) || t('newPost')}
             fallbackDescription={l(draft.excerpt)}
-            domain={adminEmail.split('@')[1] || 'selca.me'}
+            domain={adminEmail.split('@')[1] || 'tersun.com'}
             path={['savjeti', draft.slug]}
             readOnly={readOnly}
             slugField={
               <SlugField
-                prefix="/savjeti/"
+                prefix="/journal/"
                 value={draft.slug}
                 onChange={(slug) => {
                   setSlugAuto(false);
@@ -320,10 +320,10 @@ function PostEditor({ id }: { id: string }) {
                 }}
                 onBlur={() => patch({ slug: slugify(draft.slug) })}
                 auto={slugAuto}
-                canRegenerate={!readOnly && !!draft.title.me.trim() && draft.slug !== slugify(draft.title.me)}
+                canRegenerate={!readOnly && !!draft.title.de.trim() && draft.slug !== slugify(draft.title.de)}
                 onRegenerate={() => {
                   setSlugAuto(true);
-                  patch({ slug: slugify(draft.title.me) });
+                  patch({ slug: slugify(draft.title.de) });
                 }}
                 error={slugTaken || showErrors ? errors.slug : undefined}
               />
@@ -366,10 +366,10 @@ function PostEditor({ id }: { id: string }) {
                 <div className="mt-2 flex flex-wrap items-center gap-1">
                   <span className="mr-0.5 text-xs text-muted">{t('quickPick')}</span>
                   {knownCats.map((tag) => {
-                    const on = tag.me === draft.tag.me;
+                    const on = tag.de === draft.tag.de;
                     return (
                       <button
-                        key={tag.me}
+                        key={tag.de}
                         type="button"
                         onClick={() => patch({ tag: { ...tag } })}
                         className={cn('rounded-md px-2 py-0.5 text-[12px] font-semibold transition-colors', on ? 'bg-ink text-white' : 'text-ink-soft ring-1 ring-inset ring-line hover:bg-white hover:text-ink')}

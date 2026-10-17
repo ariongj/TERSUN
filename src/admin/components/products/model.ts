@@ -66,10 +66,10 @@ export function combos(options: ProductOption[]): Record<string, string>[] {
   return out;
 }
 
-/** Short SKU code for an option value: seeded ids ("70", "l", "natur") or initials of the ME label. */
+/** Short SKU code for an option value: seeded ids ("70", "l", "natur") or initials of the DE label. */
 export function valueCode(v: ProductOptionValue, index: number) {
   if (/^[a-z0-9]{1,8}$/i.test(v.id)) return v.id.toUpperCase();
-  const words = slugify(v.label.me || v.label.sq || v.label.en).split('-').filter(Boolean);
+  const words = slugify(v.label.de || v.label.sq || v.label.en).split('-').filter(Boolean);
   const code = words.length > 1 ? words.map((w) => w.slice(0, 3)).join('') : (words[0] ?? '').slice(0, 6);
   return (code || String(index + 1)).toUpperCase().slice(0, 8);
 }
@@ -218,7 +218,7 @@ export type Requirement = 'name' | 'category' | 'price' | 'image';
 
 export function missingForPublish(p: Pick<Product, 'name' | 'categoryId' | 'price' | 'images'>, categories: Pick<Category, 'id'>[]): Requirement[] {
   const out: Requirement[] = [];
-  if (!p.name.me.trim()) out.push('name');
+  if (!p.name.de.trim()) out.push('name');
   if (!p.categoryId || !categories.some((c) => c.id === p.categoryId)) out.push('category');
   if (!(p.price > 0)) out.push('price');
   if (!p.images.length) out.push('image');
@@ -261,7 +261,7 @@ export function productRefs(id: string, db: RefDb): ProductRefs {
 /* ------------------------------------------------------------------ */
 /** Unique slug among products. */
 export function uniqueSlug(base: string, selfId: string, products: Pick<Product, 'id' | 'slug'>[]) {
-  const root = base || 'proizvod';
+  const root = base || 'product';
   let s = root;
   let n = 2;
   while (products.some((p) => p.slug === s && p.id !== selfId)) s = `${root}-${n++}`;

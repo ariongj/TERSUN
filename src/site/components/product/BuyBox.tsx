@@ -2,12 +2,13 @@ import { useState, type Ref } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { AnimatePresence, motion } from 'motion/react';
-import { Banknote, Check, Clock, Heart, Phone, Ruler, Share2, ShieldCheck, ShoppingBag, Truck, Wrench, FileText, CreditCard } from 'lucide-react';
+import { Banknote, Box, Check, Clock, Heart, Phone, Ruler, Share2, ShieldCheck, ShoppingBag, Truck, Wrench, FileText, CreditCard } from 'lucide-react';
 import type { Category } from '@/lib/types';
 import { WhatsAppIcon } from '@/components/brand/Social';
 import { ProductBadges } from '@/site/components/ProductCard';
 import { Price } from '@/site/components/Price';
-import { useDict, useL, useLang } from '@/i18n';
+import { defineDict, useDict, useL, useLang } from '@/i18n';
+import { systemForCategory } from '@/site/builder3d/systems';
 import { useUi } from '@/store/ui';
 import { useSettings } from '@/store/hooks';
 import { basePrice } from '@/lib/pricing';
@@ -40,7 +41,7 @@ export function BuyBox({ cfg, category, onAdd, onQuote, ctaRef }: { cfg: Configu
     <div>
       <div className="flex items-center justify-between gap-4">
         {category ? (
-          <Link to={`/proizvodi/${category.slug}`} className="eyebrow hover:text-brand-800">
+          <Link to={`/shop/${category.slug}`} className="eyebrow hover:text-brand-800">
             {l(category.name)}
           </Link>
         ) : (
@@ -302,6 +303,12 @@ export function WishButton({ productId, tone = 'dark', className }: { productId:
   );
 }
 
+const B3 = defineDict({
+  de: { design3d: 'In 3D gestalten' },
+  sq: { design3d: 'Krijoni në 3D' },
+  en: { design3d: 'Design in 3D' },
+});
+
 /* ------------------------------------------------------------------ */
 function QuotePanel({ cfg, onQuote, ctaRef }: { cfg: Configurator; onQuote: () => void; ctaRef?: Ref<HTMLDivElement> }) {
   const t = useDict(PD);
@@ -309,6 +316,8 @@ function QuotePanel({ cfg, onQuote, ctaRef }: { cfg: Configurator; onQuote: () =
   const settings = useSettings();
   const p = cfg.product;
   const steps = [t('quoteStep1'), t('quoteStep2'), t('quoteStep3')];
+  const t3 = useDict(B3);
+  const sys = systemForCategory(p.categoryId);
   return (
     <div className="space-y-6">
       <OptionPicker options={p.options} value={cfg.options} onChange={cfg.setOption} />
@@ -333,6 +342,14 @@ function QuotePanel({ cfg, onQuote, ctaRef }: { cfg: Configurator; onQuote: () =
           </button>
           <WishButton productId={p.id} />
         </div>
+        {sys && (
+          <Link
+            to={`/3d?system=${sys.id}`}
+            className="mt-3 flex h-12 items-center justify-center gap-2 rounded-full bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-brand-100"
+          >
+            <Box className="h-4 w-4" /> {t3('design3d')}
+          </Link>
+        )}
         <a href={`tel:${settings.phone.replace(/\s/g, '')}`} className="mt-3 flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 text-[14px] font-semibold text-paper/90 transition-colors hover:bg-white/10">
           <Phone className="h-4 w-4" /> {settings.phone}
         </a>
@@ -371,7 +388,7 @@ function TrustRow({ warrantyYears }: { warrantyYears?: number }) {
   const lang = useLang();
   const settings = useSettings();
   const items = [
-    { icon: Ruler, title: t('trust_measure'), text: t('trust_measureText'), to: '/#mjerenje' },
+    { icon: Ruler, title: t('trust_measure'), text: t('trust_measureText'), to: '/#consultation' },
     warrantyYears
       ? { icon: ShieldCheck, title: t('trust_warranty', { n: warrantyYears }), text: t('trust_warrantyText') }
       : { icon: ShieldCheck, title: t('trust_bank'), text: t('trust_bankText') },

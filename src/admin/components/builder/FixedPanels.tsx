@@ -127,7 +127,7 @@ export function FixedPanel({ id }: { id: FixedId }) {
           <div className="divide-y divide-line/70 overflow-hidden rounded-lg border border-line bg-white">
             <LinkRow to="/admin/prodavnica" icon={Palette} label={t('lnkTheme')} meta={settings.companyName} />
             <LinkRow to="/admin/meniji" icon={MenuIcon} label={t('lnkMainMenu')} meta={t('count_items', { n: menuCount('main') })} />
-            <LinkRow to="/admin/konfiguracija" icon={Globe} label={t('lnkLanguages')} meta="ME · SQ · EN" />
+            <LinkRow to="/admin/konfiguracija" icon={Globe} label={t('lnkLanguages')} meta="DE · SQ · EN" />
           </div>
         </Group>
       </div>

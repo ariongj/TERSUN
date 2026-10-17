@@ -1,5 +1,5 @@
 // Minimal RFC-4180 CSV reader/writer for the product import/export (PDF p.09).
-// Reads comma, semicolon (Excel in ME/AL locales) or tab separated files, quoted fields and "" escapes.
+// Reads comma, semicolon (Excel in DE/AL locales) or tab separated files, quoted fields and "" escapes.
 
 export interface ParsedCsv {
   headers: string[];

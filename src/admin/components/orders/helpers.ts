@@ -42,7 +42,7 @@ export function actorName(by: string | undefined, staff: Staff[], labels: { web:
 /* ------------------------------------------------------------------ */
 /* Carriers (stored as a key on order.fulfillment.carrier)             */
 /* ------------------------------------------------------------------ */
-export const CARRIERS = ['selca', 'courier', 'pickup', 'other'] as const;
+export const CARRIERS = ['tersun', 'courier', 'pickup', 'other'] as const;
 export type CarrierKey = (typeof CARRIERS)[number];
 export const isCarrierKey = (v: string | undefined): v is CarrierKey => !!v && (CARRIERS as readonly string[]).includes(v);
 
@@ -113,7 +113,7 @@ export function localizeLine(l: OrderLine, product: Product | undefined, from: L
 }
 
 export function mapsUrl(address: string, city: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([address, city, 'Montenegro'].filter(Boolean).join(', '))}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([address, city].filter(Boolean).join(', '))}`;
 }
 
 /** Case/diacritic-insensitive match on number, name, email, phone (digits only) and city. */
@@ -127,22 +127,15 @@ export function matchesOrder(o: Order, query: string) {
   return digits.length >= 3 && c.phone.replace(/\D/g, '').includes(digits);
 }
 
-/** Pick a plural form: Montenegrin has one/few/many, Albanian + English one/many. */
-export function pluralForm(n: number, lang: Lang): 'one' | 'few' | 'many' {
-  if (lang === 'me') {
-    const m10 = n % 10;
-    const m100 = n % 100;
-    if (m10 === 1 && m100 !== 11) return 'one';
-    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'few';
-    return 'many';
-  }
+/** Pick a plural form: German, Albanian and English all use one/many ('few' is never returned). */
+export function pluralForm(n: number, _lang: Lang): 'one' | 'few' | 'many' {
   return n === 1 ? 'one' : 'many';
 }
 
 /** "{n} stavka/stavke/stavki" style keys: base_one / base_few / base_many. */
 export const pluralKey = <B extends string>(base: B, n: number, lang: Lang) => `${base}_${pluralForm(n, lang)}` as `${B}_one` | `${B}_few` | `${B}_many`;
 
-/** Semicolon CSV (Excel in ME/SQ locales) — values quoted when needed. */
+/** Semicolon CSV (Excel in DE/SQ locales) — values quoted when needed. */
 export function toCsv(rows: (string | number)[][]) {
   const cell = (v: string | number) => {
     const s = String(v ?? '');
@@ -151,5 +144,5 @@ export function toCsv(rows: (string | number)[][]) {
   return rows.map((r) => r.map(cell).join(';')).join('\r\n');
 }
 
-/** 1234.5 → "1234,50" (ME/SQ) or "1234.50" (EN) — plain, spreadsheet friendly. */
+/** 1234.5 → "1234,50" (DE/SQ) or "1234.50" (EN) — plain, spreadsheet friendly. */
 export const csvNum = (v: number, lang: Lang) => (lang === 'en' ? v.toFixed(2) : v.toFixed(2).replace('.', ','));

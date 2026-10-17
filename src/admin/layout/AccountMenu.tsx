@@ -32,7 +32,7 @@ export function AccountMenu() {
   const close = useCallback(() => setOpen(false), []);
   useDismiss(open, close, ref);
 
-  const name = staff?.name ?? 'SELCA Admin';
+  const name = staff?.name ?? 'TERSUN Admin';
   const switchTo = (r: RoleId) => {
     if (r !== role) {
       setRole(r);

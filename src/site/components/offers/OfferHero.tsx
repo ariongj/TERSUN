@@ -35,7 +35,7 @@ export function OfferHero({ offer, discount, value, onCta }: { offer: Offer; dis
       <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_12%_0%,var(--color-sand)_0%,transparent_72%)]" />
       <div className="container-x grid items-center gap-10 pb-14 pt-8 sm:pt-10 lg:grid-cols-[1fr_1.02fr] lg:gap-16 lg:pb-20 lg:pt-12">
         <div className="min-w-0 animate-fade-up">
-          <Breadcrumbs items={[{ label: t('crumb'), to: '/proizvodi?akcija=1' }, { label: l(offer.name) }]} />
+          <Breadcrumbs items={[{ label: t('crumb'), to: '/shop?sale=1' }, { label: l(offer.name) }]} />
           <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2">
             {badge && (
               <Badge tone="brand" className="text-[12px]">
@@ -70,7 +70,7 @@ export function OfferHero({ offer, discount, value, onCta }: { offer: Offer; dis
                 {t('seeProducts')}
                 <ArrowDown className="h-4 w-4" />
               </a>
-              <ButtonLink to="/#mjerenje" variant="outline" size="lg" icon={<Ruler className="h-4 w-4" />}>
+              <ButtonLink to="/#consultation" variant="outline" size="lg" icon={<Ruler className="h-4 w-4" />}>
                 {t('freeMeasure')}
               </ButtonLink>
             </div>

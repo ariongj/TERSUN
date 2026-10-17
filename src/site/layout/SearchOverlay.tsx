@@ -13,9 +13,9 @@ import { useActiveProducts, useCategories } from '@/store/hooks';
 import { searchProducts } from '@/lib/search';
 
 const POPULAR: Record<string, string[]> = {
-  me: ['laminat', 'sigurnosna vrata', 'walk-in', 'PVC prozor', 'parket', 'LED ogledalo'],
-  sq: ['laminat', 'derë sigurie', 'walk-in', 'dritare PVC', 'parket', 'pasqyrë LED'],
-  en: ['laminate', 'security door', 'walk-in', 'PVC window', 'parquet', 'LED mirror'],
+  de: ['Pergola', 'Glasdach', 'ZIP', 'LED', 'Heizstrahler', 'Guillotine'],
+  sq: ['pergolë', 'xham', 'Zip', 'LED', 'ngrohës', 'guillotine'],
+  en: ['pergola', 'glass roof', 'ZIP', 'LED', 'heater', 'guillotine'],
 };
 
 export function SearchOverlay() {
@@ -46,7 +46,7 @@ export function SearchOverlay() {
   const submit = () => {
     if (!q.trim()) return;
     close();
-    navigate(`/pretraga?q=${encodeURIComponent(q.trim())}`);
+    navigate(`/search?q=${encodeURIComponent(q.trim())}`);
   };
 
   return createPortal(
@@ -98,7 +98,7 @@ export function SearchOverlay() {
                     <div className="eyebrow mb-3 text-muted">{t('categories')}</div>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {cats.map((c) => (
-                        <Link key={c.id} to={`/proizvodi/${c.slug}`} onClick={close} className="group flex items-center gap-3 rounded-xl p-2 hover:bg-white">
+                        <Link key={c.id} to={`/shop/${c.slug}`} onClick={close} className="group flex items-center gap-3 rounded-xl p-2 hover:bg-white">
                           <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-sand">
                             <Img src={c.image} small alt="" className="h-full w-full object-cover" />
                           </span>
@@ -120,7 +120,7 @@ export function SearchOverlay() {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                     {results.slice(0, 9).map((p) => (
-                      <Link key={p.id} to={`/proizvod/${p.slug}`} onClick={close} className="flex items-center gap-4 rounded-2xl p-2.5 transition-colors hover:bg-white">
+                      <Link key={p.id} to={`/product/${p.slug}`} onClick={close} className="flex items-center gap-4 rounded-2xl p-2.5 transition-colors hover:bg-white">
                         <span className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sand">
                           <Img src={p.images[0]} small alt="" className="h-full w-full object-cover" />
                         </span>

@@ -22,8 +22,8 @@ export type SectionId = string;
 /* ------------------------------------------------------------------ */
 /* Demo placeholder detection ("Shembull" chip)                        */
 /* ------------------------------------------------------------------ */
-const SAMPLE_EXACT = ['+382 67 123 456', 'Magistralni put bb', 'Podgorica', '03XXXXXX', '40/31-XXXXX-X', '510-XXXXXXXXXXXXX-XX'];
-const SAMPLE_PART = ['+382 67 123 456', 'Magistralni put bb'];
+const SAMPLE_EXACT = ['+383 44 000 000', '+49 000 0000000', '81XXXXXX', '33XXXXXXX', 'XK05 XXXX XXXX XXXX XXXX'];
+const SAMPLE_PART = ['+383 44 000 000', '000 0000000'];
 
 /**
  * True when a contact/legal value is still a seeded demo placeholder.

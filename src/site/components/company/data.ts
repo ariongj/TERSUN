@@ -18,7 +18,7 @@ export function useHomeData<T extends HomeSectionType>(type: T): SectionData<T> 
 /** Where "book a measurement" links point: the homepage form when it is shown, otherwise the services page form. */
 export function useMeasureHref() {
   const home = useDb((s) => s.home);
-  return useMemo(() => (home.some((h) => h.type === 'cta' && h.enabled) ? '/#mjerenje' : '/usluge#mjerenje'), [home]);
+  return useMemo(() => (home.some((h) => h.type === 'cta' && h.enabled) ? '/#consultation' : '/services#consultation'), [home]);
 }
 
 /** Smooth-scroll to an in-page anchor without touching the URL. */

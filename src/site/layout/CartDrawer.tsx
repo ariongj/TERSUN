@@ -44,13 +44,13 @@ export function CartLine({ line, compact }: { line: PricedLine; compact?: boolea
   const isPack = p.unit === 'm2' && p.packSize;
   return (
     <div className="flex gap-4 py-5">
-      <Link to={`/proizvod/${p.slug}`} onClick={() => setCartOpen(false)} className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-sand sm:h-28 sm:w-24">
+      <Link to={`/product/${p.slug}`} onClick={() => setCartOpen(false)} className="h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-sand sm:h-28 sm:w-24">
         <Img src={p.images[0]} small alt="" className="h-full w-full object-cover" />
       </Link>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link to={`/proizvod/${p.slug}`} onClick={() => setCartOpen(false)} className="line-clamp-2 text-[14.5px] font-semibold leading-snug text-ink hover:text-brand-700">
+            <Link to={`/product/${p.slug}`} onClick={() => setCartOpen(false)} className="line-clamp-2 text-[14.5px] font-semibold leading-snug text-ink hover:text-brand-700">
               {l(p.name)}
             </Link>
             {line.optionsLabel && <p className="mt-1 text-[12.5px] leading-snug text-muted">{line.optionsLabel}</p>}
@@ -146,7 +146,7 @@ export function CartDrawer() {
                 iconRight={<ArrowRight className="h-4 w-4" />}
                 onClick={() => {
                   setOpen(false);
-                  navigate('/placanje');
+                  navigate('/checkout');
                 }}
               >
                 {t('checkout')}
@@ -156,7 +156,7 @@ export function CartDrawer() {
                 className="w-full"
                 onClick={() => {
                   setOpen(false);
-                  navigate('/korpa');
+                  navigate('/cart');
                 }}
               >
                 {t('viewCart')}
@@ -176,7 +176,7 @@ export function CartDrawer() {
               variant="dark"
               onClick={() => {
                 setOpen(false);
-                navigate('/proizvodi');
+                navigate('/shop');
               }}
             >
               {t('continueShopping')}

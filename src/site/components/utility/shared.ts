@@ -2,17 +2,17 @@ import type { Lang } from '@/lib/types';
 
 /** Popular searches per storefront language — every term returns results in the seeded catalogue. */
 export const POPULAR_SEARCHES: Record<Lang, string[]> = {
-  me: ['laminat', 'sigurnosna vrata', 'PVC prozor', 'parket', 'walk-in', 'LED ogledalo', 'porculan', 'kuhinja po mjeri'],
-  sq: ['laminat', 'derë sigurie', 'dritare PVC', 'parket', 'walk-in', 'pasqyrë LED', 'porcelan', 'kuzhinë me porosi'],
-  en: ['laminate', 'security door', 'PVC window', 'parquet', 'walk-in', 'LED mirror', 'porcelain', 'made-to-measure kitchen'],
+  de: ['Pergola', 'Glasdach', 'Markise', 'Guillotine', 'Slide', 'ZIP', 'LED', 'Heizstrahler'],
+  sq: ['pergolë', 'xham', 'tendë', 'guillotine', 'slide', 'Zip', 'LED', 'ngrohës'],
+  en: ['pergola', 'glass roof', 'awning', 'guillotine', 'sliding', 'ZIP', 'LED', 'heater'],
 };
 
 /**
- * Plural category for counted nouns. Montenegrin uses the singular after numbers
- * ending in 1 (except 11): "21 proizvod", "37 proizvoda"; Albanian and English only for 1.
+ * Plural category for counted nouns. German, Albanian and English use the singular
+ * only for exactly 1: "1 Produkt", "21 Produkte".
  */
 export function pluralOne(n: number, lang: Lang) {
-  if (lang === 'me') return n % 10 === 1 && n % 100 !== 11;
+  if (lang === 'de') return n === 1;
   return n === 1;
 }
 

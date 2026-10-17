@@ -3,29 +3,68 @@
 import type { CartItem, Collection, Customer, Discount, Inquiry, Lang, Order, OrderEvent, OrderStatus, PaymentMethod, Product, Settings } from '@/lib/types';
 import { priceCart, defaultOptions, packsForArea } from '@/lib/pricing';
 import { lt } from '@/i18n';
+import { collectionIdsFor } from '@/lib/collections';
 import { pick, rng, slugify, weighted } from '@/lib/utils';
 
-const FIRST = ['Marko', 'Jelena', 'Nikola', 'Ana', 'Stefan', 'Milica', 'Luka', 'Ivana', 'Petar', 'Tamara', 'Arben', 'Drita', 'Gjergj', 'Lindita', 'Driton', 'Valentina', 'Edin', 'Amra', 'Mirza', 'Lejla', 'Vuk', 'Teodora', 'Ardit', 'Elira', 'Filip', 'Sanja', 'Besnik', 'Albina', 'Dejan', 'Maja'];
-const LAST = ['Vuković', 'Popović', 'Radović', 'Đukanović', 'Ivanović', 'Perović', 'Lulgjuraj', 'Gjokaj', 'Dedvukaj', 'Camaj', 'Ljuljđuraj', 'Kalaj', 'Hadžić', 'Mujović', 'Kovačević', 'Marković', 'Vujošević', 'Bulatović', 'Nikač', 'Gjonaj', 'Dreshaj', 'Pepić', 'Šabović', 'Dragović'];
-const STREETS = ['Ulica Slobode', 'Njegoševa', 'Bulevar Revolucije', 'Ulica 13. jula', 'Vojislavljevića', 'Ulica Marka Miljanova', 'Hercegovačka', 'Rista Stijovića', 'Mediteranska', 'Jadranski put', 'Ulica Skenderbega', 'Moskovska'];
-const CITIES: (readonly [string, number])[] = [
-  ['Podgorica', 34], ['Nikšić', 9], ['Tuzi', 7], ['Bar', 8], ['Ulcinj', 8], ['Budva', 7], ['Herceg Novi', 5], ['Kotor', 4], ['Tivat', 4],
-  ['Cetinje', 3], ['Danilovgrad', 3], ['Bijelo Polje', 3], ['Berane', 2], ['Plav', 1], ['Rožaje', 2], ['Gusinje', 1], ['Pljevlja', 2],
-];
+type Country = 'XK' | 'AL' | 'MK' | 'DE' | 'AT' | 'CH' | 'US';
 
-function customer(r: () => number): Customer {
-  const firstName = pick(FIRST, r);
-  const lastName = pick(LAST, r);
-  const city = weighted(CITIES, r);
-  const digits = () => String(Math.floor(r() * 900) + 100);
+const SQ_FIRST = ['Arben', 'Drita', 'Besnik', 'Lindita', 'Driton', 'Valon', 'Arta', 'Blerina', 'Fatmir', 'Mimoza', 'Agron', 'Elira', 'Ardit', 'Albina', 'Kujtim', 'Teuta', 'Granit', 'Vjosa', 'Ilir', 'Shqipe', 'Dardan', 'Erza', 'Leart', 'Rinor', 'Era'];
+const SQ_LAST = ['Gjonaj', 'Krasniqi', 'Berisha', 'Hoxha', 'Gashi', 'Shala', 'Morina', 'Kelmendi', 'Bytyqi', 'Rexhepi', 'Thaçi', 'Dervishi', 'Hasani', 'Kastrati', 'Mustafa', 'Leka', 'Dushku', 'Rama', 'Sopi', 'Zeqiri'];
+const DE_FIRST = ['Thomas', 'Sabine', 'Michael', 'Julia', 'Stefan', 'Andrea', 'Markus', 'Katrin', 'Florian', 'Claudia', 'Lukas', 'Anna', 'Reto', 'Simone', 'Matthias', 'Nina', 'Jonas', 'Petra'];
+const DE_LAST = ['Müller', 'Schmidt', 'Weber', 'Huber', 'Gruber', 'Keller', 'Meier', 'Bauer', 'Hofmann', 'Fischer', 'Steiner', 'Brunner', 'Wagner', 'Baumann', 'Schneider', 'Moser'];
+const US_FIRST = ['James', 'Emily', 'Michael', 'Sarah', 'David', 'Jessica', 'Daniel', 'Laura'];
+const US_LAST = ['Johnson', 'Miller', 'Davis', 'Anderson', 'Thompson', 'Walker', 'Collins', 'Parker'];
+
+const COUNTRY: Record<Country, { phone: string[]; groups: [number, number]; streets: string[] }> = {
+  XK: { phone: ['+383 44', '+383 45', '+383 49'], groups: [3, 3], streets: ['Rr. Nëna Terezë', 'Rr. Adem Jashari', 'Rr. Skënderbeu', 'Rr. Fehmi Agani', 'Bulevardi Bill Clinton', 'Rr. Luan Haradinaj', 'Rr. Agim Ramadani', 'Rr. UÇK'] },
+  AL: { phone: ['+355 67', '+355 68', '+355 69'], groups: [3, 4], streets: ['Rruga Skënderbeu', 'Rruga Ismail Qemali', 'Rruga Naim Frashëri', 'Bulevardi Dëshmorët e Kombit', 'Rruga Myslym Shyri', 'Rruga Taulantia'] },
+  MK: { phone: ['+389 70', '+389 71', '+389 75'], groups: [3, 3], streets: ['Bulevar Ilinden', 'Ulica Makedonija', 'Rr. Ilindenit', 'Bulevar Partizanski Odredi'] },
+  DE: { phone: ['+49 151', '+49 160', '+49 171'], groups: [4, 4], streets: ['Hauptstraße', 'Bahnhofstraße', 'Lindenstraße', 'Gartenstraße', 'Schillerstraße', 'Goethestraße', 'Leopoldstraße', 'Königstraße'] },
+  AT: { phone: ['+43 664', '+43 676', '+43 699'], groups: [3, 4], streets: ['Hauptstraße', 'Mariahilfer Straße', 'Schulgasse', 'Lindengasse', 'Landstraßer Hauptstraße'] },
+  CH: { phone: ['+41 76', '+41 78', '+41 79'], groups: [3, 4], streets: ['Bahnhofstrasse', 'Seefeldstrasse', 'Dorfstrasse', 'Seestrasse', 'Kirchweg'] },
+  US: { phone: ['+1 212', '+1 917', '+1 646'], groups: [3, 4], streets: ['Broadway', 'Park Avenue', 'Arthur Avenue', 'Main Street', 'Lexington Avenue'] },
+};
+
+const CITIES: (readonly [string, number, Country])[] = [
+  ['Prishtina', 20, 'XK'], ['Prizren', 7, 'XK'], ['Peja', 5, 'XK'], ['Gjakova', 4, 'XK'], ['Ferizaj', 4, 'XK'], ['Gjilan', 3, 'XK'], ['Mitrovica', 2, 'XK'],
+  ['Tirana', 9, 'AL'], ['Durrës', 5, 'AL'], ['Vlora', 2, 'AL'], ['Shkodra', 2, 'AL'],
+  ['Skopje', 4, 'MK'], ['Tetovo', 3, 'MK'],
+  ['München', 6, 'DE'], ['Stuttgart', 5, 'DE'], ['Frankfurt', 3, 'DE'], ['Düsseldorf', 2, 'DE'],
+  ['Zürich', 4, 'CH'], ['Basel', 2, 'CH'], ['Luzern', 1, 'CH'],
+  ['Wien', 4, 'AT'], ['Graz', 1, 'AT'], ['Salzburg', 1, 'AT'],
+  ['New York', 2, 'US'], ['Chicago', 1, 'US'], ['Detroit', 1, 'US'],
+];
+const CITY_COUNTRY = new Map(CITIES.map(([c, , k]) => [c, k]));
+const CITY_WEIGHTS = CITIES.map(([c, w]) => [c, w] as const);
+
+function customer(r: () => number, forcedCity?: string): Customer {
+  const city = forcedCity ?? weighted(CITY_WEIGHTS, r);
+  const country = CITY_COUNTRY.get(city) ?? 'XK';
+  // Albanian names at home and in the diaspora; local names in DACH and the USA
+  const albanian = country === 'XK' || country === 'AL' || country === 'MK' || r() < (country === 'US' ? 0.35 : 0.45);
+  const firstName = albanian ? pick(SQ_FIRST, r) : country === 'US' ? pick(US_FIRST, r) : pick(DE_FIRST, r);
+  const lastName = albanian ? pick(SQ_LAST, r) : country === 'US' ? pick(US_LAST, r) : pick(DE_LAST, r);
+  const c = COUNTRY[country];
+  const digits = (n: number) => String(Math.floor(r() * 9 * 10 ** (n - 1)) + 10 ** (n - 1));
+  const street = pick(c.streets, r);
+  const no = Math.floor(r() * 120) + 1;
   return {
     firstName,
     lastName,
     email: `${slugify(firstName)}.${slugify(lastName)}@example.com`,
-    phone: `+382 6${pick(['7', '8', '9'], r)} ${digits()} ${digits()}`,
+    phone: `${pick(c.phone, r)} ${digits(c.groups[0])} ${digits(c.groups[1])}`,
     city,
-    address: `${pick(STREETS, r)} ${Math.floor(r() * 120) + 1}`,
+    address: country === 'US' ? `${no} ${street}` : `${street} ${no}`,
   };
+}
+
+/** Shop language: Albanian at home, German in DACH (diaspora often in Albanian), English in the USA. */
+function langFor(c: Customer, r: () => number): Lang {
+  const country = CITY_COUNTRY.get(c.city) ?? 'XK';
+  const albanian = SQ_FIRST.includes(c.firstName);
+  if (country === 'XK' || country === 'AL' || country === 'MK') return r() < 0.88 ? 'sq' : 'en';
+  if (country === 'US') return albanian && r() < 0.4 ? 'sq' : 'en';
+  return albanian && r() < 0.45 ? 'sq' : 'de';
 }
 
 function lineFor(p: Product, r: () => number): CartItem {
@@ -33,11 +72,12 @@ function lineFor(p: Product, r: () => number): CartItem {
   for (const o of p.options) options[o.id] = pick(o.values, r).id;
   let qty = 1;
   if (p.unit === 'm2' && p.packSize) qty = packsForArea(12 + Math.floor(r() * 80), p.packSize);
-  else if (p.unit === 'm') qty = 2 + Math.floor(r() * 4);
-  else if (p.categoryId === 'cat-vrata' && p.unit === 'kom') qty = 1 + Math.floor(r() * 5);
-  else if (p.categoryId === 'cat-prozori') qty = 1 + Math.floor(r() * 7);
-  else qty = 1 + Math.floor(r() * 2);
-  const installation = !!p.installation?.available && r() < 0.45;
+  else if (p.categoryId === 'cat-zip') qty = 1 + Math.floor(r() * 4);
+  else if (p.id === 'p-acc-heater') qty = 1 + Math.floor(r() * 3);
+  else if (p.categoryId === 'cat-accessories') qty = r() < 0.8 ? 1 : 2;
+  else if (p.categoryId === 'cat-slide' && !p.id.includes('wintergarden')) qty = 1 + Math.floor(r() * 2);
+  else qty = 1;
+  const installation = !!p.installation?.available && (p.quoteOnly || r() < 0.45);
   return { key: '', productId: p.id, qty, options, installation };
 }
 
@@ -52,13 +92,19 @@ function statusFor(ageDays: number, r: () => number): OrderStatus {
 const FLOW: OrderStatus[] = ['new', 'confirmed', 'processing', 'shipped', 'installation', 'completed'];
 
 /**
- * Orders over the last 75 days. Every cart goes through the real pricing + discount engine with the
- * order date as "now", so automatic rules only apply inside their window (e.g. the autumn floor sale).
+ * Orders over the last 75 days. Most are accessories bought online; about one in ten is a system
+ * (pergola, glass roof, glass walls, screens) converted from an accepted quote. Every cart goes through
+ * the real pricing + discount engine with the order date as "now", so automatic rules only apply inside
+ * their window.
  */
 export function generateOrders(products: Product[], settings: Settings, discounts: Discount[], collections: Collection[], now = new Date(), seed = 42): Order[] {
   const r = rng(seed);
   const sellable = products.filter((p) => !p.quoteOnly && p.status === 'active');
+  const systems = products.filter((p) => p.quoteOnly && p.status === 'active');
+  const addOns = sellable.filter((p) => p.installation?.available);
   const weights = sellable.map((p) => [p, Math.sqrt(p.sold + 5)] as const);
+  const systemWeights = systems.map((p) => [p, Math.sqrt(p.sold + 5)] as const);
+  const prefix = settings.orderPrefix || 'TS-';
   const orders: Order[] = [];
   const past: Customer[] = [];
   let seq = 1001;
@@ -86,40 +132,63 @@ export function generateOrders(products: Product[], settings: Settings, discount
       if (created > now) created.setTime(now.getTime() - (i + 1) * 47 * 60000);
       const ageDays = (now.getTime() - created.getTime()) / 86400000;
 
-      const nLines = weighted([[1, 5], [2, 3], [3, 1.5], [4, 0.5]] as const, r);
+      // about one order in ten is a system converted from a quote (never in the last few hours)
+      const isSystem = systems.length > 0 && ageDays > 1 && r() < 0.1;
       const cart: CartItem[] = [];
       const used = new Set<string>();
-      for (let k = 0; k < nLines; k++) {
-        const prod = weighted(weights, r);
-        if (used.has(prod.id)) continue;
-        used.add(prod.id);
-        cart.push(lineFor(prod, r));
-      }
-      // shoppers following the "buy X get Y" promo add the free item themselves (manual mode)
-      for (const d of discounts) {
-        const b = d.bxgy;
-        if (d.kind !== 'bxgy' || !b || d.method !== 'auto' || b.getScope !== 'products' || new Date(d.startsAt) > created) continue;
-        const xQty = cart.filter((c) => b.buyScope === 'products' && b.buyIds.includes(c.productId)).reduce((n, c) => n + c.qty, 0);
-        const y = products.find((p) => p.id === b.getIds[0]);
-        if (y && xQty >= b.buyQty && !cart.some((c) => c.productId === y.id) && r() < 0.7) cart.push({ key: '', productId: y.id, qty: b.getQty * Math.min(b.maxUses || 1, Math.floor(xQty / b.buyQty)), options: defaultOptions(y), installation: false });
+      if (isSystem) {
+        const main = weighted(systemWeights, r);
+        used.add(main.id);
+        cart.push(lineFor(main, r));
+        // pergolas and glass roofs often come with screens or extras
+        if (r() < 0.45 && main.categoryId !== 'cat-zip') {
+          const zip = systems.find((s) => s.id === 'p-zip');
+          if (zip) cart.push(lineFor(zip, r));
+        }
+        if (r() < 0.6 && addOns.length) {
+          const extra = pick(addOns, r);
+          cart.push({ ...lineFor(extra, r), installation: true });
+        }
+      } else {
+        const nLines = weighted([[1, 5], [2, 3], [3, 1.5], [4, 0.5]] as const, r);
+        for (let k = 0; k < nLines; k++) {
+          const prod = weighted(weights, r);
+          if (used.has(prod.id)) continue;
+          used.add(prod.id);
+          cart.push(lineFor(prod, r));
+        }
+        // shoppers following the "buy X get Y" promo add the free item themselves (manual mode)
+        for (const d of discounts) {
+          const b = d.bxgy;
+          if (d.kind !== 'bxgy' || !b || d.method !== 'auto' || b.getScope !== 'products' || new Date(d.startsAt) > created) continue;
+          const xQty = cart.filter((c) => b.buyScope === 'products' && b.buyIds.includes(c.productId)).reduce((n, c) => n + c.qty, 0);
+          const y = products.find((p) => p.id === b.getIds[0]);
+          if (y && xQty >= b.buyQty && !cart.some((c) => c.productId === y.id) && r() < 0.7) cart.push({ key: '', productId: y.id, qty: b.getQty * Math.min(b.maxUses || 1, Math.floor(xQty / b.buyQty)), options: defaultOptions(y), installation: false });
+        }
       }
       // about one order in six comes from a returning customer
       const cust = past.length > 4 && r() < 0.16 ? { ...pick(past, r) } : customer(r);
       past.push(cust);
-      const delivery = r() < 0.15 ? 'pickup' : 'delivery';
-      const lang: Lang = weighted([['me', 6], ['sq', 3], ['en', 1]] as const, r);
+      const delivery = !isSystem && r() < 0.15 ? 'pickup' : 'delivery';
+      const lang: Lang = langFor(cust, r);
       // codes people typed: the welcome code, plus the seasonal code that was live on that day
       const x = r();
-      const seasonal = discounts.find((d) => d.method === 'code' && d.id !== 'd-selca10' && d.status === 'active' && new Date(d.startsAt) <= created && (!d.endsAt || new Date(d.endsAt) > created));
-      const couponCode = x < 0.12 ? 'SELCA10' : x < 0.25 && seasonal ? seasonal.code! : null;
+      const seasonal = discounts.find((d) => d.method === 'code' && d.id !== 'd-welcome10' && d.status === 'active' && new Date(d.startsAt) <= created && (!d.endsAt || new Date(d.endsAt) > created));
+      // a product-scoped seasonal code (e.g. WARM15) is typed far more often when the cart holds eligible items
+      const eligible = !!seasonal && seasonal.appliesTo.scope !== 'all' && cart.some((c) => {
+        const prod = products.find((p) => p.id === c.productId);
+        if (!prod) return false;
+        return seasonal.appliesTo.scope === 'collections' ? collectionIdsFor(prod, collections).some((id) => seasonal.appliesTo.ids.includes(id)) : seasonal.appliesTo.ids.includes(prod.id);
+      });
+      const couponCode = isSystem ? null : x < 0.12 ? 'WELCOME10' : seasonal && x < (eligible ? 0.65 : 0.28) ? seasonal.code! : null;
       const totals = priceCart(cart, products, settings, { lang, couponCode, discounts, collections, delivery, city: cust.city, now: created });
-      const payMethod: PaymentMethod = weighted([['cod', 5], ['bank', 2.5], ['card', 2.5]] as const, r);
+      const payMethod: PaymentMethod = isSystem ? 'bank' : weighted([['card', 5], ['bank', 2.5], ['cod', 2]] as const, r);
       const status = statusFor(ageDays, r);
 
       const idx = FLOW.indexOf(status);
-      const timeline: OrderEvent[] = [{ at: created.toISOString(), status: 'new', by: 'web' }];
+      const timeline: OrderEvent[] = [{ at: created.toISOString(), status: 'new', by: isSystem ? 'admin' : 'web' }];
       if (status === 'cancelled') {
-        timeline.push({ at: new Date(created.getTime() + 5 * 3600000).toISOString(), status: 'cancelled', note: 'Kupac odustao telefonom', by: 'admin' });
+        timeline.push({ at: new Date(created.getTime() + 5 * 3600000).toISOString(), status: 'cancelled', note: 'Kunde hat telefonisch storniert', by: 'admin' });
       } else {
         for (let s = 1; s <= idx; s++) {
           const at = new Date(created.getTime() + s * Math.min(ageDays / (idx + 1), 2.2) * 86400000);
@@ -129,7 +198,7 @@ export function generateOrders(products: Product[], settings: Settings, discount
       const paid = payMethod === 'card' ? true : payMethod === 'bank' ? idx >= 1 : status === 'completed';
       orders.push({
         id: `o_${seq}`,
-        number: `SC-${seq}`,
+        number: `${prefix}${seq}`,
         createdAt: created.toISOString(),
         status,
         customer: cust,
@@ -164,6 +233,7 @@ export function generateOrders(products: Product[], settings: Settings, discount
         timeline,
         seen: ageDays > 0.6,
         demo: true,
+        ...(isSystem ? { tags: ['system', 'quote'], internalNote: 'Aus angenommenem Angebot übernommen — Anzahlung 40 %, Rest nach Montage.' } : {}),
         ...(status === 'shipped' || status === 'installation' || status === 'completed'
           ? { fulfillment: { shippedAt: timeline.find((e) => e.status === 'shipped' || e.status === 'installation')?.at ?? created.toISOString(), ...(status === 'completed' ? { deliveredAt: timeline[timeline.length - 1].at } : {}) } }
           : {}),
@@ -174,19 +244,19 @@ export function generateOrders(products: Product[], settings: Settings, discount
   return orders.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-const INQ_MSG: { type: Inquiry['type']; service?: string; productId?: string; message: string }[] = [
-  { type: 'measurement', service: 'Prozori', message: 'Zamjena 7 prozora i balkonskih vrata u stanu od 80 m². Molim da dođete u toku sedmice poslije 17h.' },
-  { type: 'measurement', service: 'Podovi', message: 'Treba mi laminat za 3 sobe i hodnik, ukupno oko 65 m². Zanima me i postavljanje.' },
-  { type: 'quote', service: 'Kuhinje', productId: 'p-kuhinja-noce', message: 'Interesuje me kuhinja Noce sa ostrvom, prostor je 4,2 × 3,5 m. Da li radite i ugradnju aparata?' },
-  { type: 'measurement', service: 'Kupatilo', message: 'Kompletna adaptacija kupatila 6 m² — walk-in tuš umjesto kade.' },
-  { type: 'contact', message: 'Përshëndetje, a keni dyer të sigurisë në ngjyrë antracit në stok? Faleminderit.' },
-  { type: 'measurement', service: 'Vrata', message: 'Pet sobnih vrata Classica, bijela, za novu kuću. Zidovi su 12 cm.' },
-  { type: 'quote', service: 'Prozori', productId: 'p-hs-panorama', message: 'HS klizna vrata za terasu, otvor otprilike 4,8 × 2,4 m. Ponuda za PVC i za ALU.' },
-  { type: 'measurement', service: 'Dritare', message: 'Dua të ndërroj dritaret në shtëpi, 9 copë. Kur mund të vini për matje?' },
-  { type: 'contact', message: 'Da li je moguće platiti na rate za kompletnu adaptaciju stana?' },
-  { type: 'measurement', service: 'Keramika', message: 'Porculan 60×120 za dnevni boravak i kuhinju, oko 45 m², sa postavljanjem.' },
-  { type: 'quote', service: 'Kuhinje', productId: 'p-kuhinja-bianca', message: 'Bijela kuhinja bez ručki, ugaona 3 + 2 m, sa kvarcnom pločom.' },
-  { type: 'measurement', service: 'Podovi', message: 'Parket riblja kost za dnevni boravak 32 m² — da li može na podno grijanje?' },
+const INQ_MSG: { type: Inquiry['type']; city: string; service?: string; productId?: string; message: string }[] = [
+  { type: 'measurement', city: 'Prishtina', service: 'Bioclimatic', message: 'Përshëndetje, dua një pergolë bioklimatike për tarracën, rreth 5 × 4 m. Kur mund të vini për matje? Jam në shtëpi pas orës 16:00.' },
+  { type: 'measurement', city: 'München', service: 'Glass roof', message: 'Wir planen ein Glasdach an der Hauswand, ca. 6 × 3,5 m, mit LED. Wann wäre ein Aufmaßtermin möglich?' },
+  { type: 'quote', city: 'Zürich', service: 'Bioclimatic', productId: 'p-bio-double', message: 'Bitte um Offerte für eine Bioclimatic Double, ca. 10 × 4 m, für unsere Restaurant-Terrasse – mit Heizstrahlern und ZIP-Screens an zwei Seiten.' },
+  { type: 'measurement', city: 'Tirana', service: 'ZIP', message: 'Kam nevojë për perde Zip për 4 dritare dhe derën e ballkonit. Apartament në katin e 7-të.' },
+  { type: 'contact', city: 'Peja', message: 'A e keni telekomandën me 5 kanale në stok? Kam Bioclimatic me LED dhe perde Zip.' },
+  { type: 'measurement', city: 'Wien', service: 'Guillotine', message: 'Wir möchten unseren Balkon mit Guillotine-Glas schließen, ca. 3 m breit. Bitte um Rückruf.' },
+  { type: 'quote', city: 'Stuttgart', service: 'Slide', productId: 'p-slide-wintergarden', message: 'Wintergarten mit Slide-Wänden an drei Seiten, Grundfläche ca. 5 × 3,5 m. Bitte Angebot mit Isolierglas.' },
+  { type: 'measurement', city: 'Prizren', service: 'Awning', message: 'Kemi mbulojë xhami dhe në verë është shumë nxehtë. Dua tendë mbi xham me motor, rreth 6 m.' },
+  { type: 'contact', city: 'New York', message: 'Do you ship and install in the US? We have a house in Westchester and would like a bioclimatic pergola, about 20 × 13 ft.' },
+  { type: 'measurement', city: 'Skopje', service: 'Glass roof', message: 'Mbulojë xhami në formë L rreth qoshes së shtëpisë. A punoni edhe në Shkup?' },
+  { type: 'quote', city: 'Durrës', service: 'Guillotine', productId: 'p-guillotine', message: 'Ofertë për 6 panele Guillotine për restorantin në plazh, 4 × 2,5 m secili, me xham termopan.' },
+  { type: 'measurement', city: 'Basel', service: 'Bioclimatic', message: 'Freistehende Pergola am Pool, ca. 4 × 4 m, mit Wind- und Regensensor. Braucht es dafür eine Baubewilligung?' },
 ];
 
 export function generateInquiries(now = new Date(), seed = 7): Inquiry[] {
@@ -194,7 +264,7 @@ export function generateInquiries(now = new Date(), seed = 7): Inquiry[] {
   return INQ_MSG.map((m, i) => {
     const ageHours = i === 0 ? 2.5 : i === 1 ? 9 : Math.floor(14 + r() * 28 * 24);
     const created = new Date(now.getTime() - ageHours * 3600000);
-    const c = customer(r);
+    const c = customer(r, m.city);
     const ageDays = ageHours / 24;
     const status: Inquiry['status'] = ageDays < 1 ? 'new' : ageDays < 4 ? (r() < 0.5 ? 'contacted' : 'scheduled') : ageDays < 12 ? (r() < 0.6 ? 'scheduled' : 'done') : 'done';
     const scheduledAt = status === 'scheduled' ? new Date(now.getTime() + (1 + Math.floor(r() * 5)) * 86400000).toISOString() : undefined;

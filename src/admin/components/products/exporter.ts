@@ -10,7 +10,7 @@ type T = (key: PdKey, vars?: Record<string, string | number>) => string;
 
 export function exportProducts(products: ProductX[], opts: { t: T; l: (v: L10n) => string; lang: Lang; categories: Category[]; withCost: boolean }) {
   const { t, l, lang, categories, withCost } = opts;
-  // ME / SQ Excel expects ";" and decimal commas; EN gets the classic comma CSV.
+  // DE / SQ Excel expects ";" and decimal commas; EN gets the classic comma CSV.
   const delimiter = lang === 'en' ? ',' : ';';
   const dec = (v: number | null | undefined) => (v == null ? '' : lang === 'en' ? v.toFixed(2) : v.toFixed(2).replace('.', ','));
   const cat = new Map(categories.map((c) => [c.id, c]));
@@ -25,14 +25,14 @@ export function exportProducts(products: ProductX[], opts: { t: T; l: (v: L10n) 
     const { price, compareAt } = pricingOf(p);
     const c = cat.get(p.categoryId);
     return [
-      p.slug, p.sku, p.barcode ?? '', p.name.me, p.name.sq, p.name.en, c ? l(c.name) : '', p.vendor ?? '', (p.tags ?? []).join(', '),
+      p.slug, p.sku, p.barcode ?? '', p.name.de, p.name.sq, p.name.en, c ? l(c.name) : '', p.vendor ?? '', (p.tags ?? []).join(', '),
       status[p.status], dec(price), dec(compareAt), ...(withCost ? [dec(p.cost)] : []), p.unit, p.unit === 'm2' ? dec(p.packSize ?? null) : '',
       isTracked(p) ? p.stock : '', variantCount(p) || '', (p.channels ?? ['online']).join(' + '), p.template === 'quote' || p.quoteOnly ? t('tpl_quote') : t('tpl_standard'),
       p.images.join(' | '),
     ];
   });
   const stamp = new Date().toISOString().slice(0, 10);
-  download(`selca-produkti-${stamp}.csv`, `﻿${toCsv([head, ...rows], delimiter)}`, 'text/csv;charset=utf-8');
+  download(`tersun-products-${stamp}.csv`, `﻿${toCsv([head, ...rows], delimiter)}`, 'text/csv;charset=utf-8');
   return rows.length;
 }
 
@@ -40,5 +40,5 @@ export function exportProducts(products: ProductX[], opts: { t: T; l: (v: L10n) 
 export function downloadTemplate(t: T, lang: Lang) {
   const delimiter = lang === 'en' ? ',' : ';';
   const head = [t('fld_name_me'), t('fld_name_sq'), t('fld_name_en'), t('fld_sku'), t('fld_barcode'), t('fld_category'), t('fld_price'), t('fld_compareAt'), t('fld_cost'), t('fld_stock'), t('fld_vendor'), t('fld_tags'), t('fld_description'), t('fld_image')];
-  download('selca-sablon-produkti.csv', `﻿${toCsv([head], delimiter)}`, 'text/csv;charset=utf-8');
+  download('tersun-products-template.csv', `﻿${toCsv([head], delimiter)}`, 'text/csv;charset=utf-8');
 }

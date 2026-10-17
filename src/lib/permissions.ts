@@ -35,32 +35,32 @@ export const ROLES: RoleId[] = ['owner', 'manager', 'catalog', 'orders', 'editor
 
 export const ROLE_META: Record<RoleId, { name: L10n; description: L10n }> = {
   owner: {
-    name: { me: 'Vlasnik', sq: 'Pronar', en: 'Owner' },
-    description: { me: 'Puna administracija, korisnici i podešavanja.', sq: 'Administrim i plotë, stafi dhe konfigurimet.', en: 'Full administration, staff and settings.' },
+    name: { de: 'Inhaber', sq: 'Pronar', en: 'Owner' },
+    description: { de: 'Vollständige Administration, Benutzer und Einstellungen.', sq: 'Administrim i plotë, stafi dhe konfigurimet.', en: 'Full administration, staff and settings.' },
   },
   manager: {
-    name: { me: 'Menadžer', sq: 'Menaxher', en: 'Manager' },
-    description: { me: 'Operacije i izvještaji: narudžbe, katalog, akcije, kontakti.', sq: 'Operacione dhe raporte: porosi, katalog, oferta, kontakte.', en: 'Operations and reports: orders, catalogue, campaigns, contacts.' },
+    name: { de: 'Manager', sq: 'Menaxher', en: 'Manager' },
+    description: { de: 'Betrieb und Berichte: Bestellungen, Katalog, Aktionen, Kontakte.', sq: 'Operacione dhe raporte: porosi, katalog, oferta, kontakte.', en: 'Operations and reports: orders, catalogue, campaigns, contacts.' },
   },
   catalog: {
-    name: { me: 'Katalog', sq: 'Katalog', en: 'Catalogue' },
-    description: { me: 'Proizvodi, kolekcije, mediji i inventar.', sq: 'Produkte, koleksione, media dhe inventar.', en: 'Products, collections, media and inventory.' },
+    name: { de: 'Katalog', sq: 'Katalog', en: 'Catalogue' },
+    description: { de: 'Produkte, Kollektionen, Medien und Inventar.', sq: 'Produkte, koleksione, media dhe inventar.', en: 'Products, collections, media and inventory.' },
   },
   orders: {
-    name: { me: 'Narudžbe', sq: 'Porosi', en: 'Orders' },
-    description: { me: 'Isporuka, montaža i kontakt sa kupcima.', sq: 'Përmbushje, montim dhe kontakt me klientët.', en: 'Fulfilment, installation and customer contact.' },
+    name: { de: 'Bestellungen', sq: 'Porosi', en: 'Orders' },
+    description: { de: 'Lieferung, Montage und Kundenkontakt.', sq: 'Përmbushje, montim dhe kontakt me klientët.', en: 'Fulfilment, installation and customer contact.' },
   },
   editor: {
-    name: { me: 'Urednik', sq: 'Redaktor', en: 'Editor' },
-    description: { me: 'Stranice, blog i sadržaj sajta.', sq: 'Faqe, blog dhe përmbajtje.', en: 'Pages, blog and site content.' },
+    name: { de: 'Redakteur', sq: 'Redaktor', en: 'Editor' },
+    description: { de: 'Seiten, Blog und Website-Inhalte.', sq: 'Faqe, blog dhe përmbajtje.', en: 'Pages, blog and site content.' },
   },
   marketing: {
-    name: { me: 'Marketing', sq: 'Marketing', en: 'Marketing' },
-    description: { me: 'Ponude i popusti — objavu odobrava menadžer.', sq: 'Oferta dhe zbritje — publikimi miratohet nga menaxheri.', en: 'Offers and discounts — publishing approved by a manager.' },
+    name: { de: 'Marketing', sq: 'Marketing', en: 'Marketing' },
+    description: { de: 'Angebote und Rabatte — Veröffentlichung wird vom Manager freigegeben.', sq: 'Oferta dhe zbritje — publikimi miratohet nga menaxheri.', en: 'Offers and discounts — publishing approved by a manager.' },
   },
   reception: {
-    name: { me: 'Recepcija', sq: 'Recepsion', en: 'Reception' },
-    description: { me: 'Kontakti, upiti i termini.', sq: 'Kontakte, kërkesa dhe termine.', en: 'Contacts, enquiries and appointments.' },
+    name: { de: 'Empfang', sq: 'Recepsion', en: 'Reception' },
+    description: { de: 'Kontakte, Anfragen und Termine.', sq: 'Kontakte, kërkesa dhe termine.', en: 'Contacts, enquiries and appointments.' },
   },
 };
 

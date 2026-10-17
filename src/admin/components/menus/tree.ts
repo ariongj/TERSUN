@@ -96,13 +96,13 @@ export function outdentItem(items: MenuItem[], id: string): MenuItem[] {
 export const countItems = (items: MenuItem[]) => items.reduce((n, it) => n + 1 + (it.children?.length ?? 0), 0);
 
 /* ------------------------------------------------------------------ */
-/* Validation (label in ME required, destination required, URL format)  */
+/* Validation (label in DE required, destination required, URL format)  */
 /* ------------------------------------------------------------------ */
 export type ItemError = 'label' | 'target' | 'url';
 
 export function itemErrors(it: Pick<MenuItem, 'label' | 'type' | 'target'>): ItemError[] {
   const out: ItemError[] = [];
-  if (!it.label.me.trim()) out.push('label');
+  if (!it.label.de.trim()) out.push('label');
   if (it.type === 'url') {
     if (!validUrl(it.target)) out.push('url');
   } else if (!it.target.trim()) out.push('target');

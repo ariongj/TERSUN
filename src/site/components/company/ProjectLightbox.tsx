@@ -10,16 +10,16 @@ import { C } from './Blocks';
 import { pad2, useMeasureHref } from './data';
 
 const T = defineDict({
-  me: {
-    location: 'Lokacija',
-    year: 'Godina',
-    prev: 'Prethodni projekat',
-    next: 'Sljedeći projekat',
-    close: 'Zatvori',
-    similar: 'Želite nešto slično?',
-    similarText: 'Besplatno mjerenje na vašoj adresi i precizna ponuda u roku od 48 sati.',
-    keys: 'Strelice ← → za listanje',
-    more: 'Još projekata',
+  de: {
+    location: 'Standort',
+    year: 'Jahr',
+    prev: 'Vorheriges Projekt',
+    next: 'Nächstes Projekt',
+    close: 'Schließen',
+    similar: 'Wünschen Sie etwas Ähnliches?',
+    similarText: 'Kostenlose Beratung vor Ort und ein präzises Angebot innerhalb von 48 Stunden.',
+    keys: 'Mit ← → blättern',
+    more: 'Weitere Projekte',
   },
   sq: {
     location: 'Vendndodhja',
@@ -28,7 +28,7 @@ const T = defineDict({
     next: 'Projekti i radhës',
     close: 'Mbyll',
     similar: 'Dëshironi diçka të ngjashme?',
-    similarText: 'Matje falas në adresën tuaj dhe ofertë e saktë brenda 48 orëve.',
+    similarText: 'Konsultë falas në vend në adresën tuaj dhe ofertë e saktë brenda 48 orëve.',
     keys: 'Shigjetat ← → për të shfletuar',
     more: 'Më shumë projekte',
   },
@@ -39,7 +39,7 @@ const T = defineDict({
     next: 'Next project',
     close: 'Close',
     similar: 'Want something similar?',
-    similarText: 'A free measurement at your address and a precise quote within 48 hours.',
+    similarText: 'A free on-site consultation at your address and a precise quote within 48 hours.',
     keys: 'Use ← → to browse',
     more: 'More projects',
   },

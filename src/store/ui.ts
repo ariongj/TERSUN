@@ -58,7 +58,7 @@ export const UI_VERSION = 2;
 export const useUi = create<UiState>()(
   persist(
     (set) => ({
-      lang: 'me',
+      lang: 'en',
       adminLang: 'sq',
       cart: [],
       wishlist: [],
@@ -125,7 +125,7 @@ export const useUi = create<UiState>()(
       setAdminRole: (adminRole) => set({ adminRole }),
     }),
     {
-      name: 'selca-ui',
+      name: 'tersun-ui',
       version: UI_VERSION,
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
@@ -146,7 +146,7 @@ export const useUi = create<UiState>()(
         if (version >= UI_VERSION) return old as UiState;
         const codes = old.coupon ? [norm(old.coupon)] : [];
         return {
-          lang: old.lang ?? 'me',
+          lang: old.lang ?? 'en',
           adminLang: 'sq',
           cart: Array.isArray(old.cart) ? old.cart : [],
           wishlist: Array.isArray(old.wishlist) ? old.wishlist : [],

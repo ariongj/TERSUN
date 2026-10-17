@@ -17,40 +17,40 @@ import { basePrice } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 
 const T = defineDict({
-  me: {
-    title: 'Pretraga',
-    eyebrow: 'Pretražite ponudu',
-    placeholder: 'Šta tražite?',
-    submit: 'Traži',
-    clear: 'Obriši pretragu',
-    resultOne: '{n} rezultat',
-    resultMany: '{n} rezultata',
-    forQuery: 'za „{q}“',
-    productOne: '{n} proizvod',
-    productMany: '{n} proizvoda',
-    startCount: 'Pretražite {count} — vrata, prozore, podove, keramiku, kupatila i kuhinje.',
-    inCategories: 'Kategorije',
-    all: 'Sve',
-    wholeCategory: 'Cijela kategorija',
-    sortLabel: 'Sortiraj',
-    sort_relevance: 'Najrelevantnije',
-    sort_popular: 'Najprodavanije',
-    sort_priceAsc: 'Cijena: od najniže',
-    sort_priceDesc: 'Cijena: od najviše',
-    popular: 'Popularne pretrage',
-    startTitle: 'Odakle *počinjemo*?',
-    startText: 'Izaberite popularnu pretragu ili krenite od kategorije.',
-    browse: 'Pregledajte *kategorije*',
-    allProducts: 'Svi proizvodi',
-    noTitle: 'Nismo pronašli *ništa*',
-    noText: 'Za „{q}“ trenutno nemamo proizvod. Provjerite pravopis ili probajte opštiji pojam — pretraga razumije crnogorski, albanski i engleski.',
-    tryPopular: 'Probajte neku od popularnih pretraga',
-    bestsellers: 'Kupci najčešće *biraju*',
-    related: 'Možda vas *zanima* i ovo',
-    customEyebrow: 'Izrada po mjeri',
-    customTitle: 'Niste pronašli *pravo rješenje*?',
-    customText: 'Vrata, prozore i kuhinje izrađujemo po mjeri vašeg prostora. Opišite nam šta vam treba i poslaćemo ponudu u roku od 24 sata.',
-    customCta: 'Zatražite ponudu',
+  de: {
+    title: 'Suche',
+    eyebrow: 'Sortiment durchsuchen',
+    placeholder: 'Wonach suchen Sie?',
+    submit: 'Suchen',
+    clear: 'Suche löschen',
+    resultOne: '{n} Ergebnis',
+    resultMany: '{n} Ergebnisse',
+    forQuery: 'für „{q}“',
+    productOne: '{n} Produkt',
+    productMany: '{n} Produkte',
+    startCount: 'Durchsuchen Sie {count} — Pergolen, Glasdächer, Markisen, Glassysteme, ZIP-Screens und Zubehör.',
+    inCategories: 'Kategorien',
+    all: 'Alle',
+    wholeCategory: 'Ganze Kategorie',
+    sortLabel: 'Sortieren',
+    sort_relevance: 'Beste Treffer',
+    sort_popular: 'Meistverkauft',
+    sort_priceAsc: 'Preis: aufsteigend',
+    sort_priceDesc: 'Preis: absteigend',
+    popular: 'Beliebte Suchen',
+    startTitle: 'Wo *beginnen* wir?',
+    startText: 'Wählen Sie eine beliebte Suche oder starten Sie bei einer Kategorie.',
+    browse: 'Nach *Kategorie* stöbern',
+    allProducts: 'Alle Produkte',
+    noTitle: 'Wir haben *nichts* gefunden',
+    noText: 'Für „{q}“ haben wir derzeit kein Produkt. Prüfen Sie die Schreibweise oder versuchen Sie einen allgemeineren Begriff — die Suche versteht Deutsch, Albanisch und Englisch.',
+    tryPopular: 'Versuchen Sie eine dieser beliebten Suchen',
+    bestsellers: 'Von Kunden am häufigsten *gewählt*',
+    related: 'Das könnte Sie *auch interessieren*',
+    customEyebrow: 'Maßanfertigung',
+    customTitle: 'Nicht die *passende Lösung* gefunden?',
+    customText: 'Jedes System fertigen wir exakt nach Maß Ihrer Terrasse. Beschreiben Sie uns Ihr Projekt, und wir senden Ihnen innerhalb von 24 Stunden ein Angebot.',
+    customCta: 'Angebot anfordern',
   },
   sq: {
     title: 'Kërkimi',
@@ -63,7 +63,7 @@ const T = defineDict({
     forQuery: 'për „{q}“',
     productOne: '{n} produkt',
     productMany: '{n} produkte',
-    startCount: 'Kërkoni ndër {count} — dyer, dritare, dysheme, pllaka, banjo dhe kuzhina.',
+    startCount: 'Kërkoni ndër {count} — pergola, mbuloja xhami, tenda, sisteme xhami, perde Zip dhe aksesorë.',
     inCategories: 'Kategoritë',
     all: 'Të gjitha',
     wholeCategory: 'E gjithë kategoria',
@@ -78,13 +78,13 @@ const T = defineDict({
     browse: 'Shfletoni *kategoritë*',
     allProducts: 'Të gjitha produktet',
     noTitle: 'Nuk gjetëm *asgjë*',
-    noText: 'Për „{q}“ nuk kemi produkt për momentin. Kontrolloni drejtshkrimin ose provoni një term më të përgjithshëm — kërkimi kupton malazezisht, shqip dhe anglisht.',
+    noText: 'Për „{q}“ nuk kemi produkt për momentin. Kontrolloni drejtshkrimin ose provoni një term më të përgjithshëm — kërkimi kupton gjermanisht, shqip dhe anglisht.',
     tryPopular: 'Provoni një nga kërkimet popullore',
     bestsellers: 'Klientët më shpesh *zgjedhin*',
     related: 'Mund t’ju *interesojë* edhe',
     customEyebrow: 'Punim me porosi',
     customTitle: 'Nuk e gjetët *zgjidhjen e duhur*?',
-    customText: 'Dyert, dritaret dhe kuzhinat i prodhojmë sipas masës së hapësirës suaj. Na tregoni çfarë ju nevojitet dhe do t’ju dërgojmë ofertë brenda 24 orëve.',
+    customText: 'Çdo sistem e prodhojmë sipas masës së tarracës suaj. Na tregoni për projektin dhe do t’ju dërgojmë ofertë brenda 24 orëve.',
     customCta: 'Kërkoni ofertë',
   },
   en: {
@@ -98,7 +98,7 @@ const T = defineDict({
     forQuery: 'for “{q}”',
     productOne: '{n} product',
     productMany: '{n} products',
-    startCount: 'Search {count} — doors, windows, flooring, tiles, bathrooms and kitchens.',
+    startCount: 'Search {count} — pergolas, glass roofs, awnings, glass systems, ZIP screens and accessories.',
     inCategories: 'Categories',
     all: 'All',
     wholeCategory: 'Whole category',
@@ -113,13 +113,13 @@ const T = defineDict({
     browse: 'Browse by *category*',
     allProducts: 'All products',
     noTitle: 'We found *nothing*',
-    noText: 'We don’t have anything for “{q}” right now. Check the spelling or try a broader term — search understands Montenegrin, Albanian and English.',
+    noText: 'We don’t have anything for “{q}” right now. Check the spelling or try a broader term — search understands German, Albanian and English.',
     tryPopular: 'Try one of these popular searches',
     bestsellers: 'Customer *favourites*',
     related: 'You may *also like*',
     customEyebrow: 'Made to measure',
     customTitle: 'Haven’t found the *right fit*?',
-    customText: 'We make doors, windows and kitchens to the exact size of your space. Tell us what you need and we’ll send a quote within 24 hours.',
+    customText: 'We build every system to the exact size of your terrace. Tell us about your project and we’ll send a quote within 24 hours.',
     customCta: 'Request a quote',
   },
 });
@@ -320,7 +320,7 @@ export default function SearchPage() {
                 </Chip>
               ))}
               {activeCat && (
-                <Link to={`/proizvodi/${activeCat.slug}`} className="ml-1 inline-flex shrink-0 items-center gap-1 text-[13.5px] font-semibold text-brand-700 hover:text-brand-800">
+                <Link to={`/shop/${activeCat.slug}`} className="ml-1 inline-flex shrink-0 items-center gap-1 text-[13.5px] font-semibold text-brand-700 hover:text-brand-800">
                   {t('wholeCategory')} <ArrowUpRight className="h-4 w-4" />
                 </Link>
               )}
@@ -383,7 +383,7 @@ export default function SearchPage() {
               <h2 className="display text-[30px] leading-[1.05] text-ink sm:text-[40px]">
                 <Accent text={t('browse')} />
               </h2>
-              <Link to="/proizvodi" className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-semibold text-ink hover:text-brand-700">
+              <Link to="/shop" className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-semibold text-ink hover:text-brand-700">
                 {t('allProducts')} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -403,13 +403,13 @@ export default function SearchPage() {
         {hasQuery && (
           <CtaBand
             className="mt-16 sm:mt-24"
-            image="/images/s/majstor.webp"
+            image="/images/misc/view.webp"
             eyebrow={t('customEyebrow')}
             title={t('customTitle')}
             text={t('customText')}
             actions={
               <>
-                <ButtonLink to="/kontakt" variant="light" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+                <ButtonLink to="/contact" variant="light" size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
                   {t('customCta')}
                 </ButtonLink>
                 <a

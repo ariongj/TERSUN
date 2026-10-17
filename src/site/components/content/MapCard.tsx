@@ -48,7 +48,7 @@ function useBlocks() {
   }, []);
 }
 
-/** Street name for the road label: "Magistralni put bb" → "Magistralni put". */
+/** Street name for the road label: "Rr. Agim Ramadani bb" → "Rr. Agim Ramadani". */
 const streetOf = (address: string) => address.replace(/\s+(bb|b\.b\.|\d+[a-z]?)$/i, '').trim();
 
 export function MapCard({ className }: { className?: string }) {

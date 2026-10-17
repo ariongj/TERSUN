@@ -1,101 +1,47 @@
-﻿# SELCA COMPANY â€” e-commerce + CMS demo
+# TERSUN — Beyond Outdoor Living
 
-A complete, clickable demo of a new website for **SELCA COMPANY d.o.o.** (Montenegro) â€”
-*Prodaja & ugradnja Â· Shitje & montim Â· Sve za vaÅ¡ dom / Ã‡do gjÃ« pÃ«r shtÃ«pinÃ« tuaj*.
+Website, shop and CMS for **TERSUN**: bioclimatic pergolas, glass roofs, over-glass awnings, Guillotine Premium,
+Slide Premium and ZIP screens, plus accessories. For clients in Europe and the USA, in **German, Albanian and English**.
 
-- **Storefront** â€” landing page, catalogue with filters, product pages with an mÂ² calculator and installation add-on,
-  cart, checkout (cash on delivery / bank transfer / simulated card), order confirmation, services, projects, about,
-  contact, blog ("Savjeti"), CMS pages, search, wishlist.
-- **CMS** (`/admin`) â€” dashboard with revenue charts, orders (status workflow, notes, printable invoice), customers,
-  leads & measurement bookings, products (full editor: 3 languages, gallery, variants, specs, SEO), categories,
-  coupons, media library with uploads, **homepage builder with live preview**, pages, blog, projects, settings
-  (contact data, shipping zones, payments, languages, brand colour, export/import/reset).
-- **Three languages everywhere** â€” Montenegrin (default), Albanian, English â€” on the site and in the CMS.
+Live preview: https://ariongj.github.io/TERSUN/
 
-Everything runs in the browser (no backend needed for the demo). Data is stored in `localStorage` and every open tab
-stays in sync, so an order placed on the storefront pops up in the CMS instantly.
+- **Storefront**: an image-led homepage with a video hero and a collection of six systems. Systems are made to
+  measure (request a quote); accessories can be bought online through the cart and checkout. Also: projects,
+  services, journal, contact, search and wishlist.
+- **3D Builder** (`/3d`): a live three.js configurator. Choose the system, size, RAL colour, fabric, layout, side
+  closures and LED, and switch between studio, day and night scenes and camera views. It shows a guide price,
+  saves a PNG and sends a quote request straight into the CMS.
+- **CMS** (`/admin`): orders, quotes, enquiries and bookings, customers, products, collections, discounts, the
+  homepage builder with live preview, pages, journal, projects, media and settings.
+
+All data lives in the browser (`localStorage`), so no backend is needed for the preview.
 
 ## Run it
 
-Requirements: Node.js 20.19+ (tested with Node 24).
-
 ```bash
 npm install
+npm run dev        # http://localhost:5173  ·  CMS: /admin
 ```
+
+CMS demo login (pre-filled): `admin@tersun.com` / `tersun2026`
 
 ```bash
-npm run dev
+npm run build                        # static site in dist/
+BASE_PATH=/TERSUN/ npm run build     # GitHub Pages build
 ```
 
-Open http://localhost:5173 â€” the CMS is at http://localhost:5173/admin
+Every push to `claude/tersun-company-setup-5a6sj8` or `main` builds the site and publishes it to the `gh-pages` branch
+(`.github/workflows/pages.yml`).
 
-**CMS demo login** (pre-filled on the login screen): `admin@selca.me` / `selca2026`
+## Where things are
 
-Production build (static files in `dist/`):
+| | |
+|---|---|
+| Catalogue (categories, products, specs) | `src/data/catalog.ts` |
+| Homepage, settings, projects, pages, journal | `src/data/content.ts` |
+| Demo orders, enquiries, CMS records | `src/data/cms.ts`, `src/data/demo.ts` |
+| 3D builder (page, systems, three.js engine) | `src/site/builder3d/` |
+| Translations | `defineDict({ de, sq, en })` next to each component; shared ones in `src/i18n/` |
+| Brand colours / fonts | `src/index.css` (`--color-brand-*`), logo in `src/components/brand/Logo.tsx` |
 
-```bash
-npm run build
-```
-
-```bash
-npm run preview
-```
-
-## Deploy a shareable link
-
-It is a static single-page app:
-
-- **Vercel** â€” import the folder/repo, framework "Vite"; `vercel.json` already rewrites all routes to `index.html`.
-- **Netlify** â€” build command `npm run build`, publish directory `dist`; `public/_redirects` handles routing.
-
-Each visitor's browser keeps its own copy of the demo data.
-
-## Before the meeting (2 minutes)
-
-1. Open **/admin â†’ Postavke** and replace the placeholder contact/legal data (marked "Primjer"): phone, address, city,
-   PIB, PDV, bank account, working hours. This is also a nice live demonstration of the CMS.
-2. **Postavke â†’ Demo podaci â†’ Resetuj demo** â€” regenerates the demo orders and leads relative to today, so the
-   dashboard charts look fresh.
-3. Optional: put the storefront and `/admin` side by side in two browser windows for the live-order moment.
-
-See `DEMO_SCRIPT.md` for a suggested walkthrough.
-
-## What is placeholder
-
-- Product range, prices and texts â€” a realistic "prodaja & ugradnja" catalogue (doors, windows, flooring, tiles,
-  bathroom, kitchens); SELCA's Instagram is private and selcacompany.com currently doesn't resolve, so their real
-  range couldn't be imported. Everything is editable in the CMS.
-- Photos â€” Unsplash (see `CREDITS.md`).
-- Orders, customers and leads â€” generated demo data (names/e-mails are fictional, `@example.com`).
-- Phone, address, PIB/PDV, bank account â€” samples to be replaced in Settings.
-- Card payment â€” simulated; no card data is collected.
-
-## Path to production
-
-| Demo | Production |
-| --- | --- |
-| `localStorage` data | Hosted database + API (e.g. Supabase/Postgres, or a headless commerce/CMS backend) |
-| Demo login | Real authentication with roles (owner, sales, editor) |
-| Simulated card payment | Payment gateway used in Montenegro (bank e-commerce gateway) |
-| Client-side rendering | Server-side rendering / prerendering for SEO (product pages indexed in 3 languages) |
-| Unsplash photos | SELCA's own product & project photography |
-| â€” | Domain `selcacompany.com` (currently not resolving), e-mail notifications, Google Analytics, Meta pixel |
-
-## Tech
-
-Vite Â· React 19 Â· TypeScript Â· Tailwind CSS v4 Â· React Router 7 Â· Zustand Â· Motion Â· Recharts Â· Lucide icons Â·
-Fraunces + Manrope fonts (self-hosted).
-
-```
-src/
-  App.tsx              routes (storefront + /admin, CMS is code-split)
-  lib/                 types, pricing (VAT, mÂ² packs, shipping zones, coupons), formatting, search
-  i18n/                typed ME/SQ/EN dictionaries
-  data/                seed catalogue, homepage sections, pages, posts, projects, demo-order generator
-  store/               zustand stores (db = CMS data, ui = cart/lang/session) + cross-tab sync
-  components/          UI kit, logo, icons
-  site/                storefront layout, sections, pages
-  admin/               CMS layout, components, pages
-public/images/         optimised WebP photos (+ -sm thumbnails)
-```
-
+`classic/` holds the first static version of the site (Node build script + the original three.js builder).
