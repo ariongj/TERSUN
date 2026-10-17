@@ -3,6 +3,21 @@
   'use strict';
   var T = window.TERSUN || {};
 
+  // Intro: the logo draws in once per visit on the home page
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var seen = false;
+  try { seen = sessionStorage.getItem('tersun-intro') === '1'; sessionStorage.setItem('tersun-intro', '1'); } catch (e) { seen = true; }
+  var logo = document.querySelector('.brand .logo-svg');
+  if (!seen && !reduced && logo && document.body.classList.contains('page-home')) {
+    var intro = document.createElement('div');
+    intro.className = 'intro';
+    intro.setAttribute('aria-hidden', 'true');
+    intro.appendChild(logo.cloneNode(true));
+    document.body.appendChild(intro);
+    setTimeout(function () { intro.classList.add('out'); }, 1500);
+    setTimeout(function () { intro.remove(); }, 2700);
+  }
+
   // Header: solid background once the page scrolls
   var header = document.querySelector('[data-header]');
   function onScroll() { if (header) header.classList.toggle('scrolled', window.scrollY > 20); }
@@ -26,7 +41,7 @@
   }
 
   // Reveal on scroll
-  var items = document.querySelectorAll('.reveal');
+  var items = document.querySelectorAll('.reveal, .reveal-img');
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {

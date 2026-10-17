@@ -31,7 +31,19 @@ module.exports = {
     sq: 'TERSUN projekton sisteme premium për jetesën në natyrë për Evropën dhe SHBA-në: pergola bioklimatike, mbuloja xhami, tenda mbi xham, sisteme xhami Guillotine dhe Slide, si dhe perde Zip.'
   },
   heroEyebrow: { en: 'Premium outdoor living systems', de: 'Premium-Systeme für das Leben im Freien', sq: 'Sisteme premium për jetesën në natyrë' },
-  heroTitle: { en: 'Beyond<br>Outdoor Living', de: 'Beyond<br>Outdoor Living', sq: 'Beyond<br>Outdoor Living' },
+  heroTitle: { en: 'Beyond<br><em>Outdoor</em> Living', de: 'Beyond<br><em>Outdoor</em> Living', sq: 'Beyond<br><em>Outdoor</em> Living' },
+  manifestoEyebrow: { en: 'The TERSUN idea', de: 'Die TERSUN-Idee', sq: 'Ideja TERSUN' },
+  manifesto: {
+    en: 'Architecture for the open air. Aluminium and glass, made to measure, so the terrace becomes <em>the most beautiful room</em> of the house.',
+    de: 'Architektur für den freien Himmel. Aluminium und Glas, nach Maß gefertigt, damit die Terrasse zum <em>schönsten Raum</em> des Hauses wird.',
+    sq: 'Arkitekturë për qiellin e hapur. Alumin dhe xham, me porosi, që tarraca të bëhet <em>dhoma më e bukur</em> e shtëpisë.'
+  },
+  partnersTitle: { en: 'Components we trust', de: 'Komponenten, denen wir vertrauen', sq: 'Komponentë që u besojmë' },
+  partners: {
+    en: [['Becker', 'Motors, made in Germany'], ['Sattler', 'Premium fabrics, 5-year warranty'], ['Samsung', 'LED lighting'], ['VSG 4+4 · 5+5', 'Laminated safety glass'], ['RAL 7016', 'Factory powder coating']],
+    de: [['Becker', 'Motoren, Made in Germany'], ['Sattler', 'Premium-Tücher, 5 Jahre Garantie'], ['Samsung', 'LED-Beleuchtung'], ['VSG 4+4 · 5+5', 'Verbundsicherheitsglas'], ['RAL 7016', 'Werkseitige Pulverbeschichtung']],
+    sq: [['Becker', 'Motorë, prodhim gjerman'], ['Sattler', 'Pëlhura premium, 5 vite garancion'], ['Samsung', 'Ndriçim LED'], ['VSG 4+4 · 5+5', 'Xham sigurie i laminuar'], ['RAL 7016', 'Ngjyrosje me pluhur në fabrikë']]
+  },
   heroText: {
     en: 'Six exclusive systems that turn terraces, gardens and façades into spaces you can live in – in sun, rain and wind. Engineered in aluminium and glass, made to measure for Europe and the USA.',
     de: 'Sechs exklusive Systeme, die Terrassen, Gärten und Fassaden in Lebensräume verwandeln – bei Sonne, Regen und Wind. Aus Aluminium und Glas, nach Maß gefertigt für Europa und die USA.',

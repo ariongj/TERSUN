@@ -59,7 +59,7 @@ function configBand(ctx) {
       </ol>
       <a class="btn btn-light" href="${href('configurator/')}">${t('ctaConfigure')} ${icon('arrow')}</a>
     </div>
-    <a class="config-band-visual reveal" href="${href('configurator/')}" aria-label="${esc(t('ctaConfigure'))}">
+    <a class="config-band-visual reveal-img" href="${href('configurator/')}" aria-label="${esc(t('ctaConfigure'))}">
       <img src="${ctx.asset('img/builder-day.jpg')}" alt="" loading="lazy" decoding="async">
       <img class="night" src="${ctx.asset('img/builder-night.jpg')}" alt="" loading="lazy" decoding="async">
       <span class="config-band-badge">3D</span>
@@ -97,7 +97,18 @@ function home(ctx, products) {
   </div>
 </section>
 
-<section class="section">
+<section class="manifesto">
+  <div class="container">
+    <span class="eyebrow reveal">${t('manifestoEyebrow')}</span>
+    <p class="manifesto-text reveal">${t('manifesto')}</p>
+    <div class="partners reveal">
+      <span class="partners-title">${t('partnersTitle')}</span>
+      <ul>${S.partners[lang].map(([name, what]) => `<li><b>${name}</b><span>${what}</span></li>`).join('')}</ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section-collection">
   <div class="container">
     ${sectionHead(t('homeProductsEyebrow'), t('homeProductsTitle'), t('homeProductsText'))}
     <div class="product-grid">
@@ -108,7 +119,7 @@ function home(ctx, products) {
 
 <section class="section section-dark feature-split">
   <div class="container split">
-    <div class="split-visual reveal">
+    <div class="split-visual reveal-img">
       ${bio.video ? productVideo(ctx, bio, 'feature-video') : I.render('bioclimatic', { w: 420, d: 340, h: 250, color: '#ece8e1', angle: 60, led: true, side: 'zip', fabric: '#6f6a63', title: tr(bio.name) })}
     </div>
     <div class="split-copy reveal">
@@ -245,7 +256,7 @@ function productPage(ctx, products, p) {
         <a class="btn btn-ghost" href="${href('contact/')}?product=${p.id}">${t('ctaContact')}</a>
       </div>
     </div>
-    <div class="product-hero-visual${hasPhotos ? ' has-photo' : ''}">${productVisual(ctx, p, { eager: true })}</div>
+    <div class="product-hero-visual reveal-img${hasPhotos ? ' has-photo' : ''}">${productVisual(ctx, p, { eager: true })}</div>
   </div>
 </section>
 

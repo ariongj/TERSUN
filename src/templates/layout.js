@@ -86,6 +86,10 @@ function footer(ctx, products) {
     .map(([k, v]) => `<a href="${esc(v)}" rel="noopener" target="_blank">${k[0].toUpperCase() + k.slice(1)}</a>`).join('');
   return `
 <footer class="site-footer">
+  <div class="container footer-statement">
+    <p>Beyond <em>Outdoor</em> Living</p>
+    <a class="btn btn-ghost-light" href="${href('configurator/')}">${t('ctaConfigure')} ${icon('arrow')}</a>
+  </div>
   <div class="container footer-grid">
     <div class="footer-brand">
       <a class="brand" href="${href('')}" aria-label="TERSUN">${logoSvg}</a>
