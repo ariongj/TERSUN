@@ -12,8 +12,9 @@ import { cn } from '@/lib/utils';
 const DURATION = 7000;
 
 /**
- * Portrait (≈2:3) clip. On landscape screens it plays sharp in a tall frame on the right over a blurred,
- * dimmed full-bleed copy (stretching it would upscale it ~3×); on portrait screens it fills the hero natively.
+ * Portrait (≈2:3) clip. On landscape screens it plays in a wide frame on the right — cropped top and bottom
+ * but shown at about its native width, so it stays sharp — over a blurred, dimmed full-bleed copy;
+ * on portrait screens it fills the hero natively.
  */
 function HeroVideo({ src, active }: { src: string; active: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,11 +26,11 @@ function HeroVideo({ src, active }: { src: string; active: boolean }) {
   return (
     <div ref={ref} className="absolute inset-0">
       <video {...common} className="h-full w-full scale-110 object-cover landscape:blur-2xl landscape:brightness-[0.5]" />
-      <div className="absolute bottom-[21%] right-[5%] top-[12%] hidden landscape:flex xl:right-[9%]">
+      <div className="absolute bottom-[190px] left-[37%] right-[5%] top-[12%] hidden landscape:block xl:right-[8%]">
         <video
           {...common}
           className={cn(
-            'aspect-[1080/1640] h-full rounded-[28px] object-cover shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15 transition-[transform,opacity] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)]',
+            'h-full w-full rounded-[28px] object-cover object-[50%_38%] shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15 transition-[transform,opacity] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)]',
             active ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0',
           )}
         />
