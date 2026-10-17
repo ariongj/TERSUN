@@ -210,11 +210,12 @@ p { margin: 0 0 1em; }
 .js .reveal { opacity: 0; transform: translateY(32px); transition: opacity 1.3s var(--ease-lux), transform 1.3s var(--ease-lux); transition-delay: var(--d, 0ms); }
 .js .reveal.in { opacity: 1; transform: none; }
 /* images unveil from the bottom up */
-.js .reveal-img { clip-path: inset(100% 0 0 0); transition: clip-path 1.6s var(--ease-lux), opacity 1s var(--ease-lux); opacity: 1; transform: none; }
-.js .reveal-img.in { clip-path: inset(0 0 0 0); }
+/* the clip sits on the children: a fully clipped element would never report itself as visible */
+.js .reveal-img > * { clip-path: inset(100% 0 0 0); transition: clip-path 1.6s var(--ease-lux); }
+.js .reveal-img.in > * { clip-path: inset(0 0 0 0); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .js .reveal, .js .reveal-img { opacity: 1; transform: none; transition: none; clip-path: none; }
+  .js .reveal, .js .reveal-img > * { opacity: 1; transform: none; transition: none; clip-path: none; }
   .hero-bg, .hero-copy > * { animation: none !important; }
 }
 
