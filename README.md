@@ -32,7 +32,7 @@ Node 18 or newer is required. There is nothing to install.
 
 ### Preview on GitHub Pages
 
-`npm run pages` builds a preview into `docs/`, where forms don't send anything and pages are marked noindex. Commit and push it, then in the repository go to **Settings → Pages → Build and deployment → Deploy from a branch**, choose this branch and the `/docs` folder, and save. The preview then runs at `https://<owner>.github.io/<repo>/`.
+The preview runs at **https://ariongj.github.io/TERSUN/**. Every push to this branch runs `.github/workflows/pages.yml`, which builds the site with `npm run pages` (forms don't send anything, pages are noindex) and publishes it to the `gh-pages` branch. GitHub Pages serves it from there.
 
 ## Before going live (checklist)
 
