@@ -59,7 +59,7 @@ function header(ctx, products, opts) {
 
   return `
 <a class="skip-link" href="#main">${t('skip')}</a>
-<header class="site-header${opts.overHero ? ' over-hero' : ''}" data-header>
+<header class="site-header${opts.overHero ? ' over-hero' : ''}${opts.dark ? ' header-dark' : ''}" data-header>
   <div class="container header-inner">
     <a class="brand" href="${href('')}" aria-label="TERSUN – ${esc(t('navHome'))}">${logoSvg}</a>
     <nav class="main-nav" id="main-nav" aria-label="Main">
@@ -159,10 +159,11 @@ function layout(ctx, products, page) {
   <link rel="icon" href="${ctx.asset('img/logo/favicon.svg')}" type="image/svg+xml">
   <link rel="preload" href="${ctx.asset('fonts/jost-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="${ctx.asset('css/style.css')}">
+  ${ctx.demo ? '<meta name="robots" content="noindex, nofollow">' : ''}
   ${page.head || ''}
 </head>
 <body class="${page.bodyClass || ''}">
-${header(ctx, products, { overHero: page.overHero })}
+${header(ctx, products, { overHero: page.overHero, dark: page.darkHeader })}
 <main id="main">
 ${page.body}
 </main>

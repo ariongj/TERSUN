@@ -154,6 +154,9 @@ module.exports = {
     sq: 'Konfiguroni sistemin tuaj TERSUN online: përmasat, ngjyrat dhe opsionet me pamje live, pastaj kërkoni ofertën tuaj personale.'
   },
   cfgTitle: { en: 'Build your TERSUN in 3D', de: 'Ihr TERSUN in 3D gestalten', sq: 'Ndërtoni TERSUN-in tuaj në 3D' },
+  studioEyebrow: { en: 'TERSUN Studio', de: 'TERSUN Studio', sq: 'TERSUN Studio' },
+  studioModes: { en: ['Studio', 'Day', 'Night'], de: ['Studio', 'Tag', 'Nacht'], sq: ['Studio', 'Ditë', 'Natë'] },
+  studioViews: { en: ['Corner', 'Front', 'Side', 'Top', 'Inside'], de: ['Ecke', 'Vorne', 'Seite', 'Oben', 'Innen'], sq: ['Kënd', 'Para', 'Anash', 'Lart', 'Brenda'] },
   cfg3dNight: { en: 'Day / night', de: 'Tag / Nacht', sq: 'Ditë / natë' },
   cfg3dDims: { en: 'Show dimensions', de: 'Maße anzeigen', sq: 'Shfaq përmasat' },
   cfg3dProps: { en: 'Furniture & person', de: 'Möbel & Person', sq: 'Mobilje & person' },

@@ -4,6 +4,7 @@
  *
  *   node build.js            production build (clean URLs: /en/products/)
  *   node build.js --preview  links point at index.html files, for opening from disk
+ *   node build.js --demo --out docs   preview for GitHub Pages: forms don't send, pages are noindex
  */
 const fs = require('fs');
 const path = require('path');
@@ -13,7 +14,8 @@ const pages = require('./src/templates/pages');
 const { layout, createContext } = require('./src/templates/layout');
 
 const SRC = path.join(__dirname, 'src');
-const OUT = path.join(__dirname, 'dist');
+const outArg = process.argv.indexOf('--out');
+const OUT = path.join(__dirname, outArg > -1 ? process.argv[outArg + 1] : 'dist');
 const preview = process.argv.includes('--preview') || process.argv.includes('--demo');
 // --demo: preview build whose forms don't send anything (for sharing a preview link)
 const demo = process.argv.includes('--demo');
@@ -121,6 +123,10 @@ ${urls.join('\n')}
 `);
 write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`);
 
-if (demo) fs.rmSync(path.join(OUT, '404.html'), { force: true });
+if (demo) {
+  fs.rmSync(path.join(OUT, '404.html'), { force: true });
+  write('robots.txt', 'User-agent: *\nDisallow: /\n');
+  write('.nojekyll', '');
+}
 
 console.log(`Built ${count} pages in ${config.languages.length} languages → ${path.relative(process.cwd(), OUT) || OUT}${demo ? ' (demo: forms do not send)' : preview ? ' (preview links)' : ''}`);

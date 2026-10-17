@@ -65,7 +65,7 @@
     DIM_KEYS.forEach(function (k) { if (p.dims[k]) state.dims[k] = p.dims[k][2]; });
     state.values = {};
     p.fields.forEach(function (f) {
-      if (f.type === 'multi') state.values[f.key] = [];
+      if (f.type === 'multi') state.values[f.key] = (f.value || []).slice();
       else if (f.type === 'number') state.values[f.key] = f.value;
       else state.values[f.key] = f.choices[0].value;
     });
@@ -76,6 +76,9 @@
     state.preview = p.preview ? p.preview.value : null;
     var radio = form.querySelector('input[name=product][value="' + id + '"]');
     if (radio) radio.checked = true;
+    var title = $('[data-cfg-title]'), tagline = $('[data-cfg-tagline]');
+    if (title) title.textContent = p.name;
+    if (tagline) tagline.textContent = p.tagline;
     buildDims(); buildFields(); buildPreviewControl(); drawPreview(); save();
   }
 
@@ -297,6 +300,10 @@
 
   function scrollToPanel() {
     var panel = $('.cfg-panel');
+    if (panel.scrollHeight > panel.clientHeight + 4 && getComputedStyle(panel).overflowY === 'auto') {
+      panel.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     var top = panel.getBoundingClientRect().top;
     if (top < 0 || top > window.innerHeight * 0.6) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }

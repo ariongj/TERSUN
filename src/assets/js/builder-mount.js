@@ -20,19 +20,36 @@ function start() {
   window.TersunViewer = viewer;
   viewer.setAutoRotate(true);
   if (toolbar) toolbar.hidden = false;
+  const state = { dims: true, props: true, rotate: true };
+  const studioControls = document.querySelector('[data-cfg-studio-controls]');
+  if (studioControls) {
+    studioControls.hidden = false;
+    studioControls.addEventListener('click', (e) => {
+      const m = e.target.closest('[data-3d-mode]');
+      if (m) {
+        viewer.setMode(m.getAttribute('data-3d-mode'));
+        studioControls.querySelectorAll('[data-3d-mode]').forEach((b) => b.setAttribute('aria-checked', b === m ? 'true' : 'false'));
+      }
+      const v = e.target.closest('[data-3d-view]');
+      if (v) {
+        viewer.setView(v.getAttribute('data-3d-view'));
+        studioControls.querySelectorAll('[data-3d-view]').forEach((b) => b.setAttribute('aria-pressed', b === v ? 'true' : 'false'));
+        const rot = toolbar && toolbar.querySelector('[data-3d="rotate"]');
+        if (rot) rot.setAttribute('aria-pressed', 'false');
+        state.rotate = false;
+      }
+    });
+  }
   cfg.redraw();
 
-  const state = { night: false, dims: true, props: true, rotate: true };
   const press = (btn, on) => btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   toolbar && toolbar.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-3d]');
     if (!btn) return;
     const action = btn.getAttribute('data-3d');
-    if (action === 'night') { state.night = !state.night; viewer.setNight(state.night); press(btn, state.night); }
     if (action === 'dims') { state.dims = !state.dims; viewer.setDims(state.dims); press(btn, state.dims); }
-    if (action === 'props') { state.props = !state.props; viewer.setProps(state.props); press(btn, state.props); cfg.redraw(); }
+    if (action === 'props') { state.props = !state.props; viewer.setProps(state.props); press(btn, state.props); }
     if (action === 'rotate') { state.rotate = !state.rotate; viewer.setAutoRotate(state.rotate); press(btn, state.rotate); }
-    if (action === 'reset') { viewer.resetView(); cfg.redraw(); }
     if (action === 'full') {
       const el = stage.closest('.cfg-preview') || stage;
       if (document.fullscreenElement) document.exitFullscreen();

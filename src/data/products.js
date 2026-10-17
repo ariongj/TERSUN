@@ -127,7 +127,7 @@ module.exports = [
             { value: 'panel', label: { en: 'Aluminium panels', de: 'Aluminiumpaneele', sq: 'Fletë alumini' } }
           ] },
         motorControl,
-        { key: 'extras', type: 'multi',
+        { key: 'extras', type: 'multi', value: ['led'],
           label: { en: 'Extras', de: 'Extras', sq: 'Shtesa' },
           choices: [
             { value: 'led', label: { en: 'LED lighting', de: 'LED-Beleuchtung', sq: 'Ndriçim LED' } },
@@ -203,7 +203,7 @@ module.exports = [
             { value: '4+4', label: { en: '4+4 laminated', de: '4+4 VSG', sq: '4+4 i laminuar' } },
             { value: '5+5', label: { en: '5+5 laminated', de: '5+5 VSG', sq: '5+5 i laminuar' } }
           ] },
-        { key: 'extras', type: 'multi',
+        { key: 'extras', type: 'multi', value: ['led'],
           label: { en: 'Extras', de: 'Extras', sq: 'Shtesa' },
           choices: [
             { value: 'led', label: { en: 'Samsung LED lighting', de: 'Samsung LED-Beleuchtung', sq: 'Ndriçim LED Samsung' } },

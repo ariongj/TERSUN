@@ -353,42 +353,47 @@ function configurator(ctx, products) {
   const strings = {};
   ['cfgSteps', 'cfgNext', 'cfgBack', 'cfgSend', 'dimW', 'dimD', 'dimH', 'cfgCustomRal', 'cfgNone', 'cfgReference',
     'cfgThanksTitle', 'cfgThanksText', 'cfgMailtoText', 'cfgError', 'cfgOutOfRange', 'fName', 'fEmail', 'fPhone',
-    'fCountry', 'fCity', 'fCustomerType', 'fMessage', 'navConfigurator', 'cfgSummary', 'cfgCopied']
+    'fCountry', 'fCity', 'fCustomerType', 'fMessage', 'navConfigurator', 'cfgSummary', 'cfgCopied', 'cfgChooseProduct', 'cfgIntro']
     .forEach((k) => { strings[k] = S[k][lang]; });
   const consent = S.fConsent[lang].replace('{privacy}', ctx.href('legal/') + '#privacy');
 
   const body = `
-<section class="page-hero page-hero-compact">
-  <div class="container">
-    <span class="eyebrow">TERSUN</span>
-    <h1>${t('cfgTitle')}</h1>
-    <p class="lead">${t('cfgIntro')}</p>
-  </div>
-</section>
-
-<section class="configurator" data-configurator>
-  <div class="container cfg-layout">
+<h1 class="sr-only">${t('cfgTitle')}</h1>
+<section class="configurator studio" data-configurator>
+  <div class="cfg-layout">
     <div class="cfg-preview">
       <div class="cfg-stage-wrap">
         <div class="cfg-preview-stage" data-cfg-preview></div>
+        <div class="studio-title" aria-live="polite">
+          <span class="eyebrow eyebrow-light">${t('studioEyebrow')}</span>
+          <p class="studio-name" data-cfg-title>${t('cfgChooseProduct')}</p>
+          <p class="studio-tagline" data-cfg-tagline>${t('cfgIntro')}</p>
+        </div>
         <div class="cfg-toolbar" data-cfg-toolbar role="toolbar" aria-label="3D" hidden>
-          ${[['night', 'moon', 'cfg3dNight', false], ['dims', 'ruler', 'cfg3dDims', true], ['props', 'sofa', 'cfg3dProps', true],
-            ['rotate', 'rotate', 'cfg3dRotate', true], ['reset', 'target', 'cfg3dReset'], ['full', 'expand', 'cfg3dFull'], ['save', 'download', 'cfg3dSave']]
+          ${[['dims', 'ruler', 'cfg3dDims', true], ['props', 'sofa', 'cfg3dProps', true],
+            ['rotate', 'rotate', 'cfg3dRotate', true], ['full', 'expand', 'cfg3dFull'], ['save', 'download', 'cfg3dSave']]
             .map(([a, ic, label, pressed]) => `<button type="button" data-3d="${a}" title="${esc(t(label))}" aria-label="${esc(t(label))}"${pressed === undefined ? '' : ` aria-pressed="${pressed}"`}>${icon(ic)}</button>`).join('')}
+        </div>
+        <div class="studio-bottom" data-cfg-studio-controls hidden>
+          <div class="studio-modes" role="radiogroup" aria-label="${esc(t('cfg3dNight'))}">
+            ${['studio', 'day', 'night'].map((m, i) => `<button type="button" role="radio" data-3d-mode="${m}" aria-checked="${i === 0}">${S.studioModes[lang][i]}</button>`).join('')}
+          </div>
+          <div class="studio-views" role="group" aria-label="${esc(t('cfg3dReset'))}">
+            ${['corner', 'front', 'side', 'top', 'inside'].map((v, i) => `<button type="button" data-3d-view="${v}"${i === 0 ? ' aria-pressed="true"' : ''}>${S.studioViews[lang][i]}</button>`).join('')}
+          </div>
+        </div>
+        <div class="cfg-preview-controls">
+          <div class="cfg-preview-control" data-cfg-preview-control hidden>
+            <label><span data-cfg-preview-label></span> <output data-cfg-preview-output></output>
+              <input type="range" data-cfg-preview-range></label>
+          </div>
+          <div class="cfg-preview-control" data-cfg-side-control hidden>
+            <label><span>${t('cfgSideOpen')}</span> <output data-cfg-side-output></output>
+              <input type="range" min="0" max="100" value="30" data-cfg-side-range></label>
+          </div>
         </div>
         <p class="cfg-hint">${icon('rotate')}<span>${t('cfg3dHint')}</span></p>
       </div>
-      <div class="cfg-preview-controls">
-        <div class="cfg-preview-control" data-cfg-preview-control hidden>
-          <label><span data-cfg-preview-label></span> <output data-cfg-preview-output></output>
-            <input type="range" data-cfg-preview-range></label>
-        </div>
-        <div class="cfg-preview-control" data-cfg-side-control hidden>
-          <label><span>${t('cfgSideOpen')}</span> <output data-cfg-side-output></output>
-            <input type="range" min="0" max="100" value="30" data-cfg-side-range></label>
-        </div>
-      </div>
-      <p class="small muted">${t('cfgPreviewNote')}</p>
     </div>
 
     <div class="cfg-panel">
@@ -403,7 +408,9 @@ function configurator(ctx, products) {
             ${products.map((p) => `
             <label class="cfg-product">
               <input type="radio" name="product" value="${p.id}">
-              <span class="cfg-product-visual">${I.render(p.illustration, { color: CARD_COLOR, title: tr(p.name) })}</span>
+              <span class="cfg-product-visual${p.photos.length ? ' has-photo' : ''}">${p.photos.length
+                ? `<img src="${ctx.asset(p.photos[0])}" alt="" loading="lazy" decoding="async">`
+                : I.render(p.illustration, { color: CARD_COLOR, title: tr(p.name) })}</span>
               <span class="cfg-product-name">${esc(tr(p.name))}</span>
             </label>`).join('')}
           </div>
@@ -468,7 +475,8 @@ function configurator(ctx, products) {
   return {
     title: t('metaConfigTitle'),
     description: t('metaConfigDesc'),
-    bodyClass: 'page-configurator',
+    bodyClass: 'page-configurator theme-dark',
+    darkHeader: true,
     clientStrings: strings,
     scripts: ['js/illustrations.js', 'js/configurator.js', { src: 'js/builder-mount.js', module: true }],
     body

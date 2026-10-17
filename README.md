@@ -30,6 +30,10 @@ npm run serve     # build and serve on http://localhost:8080
 
 Node 18 or newer is required. There is nothing to install.
 
+### Preview on GitHub Pages
+
+`npm run pages` builds a preview into `docs/`, where forms don't send anything and pages are marked noindex. Commit and push it, then in the repository go to **Settings → Pages → Build and deployment → Deploy from a branch**, choose this branch and the `/docs` folder, and save. The preview then runs at `https://<owner>.github.io/<repo>/`.
+
 ## Before going live (checklist)
 
 1. **Contact details:** set `src/config.js` → `company.email`, `phone`, `address`, social links and `siteUrl`.

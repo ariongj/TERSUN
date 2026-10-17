@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TERSUN – Beyond Outdoor Living</title>
+  <link rel="icon" href="assets/img/logo/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" hreflang="en" href="https://www.tersun.com/en/">
+  <link rel="alternate" hreflang="de" href="https://www.tersun.com/de/">
+  <link rel="alternate" hreflang="sq" href="https://www.tersun.com/sq/">
+  <link rel="alternate" hreflang="x-default" href="https://www.tersun.com/">
+  <script>
+    (function () {
+      var langs = ["en","de","sq"], pick = 'en';
+      var prefs = navigator.languages || [navigator.language || ''];
+      for (var i = 0; i < prefs.length; i++) {
+        var l = String(prefs[i]).slice(0, 2).toLowerCase();
+        if (langs.indexOf(l) > -1) { pick = l; break; }
+      }
+      location.replace(pick + '/index.html' + location.search);
+    })();
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=en/index.html"></noscript>
+  <style>body{font-family:system-ui,sans-serif;background:#f6f3ee;color:#1b1918;display:grid;place-items:center;min-height:100vh;margin:0}a{color:inherit;margin:0 .6em}</style>
+</head>
+<body>
+  <p><a href="en/index.html">EN</a> <a href="de/index.html">DE</a> <a href="sq/index.html">SQ</a></p>
+</body>
+</html>
