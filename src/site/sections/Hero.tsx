@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, ChevronLeft, ChevronRight, Ruler } from 'lucide-react';
@@ -11,26 +11,66 @@ import { cn } from '@/lib/utils';
 
 const DURATION = 7000;
 
+/**
+ * Portrait (≈2:3) clip. On landscape screens it plays sharp in a tall frame on the right over a blurred,
+ * dimmed full-bleed copy (stretching it would upscale it ~3×); on portrait screens it fills the hero natively.
+ */
+function HeroVideo({ src, active }: { src: string; active: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // only play while the slide is showing
+    ref.current?.querySelectorAll('video').forEach((v) => (active ? void v.play().catch(() => undefined) : v.pause()));
+  }, [active]);
+  const common = { src, poster: src.replace(/\.mp4$/i, '-poster.jpg'), muted: true, loop: true, playsInline: true, preload: 'metadata' } as const;
+  return (
+    <div ref={ref} className="absolute inset-0">
+      <video {...common} className="h-full w-full scale-110 object-cover landscape:blur-2xl landscape:brightness-[0.5]" />
+      <div className="absolute bottom-[21%] right-[5%] top-[12%] hidden landscape:flex xl:right-[9%]">
+        <video
+          {...common}
+          className={cn(
+            'aspect-[1080/1640] h-full rounded-[28px] object-cover shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/15 transition-[transform,opacity] duration-[1400ms] ease-[cubic-bezier(.16,1,.3,1)]',
+            active ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0',
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
 /** Headline that rises word by word out of a mask; words in *asterisks* get the gold italic accent. */
 function RevealTitle({ text, delay }: { text: string; delay: number }) {
-  const words: { w: string; accent: boolean }[] = [];
+  // words keep any glued-on punctuation ("*Breathe*." → one word, accent + plain part)
+  const words: { text: string; accent: boolean }[][] = [];
+  let glue = false;
   for (const part of text.split(/(\*[^*]+\*)/g).filter(Boolean)) {
     const accent = part.startsWith('*') && part.endsWith('*');
-    for (const w of (accent ? part.slice(1, -1) : part).split(/\s+/).filter(Boolean)) words.push({ w, accent });
+    const body = accent ? part.slice(1, -1) : part;
+    body.split(/(\s+)/).forEach((tok) => {
+      if (!tok) return;
+      if (/^\s+$/.test(tok)) return void (glue = false);
+      if (glue && words.length) words[words.length - 1].push({ text: tok, accent });
+      else words.push([{ text: tok, accent }]);
+      glue = true;
+    });
   }
   return (
     <>
-      {words.map(({ w, accent }, n) => (
+      {words.map((segs, n) => (
         <span key={n} className="inline-block overflow-hidden pb-[0.12em] align-bottom">
           <motion.span
-            className={cn('inline-block', accent && 'font-display italic text-brand-300')}
+            className="inline-block"
             variants={{
               hidden: { y: '110%', rotate: 4 },
               show: { y: '0%', rotate: 0, transition: { duration: 1.1, delay: delay + n * 0.09, ease: [0.16, 1, 0.3, 1] } },
               exit: { y: '-40%', opacity: 0, transition: { duration: 0.3 } },
             }}
           >
-            {w}
+            {segs.map((sg, j) => (
+              <span key={j} className={cn(sg.accent && 'font-display italic text-brand-300')}>
+                {sg.text}
+              </span>
+            ))}
           </motion.span>
           {n < words.length - 1 && '\u00a0'}
         </span>
@@ -71,19 +111,23 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
       {/* Images — the first slide opens with a slow pull-back out of darkness */}
       {slides.map((sl, k) => (
         <div key={sl.id} className={cn('absolute inset-0 -z-20 overflow-hidden transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
-          <img
-            src={sl.image}
-            alt=""
-            loading={k === 0 ? 'eager' : 'lazy'}
-            fetchPriority={k === 0 ? 'high' : undefined}
-            onLoad={k === 0 ? () => setReady(true) : undefined}
-            className={cn(
-              'h-full w-full object-cover will-change-transform',
-              k === 0 && intro && !ready && 'scale-[1.32] brightness-[0.15]',
-              k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
-              sl.video && 'portrait:hidden',
-            )}
-          />
+          {/\.mp4$/i.test(sl.image) ? (
+            <HeroVideo src={sl.image} active={k === i} />
+          ) : (
+            <img
+              src={sl.image}
+              alt=""
+              loading={k === 0 ? 'eager' : 'lazy'}
+              fetchPriority={k === 0 ? 'high' : undefined}
+              onLoad={k === 0 ? () => setReady(true) : undefined}
+              className={cn(
+                'h-full w-full object-cover will-change-transform',
+                k === 0 && intro && !ready && 'scale-[1.32] brightness-[0.15]',
+                k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
+                sl.video && 'portrait:hidden',
+              )}
+            />
+          )}
           {sl.video && (
             <video src={sl.video} poster={sl.video.replace(/\.mp4$/i, '-poster.jpg')} autoPlay muted loop playsInline preload="metadata" className="hidden h-full w-full object-cover portrait:block" />
           )}

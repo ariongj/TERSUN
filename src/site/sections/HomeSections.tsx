@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import {
@@ -267,28 +267,62 @@ export function FeaturedSection({ data }: { data: DataOf<'featured'> }) {
 }
 
 /* ------------------------------------------------------------------ */
-/** Promo without a deadline: a calm split band — copy on the left, one clean image on the right (3D builder teaser). */
+const LivePreview = lazy(() => import('@/site/builder3d/LivePreview'));
+
+/** Mount children only once the element nears the viewport (keeps three.js out of the first load). */
+function useNearViewport<T extends Element>() {
+  const ref = useRef<T>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver((e) => e[0].isIntersecting && setNear(true), { rootMargin: '400px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+  return [ref, near] as const;
+}
+
+/**
+ * Promo without a deadline: copy on the left, a big visual on the right. When it links to the 3D builder the
+ * visual is the builder itself — live, turning, draggable — otherwise the section image.
+ */
 function FeatureBand({ data }: { data: DataOf<'promo'> }) {
   const l = useL();
+  const live = data.cta.href === '/3d';
+  const [stageRef, near] = useNearViewport<HTMLDivElement>();
   return (
     <section className="pb-24 sm:pb-32">
       <div className="container-x">
         <Reveal>
-          <Link to={data.cta.href} className="group grid items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-14">
             <div className="order-2 lg:order-1">
               <div className="eyebrow">{l(data.eyebrow)}</div>
               <h2 className="display mt-4 text-[42px] leading-[1] text-ink sm:text-[60px]">
                 <Accent text={l(data.title)} />
               </h2>
               {l(data.text) && <p className="mt-5 max-w-md text-[16px] leading-relaxed text-muted">{l(data.text)}</p>}
-              <span className="mt-8 inline-flex h-13 items-center gap-2 rounded-full bg-ink px-7 text-[15px] font-semibold text-paper transition group-hover:bg-brand-600">
+              <Link
+                to={data.cta.href}
+                className="group mt-8 inline-flex h-13 items-center gap-2 rounded-full bg-ink px-7 text-[15px] font-semibold text-paper transition hover:bg-brand-600"
+              >
                 {l(data.cta.label)} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
+              </Link>
             </div>
-            <div className="relative order-1 aspect-[2520/1300] overflow-hidden rounded-[28px] bg-[#d4d0ca] lg:order-2">
-              <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-[1.04]" />
+            <div ref={stageRef} className="relative order-1 aspect-[4/3] overflow-hidden rounded-[28px] bg-[#141312] shadow-[0_40px_90px_-40px_rgba(20,19,18,0.65)] lg:order-2 lg:aspect-[16/10]">
+              {live ? (
+                near && (
+                  <Suspense fallback={<Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover" />}>
+                    <LivePreview fallback={data.image} />
+                  </Suspense>
+                )
+              ) : (
+                <Link to={data.cta.href} className="group absolute inset-0">
+                  <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-[1.04]" />
+                </Link>
+              )}
             </div>
-          </Link>
+          </div>
         </Reveal>
       </div>
     </section>

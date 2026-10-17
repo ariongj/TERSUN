@@ -9,11 +9,11 @@ import {
 } from './cms';
 
 /** Bump to force every browser to reload fresh demo data. */
-export const DB_VERSION = 103;
+export const DB_VERSION = 104;
 
 /** Every bundled image, exposed in the CMS media library (product photos are added from the catalogue). */
 const IMAGE_PATHS = [
-  'hero/bioclimatic', 'hero/slide', 'hero/awning', 'hero/zip', 'hero/guillotine',
+  'hero/bioclimatic', 'hero/glass-roof', 'hero/guillotine', 'hero/slide', 'hero/awning', 'hero/zip',
   'misc/builder-studio', 'misc/builder-day', 'misc/builder-night', 'misc/about', 'misc/view', 'misc/night',
   'cat/bioclimatic', 'cat/glass-roof', 'cat/awning', 'cat/guillotine', 'cat/slide', 'cat/zip',
 ];

@@ -43,5 +43,5 @@ export interface Viewer {
   dispose(): void;
 }
 
-export function createViewer(container: HTMLElement, options?: { keepView?: boolean; labels?: { w?: boolean }; onInteract?: () => void }): Viewer;
+export function createViewer(container: HTMLElement, options?: { keepView?: boolean; labels?: { w?: boolean }; onInteract?: () => void; /** >1 frames the system closer */ zoom?: number }): Viewer;
 export function webglAvailable(): boolean;

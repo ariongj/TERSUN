@@ -732,7 +732,7 @@ export function createViewer(container, options) {
   function viewPose(name) {
     const { w, d, h } = dimsNow;
     const size = Math.max(w, d, h * 1.4);
-    const dist = (size * 2.3 + 3.2) * Math.max(1, 1.35 / camera.aspect);
+    const dist = ((size * 2.3 + 3.2) * Math.max(1, 1.35 / camera.aspect)) / (opts.zoom || 1);
     const tgt = new THREE.Vector3(0, h * (name === 'top' ? 0.1 : 0.42), roofy ? 0 : -0.3);
     let pos;
     if (name === 'inside' && roofy) {
