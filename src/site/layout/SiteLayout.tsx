@@ -54,7 +54,10 @@ export function SiteLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Footer />
+      {/* on phones the 3D builder is a one-screen app: no footer, so the page cannot scroll away from it */}
+      <div className={location.pathname === '/3d' ? 'max-lg:hidden' : undefined}>
+        <Footer />
+      </div>
       <CartDrawer />
       <SearchOverlay />
       <DemoBadge />
