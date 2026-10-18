@@ -759,7 +759,7 @@ export function createViewer(container, options) {
   const dimMat = new THREE.LineDashedMaterial({ color: '#d8bc8a', dashSize: 0.08, gapSize: 0.06, transparent: true, opacity: 0.8 });
 
   let kit = null, current = null, mode = 'studio', showDims = true, showProps = true;
-  let enclosed = false;
+  let enclosed = false, userMoved = false;
   let roofy = true, dimsNow = { w: 4.5, d: 3.5, h: 2.6 }, view = 'corner', framed = null, firstFrame = true;
   const anim = { angle: 30, open: 0.3, extension: 0.8, sideOpen: 0.3 };
   const target = Object.assign({}, anim);
@@ -956,8 +956,12 @@ export function createViewer(container, options) {
     renderer.setSize(wpx, hpx, false);
     composer.setSize(wpx, hpx);
     bloom.resolution.set(wpx / 2, hpx / 2);
+    const was = camera.aspect;
     camera.aspect = wpx / hpx;
     camera.updateProjectionMatrix();
+    // the framing distance depends on the aspect ratio: re-frame after a real size change
+    // (e.g. a phone layout settling) unless the visitor has already moved the camera
+    if (kit && !userMoved && Math.abs(was - camera.aspect) > 0.02) flyTo(view, true);
   }
   const ro = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
   if (ro) ro.observe(container); else window.addEventListener('resize', resize);
@@ -998,7 +1002,7 @@ export function createViewer(container, options) {
   }
   requestAnimationFrame(frame);
 
-  controls.addEventListener('start', () => { controls.autoRotate = false; fly.t = 1; if (opts.onInteract) opts.onInteract(); });
+  controls.addEventListener('start', () => { userMoved = true; controls.autoRotate = false; fly.t = 1; if (opts.onInteract) opts.onInteract(); });
   applyLights();
 
   return {

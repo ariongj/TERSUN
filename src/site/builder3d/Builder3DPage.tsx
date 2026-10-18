@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Camera, Check, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -41,6 +41,8 @@ const D = defineDict({
     off: 'Nein',
     noGl: 'Ihr Browser unterstützt kein WebGL – bitte öffnen Sie den Builder in einem aktuellen Browser.',
     reset: 'Zurücksetzen',
+    colour: 'Farbe',
+    options: 'Optionen',
   },
   sq: {
     eyebrow: '3D Builder',
@@ -71,6 +73,8 @@ const D = defineDict({
     off: 'Jo',
     noGl: 'Shfletuesi juaj nuk mbështet WebGL – hapeni builder-in në një shfletues të ri.',
     reset: 'Rivendos',
+    colour: 'Ngjyra',
+    options: 'Opsione',
   },
   en: {
     eyebrow: '3D Builder',
@@ -101,6 +105,8 @@ const D = defineDict({
     off: 'No',
     noGl: 'Your browser does not support WebGL – please open the builder in a current browser.',
     reset: 'Reset',
+    colour: 'Colour',
+    options: 'Options',
   },
 });
 
@@ -198,6 +204,19 @@ export default function Builder3DPage() {
   const [showDims, setShowDims] = useState(true);
   const [rotate, setRotate] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [tab, setTab] = useState<'system' | 'size' | 'colour' | 'options'>('system');
+  // phones: the builder fills exactly the screen below the header, so nothing needs page scrolling
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [fitH, setFitH] = useState(640);
+  useLayoutEffect(() => {
+    const fit = () => {
+      const top = (rootRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
+      setFitH(Math.max(460, window.innerHeight - top));
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, []);
   const stageRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const [gl] = useState(() => webglAvailable());
@@ -280,88 +299,19 @@ export default function Builder3DPage() {
       active ? 'bg-white text-ink' : 'text-white/75 hover:bg-white/10 hover:text-white',
     );
 
-  return (
-    <div className="bg-ink text-paper">
-      <div className="grid lg:h-[calc(100svh-112px)] lg:min-h-[640px] lg:grid-cols-[minmax(0,1fr)_420px]">
-        {/* ------------------------------------------------ stage */}
-        <div className="relative h-[62svh] min-h-[380px] overflow-hidden lg:h-auto">
-          <div ref={stageRef} className="absolute inset-0" />
-          {!gl && (
-            <div className="absolute inset-0 grid place-items-center p-8 text-center">
-              <div>
-                <img src={system.image} alt="" className="mx-auto mb-6 max-h-64 rounded-2xl object-cover" />
-                <p className="max-w-md text-sm text-paper/70">{t('noGl')}</p>
-              </div>
-            </div>
-          )}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_9_8/0.55)_0%,transparent_26%,transparent_74%,rgb(10_9_8/0.5)_100%)]" />
-
-          {/* title */}
-          <div className="pointer-events-none absolute left-5 top-5 sm:left-8 sm:top-7">
-            <div className="eyebrow text-brand-200">{t('eyebrow')}</div>
-            <h1 className="display mt-2 max-w-[calc(100vw-170px)] text-[28px] leading-[1.02] text-white sm:max-w-none sm:text-[52px]">{l(system.name)}</h1>
-          </div>
-
-          {/* mode switch */}
-          <div className="absolute right-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md sm:right-6 sm:top-6">
-            {(
-              [
-                ['studio', <Lamp key="s" className="h-3.5 w-3.5" />],
-                ['day', <Sun key="d" className="h-3.5 w-3.5" />],
-                ['night', <Moon key="n" className="h-3.5 w-3.5" />],
-              ] as const
-            ).map(([m, icon]) => (
-              <button key={m} onClick={() => setMode(m)} className={pill(mode === m)} aria-pressed={mode === m}>
-                {icon}
-                <span className="hidden sm:inline">{t(m)}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* views + tools */}
-          <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 sm:inset-x-6 sm:bottom-auto sm:top-[132px]">
-            <div className="flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
-              {(['corner', 'front', 'side', 'top', 'inside'] as const).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => {
-                    setView(v);
-                    setRotate(false);
-                    viewerRef.current?.setView(v);
-                  }}
-                  className={pill(view === v && !rotate)}
-                >
-                  {t(v)}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
-              <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-pressed={showDims}>
-                <Ruler className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-pressed={rotate}>
-                <Move3d className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={snapshot} className={pill(false)} title={t('snapshot')}>
-                <Camera className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ------------------------------------------------ panel */}
-        <aside className="flex min-h-0 flex-col border-l border-white/[0.06] bg-[#1a1917]">
-          <div className="min-h-0 flex-1 space-y-8 overflow-y-auto px-5 py-6 sm:px-7">
+  // panel groups — stacked in the desktop sidebar, one tab at a time on phones
+  const systemsBlock = (
+      <>
             {/* systems */}
             <section>
-              <PanelLabel>{t('system')}</PanelLabel>
+              <PanelLabel className="max-lg:hidden">{t('system')}</PanelLabel>
               <div className="grid grid-cols-3 gap-2">
                 {SYSTEMS.map((s) => (
                   <button
                     key={s.id}
                     onClick={() => pickSystem(s.id)}
                     className={cn(
-                      'group relative aspect-[4/3] overflow-hidden rounded-xl ring-1 transition',
+                      'group relative aspect-[16/10] overflow-hidden rounded-xl ring-1 transition lg:aspect-[4/3]',
                       s.id === system.id ? 'ring-2 ring-brand-300' : 'ring-white/10 hover:ring-white/30',
                     )}
                   >
@@ -378,16 +328,22 @@ export default function Builder3DPage() {
               </div>
             </section>
 
+      </>);
+  const sizeBlock = (
+      <>
             {/* dimensions */}
             <section>
-              <PanelLabel>{t('size')}</PanelLabel>
-              <div className="space-y-4">
+              <PanelLabel className="max-lg:hidden">{t('size')}</PanelLabel>
+              <div className="space-y-2.5 lg:space-y-4">
                 <Range label={t('width')} value={state.w} range={system.dims.w} step={10} unit="cm" onChange={(w) => set({ w })} />
                 {system.dims.d && <Range label={t('depth')} value={state.d} range={system.dims.d} step={10} unit="cm" onChange={(d) => set({ d })} />}
                 <Range label={t('height')} value={state.h} range={system.dims.h} step={10} unit="cm" onChange={(h) => set({ h })} />
               </div>
             </section>
 
+      </>);
+  const liveBlock = (
+      <>
             {/* live preview slider */}
             <section>
               <Range
@@ -401,6 +357,9 @@ export default function Builder3DPage() {
               />
             </section>
 
+      </>);
+  const colourBlock = (
+      <>
             {/* colours */}
             <section>
               <PanelLabel>{t('frame')}</PanelLabel>
@@ -413,6 +372,9 @@ export default function Builder3DPage() {
               </section>
             )}
 
+      </>);
+  const optionsBlock = (
+      <>
             {/* options */}
             {system.fields.map((f) => (
               <section key={f.key}>
@@ -437,11 +399,110 @@ export default function Builder3DPage() {
               </section>
             ))}
 
+      </>);
+  const resetButton = (
+      <>
             <button onClick={() => setState(initialState(system))} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-paper/50 hover:text-paper">
               <RotateCcw className="h-3.5 w-3.5" /> {t('reset')}
             </button>
+      </>);
+  const tabs = [
+    ['system', systemsBlock],
+    ['size', sizeBlock],
+    ['colour', colourBlock],
+    ['options', (
+      <>
+        {liveBlock}
+        {optionsBlock}
+        {resetButton}
+      </>
+    )],
+  ] as const;
+
+  return (
+    <div className="bg-ink text-paper">
+      <div
+        ref={rootRef}
+        style={{ ['--b3d-h' as string]: `${fitH}px` }}
+        className="flex h-[var(--b3d-h)] flex-col lg:grid lg:h-[calc(100svh-112px)] lg:min-h-[640px] lg:grid-cols-[minmax(0,1fr)_420px]"
+      >
+        {/* ------------------------------------------------ stage */}
+        <div className="relative min-h-0 flex-1 overflow-hidden lg:h-auto">
+          <div ref={stageRef} className="absolute inset-0" />
+          {!gl && (
+            <div className="absolute inset-0 grid place-items-center p-8 text-center">
+              <div>
+                <img src={system.image} alt="" className="mx-auto mb-6 max-h-64 rounded-2xl object-cover" />
+                <p className="max-w-md text-sm text-paper/70">{t('noGl')}</p>
+              </div>
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_9_8/0.55)_0%,transparent_26%,transparent_74%,rgb(10_9_8/0.5)_100%)]" />
+
+          {/* title */}
+          <div className="pointer-events-none absolute left-4 top-4 sm:left-8 sm:top-7">
+            <div className="eyebrow text-brand-200">{t('eyebrow')}</div>
+            <h1 className="display mt-2 max-w-[calc(100vw-170px)] text-[24px] leading-[1.02] text-white sm:max-w-none sm:text-[52px]">{l(system.name)}</h1>
           </div>
 
+          {/* mode switch */}
+          <div className="absolute right-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md sm:right-6 sm:top-6">
+            {(
+              [
+                ['studio', <Lamp key="s" className="h-3.5 w-3.5" />],
+                ['day', <Sun key="d" className="h-3.5 w-3.5" />],
+                ['night', <Moon key="n" className="h-3.5 w-3.5" />],
+              ] as const
+            ).map(([m, icon]) => (
+              <button key={m} onClick={() => setMode(m)} className={pill(mode === m)} aria-pressed={mode === m}>
+                {icon}
+                <span className="hidden sm:inline">{t(m)}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* views + tools */}
+          <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 sm:inset-x-6 sm:bottom-auto sm:top-[132px]">
+            <div className="no-scrollbar flex min-w-0 overflow-x-auto rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
+              {(['corner', 'front', 'side', 'top', 'inside'] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => {
+                    setView(v);
+                    setRotate(false);
+                    viewerRef.current?.setView(v);
+                  }}
+                  className={pill(view === v && !rotate)}
+                >
+                  {t(v)}
+                </button>
+              ))}
+            </div>
+            <div className="flex shrink-0 gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
+              <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-pressed={showDims}>
+                <Ruler className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-pressed={rotate}>
+                <Move3d className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={snapshot} className={pill(false)} title={t('snapshot')}>
+                <Camera className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        {/* ------------------------------------------------ panel: desktop sidebar */}
+        <aside className="hidden min-h-0 flex-col border-l border-white/[0.06] bg-[#1a1917] lg:flex">
+          <div className="min-h-0 flex-1 space-y-8 overflow-y-auto px-5 py-6 sm:px-7">
+            {systemsBlock}
+            {sizeBlock}
+            {liveBlock}
+            {colourBlock}
+            {optionsBlock}
+            {resetButton}
+          </div>
           {/* summary bar */}
           <div className="border-t border-white/[0.08] bg-[#141312] px-5 py-5 sm:px-7">
             {price && (
@@ -458,6 +519,36 @@ export default function Builder3DPage() {
             </Button>
           </div>
         </aside>
+
+        {/* ------------------------------------------------ panel: phone bottom sheet (no page scrolling) */}
+        <div className="flex shrink-0 flex-col border-t border-white/[0.08] bg-[#1a1917] lg:hidden">
+          <div className="grid grid-cols-4 border-b border-white/[0.06]">
+            {tabs.map(([id]) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                aria-pressed={tab === id}
+                className={cn(
+                  'relative h-11 text-[12.5px] font-semibold transition',
+                  tab === id ? 'text-white' : 'text-paper/45',
+                )}
+              >
+                {t(id)}
+                {tab === id && <span className="absolute inset-x-5 bottom-0 h-[2px] rounded-full bg-brand-300" />}
+              </button>
+            ))}
+          </div>
+          <div className="h-[214px] space-y-4 overflow-y-auto overscroll-contain px-4 py-3">{tabs.find(([id]) => id === tab)?.[1]}</div>
+          <div className="flex items-center justify-between gap-3 border-t border-white/[0.08] bg-[#141312] px-4 py-3">
+            <div className="min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-paper/45">{t('estimate')}</div>
+              <div className="display text-[24px] leading-none text-white tabular-nums">{price ? money(price, lang, { decimals: false }) : '—'}</div>
+            </div>
+            <Button onClick={() => setQuoteOpen(true)} iconRight={<ArrowRight className="h-4 w-4" />}>
+              {t('quote')}
+            </Button>
+          </div>
+        </div>
       </div>
 
       <Drawer open={quoteOpen} onClose={() => setQuoteOpen(false)} title={t('quoteTitle')} width="max-w-[480px]">
@@ -483,8 +574,8 @@ export default function Builder3DPage() {
   );
 }
 
-function PanelLabel({ children }: { children: React.ReactNode }) {
-  return <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-paper/45">{children}</div>;
+function PanelLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn('mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-paper/45', className)}>{children}</div>;
 }
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -493,7 +584,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'h-9 rounded-full px-4 text-[13px] font-semibold ring-1 transition',
+        'h-8 rounded-full px-3.5 text-[12.5px] font-semibold ring-1 transition lg:h-9 lg:px-4 lg:text-[13px]',
         active ? 'bg-paper text-ink ring-paper' : 'text-paper/75 ring-white/15 hover:text-white hover:ring-white/40',
       )}
     >
@@ -553,7 +644,7 @@ function Range({
   const pct = ((value - range[0]) / (range[1] - range[0])) * 100;
   return (
     <label className="block">
-      <div className="mb-2 flex items-baseline justify-between">
+      <div className="mb-1 flex items-baseline justify-between lg:mb-2">
         <span className={cn('text-[13px] font-semibold', accent ? 'text-brand-200' : 'text-paper/80')}>
           {accent && <SunMedium className="mr-1.5 inline h-3.5 w-3.5 -translate-y-px" />}
           {label}
