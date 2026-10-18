@@ -9,7 +9,7 @@ import { site } from '@/i18n/site';
 import { common } from '@/i18n/common';
 import { cn } from '@/lib/utils';
 
-const DURATION = 5000;
+const DURATION = 3500;
 
 /**
  * Portrait (≈2:3) clip. On landscape screens it plays in a wide frame on the right — cropped top and bottom
@@ -111,7 +111,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
     <section className="relative isolate h-[calc(100svh-36px)] min-h-[640px] max-h-[1100px] overflow-hidden bg-ink" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       {/* Images — the first slide opens with a slow pull-back out of darkness */}
       {slides.map((sl, k) => (
-        <div key={sl.id} className={cn('absolute inset-0 -z-20 overflow-hidden transition-opacity duration-[1400ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
+        <div key={sl.id} className={cn('absolute inset-0 -z-20 overflow-hidden transition-opacity duration-[900ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
           {/\.mp4$/i.test(sl.image) ? (
             <HeroVideo src={sl.image} active={k === i} />
           ) : (
@@ -189,7 +189,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
                 <button key={sl.id} onClick={() => go(k)} className="group relative h-[3px] w-14 overflow-hidden rounded-full bg-white/25" aria-label={tc('slideN', { n: k + 1 })}>
                   <span
                     className={cn('absolute inset-y-0 left-0 rounded-full bg-white', k < i || (k === i && !autoplay) ? 'w-full' : 'w-0')}
-                    style={k === i && autoplay ? { animation: `heroprogress ${k === 0 && intro ? DURATION + 2000 : DURATION}ms linear forwards`, animationPlayState: paused || !ready ? 'paused' : 'running' } : undefined}
+                    style={k === i && autoplay ? { animation: `heroprogress ${k === 0 && intro ? DURATION + 1500 : DURATION}ms linear forwards`, animationPlayState: paused || !ready ? 'paused' : 'running' } : undefined}
                     onAnimationEnd={k === i && autoplay ? () => go(i + 1) : undefined}
                   />
                 </button>
