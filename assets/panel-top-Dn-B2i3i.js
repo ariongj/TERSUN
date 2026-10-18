@@ -1,0 +1,1 @@
+import{D as e}from"./i18n-Dn2xh0u0.js";var t=e(`panel-top`,[[`rect`,{width:`18`,height:`18`,x:`3`,y:`3`,rx:`2`,key:`afitv7`}],[`path`,{d:`M3 9h18`,key:`1pudct`}]]);export{t};
