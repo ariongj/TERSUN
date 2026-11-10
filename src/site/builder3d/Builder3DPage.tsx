@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { Camera, Check, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
+import { Camera, Check, CloudRain, Link2, Maximize, Minimize, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Overlay';
 import { MeasureForm } from '@/site/components/MeasureForm';
@@ -8,6 +9,7 @@ import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { useActiveProducts } from '@/store/hooks';
 import { money } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { href } from '@/lib/paths';
 import { createViewer, webglAvailable, type Viewer, type ViewerMode, type ViewerOptions, type ViewerView } from './viewer';
 import { FABRIC_COLORS, FRAME_COLORS, SYSTEMS, systemById, type SystemDef } from './systems';
 
@@ -43,6 +45,19 @@ const D = defineDict({
     reset: 'Zurücksetzen',
     colour: 'Farbe',
     options: 'Optionen',
+    scene: 'Szene',
+    time: 'Tageszeit',
+    rain: 'Regen',
+    furniture: 'Möblierung',
+    lounge: 'Lounge',
+    dining: 'Esstisch',
+    none: 'Ohne',
+    share: 'Link teilen',
+    copied: 'Link kopiert – zum Teilen bereit',
+    fullscreen: 'Vollbild',
+    area: 'Fläche',
+    rainSensor: 'Regensensor: Lamellen geschlossen',
+    link: 'Link',
   },
   sq: {
     eyebrow: '3D Builder',
@@ -75,6 +90,19 @@ const D = defineDict({
     reset: 'Rivendos',
     colour: 'Ngjyra',
     options: 'Opsione',
+    scene: 'Skena',
+    time: 'Ora e ditës',
+    rain: 'Shi',
+    furniture: 'Mobilimi',
+    lounge: 'Lounge',
+    dining: 'Tavolinë',
+    none: 'Pa mobilie',
+    share: 'Ndaj linkun',
+    copied: 'Linku u kopjua – gati për ta ndarë',
+    fullscreen: 'Ekran i plotë',
+    area: 'Sipërfaqja',
+    rainSensor: 'Sensori i shiut: lamelat u mbyllën',
+    link: 'Linku',
   },
   en: {
     eyebrow: '3D Builder',
@@ -107,6 +135,19 @@ const D = defineDict({
     reset: 'Reset',
     colour: 'Colour',
     options: 'Options',
+    scene: 'Scene',
+    time: 'Time of day',
+    rain: 'Rain',
+    furniture: 'Furniture',
+    lounge: 'Lounge',
+    dining: 'Dining',
+    none: 'None',
+    share: 'Share link',
+    copied: 'Link copied – ready to share',
+    fullscreen: 'Full screen',
+    area: 'Area',
+    rainSensor: 'Rain sensor: louvres closed',
+    link: 'Link',
   },
 });
 
@@ -131,6 +172,41 @@ function initialState(s: SystemDef): State {
     color: FRAME_COLORS[0].id,
     fabric: FABRIC_COLORS[0].id,
     preview: s.preview.value,
+    values,
+  };
+}
+
+/** Pack a configuration into a short URL value, e.g. "450.350.260.0.0.35.0001" (sizes, colours, slider, options). */
+function encodeState(s: SystemDef, st: State) {
+  const opts = s.fields.map((f) => (f.kind === 'toggle' ? (st.values[f.key] ? 1 : 0) : Math.max(0, f.choices.findIndex((c) => c.id === st.values[f.key])))).join('');
+  const ci = Math.max(0, FRAME_COLORS.findIndex((c) => c.id === st.color)), fi = Math.max(0, FABRIC_COLORS.findIndex((c) => c.id === st.fabric));
+  return [st.w, st.d, st.h, ci, fi, st.preview, opts || 'x'].join('.');
+}
+
+/** Read a packed configuration back; anything out of range falls back to the system's defaults. */
+function decodeState(s: SystemDef, code: string | null): State | null {
+  if (!code) return null;
+  const p = code.split('.');
+  if (p.length !== 7) return null;
+  const base = initialState(s);
+  const num = (v: string, [min, max]: [number, number, number], fallback: number) => {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+  };
+  const values = { ...base.values };
+  s.fields.forEach((f, i) => {
+    const d = Number(p[6][i]);
+    if (!Number.isInteger(d)) return;
+    if (f.kind === 'toggle') values[f.key] = d === 1;
+    else if (f.choices[d]) values[f.key] = f.choices[d].id;
+  });
+  return {
+    w: num(p[0], s.dims.w, base.w),
+    d: s.dims.d ? num(p[1], s.dims.d, base.d) : 0,
+    h: num(p[2], s.dims.h, base.h),
+    color: FRAME_COLORS[Number(p[3])]?.id ?? base.color,
+    fabric: FABRIC_COLORS[Number(p[4])]?.id ?? base.fabric,
+    preview: num(p[5], [s.preview.min, s.preview.max, 0], base.preview),
     values,
   };
 }
@@ -198,13 +274,19 @@ export default function Builder3DPage() {
   const [params, setParams] = useSearchParams();
   const products = useActiveProducts();
   const system = systemById(params.get('system')) ?? SYSTEMS[0];
-  const [state, setState] = useState<State>(() => initialState(system));
+  const [state, setState] = useState<State>(() => decodeState(system, params.get('c')) ?? initialState(system));
   const [mode, setMode] = useState<ViewerMode>('day');
   const [view, setView] = useState<ViewerView>('corner');
   const [showDims, setShowDims] = useState(true);
   const [rotate, setRotate] = useState(true);
   const [quoteOpen, setQuoteOpen] = useState(false);
-  const [tab, setTab] = useState<'system' | 'size' | 'colour' | 'options'>('system');
+  const [tab, setTab] = useState<'system' | 'size' | 'colour' | 'options' | 'scene'>('system');
+  // scene: time of day, weather and furniture are for looking, they are not part of the order
+  const [hours, setHours] = useState(16);
+  const [rain, setRain] = useState(false);
+  const [furniture, setFurniture] = useState<'lounge' | 'dining' | 'none'>('lounge');
+  const [isFull, setIsFull] = useState(false);
+  const angleBeforeRain = useRef<number | null>(null);
   // phones: the builder fills exactly the screen below the header, so nothing needs page scrolling
   const rootRef = useRef<HTMLDivElement>(null);
   const [fitH, setFitH] = useState(640);
@@ -250,6 +332,28 @@ export default function Builder3DPage() {
   }, [system, state]);
 
   useEffect(() => viewerRef.current?.setMode(mode), [mode]);
+  useEffect(() => viewerRef.current?.setTime(hours), [hours]);
+  useEffect(() => viewerRef.current?.setRain(rain), [rain]);
+  useEffect(() => viewerRef.current?.setFurniture(furniture), [furniture]);
+
+  // keep the address bar in step with the configuration, so the page can be shared or bookmarked as it is
+  const shareCode = encodeState(system, state);
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('system', system.id);
+      url.searchParams.set('c', shareCode);
+      window.history.replaceState(window.history.state, '', url);
+    }, 250);
+    return () => clearTimeout(id);
+  }, [system.id, shareCode]);
+  const shareUrl = () => window.location.origin + href(`/3d?system=${system.id}&c=${shareCode}`);
+
+  useEffect(() => {
+    const fn = () => setIsFull(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', fn);
+    return () => document.removeEventListener('fullscreenchange', fn);
+  }, []);
   useEffect(() => viewerRef.current?.setDims(showDims), [showDims]);
   useEffect(() => viewerRef.current?.setAutoRotate(rotate), [rotate]);
 
@@ -262,9 +366,13 @@ export default function Builder3DPage() {
     if (k === 'led' && val === true && mode === 'day') setMode('night');
   };
 
+  const area = (state.w * (system.dims.d ? state.d : state.h)) / 10000;
+  const areaText = `${area.toLocaleString(lang === 'en' ? 'en-GB' : lang === 'de' ? 'de-DE' : 'sq-AL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} m²`;
+
   const summary = useMemo(() => {
     const rows: [string, string][] = [[t('system'), l(system.name)]];
     rows.push([t('size'), [state.w, system.dims.d ? state.d : null, state.h].filter(Boolean).join(' × ') + ' cm']);
+    rows.push([t('area'), areaText]);
     rows.push([t('frame'), `${l(FRAME_COLORS.find((c) => c.id === state.color)?.label)} (${state.color})`]);
     if (system.fabric || (system.id === 'glassroof' && state.preview > 0)) rows.push([t('fabric'), l(FABRIC_COLORS.find((c) => c.id === state.fabric)?.label)]);
     for (const f of system.fields) {
@@ -273,13 +381,52 @@ export default function Builder3DPage() {
     }
     if (system.id === 'glassroof') rows.push([l(system.preview.label), state.preview > 0 ? t('on') : t('off')]);
     return rows;
-  }, [state, system, l, t]);
+  }, [state, system, l, t, areaText]);
 
-  const summaryText = summary.map(([k, v]) => `${k}: ${v}`).join('\n') + (price ? `\n${t('estimate')} ${money(price, lang, { decimals: false })}` : '');
+  const summaryText =
+    summary.map(([k, v]) => `${k}: ${v}`).join('\n') + (price ? `\n${t('estimate')} ${money(price, lang, { decimals: false })}` : '') + `\n${t('link')}: ${shareUrl()}`;
 
   const pickSystem = (id: string) => {
     params.set('system', id);
     setParams(params, { replace: true });
+  };
+
+  const pickTime = (h: number) => {
+    setHours(h);
+    if (mode !== 'day') setMode('day');
+  };
+
+  // rain: the scene needs a sky, and a bioclimatic roof reacts like its rain sensor would — the louvres close
+  const toggleRain = (on: boolean) => {
+    setRain(on);
+    if (on && mode === 'studio') setMode('day');
+    if (system.id !== 'bioclimatic') return;
+    if (on && state.preview > 4) {
+      angleBeforeRain.current = state.preview;
+      set({ preview: 0 });
+      toast(t('rainSensor'));
+    } else if (!on && angleBeforeRain.current != null) {
+      set({ preview: angleBeforeRain.current });
+      angleBeforeRain.current = null;
+    }
+  };
+
+  const share = async () => {
+    const url = shareUrl();
+    try {
+      if (navigator.share && window.matchMedia('(pointer: coarse)').matches) await navigator.share({ title: `TERSUN — ${l(system.name)}`, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        toast.success(t('copied'));
+      }
+    } catch {
+      /* share sheet dismissed or clipboard blocked */
+    }
+  };
+
+  const toggleFull = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void rootRef.current?.requestFullscreen?.().catch(() => undefined);
   };
 
   const snapshot = () => {
@@ -338,6 +485,10 @@ export default function Builder3DPage() {
                 <Range label={t('width')} value={state.w} range={system.dims.w} step={10} unit="cm" onChange={(w) => set({ w })} />
                 {system.dims.d && <Range label={t('depth')} value={state.d} range={system.dims.d} step={10} unit="cm" onChange={(d) => set({ d })} />}
                 <Range label={t('height')} value={state.h} range={system.dims.h} step={10} unit="cm" onChange={(h) => set({ h })} />
+              </div>
+              <div className="mt-3 flex items-baseline justify-between text-[12.5px] text-paper/50 lg:mt-4">
+                <span>{t('area')}</span>
+                <span className="font-semibold tabular-nums text-paper/80">{areaText}</span>
               </div>
             </section>
 
@@ -406,6 +557,51 @@ export default function Builder3DPage() {
               <RotateCcw className="h-3.5 w-3.5" /> {t('reset')}
             </button>
       </>);
+  const sceneBlock = (
+    <>
+      <section>
+        <PanelLabel className="max-lg:hidden">{t('scene')}</PanelLabel>
+        <Range
+          label={t('time')}
+          value={hours}
+          range={[6, 20, 16]}
+          step={0.5}
+          unit=""
+          format={(h) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`}
+          onChange={pickTime}
+          dim={mode !== 'day'}
+        />
+      </section>
+      <section className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 lg:block lg:space-y-6">
+        <div className="contents lg:block">
+          <PanelLabel className="max-lg:mb-0">{t('rain')}</PanelLabel>
+          <div className="flex gap-2">
+            {[false, true].map((on) => (
+              <Chip key={String(on)} active={rain === on} onClick={() => toggleRain(on)}>
+                {on ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <CloudRain className="h-3.5 w-3.5" /> {t('on')}
+                  </span>
+                ) : (
+                  t('off')
+                )}
+              </Chip>
+            ))}
+          </div>
+        </div>
+        <div className="contents lg:block">
+          <PanelLabel className="max-lg:mb-0">{t('furniture')}</PanelLabel>
+          <div className="flex flex-wrap gap-2">
+            {(['lounge', 'dining', 'none'] as const).map((k) => (
+              <Chip key={k} active={furniture === k} onClick={() => setFurniture(k)}>
+                {t(k)}
+              </Chip>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
   const tabs = [
     ['system', systemsBlock],
     ['size', sizeBlock],
@@ -417,6 +613,7 @@ export default function Builder3DPage() {
         {resetButton}
       </>
     )],
+    ['scene', sceneBlock],
   ] as const;
 
   return (
@@ -479,14 +676,20 @@ export default function Builder3DPage() {
               ))}
             </div>
             <div className="flex shrink-0 gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
-              <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-pressed={showDims}>
+              <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-label={t('dims')} aria-pressed={showDims}>
                 <Ruler className="h-3.5 w-3.5" />
               </button>
-              <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-pressed={rotate}>
+              <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-label={t('rotate')} aria-pressed={rotate}>
                 <Move3d className="h-3.5 w-3.5" />
               </button>
-              <button onClick={snapshot} className={pill(false)} title={t('snapshot')}>
+              <button onClick={snapshot} className={pill(false)} title={t('snapshot')} aria-label={t('snapshot')}>
                 <Camera className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={share} className={pill(false)} title={t('share')} aria-label={t('share')}>
+                <Link2 className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={toggleFull} className={cn(pill(isFull), 'max-lg:hidden')} title={t('fullscreen')} aria-label={t('fullscreen')}>
+                {isFull ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
               </button>
             </div>
           </div>
@@ -501,6 +704,7 @@ export default function Builder3DPage() {
             {liveBlock}
             {colourBlock}
             {optionsBlock}
+            {sceneBlock}
             {resetButton}
           </div>
           {/* summary bar */}
@@ -522,19 +726,19 @@ export default function Builder3DPage() {
 
         {/* ------------------------------------------------ panel: phone bottom sheet (no page scrolling) */}
         <div className="flex shrink-0 flex-col border-t border-white/[0.08] bg-[#1a1917] lg:hidden">
-          <div className="grid grid-cols-4 border-b border-white/[0.06]">
+          <div className="grid grid-cols-5 border-b border-white/[0.06]">
             {tabs.map(([id]) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
                 aria-pressed={tab === id}
                 className={cn(
-                  'relative h-11 text-[12.5px] font-semibold transition',
+                  'relative h-11 text-[12px] font-semibold transition',
                   tab === id ? 'text-white' : 'text-paper/45',
                 )}
               >
                 {t(id)}
-                {tab === id && <span className="absolute inset-x-5 bottom-0 h-[2px] rounded-full bg-brand-300" />}
+                {tab === id && <span className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-brand-300" />}
               </button>
             ))}
           </div>
@@ -632,6 +836,8 @@ function Range({
   unit,
   onChange,
   accent,
+  format,
+  dim,
 }: {
   label: string;
   value: number;
@@ -640,17 +846,21 @@ function Range({
   unit: string;
   onChange: (v: number) => void;
   accent?: boolean;
+  /** custom text for the value (e.g. a clock time) */
+  format?: (v: number) => string;
+  /** shown paler while it does not apply (it still works: moving it switches back) */
+  dim?: boolean;
 }) {
   const pct = ((value - range[0]) / (range[1] - range[0])) * 100;
   return (
-    <label className="block">
+    <label className={cn('block transition-opacity', dim && 'opacity-55')}>
       <div className="mb-1 flex items-baseline justify-between lg:mb-2">
         <span className={cn('text-[13px] font-semibold', accent ? 'text-brand-200' : 'text-paper/80')}>
           {accent && <SunMedium className="mr-1.5 inline h-3.5 w-3.5 -translate-y-px" />}
           {label}
         </span>
         <span className="display text-[18px] tabular-nums text-white">
-          {value}
+          {format ? format(value) : value}
           <span className="ml-0.5 text-[12px] text-paper/45">{unit}</span>
         </span>
       </div>

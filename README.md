@@ -9,8 +9,10 @@ Live preview: https://ariongj.github.io/TERSUN/
   measure (request a quote); accessories can be bought online through the cart and checkout. Also: projects,
   services, journal, contact, search and wishlist.
 - **3D Builder** (`/3d`): a live three.js configurator. Choose the system, size, RAL colour, fabric, layout, side
-  closures and LED, and switch between studio, day and night scenes and camera views. It shows a guide price,
-  saves a PNG and sends a quote request straight into the CMS.
+  closures and LED, and switch between studio, day and night scenes and camera views. The garden scene has a real
+  sky with a time-of-day slider (the sun and its shadows move), rain (a bioclimatic roof closes its louvres like a
+  rain sensor would), and a lounge or dining set. It shows a guide price and the area, saves a PNG, makes a share
+  link that reopens the exact configuration, and sends a quote request straight into the CMS.
 - **CMS** (`/admin`): orders, quotes, enquiries and bookings, customers, products, collections, discounts, the
   homepage builder with live preview, pages, journal, projects, media and settings.
 
@@ -40,7 +42,7 @@ Every push to `claude/tersun-company-setup-5a6sj8` or `main` builds the site and
 | Catalogue (categories, products, specs) | `src/data/catalog.ts` |
 | Homepage, settings, projects, pages, journal | `src/data/content.ts` |
 | Demo orders, enquiries, CMS records | `src/data/cms.ts`, `src/data/demo.ts` |
-| 3D builder (page, systems, three.js engine) | `src/site/builder3d/` |
+| 3D builder (page, systems, three.js engine, scenery) | `src/site/builder3d/` |
 | Translations | `defineDict({ de, sq, en })` next to each component; shared ones in `src/i18n/` |
 | Brand colours / fonts | `src/index.css` (`--color-brand-*`), logo in `src/components/brand/Logo.tsx` |
 

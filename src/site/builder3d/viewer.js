@@ -18,6 +18,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { boxwood, dining, grassTexture, hedge, makeRain, makeSky, nightDome, olive, overcastTexture, poolWaterMaterial, sunDirection, treeline } from './scenery.js';
 
 const CM = 0.01;
 const LED_WARM = new THREE.Color('#ffd9a0');
@@ -109,7 +110,7 @@ function meshTexture() {
 // Product builders. Units are metres; x = width, y = up, z = depth (front at +z).
 
 class Kit {
-  constructor(o, mats) { this.o = o; this.m = mats; this.group = new THREE.Group(); this.anim = () => {}; this.lights = []; }
+  constructor(o, mats) { this.o = o; this.m = mats; this.group = new THREE.Group(); this.anim = () => {}; this.lights = []; this.wallZ = null; }
 
   box(w, h, d, x, y, z, mat, opts) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat || this.m.frame);
@@ -134,6 +135,7 @@ class Kit {
   }
 
   wall(w, h, zBack, plain) {
+    if (this.wallZ == null) this.wallZ = zBack;
     const W = w + 3, H = h + 1.2;
     this.box(W, H, 0.25, 0, H / 2, zBack - 0.125, this.m.wall);
     if (plain) return;
@@ -143,6 +145,20 @@ class Kit {
     this.box(gw + 0.08, 0.06, 0.06, 0, gh + 0.05, zBack + 0.02, this.m.windowFrame);
     for (let i = 1; i < 3; i++) this.box(0.05, gh, 0.05, -gw / 2 + (gw * i) / 3, gh / 2, zBack + 0.02, this.m.windowFrame);
   }
+}
+
+// Louvre blade: a flat aluminium profile with an up-turned lip on one edge and a drip edge on the other,
+// so closed blades interlock like the real gutter profile. Extruded along x.
+function louvreGeometry(len, width, thick) {
+  const a = width / 2, t = thick / 2, lip = 0.016, e = 0.018;
+  const shape = new THREE.Shape();
+  shape.moveTo(-a, -t); shape.lineTo(a - e, -t); shape.lineTo(a - e, -t - lip); shape.lineTo(a, -t - lip);
+  shape.lineTo(a, t); shape.lineTo(-a + e, t); shape.lineTo(-a + e, t + lip); shape.lineTo(-a, t + lip);
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: len, bevelEnabled: false, curveSegments: 1 });
+  geo.translate(0, 0, -len / 2);
+  geo.rotateY(Math.PI / 2);
+  return geo;
 }
 
 function bioclimatic(k) {
@@ -179,7 +195,7 @@ function bioclimatic(k) {
   const geoCache = {};
   xs.forEach(([xa, xb]) => zs.forEach(([za, zb]) => {
     const len = xb - xa, n = Math.max(2, Math.floor((zb - za) / lw)), pitch = (zb - za) / n;
-    const geo = geoCache[len.toFixed(3)] || (geoCache[len.toFixed(3)] = new THREE.BoxGeometry(len - 0.01, lt, lw * 0.98));
+    const geo = geoCache[len.toFixed(3)] || (geoCache[len.toFixed(3)] = louvreGeometry(len - 0.01, lw * 0.98, lt));
     for (let i = 0; i < n; i++) {
       const m = new THREE.Mesh(geo, k.m.louvre);
       m.position.set((xa + xb) / 2, h - 0.07, za + pitch * (i + 0.5));
@@ -202,7 +218,7 @@ function bioclimatic(k) {
     });
     const nx = Math.max(1, Math.round(w / 3)), nz = Math.max(1, Math.round(d / 3));
     for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) {
-      k.ledLight(x0 + (w * (i + 0.5)) / nx, top - 0.3, z0 + (d * (j + 0.5)) / nz, 5);
+      k.ledLight(x0 + (w * (i + 0.5)) / nx, top - 0.95, z0 + (d * (j + 0.5)) / nz, 6);
     }
   }
 
@@ -311,6 +327,7 @@ function glassRoofUnit(k, w, d, opt) {
   const o = k.o;
   const h = opt.h != null ? opt.h : o.h * CM;
   const withAwning = opt.awning;
+  const led = opt.led != null ? opt.led : o.led;
   const post = 0.12, gutter = 0.2, rise = Math.max(0.3, d * 0.14);
   const hr = h + rise;
   const x0 = -w / 2, x1 = w / 2, z0 = -d / 2, z1 = d / 2;
@@ -342,7 +359,7 @@ function glassRoofUnit(k, w, d, opt) {
     const rafter = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.12, len), k.m.frame);
     rafter.position.set(x, 0, 0); rafter.castShadow = true; rafter.receiveShadow = true;
     roof.add(rafter);
-    if (o.led && r > 0 && r < bays + 1) {
+    if (led && r > 0 && r < bays + 1) {
       for (let q = 1; q <= 3; q++) {
         const spot = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 16), k.m.led);
         spot.position.set(x, -0.065, -len / 2 + (len * q) / 4);
@@ -356,7 +373,7 @@ function glassRoofUnit(k, w, d, opt) {
     pane.receiveShadow = true;
     roof.add(pane);
   }
-  if (o.led) {
+  if (led) {
     for (let i = 0; i < Math.max(1, Math.round(w / 3)); i++) {
       k.ledLight(x0 + (w * (i + 0.5)) / Math.max(1, Math.round(w / 3)), h - 0.15, 0, 4);
     }
@@ -443,7 +460,7 @@ function enclosure(k, w, h) {
   const D = TERRACE_DEPTH;
   const root = k.group, g = new THREE.Group();
   k.group = g;
-  glassRoofUnit(k, w + 0.24, D, { wall: true, rear: false, nFront: 2, h: h + 0.2 });
+  glassRoofUnit(k, w + 0.24, D, { wall: true, rear: false, nFront: 2, h: h + 0.2, led: true });
   k.group = root;
   g.position.z = -D / 2 + 0.12;
   root.add(g);
@@ -573,48 +590,47 @@ function lounge(mats) {
   vase.castShadow = true; put(vase, 0.05, 0.48, 0.4);
 
   // olive tree in a tall planter
-  const tree = olive(mats);
+  const tree = olive(mats, 8);
   tree.position.set(-1.75, 0, -0.75);
   g.add(tree);
   return g;
 }
 
-function olive(mats) {
-  const g = new THREE.Group();
-  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.24, 0.62, 32), mats.planter);
-  pot.position.y = 0.31; pot.castShadow = true; pot.receiveShadow = true; g.add(pot);
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.9, 10), mats.bark);
-  trunk.position.y = 1.05; trunk.rotation.z = 0.08; trunk.castShadow = true; g.add(trunk);
-  const crown = new THREE.Mesh(new THREE.SphereGeometry(0.42, 48, 32), mats.leaves);
-  crown.position.set(0.02, 1.68, 0); crown.scale.set(1, 1.18, 1); crown.castShadow = true; crown.receiveShadow = true;
-  g.add(crown);
-  return g;
-}
-
-// Terrace dressing for the daylight and night settings: plunge pool, hedges and trees.
+// Garden dressing for the day and night settings: pool, hedge, olive trees, boxwood balls and path lights.
 function terrace(mats) {
   const g = new THREE.Group();
   const pool = new THREE.Group();
-  const coping = new THREE.Mesh(new RoundedBoxGeometry(3.2, 0.1, 6.4, 3, 0.02), mats.coping);
+  const coping = new THREE.Mesh(new RoundedBoxGeometry(3.3, 0.1, 6.5, 3, 0.02), mats.coping);
   coping.position.y = 0.05; coping.receiveShadow = true;
-  const water = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.02, 6.0), mats.water);
-  water.position.y = 0.095;
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 6.0), mats.water);
+  water.rotation.x = -Math.PI / 2; water.position.y = 0.104; water.receiveShadow = true;
   pool.add(coping, water);
   pool.name = 'pool';
   g.add(pool);
-  const hedges = new THREE.Group();
-  for (let i = 0; i < 9; i++) {
-    const hgt = 0.75;
-    const hedge = rbox(1.48, hgt, 0.55, 0.04, mats.hedge);
-    hedge.position.set(-6 + i * 1.5, hgt / 2, 0);
-    hedges.add(hedge);
-  }
+  const hedges = hedge(mats, 15, 0.9, 0.65);
   hedges.name = 'hedges';
   g.add(hedges);
   const trees = new THREE.Group();
-  [[-1, 0], [1, 0.4]].forEach(([s, dz]) => { const t = olive(mats); t.scale.setScalar(1.6); t.userData.side = s; t.userData.dz = dz; trees.add(t); });
+  [[-1, 0, 21], [1, 0.4, 34]].forEach(([s, dz, seed]) => { const t = olive(mats, seed); t.scale.setScalar(1.55); t.userData.side = s; t.userData.dz = dz; trees.add(t); });
   trees.name = 'trees';
   g.add(trees);
+  const balls = new THREE.Group();
+  [[0.42, 41], [0.3, 42], [0.36, 43], [0.26, 44], [0.4, 45]].forEach(([r, seed]) => balls.add(boxwood(mats, r, seed)));
+  balls.name = 'balls';
+  g.add(balls);
+  // low bollard lights along the front of the deck: a dark post with a glowing head
+  const bollards = new THREE.Group();
+  for (let i = 0; i < 4; i++) {
+    const b = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.42, 16), mats.planter);
+    post.position.y = 0.21; post.castShadow = true;
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 16), mats.lamp);
+    head.position.y = 0.445;
+    b.add(post, head);
+    bollards.add(b);
+  }
+  bollards.name = 'bollards';
+  g.add(bollards);
   return g;
 }
 
@@ -633,9 +649,12 @@ export function createViewer(container, options) {
   const opts = options || {};
   const small = Math.min(window.innerWidth, window.innerHeight) < 700;
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const maxRatio = Math.min(window.devicePixelRatio || 1, 2);
+  let ratio = maxRatio;
+  renderer.setPixelRatio(ratio);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false; // the scene is static between edits: see shadowsDirty()
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -644,11 +663,24 @@ export function createViewer(container, options) {
 
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  const skies = { studio: skyTexture('studio'), day: skyTexture('day'), night: skyTexture('night') };
+  const envRoom = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = envRoom;
+  const studioSky = skyTexture('studio'), overcastSky = overcastTexture();
   scene.fog = new THREE.Fog('#151413', 14, 34);
 
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
+  // day: physical sky with a movable sun; it also lights the scene through an environment map
+  const sky = makeSky();
+  scene.add(sky);
+  const envScene = new THREE.Scene();
+  const envSkyMesh = new THREE.Mesh(sky.geometry, sky.material);
+  envSkyMesh.scale.setScalar(1000);
+  envScene.add(envSkyMesh);
+  let envSky = null, envDirty = true, envTimer = 0;
+  // night: stars and a moon
+  const stars = nightDome();
+  scene.add(stars);
+
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 700);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.07;
@@ -658,7 +690,7 @@ export function createViewer(container, options) {
   controls.autoRotateSpeed = 0.45;
 
   // post-processing: bloom makes the LED lines glow
-  const composer = new EffectComposer(renderer);
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: small ? 2 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.35, 0.5, 0.92);
   composer.addPass(bloom);
@@ -689,8 +721,8 @@ export function createViewer(container, options) {
 
   // materials
   const mats = {
-    frame: new THREE.MeshPhysicalMaterial({ color: '#383e42', metalness: 0.5, roughness: 0.36, clearcoat: 0.35, clearcoatRoughness: 0.35 }),
-    louvre: new THREE.MeshPhysicalMaterial({ color: '#40464a', metalness: 0.45, roughness: 0.34, clearcoat: 0.3, clearcoatRoughness: 0.4 }),
+    frame: new THREE.MeshPhysicalMaterial({ color: '#383e42', metalness: 0.2, roughness: 0.48, clearcoat: 0.25, clearcoatRoughness: 0.5 }),
+    louvre: new THREE.MeshPhysicalMaterial({ color: '#40464a', metalness: 0.2, roughness: 0.5, clearcoat: 0.2, clearcoatRoughness: 0.55 }),
     glass: new THREE.MeshPhysicalMaterial({ color: '#d4e6ec', metalness: 0, roughness: 0.03, transparent: true, opacity: 0.2, envMapIntensity: 2, depthWrite: false, side: THREE.DoubleSide }),
     led: new THREE.MeshBasicMaterial({ color: '#fff3dc' }),
     wall: new THREE.MeshStandardMaterial({ color: '#efebe4', roughness: 0.92 }),
@@ -707,10 +739,12 @@ export function createViewer(container, options) {
     rug: new THREE.MeshStandardMaterial({ color: '#cfc5b4', roughness: 1 }),
     planter: new THREE.MeshStandardMaterial({ color: '#3a3836', roughness: 0.7 }),
     bark: new THREE.MeshStandardMaterial({ color: '#6b5a48', roughness: 0.9 }),
-    leaves: new THREE.MeshStandardMaterial({ color: '#9aa487', roughness: 1 }),
-    hedge: new THREE.MeshStandardMaterial({ color: '#5d6b4f', roughness: 1 }),
+    foliage: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
+    soil: new THREE.MeshStandardMaterial({ color: '#3b2f26', roughness: 1 }),
+    tableTop: new THREE.MeshStandardMaterial({ color: '#8a6a4c', roughness: 0.55 }),
+    lamp: new THREE.MeshBasicMaterial({ color: '#2a2826' }),
     coping: new THREE.MeshStandardMaterial({ color: '#e2dbcf', roughness: 0.7 }),
-    water: new THREE.MeshPhysicalMaterial({ color: '#5aa2b3', roughness: 0.03, metalness: 0.05, clearcoat: 1, envMapIntensity: 1.4 }),
+    water: poolWaterMaterial(),
     platform: new THREE.MeshPhysicalMaterial({ color: '#b3ab9f', roughness: 0.4, clearcoat: 0.4, clearcoatRoughness: 0.4 })
   };
 
@@ -725,20 +759,35 @@ export function createViewer(container, options) {
 
   // terrace set (day / night)
   const outdoor = new THREE.Group();
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 64), new THREE.MeshStandardMaterial({ map: tileTexture(), roughness: 0.8 }));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(230, 64), new THREE.MeshStandardMaterial({ map: grassTexture(), roughness: 1 }));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
+  const patioTiles = tileTexture();
+  const patio = new THREE.Mesh(new THREE.BoxGeometry(1, 0.03, 1), new THREE.MeshStandardMaterial({ map: patioTiles, roughness: 0.8 }));
+  patio.position.y = 0.015; patio.receiveShadow = true;
+  const horizon = treeline(mats);
   const deck = new THREE.Mesh(new THREE.BoxGeometry(1, 0.04, 1), new THREE.MeshStandardMaterial({ map: deckTexture(), roughness: 0.7 }));
   deck.position.y = 0.02; deck.receiveShadow = true;
   const dressing = terrace(mats);
-  outdoor.add(ground, deck, dressing);
+  outdoor.add(ground, patio, deck, dressing, horizon);
   scene.add(outdoor);
 
-  const sofa = lounge(mats);
-  scene.add(sofa);
+  const furniture = { lounge: lounge(mats), dining: dining(mats) };
+  scene.add(furniture.lounge, furniture.dining);
+  let furnitureKind = 'lounge';
+
+  // rain: dry under a closed roof
+  let raining = false, hours = 16;
+  const rain = makeRain(small ? 900 : 1800, () => {
+    if (!kit || !(roofy || enclosed)) return null;
+    if (kitType === 'bioclimatic' && anim.angle > 9) return null; // open louvres let the rain through
+    const { w, d, h } = dimsNow;
+    return enclosed ? { x0: -w / 2 - 0.1, x1: w / 2 + 0.1, z0: -d, z1: 0.15, y: h + 0.4 } : { x0: -w / 2, x1: w / 2, z0: -d / 2, z1: d / 2, y: h };
+  });
+  scene.add(rain);
 
   // warm garden uplights for the night setting
   const garden = [0, 1].map(() => {
-    const l = new THREE.PointLight('#ffc98a', 0, 4.5, 1.8);
+    const l = new THREE.PointLight('#ffc98a', 0, 5, 1.6);
     scene.add(l);
     return l;
   });
@@ -759,11 +808,13 @@ export function createViewer(container, options) {
   const dimMat = new THREE.LineDashedMaterial({ color: '#d8bc8a', dashSize: 0.08, gapSize: 0.06, transparent: true, opacity: 0.8 });
 
   let kit = null, current = null, mode = 'studio', showDims = true, showProps = true;
-  let enclosed = false, userMoved = false;
+  let enclosed = false, userMoved = false, kitType = '';
   let roofy = true, dimsNow = { w: 4.5, d: 3.5, h: 2.6 }, view = 'corner', framed = null, firstFrame = true;
   const anim = { angle: 30, open: 0.3, extension: 0.8, sideOpen: 0.3 };
   const target = Object.assign({}, anim);
   const fly = { t: 1, from: new THREE.Vector3(), to: new THREE.Vector3(), tFrom: new THREE.Vector3(), tTo: new THREE.Vector3(), dur: 1.6 };
+
+  const shadowsDirty = () => { renderer.shadowMap.needsUpdate = true; };
 
   function line(a, b) {
     const g = new THREE.BufferGeometry().setFromPoints([a, b]);
@@ -803,7 +854,7 @@ export function createViewer(container, options) {
     // a wider lens when standing on the enclosed terrace, so the whole opening is in view
     camera.fov = name === 'inside' && enclosed ? 58 : 30;
     camera.updateProjectionMatrix();
-    controls.maxDistance = pose.dist * 2.4;
+    controls.maxDistance = pose.dist * 1.7;
     if (instant) { camera.position.copy(pose.pos); controls.target.copy(pose.tgt); fly.t = 1; return; }
     fly.from.copy(camera.position); fly.to.copy(pose.pos);
     fly.tFrom.copy(controls.target); fly.tTo.copy(pose.tgt);
@@ -816,25 +867,77 @@ export function createViewer(container, options) {
     studio.visible = studioOn;
     outdoor.visible = !studioOn;
     platform.scale.set(Math.max(w, d) * 0.72 + 1.4, 1, Math.max(w, d) * 0.72 + 1.4);
+    // the terrace area: centred on the structure, or behind the closure for Guillotine / Slide / ZIP
+    const cz = enclosed ? -d / 2 + 0.12 : 0;
+    const wallZ = enclosed ? -d + 0.12 : kit && kit.wallZ != null ? kit.wallZ : null;
+    const hasWall = wallZ != null;
+    const back = hasWall ? wallZ : cz - d / 2;
     deck.visible = roofy || enclosed;
     deck.scale.set(w + 1.8, 1, d + 1.8);
-    deck.position.z = enclosed ? -d / 2 + 0.12 : 0;
-    const pool = dressing.getObjectByName('pool');
-    pool.visible = roofy;
-    pool.position.set(-(w / 2 + 0.9 + 1.7), 0, 0.6);
-    const hedges = dressing.getObjectByName('hedges');
-    hedges.position.set(0, 0, enclosed ? -d - 1.2 : -(roofy ? d / 2 : 1.6) - 1.6);
+    deck.position.z = cz;
+
+    // olive trees at the back corners (against the house wall when there is one)
     const trees = dressing.getObjectByName('trees');
-    trees.children.forEach((t) => { t.position.set(t.userData.side * (w / 2 + 1.6), 0, (enclosed ? -d - 0.4 : -(roofy ? d / 2 : 1.4) - 0.6) + t.userData.dz); });
+    const treeZ = hasWall ? wallZ + 0.9 : back - 0.6;
+    trees.children.forEach((t) => { t.position.set(t.userData.side * (w / 2 + 1.6), 0, treeZ + t.userData.dz); });
     trees.visible = showProps;
-    trees.children.forEach((t, i) => { garden[i].position.set(t.position.x * 0.92, 0.5, t.position.z + 0.6); });
-    sofa.visible = showProps && (roofy || enclosed) && w >= 3 && d >= 2.5;
-    sofa.position.set(0, studioOn ? 0.05 : 0.04, enclosed ? -d / 2 : -0.1);
-    sofa.scale.setScalar(Math.min(1, (w - 0.6) / 3.4, (d - 0.4) / 2.6));
+    trees.children.forEach((t, i) => { garden[i].position.set(t.position.x * 0.95, 1.0, t.position.z + 0.75); });
+
+    // pool on the left, starting just in front of the tree
+    const pool = dressing.getObjectByName('pool');
+    const lShape = kit && kit.o.layout === 'l-shape' && roofy;
+    pool.visible = !lShape;
+    const poolZ = treeZ + 0.95 + 3.25;
+    pool.position.set(-(w / 2 + 2.6), 0, poolZ);
+
+    // hedge and boxwood balls close the garden at the back; with a house wall the balls line the wall instead
+    const hedges = dressing.getObjectByName('hedges');
+    hedges.visible = !hasWall;
+    hedges.position.z = back - 2.3;
+    hedges.scale.x = Math.max(1, (w + 9) / 15);
+    const balls = dressing.getObjectByName('balls');
+    balls.visible = showProps;
+    balls.children.forEach((bx, i) => {
+      if (hasWall) {
+        const spots = [[w / 2 + 0.75, 0.5], [w / 2 + 2.35, 0.55], [w / 2 + 3.0, 1.0], [-(w / 2 + 0.8), 0.5], [-(w / 2 + 2.45), 0.6]];
+        bx.position.x = spots[i][0]; bx.position.z = wallZ + spots[i][1];
+      } else {
+        bx.position.x = THREE.MathUtils.lerp(-w / 2 + 0.2, w / 2 - 0.2, i / 4); bx.position.z = back - 1.5;
+      }
+    });
+
+    // bollard lights along the front edge of the deck
+    const bollards = dressing.getObjectByName('bollards');
+    bollards.children.forEach((bl, i) => bl.position.set(THREE.MathUtils.lerp(-w / 2 - 0.5, w / 2 + 0.5, i / 3), 0, cz + d / 2 + 1.12));
+
+    // stone patio under the deck and around the pool
+    const left = pool.visible ? -(w / 2 + 5.1) : -(w / 2 + 2.6), right = w / 2 + 2.6;
+    const pBack = hasWall ? wallZ : back - 1.05, pFront = Math.max(cz + d / 2 + 2.4, pool.visible ? poolZ + 3.25 + 0.85 : 0);
+    patio.scale.set(right - left, 1, pFront - pBack);
+    patio.position.set((left + right) / 2, 0.015, (pFront + pBack) / 2);
+    patioTiles.repeat.set((right - left) / 1.2, (pFront - pBack) / 1.2);
+
+    // furniture under the roof
+    const fits = showProps && (roofy || enclosed);
+    const lounge = furniture.lounge, table = furniture.dining;
+    lounge.visible = fits && furnitureKind === 'lounge' && w >= 3 && d >= 2.5;
+    lounge.position.set(0, studioOn ? 0.05 : 0.04, enclosed ? -d / 2 : -0.1);
+    lounge.scale.setScalar(Math.min(1, (w - 0.6) / 3.4, (d - 0.4) / 2.6));
+    table.visible = fits && furnitureKind === 'dining' && w >= 2.8 && d >= 2.4;
+    table.position.set(0, studioOn ? 0.05 : 0.04, cz);
+    table.scale.setScalar(Math.min(1, (w - 0.5) / 3.3, (d - 0.5) / 2.4));
+
     // studio key light from above, aimed at the product
     const size = Math.max(w, d);
     key.position.set(-size * 0.7, 11 + size * 0.5, size * 0.8 + 4);
     key.target.position.set(0, 0, 0);
+    // the sun's shadow covers the whole terrace
+    const ext = size / 2 + 8;
+    sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext; sc.near = 1; sc.far = 90;
+    sc.updateProjectionMatrix();
+    sun.target.position.set(0, 0, cz);
+    placeSun();
+    shadowsDirty();
   }
 
   function build(type, o) {
@@ -843,10 +946,12 @@ export function createViewer(container, options) {
     mats.louvre.color.set(o.color || '#383e42').offsetHSL(0, 0, 0.04);
     if (o.fabric) mats.zipFabric.color.set(o.fabric);
     kit = new Kit(o, mats);
+    kitType = type;
     BUILDERS[type](kit);
     scene.add(kit.group);
     applyLights();
     kit.anim(anim);
+    shadowsDirty();
 
     roofy = type === 'bioclimatic' || type === 'glassroof' || type === 'awning';
     enclosed = type === 'guillotine' || type === 'slide' || type === 'zip';
@@ -915,32 +1020,88 @@ export function createViewer(container, options) {
     } else if (o.dims) setLabelText(o.dims);
   }
 
+  const sunDir = new THREE.Vector3(), moonDir = new THREE.Vector3(-0.5, 0.42, -0.76).normalize();
+  const C = { warm: new THREE.Color('#ffb066'), white: new THREE.Color('#fff4e4'), fogLow: new THREE.Color('#e6cfb3'), fogHigh: new THREE.Color('#cfdde6') };
+  const smooth01 = (x, a, b) => THREE.MathUtils.smoothstep(x, a, b);
+
+  function placeSun() {
+    const dir = mode === 'night' ? moonDir : sunDirection(hours, sunDir);
+    sun.position.copy(dir).multiplyScalar(45).add(sun.target.position);
+  }
+
   function applyLights() {
-    const night = mode === 'night', studioOn = mode === 'studio';
-    scene.background = skies[mode];
-    scene.fog.color.set(studioOn ? '#151413' : night ? '#141820' : '#efe7da');
-    scene.fog.near = studioOn ? 12 : 20; scene.fog.far = studioOn ? 30 : 55;
-    hemi.intensity = night ? 0.08 : studioOn ? 0.14 : 0.06;
-    hemi.color.set(night ? '#6d7da8' : '#f3f6ff');
-    sun.intensity = studioOn ? 0 : night ? 0.16 : 4.2;
-    sun.color.set(night ? '#8aa0d6' : '#fff1dc');
+    const night = mode === 'night', studioOn = mode === 'studio', day = mode === 'day';
+    const wet = raining && !studioOn, clearDay = day && !wet;
+    sky.visible = clearDay;
+    stars.visible = night;
+    rain.visible = wet;
+    scene.background = studioOn ? studioSky : day && wet ? overcastSky : null;
+    placeSun();
+    if (day) {
+      const e = sunDir.y, high = smooth01(e, 0.08, 0.62);
+      sky.material.uniforms.sunPosition.value.copy(sunDir);
+      sun.color.copy(C.warm).lerp(C.white, smooth01(e, 0.06, 0.5));
+      sun.intensity = wet ? 1.1 : THREE.MathUtils.lerp(3.0, 5.0, high);
+      if (wet) sun.color.set('#dfe6ee');
+      hemi.color.set(wet ? '#cfd6dc' : '#dfeaff');
+      hemi.intensity = wet ? 0.95 : 0.5;
+      scene.fog.color.copy(C.fogLow).lerp(C.fogHigh, high);
+      if (wet) scene.fog.color.set('#b4bbc0');
+      scene.fog.near = wet ? 14 : 50; scene.fog.far = wet ? 110 : 420;
+      scene.environment = clearDay && envSky ? envSky.texture : envRoom;
+      scene.environmentIntensity = clearDay ? 0.34 : 0.32;
+      renderer.toneMappingExposure = wet ? 0.82 : 0.6;
+      if (clearDay) envDirty = true;
+    } else {
+      scene.environment = envRoom;
+      scene.fog.color.set(studioOn ? '#151413' : '#0c101a');
+      scene.fog.near = studioOn ? 12 : 30; scene.fog.far = studioOn ? 30 : 130;
+      hemi.intensity = night ? 0.1 : 0.14;
+      hemi.color.set(night ? '#6d7da8' : '#f3f6ff');
+      sun.intensity = studioOn ? 0 : 0.22;
+      sun.color.set('#8aa0d6');
+      scene.environmentIntensity = studioOn ? 0.55 : 0.05;
+      renderer.toneMappingExposure = night ? 1.2 : 0.95;
+    }
     key.intensity = studioOn ? 380 : 0;
     rim.intensity = studioOn ? 2.2 : 0;
-    scene.environmentIntensity = studioOn ? 0.55 : night ? 0.05 : 0.26;
-    mats.water.emissive.set(night ? '#1d7f99' : '#000000');
-    mats.water.emissiveIntensity = night ? 0.9 : 0;
-    garden.forEach((l) => { l.intensity = night && showProps ? 3.2 : 0; });
+    // pool glows at night; the house is lit from inside; path lights come on
+    mats.water.emissive.set(night ? '#2aa3bd' : '#000000');
+    mats.water.emissiveIntensity = night ? 0.85 : 0;
+    mats.window.emissive.set(night ? '#ffb469' : '#000000');
+    mats.window.emissiveIntensity = night ? 0.5 : 0;
+    mats.lamp.color.set(night ? '#ffdcaa' : '#2a2826');
+    mats.glass.specularIntensity = night ? 0.12 : 1;
+    mats.glass.envMapIntensity = night ? 0.6 : 2;
+    garden.forEach((l) => { l.intensity = night && showProps ? 2.4 : 0; });
+    // wet stone is darker and shinier
+    patio.material.roughness = wet ? 0.3 : 0.8;
+    patio.material.color.set(wet ? '#a9a39a' : '#d6d0c6');
     mats.led.color.set(night ? '#ffe9c4' : '#f6efe2');
     if (kit) kit.lights.forEach((l) => { l.intensity = night ? l.userData.intensity : 0; });
-    renderer.toneMappingExposure = night ? 1.2 : studioOn ? 0.95 : 1.0;
-    bloom.strength = night ? 0.55 : studioOn ? 0.12 : 0.05;
-    bloom.threshold = night ? 0.82 : 0.96;
+    // bloom only where it shows (LED lines at night, the studio spot): it is several full-screen passes
+    bloom.enabled = !day;
+    bloom.strength = night ? 0.5 : 0.12;
+    bloom.threshold = night ? 0.84 : 0.97;
     bloom.radius = night ? 0.45 : 0.35;
+    shadowsDirty();
+  }
+
+  function refreshEnv(now) {
+    if (!envDirty || mode !== 'day' || raining || now - envTimer < 160) return;
+    envTimer = now; envDirty = false;
+    const rt = pmrem.fromScene(envScene);
+    if (envSky) envSky.dispose();
+    envSky = rt;
+    scene.environment = rt.texture;
   }
 
   function setMode(m) { mode = m === 'night' || m === 'day' ? m : 'studio'; applyLights(); stage(); }
   function setDims(on) { showDims = !!on; dimGroup.visible = showDims; labelLayer.hidden = !showDims; }
-  function setProps(on) { showProps = !!on; stage(); }
+  function setProps(on) { showProps = !!on; stage(); applyLights(); }
+  function setTime(h) { hours = THREE.MathUtils.clamp(+h || 12, 6, 20); if (mode === 'day') applyLights(); }
+  function setRain(on) { raining = !!on; applyLights(); }
+  function setFurniture(kind) { furnitureKind = kind === 'dining' || kind === 'none' ? kind : 'lounge'; stage(); }
   function setAutoRotate(on) { controls.autoRotate = !!on; }
   function setView(name) { view = VIEWS.hasOwnProperty(name) ? name : 'corner'; fly.dur = 1.4; flyTo(view); controls.autoRotate = false; }
   function resetView() { setView('corner'); }
@@ -949,6 +1110,25 @@ export function createViewer(container, options) {
   let visible = true, raf = 0, disposed = false, last = performance.now();
   const io = 'IntersectionObserver' in window ? new IntersectionObserver((e) => { visible = e[0].isIntersecting; }) : null;
   if (io) io.observe(container);
+
+  // frame-time watchdog
+  let slowAcc = 0, slowN = 0, drops = 0, lastTune = 0;
+  function tuneQuality(ms, now) {
+    if (ms > 450) return; // tab was in the background or a rebuild hiccup: not a measurement
+    slowAcc += ms; slowN++;
+    if (slowN < 45 || now - lastTune < 1500) return;
+    const avg = slowAcc / slowN;
+    slowAcc = 0; slowN = 0;
+    let next = ratio;
+    if (avg > 27 && ratio > 0.75) next = Math.max(0.75, ratio - 0.25);
+    else if (avg < 13 && ratio < maxRatio && drops < 2) next = Math.min(maxRatio, ratio + 0.25);
+    if (next === ratio) return;
+    if (next < ratio) drops++;
+    ratio = next; lastTune = now;
+    renderer.setPixelRatio(ratio);
+    composer.setPixelRatio(ratio);
+    resize();
+  }
 
   function resize() {
     const r = container.getBoundingClientRect();
@@ -972,15 +1152,17 @@ export function createViewer(container, options) {
   function frame(now) {
     if (disposed) return;
     raf = requestAnimationFrame(frame);
-    const dt = Math.min(0.25, ((now || performance.now()) - last) / 1000);
+    const ms = (now || performance.now()) - last;
+    const dt = Math.min(0.25, ms / 1000);
     last = now || performance.now();
     if (!visible) return;
+    tuneQuality(ms, last);
     let moving = false;
     for (const k in target) {
       const diff = target[k] - anim[k];
       if (Math.abs(diff) > 1e-3) { anim[k] += diff * Math.min(1, dt * 7); moving = true; }
     }
-    if (moving && kit) kit.anim(anim);
+    if (moving && kit) { kit.anim(anim); shadowsDirty(); }
     if (fly.t < 1) {
       fly.t = Math.min(1, fly.t + dt / fly.dur);
       const e = ease(fly.t);
@@ -988,6 +1170,12 @@ export function createViewer(container, options) {
       controls.target.lerpVectors(fly.tFrom, fly.tTo, e);
     }
     controls.update();
+    if (mode !== 'studio') {
+      const wn = mats.water.normalMap;
+      wn.offset.x += dt * 0.012; wn.offset.y += dt * 0.021;
+      if (rain.visible) rain.userData.step(dt);
+      refreshEnv(last);
+    }
     composer.render();
     if (showDims) {
       const r = container.getBoundingClientRect();
@@ -1006,20 +1194,24 @@ export function createViewer(container, options) {
   applyLights();
 
   return {
-    debug: { scene, renderer, sun, hemi, key, camera, controls, fly },
+    debug: { scene, renderer, sun, hemi, key, camera, controls, fly, quality: () => ({ ratio, maxRatio, drops }) },
     update,
     setMode,
     setNight: (on) => setMode(on ? 'night' : 'studio'),
     setView,
     setDims,
     setProps,
+    setTime,
+    setRain,
+    setFurniture,
     setAutoRotate,
     resetView,
     snapshot() { composer.render(); return renderer.domElement.toDataURL('image/png'); },
     dispose() {
       disposed = true; cancelAnimationFrame(raf);
       if (io) io.disconnect(); if (ro) ro.disconnect();
-      composer.dispose(); renderer.dispose();
+      if (envSky) envSky.dispose();
+      pmrem.dispose(); composer.dispose(); renderer.dispose();
       container.removeChild(renderer.domElement); container.removeChild(labelLayer);
     }
   };

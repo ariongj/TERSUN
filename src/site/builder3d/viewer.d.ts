@@ -37,6 +37,11 @@ export interface Viewer {
   setView(view: ViewerView): void;
   setDims(on: boolean): void;
   setProps(on: boolean): void;
+  /** Time of day for the Day scene, in hours (6–20): moves the sun and its shadows. */
+  setTime(hours: number): void;
+  /** Rain on/off (Day and Night scenes). It stays dry under a closed roof. */
+  setRain(on: boolean): void;
+  setFurniture(kind: 'lounge' | 'dining' | 'none'): void;
   setAutoRotate(on: boolean): void;
   resetView(): void;
   snapshot(): string;
