@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Lamp, Moon, Move3d, Sun } from 'lucide-react';
+import { Lamp, Loader2, Moon, Move3d, Sun } from 'lucide-react';
 import { defineDict, useDict } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { createViewer, webglAvailable, type Viewer, type ViewerMode } from './viewer';
 
 const D = defineDict({
-  de: { studio: 'Studio', day: 'Tag', night: 'Nacht', drag: 'Ziehen zum Drehen' },
-  sq: { studio: 'Studio', day: 'Ditë', night: 'Natë', drag: 'Tërhiqni për ta rrotulluar' },
-  en: { studio: 'Studio', day: 'Day', night: 'Night', drag: 'Drag to rotate' },
+  de: { studio: 'Studio', day: 'Tag', night: 'Nacht', drag: 'Ziehen zum Drehen', loading: '3D wird geladen' },
+  sq: { studio: 'Studio', day: 'Ditë', night: 'Natë', drag: 'Tërhiqni për ta rrotulluar', loading: '3D po ngarkohet' },
+  en: { studio: 'Studio', day: 'Day', night: 'Night', drag: 'Drag to rotate', loading: 'Loading 3D' },
 });
+
+/** A still of the scene the preview starts with: shown at once, the live 3D fades in over it when it is ready. */
+export const LIVE_POSTER = '/images/misc/builder-live.webp';
 
 /**
  * The real 3D builder scene, embedded on the homepage: a bioclimatic pergola with LED and the lounge,
@@ -21,18 +24,28 @@ export default function LivePreview({ fallback }: { fallback: string }) {
   const [mode, setMode] = useState<ViewerMode>('night');
   const [gl] = useState(() => webglAvailable());
   const [touched, setTouched] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!gl || !ref.current) return;
-    const v = createViewer(ref.current, { keepView: true, zoom: 1.5, onInteract: () => setTouched(true) });
-    viewer.current = v;
-    v.setDims(false);
-    v.update('bioclimatic', { w: 450, d: 350, h: 260, color: '#383e42', layout: 'standard', mount: 'free', side: 'none', led: true, angle: 35 });
-    v.setMode('night');
-    v.setAutoRotate(true);
+    const el = ref.current;
+    let v: Viewer | null = null;
+    // set the scene up in a quiet moment, so it never interrupts a scroll
+    const start = () => {
+      v = createViewer(el, { keepView: true, zoom: 1.5, onInteract: () => setTouched(true), onReady: () => setReady(true) });
+      viewer.current = v;
+      v.setDims(false);
+      v.update('bioclimatic', { w: 450, d: 350, h: 260, color: '#383e42', layout: 'standard', mount: 'free', side: 'none', led: true, angle: 35 });
+      v.setMode('night');
+      v.setAutoRotate(true);
+    };
+    const idle = window.requestIdleCallback ? window.requestIdleCallback(start, { timeout: 500 }) : window.setTimeout(start, 60);
     return () => {
-      v.dispose();
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+      v?.dispose();
       viewer.current = null;
+      setReady(false);
     };
   }, [gl]);
 
@@ -45,9 +58,10 @@ export default function LivePreview({ fallback }: { fallback: string }) {
 
   return (
     <>
-      <div ref={ref} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
+      <img src={LIVE_POSTER} alt="" className={cn('absolute inset-0 h-full w-full object-cover transition-opacity duration-700', ready && 'opacity-0')} />
+      <div ref={ref} className={cn('absolute inset-0 cursor-grab transition-opacity duration-700 active:cursor-grabbing', ready ? 'opacity-100' : 'opacity-0')} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_60%,rgb(0_0_0/0.35)_100%)]" />
-      <div className="absolute left-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md sm:left-5 sm:top-5">
+      <div className={cn('absolute left-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-500 sm:left-5 sm:top-5', !ready && 'pointer-events-none opacity-0')}>
         {(
           [
             ['studio', <Lamp key="s" className="h-3.5 w-3.5" />],
@@ -75,7 +89,15 @@ export default function LivePreview({ fallback }: { fallback: string }) {
           touched && 'opacity-0',
         )}
       >
-        <Move3d className="h-3.5 w-3.5" /> {t('drag')}
+        {ready ? (
+          <>
+            <Move3d className="h-3.5 w-3.5" /> {t('drag')}
+          </>
+        ) : (
+          <>
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('loading')}
+          </>
+        )}
       </div>
     </>
   );

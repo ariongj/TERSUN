@@ -20,6 +20,14 @@ export function rng(seed) {
   };
 }
 
+// Generated textures and geometry are kept for the life of the page: a second viewer (homepage preview, then the
+// builder) starts without regenerating them.
+const cache = new Map();
+const memo = (key, make) => {
+  if (!cache.has(key)) cache.set(key, make());
+  return cache.get(key);
+};
+
 // smooth pseudo-noise of a position — the same point always gets the same value, so shared vertices stay welded
 const noise3 = (x, y, z) =>
   Math.sin(x * 3.1 + y * 1.7) * 0.5 + Math.sin(y * 4.3 + z * 2.9 + 1.3) * 0.3 + Math.sin(z * 5.7 + x * 2.3 + 4.1) * 0.2;
@@ -60,7 +68,7 @@ function tint(geo, fn) {
 
 export function grassTexture() {
   const r = rng(11);
-  return canvasTexture(512, 512, (g, w, h) => {
+  return memo('grass', () => canvasTexture(512, 512, (g, w, h) => {
     g.fillStyle = '#6b8148'; g.fillRect(0, 0, w, h);
     const greens = ['#5f7a3f', '#7f9655', '#6a8446', '#8aa05e', '#56703a'];
     for (let i = 0; i < 9000; i++) {
@@ -71,7 +79,7 @@ export function grassTexture() {
       g.beginPath(); g.moveTo(x, y); g.lineTo(x + (r() - 0.5) * 3, y - 2 - r() * 4); g.stroke();
     }
     g.globalAlpha = 1;
-  }, [58, 58]);
+  }, [58, 58]));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -81,32 +89,37 @@ const LEAF_DARK = new THREE.Color('#33472b'), LEAF_LIGHT = new THREE.Color('#7c9
 const OLIVE_DARK = new THREE.Color('#46553a'), OLIVE_LIGHT = new THREE.Color('#8d9c70');
 const CYPRESS_DARK = new THREE.Color('#2f4030'), CYPRESS_LIGHT = new THREE.Color('#56704c');
 
-/** A bushy crown: several displaced blobs welded into one smooth mesh, shaded dark below and light on top. */
-function crownGeometry(r, radius, blobs, squash, dark, light) {
-  const parts = [];
-  for (let i = 0; i < blobs; i++) {
-    const rr = radius * (i === 0 ? 0.72 : 0.36 + r() * 0.26);
-    const g = new THREE.IcosahedronGeometry(rr, i === 0 ? 3 : 2);
-    const a = r() * Math.PI * 2, e = (r() - 0.35) * 1.4, d = i === 0 ? 0 : radius * (0.42 + r() * 0.3);
-    g.translate(Math.cos(a) * Math.cos(e) * d, Math.sin(e) * d * squash, Math.sin(a) * Math.cos(e) * d);
-    parts.push(g);
-  }
-  let geo = smooth(mergeGeometries(parts));
-  const p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const n = 1 + noise3(x * 5, y * 5, z * 5) * 0.07 + noise3(x * 17, y * 17, z * 17) * 0.035;
-    p.setXYZ(i, x * n, y * n, z * n);
-  }
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const y0 = geo.boundingBox.min.y, y1 = geo.boundingBox.max.y;
-  tint(geo, (c, x, y, z) => {
-    const t = THREE.MathUtils.clamp((y - y0) / (y1 - y0), 0, 1);
-    const n = noise3(x * 9, y * 9, z * 9) * 0.5 + 0.5;
-    c.copy(dark).lerp(light, THREE.MathUtils.clamp(t * 0.8 + n * 0.3, 0, 1));
+const unitBlob = (detail) => memo(`blob${detail}`, () => smooth(new THREE.IcosahedronGeometry(1, detail)));
+
+/** A bushy crown: several displaced blobs in one smooth mesh, shaded dark below and light on top. */
+function crownGeometry(key, r, radius, blobs, squash, dark, light) {
+  return memo(key, () => {
+    const parts = [];
+    for (let i = 0; i < blobs; i++) {
+      const rr = radius * (i === 0 ? 0.72 : 0.36 + r() * 0.26);
+      const g = unitBlob(i === 0 ? 3 : 2).clone();
+      g.scale(rr, rr, rr);
+      const a = r() * Math.PI * 2, e = (r() - 0.35) * 1.4, d = i === 0 ? 0 : radius * (0.42 + r() * 0.3);
+      g.translate(Math.cos(a) * Math.cos(e) * d, Math.sin(e) * d * squash, Math.sin(a) * Math.cos(e) * d);
+      parts.push(g);
+    }
+    const geo = mergeGeometries(parts);
+    const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+      const n = 1 + noise3(x * 5, y * 5, z * 5) * 0.07 + noise3(x * 17, y * 17, z * 17) * 0.035;
+      p.setXYZ(i, x * n, y * n, z * n);
+    }
+    geo.computeVertexNormals();
+    geo.computeBoundingBox();
+    const y0 = geo.boundingBox.min.y, y1 = geo.boundingBox.max.y;
+    tint(geo, (c, x, y, z) => {
+      const t = THREE.MathUtils.clamp((y - y0) / (y1 - y0), 0, 1);
+      const n = noise3(x * 9, y * 9, z * 9) * 0.5 + 0.5;
+      c.copy(dark).lerp(light, THREE.MathUtils.clamp(t * 0.8 + n * 0.3, 0, 1));
+    });
+    return geo;
   });
-  return geo;
 }
 
 /** Olive tree in a tall planter. */
@@ -126,7 +139,7 @@ export function olive(mats, seed = 1) {
     const b = new THREE.Mesh(new THREE.TubeGeometry(c, 8, 0.025, 6), mats.bark);
     b.castShadow = true; g.add(b);
   });
-  const crown = new THREE.Mesh(crownGeometry(r, 0.5, 16, 0.7, OLIVE_DARK, OLIVE_LIGHT), mats.foliage);
+  const crown = new THREE.Mesh(crownGeometry(`olive${seed}`, r, 0.5, 14, 0.7, OLIVE_DARK, OLIVE_LIGHT), mats.foliage);
   crown.position.set(0.02, 1.85, 0); crown.castShadow = true; crown.receiveShadow = true;
   g.add(crown);
   return g;
@@ -134,14 +147,21 @@ export function olive(mats, seed = 1) {
 
 /** Clipped boxwood ball. */
 export function boxwood(mats, radius, seed) {
-  const m = new THREE.Mesh(crownGeometry(rng(seed), radius * 1.15, 1, 0.9, LEAF_DARK, LEAF_LIGHT), mats.foliage);
+  const m = new THREE.Mesh(crownGeometry(`box${seed}:${radius}`, rng(seed), radius * 1.15, 1, 0.9, LEAF_DARK, LEAF_LIGHT), mats.foliage);
   m.position.y = radius * 0.86; m.castShadow = true; m.receiveShadow = true;
   return m;
 }
 
 /** A clipped hedge, `len` metres long, with a softly irregular surface. */
 export function hedge(mats, len, height = 0.85, depth = 0.6) {
-  let geo = new THREE.BoxGeometry(len, height, depth, Math.max(8, Math.round(len * 5)), 6, 5);
+  const geo = memo(`hedge${len}:${height}:${depth}`, () => hedgeGeometry(len, height, depth));
+  const m = new THREE.Mesh(geo, mats.foliage);
+  m.position.y = height / 2; m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+
+function hedgeGeometry(len, height, depth) {
+  let geo = new THREE.BoxGeometry(len, height, depth, Math.max(8, Math.round(len * 4)), 5, 4);
   geo = smooth(geo.toNonIndexed());
   const p = geo.attributes.position;
   for (let i = 0; i < p.count; i++) {
@@ -157,73 +177,80 @@ export function hedge(mats, len, height = 0.85, depth = 0.6) {
     const n = noise3(x * 11, y * 11, z * 11) * 0.5 + 0.5;
     c.copy(LEAF_DARK).lerp(LEAF_LIGHT, THREE.MathUtils.clamp(t * 0.65 + n * 0.35, 0, 1));
   });
-  const m = new THREE.Mesh(geo, mats.foliage);
-  m.position.y = height / 2; m.castShadow = true; m.receiveShadow = true;
-  return m;
+  return geo;
 }
 
-/** A far ring of woodland: overlapping round crowns in two rows with a few cypresses. One merged mesh. */
-export function treeline(mats) {
-  const r = rng(77);
-  const parts = [];
-  const add = (g, h, dark, light, a, dist, seed) => {
-    g = smooth(g.index ? g.toNonIndexed() : g);
-    const pp = g.attributes.position;
-    for (let k = 0; k < pp.count; k++) {
-      const x = pp.getX(k), y = pp.getY(k), z = pp.getZ(k);
-      const n = 1 + noise3(x * 0.55 + seed, y * 0.6, z * 0.55) * 0.16;
-      pp.setXYZ(k, x * n, y * (1 + noise3(x * 0.4, seed, z * 0.4) * 0.08), z * n);
-    }
-    tint(g, (c, x, y) => c.copy(dark).lerp(light, THREE.MathUtils.clamp(y / h, 0, 1) * 0.75));
-    g.translate(Math.cos(a) * dist, 0, Math.sin(a) * dist);
-    parts.push(g);
-  };
-  const N = 64;
-  for (let row = 0; row < 2; row++) {
-    for (let i = 0; i < N; i++) {
-      const a = ((i + row * 0.5) / N) * Math.PI * 2 + (r() - 0.5) * 0.05;
-      const dist = 125 + row * 14 + r() * 8;
-      const h = (row ? 7.5 : 5) + r() * 3;
-      const g = new THREE.IcosahedronGeometry(1, 2);
-      g.scale(h * 0.62, h * 0.52, h * 0.62);
-      g.translate(0, h * 0.5, 0);
-      add(g, h, LEAF_DARK, LEAF_LIGHT, a, dist, i + row * 100);
-    }
-  }
-  for (let i = 0; i < 14; i++) {
-    const a = r() * Math.PI * 2, h = 9 + r() * 4;
-    const pts = [0, 0.06, 0.16, 0.3, 0.5, 0.7, 0.86, 0.96, 1].map((t) => new THREE.Vector2(Math.max(0.02, Math.sin(Math.pow(t, 0.7) * Math.PI) * 1.9 * (1 - t * 0.35)), t * h));
-    add(new THREE.LatheGeometry(pts, 10), h, CYPRESS_DARK, CYPRESS_LIGHT, a, 118 + r() * 8, i * 7);
-  }
-  const geo = mergeGeometries(parts);
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mats.foliage);
+/**
+ * The far edge of the garden: a wood painted on a wide ring (one quad strip, one small texture). The scene fog
+ * hazes it; `userData.tone(colour)` darkens it for night and rain.
+ */
+export function treeline() {
+  const tex = memo('treeline', () => {
+    const r = rng(77);
+    return canvasTexture(2048, 128, (g, w, h) => {
+      g.clearRect(0, 0, w, h);
+      const tree = (x, base, rx, ry, col) => { g.fillStyle = col; g.beginPath(); g.ellipse(x, base - ry * 0.75, rx, ry, 0, 0, Math.PI * 2); g.fill(); };
+      const rows = [['#5f7a52', 62, 26], ['#4d6944', 52, 30], ['#3f5a39', 40, 34]];
+      rows.forEach(([col, top, n], k) => {
+        for (let i = 0; i < 150; i++) {
+          const x = r() * w, ry = n * (0.55 + r() * 0.5), rx = ry * (0.75 + r() * 0.5);
+          // wrap around the seam so the ring has no visible join
+          [x, x - w, x + w].forEach((px) => tree(px, h + 6 - k * 4 + (top - 40) * 0 + (2 - k) * 6, rx, ry, col));
+        }
+      });
+      // a few cypresses
+      g.fillStyle = '#2f4530';
+      for (let i = 0; i < 22; i++) {
+        const x = r() * w, hh = 60 + r() * 34, ww = 9 + r() * 5;
+        g.beginPath(); g.ellipse(x, h - hh * 0.5 + 6, ww, hh * 0.52, 0, 0, Math.PI * 2); g.fill();
+      }
+      // darker towards the ground
+      const grad = g.createLinearGradient(0, h * 0.35, 0, h);
+      grad.addColorStop(0, 'rgba(0,0,0,0)'); grad.addColorStop(1, 'rgba(20,34,20,0.45)');
+      g.globalCompositeOperation = 'source-atop';
+      g.fillStyle = grad; g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'source-over';
+    }, [3, 1]);
+  });
+  const H = 15, R = 165;
+  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.BackSide, depthWrite: false });
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 72, 1, true), mat);
+  m.position.y = H / 2 - 0.3;
+  m.userData.tone = (c) => mat.color.set(c);
+  return m;
 }
 
 // ------------------------------------------------------------------------------------------------
 // pool
 
 function waterNormalTexture() {
-  const size = 256;
-  const r = rng(5);
-  const waves = Array.from({ length: 14 }, () => ({ kx: Math.round((r() - 0.5) * 12), ky: Math.round((r() - 0.5) * 12), ph: r() * 6.28, a: 0.4 + r() * 0.6 }));
-  const hgt = (x, y) => waves.reduce((s, w) => s + Math.sin((x * w.kx + y * w.ky) * Math.PI * 2 + w.ph) * w.a, 0);
-  return canvasTexture(size, size, (g) => {
-    const img = g.createImageData(size, size);
+  return memo('waterNormals', () => {
+    const size = 128;
+    const r = rng(5);
+    const waves = Array.from({ length: 12 }, () => ({ kx: Math.round((r() - 0.5) * 12), ky: Math.round((r() - 0.5) * 12), ph: r() * 6.28, a: 0.4 + r() * 0.6 }));
+    const hgt = new Float32Array(size * size);
     for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
-      const e = 1 / size, u = x / size, v = y / size;
-      const dx = (hgt(u + e, v) - hgt(u - e, v)) * 0.6, dy = (hgt(u, v + e) - hgt(u, v - e)) * 0.6;
-      const n = new THREE.Vector3(-dx, -dy, 1).normalize();
-      const i = (y * size + x) * 4;
-      img.data[i] = (n.x * 0.5 + 0.5) * 255; img.data[i + 1] = (n.y * 0.5 + 0.5) * 255; img.data[i + 2] = (n.z * 0.5 + 0.5) * 255; img.data[i + 3] = 255;
+      let v = 0;
+      for (const w of waves) v += Math.sin(((x * w.kx + y * w.ky) / size) * Math.PI * 2 + w.ph) * w.a;
+      hgt[y * size + x] = v;
     }
-    g.putImageData(img, 0, 0);
-  }, [2.2, 4.4], false);
+    const at = (x, y) => hgt[((y + size) % size) * size + ((x + size) % size)];
+    return canvasTexture(size, size, (g) => {
+      const img = g.createImageData(size, size);
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+        const dx = (at(x + 1, y) - at(x - 1, y)) * 0.3, dy = (at(x, y + 1) - at(x, y - 1)) * 0.3;
+        const inv = 1 / Math.hypot(dx, dy, 1);
+        const i = (y * size + x) * 4;
+        img.data[i] = (-dx * inv * 0.5 + 0.5) * 255; img.data[i + 1] = (-dy * inv * 0.5 + 0.5) * 255; img.data[i + 2] = (inv * 0.5 + 0.5) * 255; img.data[i + 3] = 255;
+      }
+      g.putImageData(img, 0, 0);
+    }, [2.2, 4.4], false);
+  });
 }
 
 /** Pool surface colour: pale at the steps and edges, deep in the middle, with a faint mosaic grid. */
 function poolTexture() {
-  return canvasTexture(256, 512, (g, w, h) => {
+  return memo('pool', () => canvasTexture(256, 512, (g, w, h) => {
     g.fillStyle = '#2f8ea6'; g.fillRect(0, 0, w, h);
     const grad = g.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, h * 0.62);
     grad.addColorStop(0, 'rgba(22, 104, 132, 0.95)'); grad.addColorStop(0.55, 'rgba(47, 142, 166, 0.5)'); grad.addColorStop(1, 'rgba(160, 222, 226, 0.95)');
@@ -231,14 +258,32 @@ function poolTexture() {
     g.strokeStyle = 'rgba(255,255,255,0.07)'; g.lineWidth = 1;
     for (let x = 0; x <= w; x += 16) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
     for (let y = 0; y <= h; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  }));
+}
+
+export function poolWaterMaterial(cube) {
+  const map = poolTexture();
+  return new THREE.MeshPhongMaterial({
+    map, emissiveMap: map, emissive: '#000000', color: '#ffffff', shininess: 110, specular: '#9fb6c2',
+    normalMap: waterNormalTexture(), normalScale: new THREE.Vector2(0.4, 0.4), envMap: cube, reflectivity: 0.3,
   });
 }
 
-export function poolWaterMaterial() {
-  const map = poolTexture();
-  return new THREE.MeshPhysicalMaterial({
-    map, emissiveMap: map, emissive: '#000000', color: '#ffffff', roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05,
-    normalMap: waterNormalTexture(), normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.6,
+/**
+ * A tiny reflection cube for glass and water (six 32 px gradient faces). `day`: blue sky over a pale horizon;
+ * `dark`: a dim room with a soft light overhead, for the studio and the night scene.
+ */
+export function envCube(kind) {
+  return memo(`cube:${kind}`, () => {
+    const day = kind === 'day';
+    const top = day ? '#7fa8d8' : '#5a5650', horizon = day ? '#e6eef2' : '#1c1b1a', ground = day ? '#8a8f7c' : '#0e0d0c';
+    const face = (paint) => { const c = document.createElement('canvas'); c.width = c.height = 32; paint(c.getContext('2d')); return c; };
+    const side = () => face((g) => { const gr = g.createLinearGradient(0, 0, 0, 32); gr.addColorStop(0, top); gr.addColorStop(0.5, horizon); gr.addColorStop(0.52, ground); gr.addColorStop(1, ground); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); });
+    const flat = (col) => face((g) => { g.fillStyle = col; g.fillRect(0, 0, 32, 32); });
+    const t = new THREE.CubeTexture([side(), side(), flat(top), flat(ground), side(), side()]);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.needsUpdate = true;
+    return t;
   });
 }
 
@@ -267,7 +312,7 @@ export function sunDirection(hours, out = new THREE.Vector3()) {
 /** Night sky dome: deep gradient, stars and a warm glow on the horizon. */
 export function nightDome() {
   const r = rng(3);
-  const tex = canvasTexture(2048, 1024, (g, w, h) => {
+  const tex = memo('stars', () => canvasTexture(1024, 512, (g, w, h) => {
     const grad = g.createLinearGradient(0, 0, 0, h * 0.5);
     grad.addColorStop(0, '#03050b'); grad.addColorStop(0.55, '#0a1020'); grad.addColorStop(0.9, '#1a2136'); grad.addColorStop(1, '#2c2a33');
     g.fillStyle = grad; g.fillRect(0, 0, w, h * 0.5);
@@ -275,21 +320,21 @@ export function nightDome() {
     for (let i = 0; i < 1500; i++) {
       const y = Math.pow(r(), 1.5) * h * 0.47, x = r() * w, s = r();
       g.fillStyle = `rgba(${225 + r() * 30}, ${228 + r() * 27}, 255, ${0.25 + s * 0.75})`;
-      const size = s > 0.985 ? 2.6 : s > 0.9 ? 1.6 : 1;
+      const size = s > 0.985 ? 1.5 : s > 0.9 ? 1 : 0.7;
       g.beginPath(); g.arc(x, y, size * 0.6, 0, Math.PI * 2); g.fill();
     }
-  });
-  const dome = new THREE.Mesh(new THREE.SphereGeometry(300, 48, 24), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false, depthWrite: false }));
+  }));
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(300, 32, 16), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false, depthWrite: false }));
   dome.renderOrder = -2;
   // moon with a soft halo
-  const moonTex = canvasTexture(256, 256, (g, w, h) => {
+  const moonTex = memo('moon', () => canvasTexture(256, 256, (g, w, h) => {
     const halo = g.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
     halo.addColorStop(0, 'rgba(210,225,255,0.55)'); halo.addColorStop(0.25, 'rgba(160,185,235,0.16)'); halo.addColorStop(1, 'rgba(120,150,220,0)');
     g.fillStyle = halo; g.fillRect(0, 0, w, h);
     g.fillStyle = '#f3f1e6'; g.beginPath(); g.arc(w / 2, h / 2, 26, 0, Math.PI * 2); g.fill();
     g.fillStyle = 'rgba(190,190,180,0.35)';
     [[-8, -6, 7], [9, 4, 5], [-2, 10, 4]].forEach(([x, y, s]) => { g.beginPath(); g.arc(w / 2 + x, h / 2 + y, s, 0, Math.PI * 2); g.fill(); });
-  });
+  }));
   const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex, fog: false, depthWrite: false, transparent: true }));
   moon.scale.setScalar(46);
   moon.position.set(-150, 105, -230);
@@ -301,11 +346,11 @@ export function nightDome() {
 
 /** Flat overcast sky for the rain scene (used as a 2D background). */
 export function overcastTexture() {
-  return canvasTexture(16, 512, (g, w, h) => {
+  return memo('overcast', () => canvasTexture(16, 512, (g, w, h) => {
     const grad = g.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, '#7f8a94'); grad.addColorStop(0.5, '#aab2b8'); grad.addColorStop(1, '#c3c8cb');
     g.fillStyle = grad; g.fillRect(0, 0, w, h);
-  });
+  }));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -347,8 +392,10 @@ export function makeRain(count, blocker) {
 // ------------------------------------------------------------------------------------------------
 // furniture
 
-function rbox(w, h, d, r, mat) {
-  const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2, h / 2, d / 2)), mat);
+export function rbox(w, h, d, r, mat) {
+  const rad = Math.min(r, w / 2, h / 2, d / 2);
+  const geo = memo(`rbox${w}:${h}:${d}:${rad}`, () => new RoundedBoxGeometry(w, h, d, 2, rad));
+  const m = new THREE.Mesh(geo, mat);
   m.castShadow = true; m.receiveShadow = true;
   return m;
 }
@@ -363,14 +410,15 @@ export function dining(mats) {
   put(rbox(0.06, 0.7, 0.78, 0.01, mats.sofaFrame), -0.85, 0.36, 0);
   put(rbox(0.06, 0.7, 0.78, 0.01, mats.sofaFrame), 0.85, 0.36, 0);
   put(rbox(1.7, 0.05, 0.08, 0.01, mats.sofaFrame), 0, 0.66, 0);
+  const proto = new THREE.Group();
+  const add = (mesh, px, py, pz) => { mesh.position.set(px, py, pz); proto.add(mesh); };
+  add(rbox(0.5, 0.05, 0.5, 0.02, mats.sofaFrame), 0, 0.42, 0);
+  add(rbox(0.46, 0.06, 0.46, 0.025, mats.cushion), 0, 0.475, 0);
+  add(rbox(0.5, 0.42, 0.05, 0.02, mats.sofaFrame), 0, 0.68, -0.235);
+  add(rbox(0.42, 0.3, 0.04, 0.02, mats.cushion), 0, 0.66, -0.2);
+  [[-0.22, -0.22], [0.22, -0.22], [-0.22, 0.22], [0.22, 0.22]].forEach(([lx, lz]) => add(rbox(0.035, 0.42, 0.035, 0.008, mats.sofaFrame), lx, 0.21, lz));
   const chair = (x, z, ry) => {
-    const c = new THREE.Group();
-    const add = (mesh, px, py, pz) => { mesh.position.set(px, py, pz); c.add(mesh); };
-    add(rbox(0.5, 0.05, 0.5, 0.02, mats.sofaFrame), 0, 0.42, 0);
-    add(rbox(0.46, 0.06, 0.46, 0.025, mats.cushion), 0, 0.475, 0);
-    add(rbox(0.5, 0.42, 0.05, 0.02, mats.sofaFrame), 0, 0.68, -0.235);
-    add(rbox(0.42, 0.3, 0.04, 0.02, mats.cushion), 0, 0.66, -0.2);
-    [[-0.22, -0.22], [0.22, -0.22], [-0.22, 0.22], [0.22, 0.22]].forEach(([lx, lz]) => add(rbox(0.035, 0.42, 0.035, 0.008, mats.sofaFrame), lx, 0.21, lz));
+    const c = proto.clone();
     c.position.set(x, 0, z); c.rotation.y = ry;
     g.add(c);
   };

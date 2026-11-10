@@ -12,13 +12,12 @@
  */
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { boxwood, dining, grassTexture, hedge, makeRain, makeSky, nightDome, olive, overcastTexture, poolWaterMaterial, sunDirection, treeline } from './scenery.js';
+import { boxwood, dining, envCube, grassTexture, rbox, hedge, makeRain, makeSky, nightDome, olive, overcastTexture, poolWaterMaterial, sunDirection, treeline } from './scenery.js';
 
 const CM = 0.01;
 const LED_WARM = new THREE.Color('#ffd9a0');
@@ -126,12 +125,14 @@ class Kit {
     return m;
   }
 
+  // A warm light under the roof. Only a marker here: the viewer lights it from a fixed pool of point lights,
+  // because adding or removing real lights makes three.js recompile every shader (a visible stall).
   ledLight(x, y, z, intensity) {
-    const l = new THREE.PointLight(LED_WARM, 0, 6, 1.6);
-    l.position.set(x, y, z);
-    l.userData.intensity = (intensity || 6) * 0.55;
-    this.group.add(l);
-    this.lights.push(l);
+    const m = new THREE.Object3D();
+    m.position.set(x, y, z);
+    m.userData.intensity = (intensity || 6) * 0.55;
+    this.group.add(m);
+    this.lights.push(m);
   }
 
   wall(w, h, zBack, plain) {
@@ -375,7 +376,7 @@ function glassRoofUnit(k, w, d, opt) {
   }
   if (led) {
     for (let i = 0; i < Math.max(1, Math.round(w / 3)); i++) {
-      k.ledLight(x0 + (w * (i + 0.5)) / Math.max(1, Math.round(w / 3)), h - 0.15, 0, 4);
+      k.ledLight(x0 + (w * (i + 0.5)) / Math.max(1, Math.round(w / 3)), h - 0.35, 0, 6);
     }
     // light lines under the front gutter and along the rear profile
     k.led(w - 0.24, 0.014, 0.04, 0, h - gutter - 0.008, z1 - 0.1);
@@ -557,12 +558,6 @@ const BUILDERS = {
 // ------------------------------------------------------------------------------------------------
 // Scene props
 
-function rbox(w, h, d, r, mat) {
-  const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2, h / 2, d / 2)), mat);
-  m.castShadow = true; m.receiveShadow = true;
-  return m;
-}
-
 // Outdoor lounge: L-shaped sofa with loose cushions, travertine table, rug and an olive tree.
 function lounge(mats) {
   const g = new THREE.Group();
@@ -662,20 +657,14 @@ export function createViewer(container, options) {
   renderer.domElement.className = 'cfg-canvas';
 
   const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const envRoom = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environment = envRoom;
   const studioSky = skyTexture('studio'), overcastSky = overcastTexture();
   scene.fog = new THREE.Fog('#151413', 14, 34);
 
-  // day: physical sky with a movable sun; it also lights the scene through an environment map
+  // day: physical sky with a movable sun. Lighting is direct (sun + sky/ground hemisphere): no environment maps,
+  // whose set-up and shaders made the viewer slow to start.
   const sky = makeSky();
   scene.add(sky);
-  const envScene = new THREE.Scene();
-  const envSkyMesh = new THREE.Mesh(sky.geometry, sky.material);
-  envSkyMesh.scale.setScalar(1000);
-  envScene.add(envSkyMesh);
-  let envSky = null, envDirty = true, envTimer = 0;
+  const cubes = { day: envCube('day'), dark: envCube('dark') };
   // night: stars and a moon
   const stars = nightDome();
   scene.add(stars);
@@ -709,33 +698,33 @@ export function createViewer(container, options) {
   const sc = sun.shadow.camera;
   sc.left = -10; sc.right = 10; sc.top = 10; sc.bottom = -10; sc.near = 1; sc.far = 45;
   scene.add(sun, sun.target);
-  const key = new THREE.SpotLight('#fff1dc', 0, 0, 0.62, 0.85, 2);
-  key.castShadow = true;
-  key.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
-  key.shadow.bias = -0.0003;
-  key.shadow.normalBias = 0.02;
-  scene.add(key, key.target);
   const rim = new THREE.DirectionalLight('#c9d6ff', 0);
   rim.position.set(6, 6, -8);
   scene.add(rim);
+  // LED light under the roof: always the same number of lights (off = intensity 0), see Kit.ledLight
+  const ledPool = [0, 1, 2].map(() => {
+    const l = new THREE.PointLight(LED_WARM, 0, 7, 1.6);
+    scene.add(l);
+    return l;
+  });
 
   // materials
   const mats = {
-    frame: new THREE.MeshPhysicalMaterial({ color: '#383e42', metalness: 0.2, roughness: 0.48, clearcoat: 0.25, clearcoatRoughness: 0.5 }),
-    louvre: new THREE.MeshPhysicalMaterial({ color: '#40464a', metalness: 0.2, roughness: 0.5, clearcoat: 0.2, clearcoatRoughness: 0.55 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: '#d4e6ec', metalness: 0, roughness: 0.03, transparent: true, opacity: 0.2, envMapIntensity: 2, depthWrite: false, side: THREE.DoubleSide }),
+    frame: new THREE.MeshStandardMaterial({ color: '#383e42', metalness: 0, roughness: 0.46 }),
+    louvre: new THREE.MeshStandardMaterial({ color: '#40464a', metalness: 0, roughness: 0.5 }),
+    glass: new THREE.MeshPhongMaterial({ color: '#cfe3ea', transparent: true, opacity: 0.22, shininess: 140, specular: '#ffffff', envMap: cubes.day, reflectivity: 0.5, depthWrite: false, side: THREE.DoubleSide }),
     led: new THREE.MeshBasicMaterial({ color: '#fff3dc' }),
     wall: new THREE.MeshStandardMaterial({ color: '#efebe4', roughness: 0.92 }),
-    window: new THREE.MeshPhysicalMaterial({ color: '#1c2328', metalness: 0.2, roughness: 0.06, clearcoat: 1 }),
-    windowFrame: new THREE.MeshStandardMaterial({ color: '#25292c', metalness: 0.5, roughness: 0.35 }),
+    window: new THREE.MeshStandardMaterial({ color: '#1c2328', roughness: 0.12 }),
+    windowFrame: new THREE.MeshStandardMaterial({ color: '#25292c', roughness: 0.4 }),
     stone: new THREE.MeshStandardMaterial({ color: '#d2cabd', roughness: 0.85 }),
     zipFabric: new THREE.MeshStandardMaterial({ color: '#5d5a55', roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.92, alphaMap: meshTexture() }),
     cushion: new THREE.MeshStandardMaterial({ color: '#e7e0d4', roughness: 1 }),
     pillowA: new THREE.MeshStandardMaterial({ color: '#b07a52', roughness: 1 }),
     pillowB: new THREE.MeshStandardMaterial({ color: '#8b977a', roughness: 1 }),
-    sofaFrame: new THREE.MeshStandardMaterial({ color: '#2b2a28', metalness: 0.4, roughness: 0.45 }),
+    sofaFrame: new THREE.MeshStandardMaterial({ color: '#2b2a28', roughness: 0.5 }),
     stoneTop: new THREE.MeshStandardMaterial({ color: '#d9cdb8', roughness: 0.55 }),
-    ceramic: new THREE.MeshPhysicalMaterial({ color: '#efe9df', roughness: 0.3, clearcoat: 0.6 }),
+    ceramic: new THREE.MeshStandardMaterial({ color: '#efe9df', roughness: 0.3 }),
     rug: new THREE.MeshStandardMaterial({ color: '#cfc5b4', roughness: 1 }),
     planter: new THREE.MeshStandardMaterial({ color: '#3a3836', roughness: 0.7 }),
     bark: new THREE.MeshStandardMaterial({ color: '#6b5a48', roughness: 0.9 }),
@@ -744,8 +733,8 @@ export function createViewer(container, options) {
     tableTop: new THREE.MeshStandardMaterial({ color: '#8a6a4c', roughness: 0.55 }),
     lamp: new THREE.MeshBasicMaterial({ color: '#2a2826' }),
     coping: new THREE.MeshStandardMaterial({ color: '#e2dbcf', roughness: 0.7 }),
-    water: poolWaterMaterial(),
-    platform: new THREE.MeshPhysicalMaterial({ color: '#b3ab9f', roughness: 0.4, clearcoat: 0.4, clearcoatRoughness: 0.4 })
+    water: poolWaterMaterial(cubes.day),
+    platform: new THREE.MeshStandardMaterial({ color: '#b3ab9f', roughness: 0.42 })
   };
 
   // studio set
@@ -764,7 +753,7 @@ export function createViewer(container, options) {
   const patioTiles = tileTexture();
   const patio = new THREE.Mesh(new THREE.BoxGeometry(1, 0.03, 1), new THREE.MeshStandardMaterial({ map: patioTiles, roughness: 0.8 }));
   patio.position.y = 0.015; patio.receiveShadow = true;
-  const horizon = treeline(mats);
+  const horizon = treeline();
   const deck = new THREE.Mesh(new THREE.BoxGeometry(1, 0.04, 1), new THREE.MeshStandardMaterial({ map: deckTexture(), roughness: 0.7 }));
   deck.position.y = 0.02; deck.receiveShadow = true;
   const dressing = terrace(mats);
@@ -785,12 +774,24 @@ export function createViewer(container, options) {
   });
   scene.add(rain);
 
-  // warm garden uplights for the night setting
-  const garden = [0, 1].map(() => {
+  // a warm uplight on the right-hand olive tree for the night setting (kept to one: every point light is
+  // unrolled into every lit shader, which costs compile time and frame time)
+  const garden = [0].map(() => {
     const l = new THREE.PointLight('#ffc98a', 0, 5, 1.6);
     scene.add(l);
     return l;
   });
+
+  // One hidden mesh per shared material, so all shader programs exist before the first frame — including the
+  // ones the current system does not use yet (glass, ZIP fabric, awning cloth).
+  const warm = new THREE.Group();
+  warm.visible = false;
+  const warmGeo = new THREE.PlaneGeometry(0.01, 0.01);
+  Object.values(mats).concat(new THREE.MeshStandardMaterial({ side: THREE.DoubleSide })).forEach((m) => warm.add(new THREE.Mesh(warmGeo, m)));
+  // Only where the browser can compile shaders off the main thread; elsewhere (e.g. Firefox) compiling everything
+  // up front would just lengthen the wait, so programs are built as they are first needed.
+  const parallel = renderer.extensions.has('KHR_parallel_shader_compile');
+  if (parallel) scene.add(warm);
 
   // dimension labels (HTML overlay)
   const labelLayer = document.createElement('div');
@@ -881,7 +882,8 @@ export function createViewer(container, options) {
     const treeZ = hasWall ? wallZ + 0.9 : back - 0.6;
     trees.children.forEach((t) => { t.position.set(t.userData.side * (w / 2 + 1.6), 0, treeZ + t.userData.dz); });
     trees.visible = showProps;
-    trees.children.forEach((t, i) => { garden[i].position.set(t.position.x * 0.95, 1.0, t.position.z + 0.75); });
+    const lit = trees.children[1];
+    garden[0].position.set(lit.position.x * 0.95, 1.0, lit.position.z + 0.75);
 
     // pool on the left, starting just in front of the tree
     const pool = dressing.getObjectByName('pool');
@@ -927,11 +929,8 @@ export function createViewer(container, options) {
     table.position.set(0, studioOn ? 0.05 : 0.04, cz);
     table.scale.setScalar(Math.min(1, (w - 0.5) / 3.3, (d - 0.5) / 2.4));
 
-    // studio key light from above, aimed at the product
-    const size = Math.max(w, d);
-    key.position.set(-size * 0.7, 11 + size * 0.5, size * 0.8 + 4);
-    key.target.position.set(0, 0, 0);
     // the sun's shadow covers the whole terrace
+    const size = Math.max(w, d);
     const ext = size / 2 + 8;
     sc.left = -ext; sc.right = ext; sc.top = ext; sc.bottom = -ext; sc.near = 1; sc.far = 90;
     sc.updateProjectionMatrix();
@@ -949,9 +948,11 @@ export function createViewer(container, options) {
     kitType = type;
     BUILDERS[type](kit);
     scene.add(kit.group);
+    assignLeds();
     applyLights();
     kit.anim(anim);
     shadowsDirty();
+    warmUp();
 
     roofy = type === 'bioclimatic' || type === 'glassroof' || type === 'awning';
     enclosed = type === 'guillotine' || type === 'slide' || type === 'zip';
@@ -1024,8 +1025,9 @@ export function createViewer(container, options) {
   const C = { warm: new THREE.Color('#ffb066'), white: new THREE.Color('#fff4e4'), fogLow: new THREE.Color('#e6cfb3'), fogHigh: new THREE.Color('#cfdde6') };
   const smooth01 = (x, a, b) => THREE.MathUtils.smoothstep(x, a, b);
 
+  const studioDir = new THREE.Vector3(-0.42, 0.82, 0.4).normalize();
   function placeSun() {
-    const dir = mode === 'night' ? moonDir : sunDirection(hours, sunDir);
+    const dir = mode === 'night' ? moonDir : mode === 'studio' ? studioDir : sunDirection(hours, sunDir);
     sun.position.copy(dir).multiplyScalar(45).add(sun.target.position);
   }
 
@@ -1043,42 +1045,42 @@ export function createViewer(container, options) {
       sun.color.copy(C.warm).lerp(C.white, smooth01(e, 0.06, 0.5));
       sun.intensity = wet ? 1.1 : THREE.MathUtils.lerp(3.0, 5.0, high);
       if (wet) sun.color.set('#dfe6ee');
-      hemi.color.set(wet ? '#cfd6dc' : '#dfeaff');
-      hemi.intensity = wet ? 0.95 : 0.5;
+      hemi.color.set(wet ? '#cfd6dc' : '#d5e4ff');
+      hemi.groundColor.set(wet ? '#8d8f88' : '#8f8a72');
+      hemi.intensity = wet ? 1.5 : THREE.MathUtils.lerp(1.2, 1.7, high);
       scene.fog.color.copy(C.fogLow).lerp(C.fogHigh, high);
       if (wet) scene.fog.color.set('#b4bbc0');
       scene.fog.near = wet ? 14 : 50; scene.fog.far = wet ? 110 : 420;
-      scene.environment = clearDay && envSky ? envSky.texture : envRoom;
-      scene.environmentIntensity = clearDay ? 0.34 : 0.32;
       renderer.toneMappingExposure = wet ? 0.82 : 0.6;
-      if (clearDay) envDirty = true;
     } else {
-      scene.environment = envRoom;
       scene.fog.color.set(studioOn ? '#151413' : '#0c101a');
       scene.fog.near = studioOn ? 12 : 30; scene.fog.far = studioOn ? 30 : 130;
-      hemi.intensity = night ? 0.1 : 0.14;
-      hemi.color.set(night ? '#6d7da8' : '#f3f6ff');
-      sun.intensity = studioOn ? 0 : 0.22;
-      sun.color.set('#8aa0d6');
-      scene.environmentIntensity = studioOn ? 0.55 : 0.05;
+      hemi.color.set(night ? '#6d7da8' : '#f3f1ee');
+      hemi.groundColor.set(night ? '#20242c' : '#8f8a80');
+      hemi.intensity = night ? 0.2 : 0.85;
+      sun.intensity = studioOn ? 3.4 : 0.22;
+      sun.color.set(studioOn ? '#fff1dc' : '#8aa0d6');
       renderer.toneMappingExposure = night ? 1.2 : 0.95;
     }
-    key.intensity = studioOn ? 380 : 0;
     rim.intensity = studioOn ? 2.2 : 0;
+    // reflections on glass and water: sky by day, a dark room otherwise
+    const cube = day ? cubes.day : cubes.dark;
+    mats.glass.envMap = cube; mats.water.envMap = cube;
+    mats.glass.reflectivity = night ? 0.2 : 0.5;
+    mats.glass.specular.set(night ? '#30343a' : '#ffffff');
     // pool glows at night; the house is lit from inside; path lights come on
     mats.water.emissive.set(night ? '#2aa3bd' : '#000000');
     mats.water.emissiveIntensity = night ? 0.85 : 0;
     mats.window.emissive.set(night ? '#ffb469' : '#000000');
     mats.window.emissiveIntensity = night ? 0.5 : 0;
     mats.lamp.color.set(night ? '#ffdcaa' : '#2a2826');
-    mats.glass.specularIntensity = night ? 0.12 : 1;
-    mats.glass.envMapIntensity = night ? 0.6 : 2;
-    garden.forEach((l) => { l.intensity = night && showProps ? 2.4 : 0; });
+    horizon.userData.tone(night ? '#0d1218' : wet ? '#8d968f' : '#ffffff');
+    garden.forEach((l) => { l.intensity = night && showProps ? 2.8 : 0; });
     // wet stone is darker and shinier
     patio.material.roughness = wet ? 0.3 : 0.8;
     patio.material.color.set(wet ? '#a9a39a' : '#d6d0c6');
     mats.led.color.set(night ? '#ffe9c4' : '#f6efe2');
-    if (kit) kit.lights.forEach((l) => { l.intensity = night ? l.userData.intensity : 0; });
+    ledPool.forEach((l) => { l.intensity = night ? l.userData.intensity || 0 : 0; });
     // bloom only where it shows (LED lines at night, the studio spot): it is several full-screen passes
     bloom.enabled = !day;
     bloom.strength = night ? 0.5 : 0.12;
@@ -1087,13 +1089,23 @@ export function createViewer(container, options) {
     shadowsDirty();
   }
 
-  function refreshEnv(now) {
-    if (!envDirty || mode !== 'day' || raining || now - envTimer < 160) return;
-    envTimer = now; envDirty = false;
-    const rt = pmrem.fromScene(envScene);
-    if (envSky) envSky.dispose();
-    envSky = rt;
-    scene.environment = rt.texture;
+  // Serve the kit's LED light markers from the fixed pool: with more markers than lights, neighbours are merged.
+  const lp = new THREE.Vector3();
+  function assignLeds() {
+    const marks = kit ? kit.lights : [];
+    kit && kit.group.updateMatrixWorld(true);
+    ledPool.forEach((l, i) => {
+      l.userData.intensity = 0;
+      if (!marks.length) return;
+      const from = Math.floor((i * marks.length) / ledPool.length), to = Math.floor(((i + 1) * marks.length) / ledPool.length);
+      if (to <= from) return;
+      l.position.set(0, 0, 0);
+      let sum = 0;
+      for (let k = from; k < to; k++) { l.position.add(marks[k].getWorldPosition(lp)); sum += marks[k].userData.intensity; }
+      l.position.multiplyScalar(1 / (to - from));
+      l.userData.intensity = sum;
+      l.distance = 7 + (to - from - 1) * 2;
+    });
   }
 
   function setMode(m) { mode = m === 'night' || m === 'day' ? m : 'studio'; applyLights(); stage(); }
@@ -1105,6 +1117,32 @@ export function createViewer(container, options) {
   function setAutoRotate(on) { controls.autoRotate = !!on; }
   function setView(name) { view = VIEWS.hasOwnProperty(name) ? name : 'corner'; fly.dur = 1.4; flyTo(view); controls.autoRotate = false; }
   function resetView() { setView('corner'); }
+
+  // Shaders compile in the background (KHR_parallel_shader_compile) while the page stays responsive; the first
+  // frame is drawn when they are ready. All programs are known up front: materials are shared and the number of
+  // lights never changes, so nothing recompiles later.
+  let ready = false, warming = false, compiling = null, shown = false;
+  function warmUp() {
+    if (ready || warming) return;
+    warming = true;
+    const done = () => {
+      if (disposed || ready) return;
+      ready = true;
+      shadowsDirty();
+      last = performance.now();
+    };
+    if (!parallel || !renderer.compileAsync) return done();
+    // The scene is drawn into the composer's buffer (linear, no tone mapping). Programs must be compiled for
+    // that output, or three.js would compile them all a second time on the first frame.
+    const passes = new THREE.Scene();
+    [bloom.materialHighPassFilter, bloom.compositeMaterial, bloom.blendMaterial, ...bloom.separableBlurMaterials].forEach((m) => passes.add(new THREE.Mesh(warmGeo, m)));
+    const target = renderer.getRenderTarget();
+    renderer.setRenderTarget(composer.readBuffer);
+    const jobs = [renderer.compileAsync(scene, camera), renderer.compileAsync(passes, camera)];
+    renderer.setRenderTarget(target);
+    compiling = Promise.all(jobs);
+    compiling.then(done, done);
+  }
 
   // render loop, paused when off screen
   let visible = true, raf = 0, disposed = false, last = performance.now();
@@ -1155,8 +1193,11 @@ export function createViewer(container, options) {
     const ms = (now || performance.now()) - last;
     const dt = Math.min(0.25, ms / 1000);
     last = now || performance.now();
-    if (!visible) return;
-    tuneQuality(ms, last);
+    if (!ready) return; // shaders still compiling in the background
+    // Off screen nothing is drawn — except the very first frame, which uploads textures and geometry and
+    // builds the shadows, so that the scene is already there when it scrolls into view.
+    if (!visible && shown) return;
+    if (shown) tuneQuality(ms, last);
     let moving = false;
     for (const k in target) {
       const diff = target[k] - anim[k];
@@ -1174,9 +1215,12 @@ export function createViewer(container, options) {
       const wn = mats.water.normalMap;
       wn.offset.x += dt * 0.012; wn.offset.y += dt * 0.021;
       if (rain.visible) rain.userData.step(dt);
-      refreshEnv(last);
     }
     composer.render();
+    if (!shown) {
+      shown = true;
+      if (opts.onReady) opts.onReady();
+    }
     if (showDims) {
       const r = container.getBoundingClientRect();
       for (const k in labels) {
@@ -1194,7 +1238,7 @@ export function createViewer(container, options) {
   applyLights();
 
   return {
-    debug: { scene, renderer, sun, hemi, key, camera, controls, fly, quality: () => ({ ratio, maxRatio, drops }) },
+    debug: { scene, renderer, sun, hemi, camera, controls, fly, quality: () => ({ ratio, maxRatio, drops }) },
     update,
     setMode,
     setNight: (on) => setMode(on ? 'night' : 'studio'),
@@ -1206,13 +1250,15 @@ export function createViewer(container, options) {
     setFurniture,
     setAutoRotate,
     resetView,
+    isReady: () => shown,
     snapshot() { composer.render(); return renderer.domElement.toDataURL('image/png'); },
     dispose() {
       disposed = true; cancelAnimationFrame(raf);
       if (io) io.disconnect(); if (ro) ro.disconnect();
-      if (envSky) envSky.dispose();
-      pmrem.dispose(); composer.dispose(); renderer.dispose();
       container.removeChild(renderer.domElement); container.removeChild(labelLayer);
+      // three.js polls the programs it is compiling: release the renderer only once that has finished
+      const release = () => { composer.dispose(); renderer.dispose(); };
+      if (compiling) compiling.then(release, release); else release();
     }
   };
 }

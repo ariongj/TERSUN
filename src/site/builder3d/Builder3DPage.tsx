@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { Camera, Check, CloudRain, Link2, Maximize, Minimize, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
+import { Camera, Check, CloudRain, Link2, Loader2, Maximize, Minimize, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/Overlay';
@@ -58,6 +58,7 @@ const D = defineDict({
     area: 'Fläche',
     rainSensor: 'Regensensor: Lamellen geschlossen',
     link: 'Link',
+    loading: '3D wird geladen …',
   },
   sq: {
     eyebrow: '3D Builder',
@@ -103,6 +104,7 @@ const D = defineDict({
     area: 'Sipërfaqja',
     rainSensor: 'Sensori i shiut: lamelat u mbyllën',
     link: 'Linku',
+    loading: '3D po ngarkohet …',
   },
   en: {
     eyebrow: '3D Builder',
@@ -148,6 +150,7 @@ const D = defineDict({
     area: 'Area',
     rainSensor: 'Rain sensor: louvres closed',
     link: 'Link',
+    loading: 'Loading 3D …',
   },
 });
 
@@ -302,17 +305,19 @@ export default function Builder3DPage() {
   const stageRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const [gl] = useState(() => webglAvailable());
+  const [ready3d, setReady3d] = useState(false);
 
   // (re)create the viewer once
   useEffect(() => {
     if (!gl || !stageRef.current) return;
-    const v = createViewer(stageRef.current, { keepView: true, labels: { w: true }, onInteract: () => setRotate(false) });
+    const v = createViewer(stageRef.current, { keepView: true, labels: { w: true }, onInteract: () => setRotate(false), onReady: () => setReady3d(true) });
     viewerRef.current = v;
     if (import.meta.env.DEV) (window as unknown as { __viewer?: Viewer }).__viewer = v; // for scripted renders
     v.setAutoRotate(true);
     return () => {
       v.dispose();
       viewerRef.current = null;
+      setReady3d(false);
     };
   }, [gl]);
 
@@ -625,7 +630,15 @@ export default function Builder3DPage() {
       >
         {/* ------------------------------------------------ stage */}
         <div className="relative min-h-0 flex-1 overflow-hidden lg:h-auto">
-          <div ref={stageRef} className="absolute inset-0" />
+          <div ref={stageRef} className={cn('absolute inset-0 transition-opacity duration-500', gl && !ready3d && 'opacity-0')} />
+          {gl && !ready3d && (
+            <div className="absolute inset-0 grid place-items-center">
+              <img src={system.image.replace(/\.webp$/, '-sm.webp')} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl" />
+              <div className="relative inline-flex items-center gap-2.5 rounded-full bg-black/45 px-5 py-2.5 text-[13px] font-semibold text-white/85 ring-1 ring-white/10 backdrop-blur-md">
+                <Loader2 className="h-4 w-4 animate-spin" /> {t('loading')}
+              </div>
+            </div>
+          )}
           {!gl && (
             <div className="absolute inset-0 grid place-items-center p-8 text-center">
               <div>

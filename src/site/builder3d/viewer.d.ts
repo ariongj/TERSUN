@@ -44,9 +44,11 @@ export interface Viewer {
   setFurniture(kind: 'lounge' | 'dining' | 'none'): void;
   setAutoRotate(on: boolean): void;
   resetView(): void;
+  /** False until the first frame has been drawn (shaders compile in the background first). */
+  isReady(): boolean;
   snapshot(): string;
   dispose(): void;
 }
 
-export function createViewer(container: HTMLElement, options?: { keepView?: boolean; labels?: { w?: boolean }; onInteract?: () => void; /** >1 frames the system closer */ zoom?: number }): Viewer;
+export function createViewer(container: HTMLElement, options?: { keepView?: boolean; labels?: { w?: boolean }; onInteract?: () => void; /** called once, when the first frame is on the canvas */ onReady?: () => void; /** >1 frames the system closer */ zoom?: number }): Viewer;
 export function webglAvailable(): boolean;

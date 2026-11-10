@@ -267,7 +267,9 @@ export function FeaturedSection({ data }: { data: DataOf<'featured'> }) {
 }
 
 /* ------------------------------------------------------------------ */
-const LivePreview = lazy(() => import('@/site/builder3d/LivePreview'));
+const loadLivePreview = () => import('@/site/builder3d/LivePreview');
+const LivePreview = lazy(loadLivePreview);
+const LIVE_POSTER = '/images/misc/builder-live.webp';
 
 /** Mount children only once the element nears the viewport (keeps three.js out of the first load). */
 function useNearViewport<T extends Element>() {
@@ -276,7 +278,7 @@ function useNearViewport<T extends Element>() {
   useEffect(() => {
     const el = ref.current;
     if (!el || near) return;
-    const io = new IntersectionObserver((e) => e[0].isIntersecting && setNear(true), { rootMargin: '400px 0px' });
+    const io = new IntersectionObserver((e) => e[0].isIntersecting && setNear(true), { rootMargin: '100% 0px' });
     io.observe(el);
     return () => io.disconnect();
   }, [near]);
@@ -291,6 +293,12 @@ function FeatureBand({ data }: { data: DataOf<'promo'> }) {
   const l = useL();
   const live = data.cta.href === '/3d';
   const [stageRef, near] = useNearViewport<HTMLDivElement>();
+  // fetch the 3D code while the page is idle, long before the band scrolls into view
+  useEffect(() => {
+    if (!live) return;
+    const idle = window.requestIdleCallback ? window.requestIdleCallback(() => void loadLivePreview(), { timeout: 3000 }) : window.setTimeout(() => void loadLivePreview(), 1500);
+    return () => (window.cancelIdleCallback ? window.cancelIdleCallback(idle) : window.clearTimeout(idle));
+  }, [live]);
   return (
     <section className="pb-24 sm:pb-32">
       <div className="container-x">
@@ -311,11 +319,14 @@ function FeatureBand({ data }: { data: DataOf<'promo'> }) {
             </div>
             <div ref={stageRef} className="relative order-1 aspect-[4/3] overflow-hidden rounded-[28px] bg-[#141312] shadow-[0_40px_90px_-40px_rgba(20,19,18,0.65)] lg:order-2 lg:aspect-[16/10]">
               {live ? (
-                near && (
-                  <Suspense fallback={<Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover" />}>
-                    <LivePreview fallback={data.image} />
-                  </Suspense>
-                )
+                <>
+                  <Img src={LIVE_POSTER} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  {near && (
+                    <Suspense fallback={null}>
+                      <LivePreview fallback={LIVE_POSTER} />
+                    </Suspense>
+                  )}
+                </>
               ) : (
                 <Link to={data.cta.href} className="group absolute inset-0">
                   <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-[1.04]" />
