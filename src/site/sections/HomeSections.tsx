@@ -245,9 +245,10 @@ export function FeaturedSection({ data }: { data: DataOf<'featured'> }) {
             </div>
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex gap-1 rounded-full bg-white p-1 ring-1 ring-line">
+            {/* on a very narrow phone the row scrolls inside its pill instead of widening the page */}
+            <div className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-full bg-white p-1 ring-1 ring-line">
               {tabs.map((m) => (
-                <button key={m} onClick={() => setMode(m)} className={cn('rounded-full px-4 py-2 text-[13.5px] font-semibold transition-colors', mode === m ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink')}>
+                <button key={m} onClick={() => setMode(m)} className={cn('shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-semibold transition-colors', mode === m ? 'bg-ink text-paper' : 'text-ink-soft hover:text-ink')}>
                   {h(`tab_${m}`)}
                 </button>
               ))}

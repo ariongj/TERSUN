@@ -80,9 +80,10 @@ export function ProductCard({ product, className, priority }: { product: Product
       </div>
       <div className="flex flex-1 flex-col pt-4">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">{category ? l(category.name) : ''}</span>
+          {/* a long category name is cut short on a narrow card rather than pushing the colour dots off the page */}
+          <span className="min-w-0 truncate text-[11px] font-bold uppercase tracking-[0.16em] text-muted">{category ? l(category.name) : ''}</span>
           {swatches && (
-            <span className="flex -space-x-1">
+            <span className="flex shrink-0 -space-x-1">
               {swatches.values.slice(0, 4).map((v) => (
                 <span key={v.id} title={l(v.label)} className="h-3.5 w-3.5 rounded-full border-2 border-paper ring-1 ring-ink/10" style={{ background: v.swatch }} />
               ))}
