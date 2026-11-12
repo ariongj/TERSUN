@@ -112,12 +112,12 @@ function ProductView({ product }: { product: Product }) {
         <Breadcrumbs items={[...(category ? [{ label: l(category.name), to: `/shop/${category.slug}` }] : []), { label: l(product.name) }]} />
 
         <div className="mt-6 grid gap-8 sm:mt-8 lg:grid-cols-12 lg:gap-12 xl:gap-16">
-          <div className="lg:col-span-7">
+          <div className="min-w-0 lg:col-span-7">
             <div className="lg:sticky lg:top-[100px]">
               <Gallery images={product.images} alt={l(product.name)} />
             </div>
           </div>
-          <div className="lg:col-span-5">
+          <div className="min-w-0 lg:col-span-5">
             <BuyBox cfg={cfg} category={category} onAdd={add} onQuote={() => setQuoteOpen(true)} ctaRef={ctaRef} />
           </div>
         </div>

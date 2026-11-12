@@ -44,7 +44,7 @@ export function Gallery({ images, alt, className }: { images: string[]; alt: str
   };
 
   return (
-    <div className={cn('flex flex-col gap-3 lg:flex-row-reverse lg:gap-4', className)}>
+    <div className={cn('flex min-w-0 flex-col gap-3 lg:flex-row-reverse lg:gap-4', className)}>
       <div className="group/gal relative min-w-0 flex-1">
         <div ref={track} onScroll={onScroll} className="no-scrollbar flex aspect-[4/5] snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-3xl bg-sand">
           {list.map((src, i) => (

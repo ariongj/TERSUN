@@ -30,6 +30,7 @@ import Wishlist from '@/site/pages/Wishlist';
 import CollectionPage from '@/site/pages/CollectionPage';
 import OfferPage from '@/site/pages/OfferPage';
 import NotFound from '@/site/pages/NotFound';
+import RouteError from '@/site/pages/RouteError';
 
 // 3D builder (lazy — three.js is a separate bundle)
 const Builder3DPage = lazy(() => import('@/site/builder3d/Builder3DPage'));
@@ -215,6 +216,8 @@ const adminRoutes: RouteObject[] = [
 const router = createBrowserRouter([
   {
     element: <Root />,
+    // a screen that fails to render shows a way back instead of a blank page
+    errorElement: <RouteError />,
     children: [
       {
         element: <SiteLayout />,
