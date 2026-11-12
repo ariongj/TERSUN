@@ -18,6 +18,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { boxwood, dining, envCube, grassTexture, rbox, hedge, makeRain, makeSky, nightDome, olive, overcastTexture, poolWaterMaterial, sunDirection, treeline } from './scenery.js';
+import { createGovernor } from './quality.js';
 
 const CM = 0.01;
 const LED_WARM = new THREE.Color('#ffd9a0');
@@ -644,8 +645,10 @@ export function createViewer(container, options) {
   const opts = options || {};
   const small = Math.min(window.innerWidth, window.innerHeight) < 700;
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-  const maxRatio = Math.min(window.devicePixelRatio || 1, 2);
-  let ratio = maxRatio;
+  // Resolution: always full when the picture rests; in motion, what the device keeps up with (quality.js).
+  const gov = createGovernor(Math.min(window.devicePixelRatio || 1, 2));
+  let ratio = gov.full;
+  let dirty = true, lastMotion = -1e9; // something changed and must be drawn; when the picture last moved
   renderer.setPixelRatio(ratio);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -815,7 +818,7 @@ export function createViewer(container, options) {
   const target = Object.assign({}, anim);
   const fly = { t: 1, from: new THREE.Vector3(), to: new THREE.Vector3(), tFrom: new THREE.Vector3(), tTo: new THREE.Vector3(), dur: 1.6 };
 
-  const shadowsDirty = () => { renderer.shadowMap.needsUpdate = true; };
+  const shadowsDirty = () => { renderer.shadowMap.needsUpdate = true; dirty = true; gov.skip(2); };
 
   function line(a, b) {
     const g = new THREE.BufferGeometry().setFromPoints([a, b]);
@@ -1149,23 +1152,14 @@ export function createViewer(container, options) {
   const io = 'IntersectionObserver' in window ? new IntersectionObserver((e) => { visible = e[0].isIntersecting; }) : null;
   if (io) io.observe(container);
 
-  // frame-time watchdog
-  let slowAcc = 0, slowN = 0, drops = 0, lastTune = 0;
-  function tuneQuality(ms, now) {
-    if (ms > 450) return; // tab was in the background or a rebuild hiccup: not a measurement
-    slowAcc += ms; slowN++;
-    if (slowN < 45 || now - lastTune < 1500) return;
-    const avg = slowAcc / slowN;
-    slowAcc = 0; slowN = 0;
-    let next = ratio;
-    if (avg > 27 && ratio > 0.75) next = Math.max(0.75, ratio - 0.25);
-    else if (avg < 13 && ratio < maxRatio && drops < 2) next = Math.min(maxRatio, ratio + 0.25);
-    if (next === ratio) return;
-    if (next < ratio) drops++;
-    ratio = next; lastTune = now;
-    renderer.setPixelRatio(ratio);
-    composer.setPixelRatio(ratio);
+  // Resolution follows the governor: full when the picture rests, what the device sustains while it moves.
+  function setRatio(r) {
+    if (r === ratio) return;
+    ratio = r;
+    renderer.setPixelRatio(r);
+    composer.setPixelRatio(r);
     resize();
+    gov.skip(4);
   }
 
   function resize() {
@@ -1181,42 +1175,72 @@ export function createViewer(container, options) {
     // (e.g. a phone layout settling) unless the visitor has already moved the camera
     if (kit && !userMoved && Math.abs(was - camera.aspect) > 0.02) flyTo(view, true);
   }
-  const ro = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
-  if (ro) ro.observe(container); else window.addEventListener('resize', resize);
+  const onResize = () => { resize(); dirty = true; };
+  const ro = 'ResizeObserver' in window ? new ResizeObserver(onResize) : null;
+  if (ro) ro.observe(container); else window.addEventListener('resize', onResize);
   resize();
 
   const tmp = new THREE.Vector3();
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  let dragging = false, released = -1e9, lastDraw = 0, run = 0, restCost = 0, afterRest = false;
+  const prevCam = new THREE.Vector3().copy(camera.position);
+  controls.addEventListener('end', () => { dragging = false; released = performance.now(); });
+
   function frame(now) {
     if (disposed) return;
     raf = requestAnimationFrame(frame);
-    const ms = (now || performance.now()) - last;
+    const t = now || performance.now();
+    const ms = t - last;
     const dt = Math.min(0.25, ms / 1000);
-    last = now || performance.now();
+    last = t;
     if (!ready) return; // shaders still compiling in the background
     // Off screen nothing is drawn — except the very first frame, which uploads textures and geometry and
     // builds the shadows, so that the scene is already there when it scrolls into view.
-    if (!visible && shown) return;
-    if (shown) tuneQuality(ms, last);
+    if (!visible && shown) { run = 0; return; }
+    if (afterRest) { afterRest = false; if (ms < 1000) restCost = ms; }
+
     let moving = false;
     for (const k in target) {
       const diff = target[k] - anim[k];
       if (Math.abs(diff) > 1e-3) { anim[k] += diff * Math.min(1, dt * 7); moving = true; }
     }
     if (moving && kit) { kit.anim(anim); shadowsDirty(); }
-    if (fly.t < 1) {
+    const flying = fly.t < 1;
+    if (flying) {
       fly.t = Math.min(1, fly.t + dt / fly.dur);
       const e = ease(fly.t);
       camera.position.lerpVectors(fly.from, fly.to, e);
       controls.target.lerpVectors(fly.tFrom, fly.tTo, e);
     }
     controls.update();
+    // The picture moves while something animates, a hand is on it, or the camera still glides visibly after
+    // the hand let go. The last, sub-pixel part of that glide does not count, and the glide is damped per
+    // frame, so at a low frame rate it gets a time limit: the picture sharpens soon after release.
+    const drift = camera.position.distanceTo(prevCam);
+    prevCam.copy(camera.position);
+    const gliding = drift > camera.position.distanceTo(controls.target) * 8e-4 && t - released < 1200;
+    if (moving || flying || dragging || controls.autoRotate || gliding) lastMotion = t;
+
+    // A device that sustains less than the full resolution in motion still gets the sharp picture at rest.
+    // Drawing that picture is heavy for it, so once it is there the water only shimmers at a slow pace and
+    // the GPU is left to the rest of the page. Rain needs every frame: it keeps the resolution of motion.
+    const weak = gov.sustained < gov.full;
+    const rest = t - lastMotion > 350 && !(weak && rain.visible);
+    if (rest && weak && shown && !dirty && t - lastDraw < Math.min(500, Math.max(100, restCost * 3))) { run = 0; return; }
+    setRatio(rest ? gov.full : gov.sustained);
+    if (rest) run = 0;
+    else if (++run >= 2) gov.sample(ms, t);
+
     if (mode !== 'studio') {
+      const wdt = Math.min(0.25, (t - lastDraw) / 1000);
       const wn = mats.water.normalMap;
-      wn.offset.x += dt * 0.012; wn.offset.y += dt * 0.021;
-      if (rain.visible) rain.userData.step(dt);
+      wn.offset.x += wdt * 0.012; wn.offset.y += wdt * 0.021;
+      if (rain.visible) rain.userData.step(wdt);
     }
     composer.render();
+    lastDraw = t;
+    dirty = false;
+    afterRest = rest && weak;
     if (!shown) {
       shown = true;
       if (opts.onReady) opts.onReady();
@@ -1234,24 +1258,29 @@ export function createViewer(container, options) {
   }
   requestAnimationFrame(frame);
 
-  controls.addEventListener('start', () => { userMoved = true; controls.autoRotate = false; fly.t = 1; if (opts.onInteract) opts.onInteract(); });
+  controls.addEventListener('start', () => { dragging = true; userMoved = true; controls.autoRotate = false; fly.t = 1; if (opts.onInteract) opts.onInteract(); });
   applyLights();
 
+  // Every change from outside is drawn at once and counts as motion, so that a device which needs the lower
+  // resolution stays responsive while a slider is dragged and sharpens again when the hand is off it.
+  const edit = (fn) => (...args) => { dirty = true; lastMotion = performance.now(); return fn(...args); };
+
   return {
-    debug: { scene, renderer, sun, hemi, camera, controls, fly, quality: () => ({ ratio, maxRatio, drops }) },
-    update,
-    setMode,
-    setNight: (on) => setMode(on ? 'night' : 'studio'),
-    setView,
-    setDims,
-    setProps,
-    setTime,
-    setRain,
-    setFurniture,
-    setAutoRotate,
-    resetView,
+    debug: { scene, renderer, sun, hemi, camera, controls, fly, gov, quality: () => ({ ratio, full: gov.full, sustained: gov.sustained }) },
+    update: edit(update),
+    setMode: edit(setMode),
+    setNight: edit((on) => setMode(on ? 'night' : 'studio')),
+    setView: edit(setView),
+    setDims: edit(setDims),
+    setProps: edit(setProps),
+    setTime: edit(setTime),
+    setRain: edit(setRain),
+    setFurniture: edit(setFurniture),
+    setAutoRotate: edit(setAutoRotate),
+    resetView: edit(resetView),
     isReady: () => shown,
-    snapshot() { composer.render(); return renderer.domElement.toDataURL('image/png'); },
+    // always at full resolution, whatever the picture is doing
+    snapshot() { setRatio(gov.full); composer.render(); return renderer.domElement.toDataURL('image/png'); },
     dispose() {
       disposed = true; cancelAnimationFrame(raf);
       if (io) io.disconnect(); if (ro) ro.disconnect();
