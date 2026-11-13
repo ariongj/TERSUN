@@ -197,7 +197,7 @@ function Form({ open, onClose, initialOrderId, onCreated }: { open: boolean; onC
             {/* 3 · reason */}
             <section>
               <StepLabel n={3}>{t('reasonLabel')}</StepLabel>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <SelectInput aria-label={t('reasonLabel')} value={reason} onChange={(e) => setReason(e.target.value as ReasonKey)}>
                   {REASONS.map((r) => (
                     <option key={r} value={r}>

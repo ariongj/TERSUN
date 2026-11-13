@@ -209,7 +209,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
       }
     >
       <div className="space-y-5 px-6 py-5">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <span className="mb-1 block text-[12.5px] font-semibold text-ink-soft">{t('kind')}</span>
             <Segmented<ContactKind>
@@ -235,7 +235,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
           </div>
         </div>
 
-        <div className="grid gap-x-4 gap-y-3.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 sm:grid-cols-2">
           <CInput label={t('name')} required value={form.name} onChange={set('name')} error={errors.name} autoComplete="off" autoFocus />
           <CInput label={t('phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+383 4_ ___ ___" />
           <CInput label={t('email')} type="email" value={form.email} onChange={set('email')} error={errors.email} />
@@ -268,7 +268,7 @@ export function ManualInquiryModal({ open, onClose, onCreated }: { open: boolean
           </div>
         )}
 
-        <div className="grid gap-x-4 gap-y-3.5 border-t border-line pt-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 border-t border-line pt-4 sm:grid-cols-2">
           <CSelect label={t('assignee')} value={assignee} onChange={(e) => setAssignee(e.target.value)}>
             <option value="">{tx('unassigned')}</option>
             {assignable.map((m) => (

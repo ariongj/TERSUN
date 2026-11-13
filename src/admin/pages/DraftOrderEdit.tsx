@@ -468,12 +468,12 @@ function Editor({ stored }: { stored: DraftOrder | null }) {
         </Banner>
       )}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-5">
           <ProductsCard draft={draft} setDraft={setDraft} totals={totals} readOnly={readOnly} error={has('lines')} t={t} />
           <PaymentCard draft={draft} patch={patch} totals={totals} readOnly={readOnly} t={t} />
         </div>
-        <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid grid-cols-1 min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-1">
           <CustomerCard draft={draft} patch={patch} patchCustomer={patchCustomer} readOnly={readOnly} problems={problems} t={t} />
           <DeliveryCard draft={draft} patch={patch} patchCustomer={patchCustomer} readOnly={readOnly} problems={problems} t={t} />
           <Card title={t('tags')}>
@@ -770,7 +770,7 @@ function PaymentCard({ draft, patch, totals, readOnly, t }: { draft: DraftOrder;
         <SumRow strong label={t('total')} sub={t('vat', { rate: settings.vatRate, amount: money(totals.grandVat, lang) })} value={<span className="text-[16px]">{money(totals.grandTotal, lang)}</span>} />
       </dl>
 
-      <div className="mt-4 grid gap-3 border-t border-line/70 pt-4 sm:grid-cols-[220px_1fr] sm:items-end">
+      <div className="mt-4 grid grid-cols-1 gap-3 border-t border-line/70 pt-4 sm:grid-cols-[220px_1fr] sm:items-end">
         <SelectInput label={t('method')} value={draft.payment ?? 'bank'} onChange={(e) => patch({ payment: e.target.value as PaymentMethod })} disabled={readOnly}>
           {methods.map((m) => (
             <option key={m} value={m}>

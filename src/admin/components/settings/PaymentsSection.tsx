@@ -250,7 +250,7 @@ export function PaymentsSection({ s, set, setExt, readOnly }: SecProps) {
         }
       >
         <Block title={t('online')} hint={t('online_h')}>
-          <div className="grid gap-x-4 gap-y-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-[minmax(0,1fr)_auto]">
             <div>
               <div className="mb-2 text-[12.5px] font-medium text-muted">{t('provider')}</div>
               <Select aria-label={t('provider')} value={ext.payProvider} onChange={(e) => setExt('payProvider', e.target.value as PayProvider)} className="h-10! rounded-lg! text-[14px]!">
@@ -314,7 +314,7 @@ export function PaymentsSection({ s, set, setExt, readOnly }: SecProps) {
               <div key={r.key} className="px-4 py-3.5">
                 <ToggleRow icon={r.icon} title={r.title} description={r.desc} checked={p[r.key]} disabled={p[r.key] && enabled === 1} onChange={(v) => set('payments', { ...p, [r.key]: v })} />
                 {r.key === 'bank' && p.bank && (
-                  <div className="mt-4 grid gap-x-4 gap-y-4 pl-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:pl-14">
+                  <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-4 pl-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] sm:pl-14">
                     <TextField label={tl('bankName')} value={s.bankName} onChange={(v) => set('bankName', v)} leading={<Landmark className="h-4 w-4" />} />
                     <TextField label={tl('bankAccount')} value={s.bankAccount} onChange={(v) => set('bankAccount', v)} example inputClassName="font-mono text-[13.5px] tracking-wide" />
                   </div>
@@ -326,7 +326,7 @@ export function PaymentsSection({ s, set, setExt, readOnly }: SecProps) {
         </Block>
 
         <Block title={t('capture')} hint={t('capture_h')}>
-          <div role="radiogroup" aria-label={t('capture')} className="grid gap-2.5 md:grid-cols-2">
+          <div role="radiogroup" aria-label={t('capture')} className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
             <Choice checked={ext.capture === 'auto'} onSelect={() => setExt('capture', 'auto')} title={t('cap_auto')} description={t('cap_auto_d')} />
             <Choice checked={ext.capture === 'manual'} onSelect={() => setExt('capture', 'manual')} title={t('cap_manual')} description={t('cap_manual_d')} />
           </div>

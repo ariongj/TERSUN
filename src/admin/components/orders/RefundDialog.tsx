@@ -182,7 +182,7 @@ export function RefundDialog({ order, open, onClose }: { order: Order; open: boo
           </div>
         )}
 
-        <div className="grid gap-4 rounded-lg bg-canvas/70 p-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 rounded-lg bg-canvas/70 p-4 sm:grid-cols-2">
           <div>
             <p className="text-[12.5px] font-semibold text-ink-soft">{t('calculated')}</p>
             <p className="mt-1 text-[20px] font-bold tabular-nums text-ink">{money(Math.min(calculated, max), lang)}</p>

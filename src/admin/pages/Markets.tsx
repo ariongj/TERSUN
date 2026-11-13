@@ -390,7 +390,7 @@ export default function Markets() {
 
       {/* Channels (p.37 col. 01–02) */}
       <Card title={t('channels')} description={t('channelsDesc')} padded={false}>
-        <div className="grid divide-y divide-line/70 md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div className="grid grid-cols-1 divide-y divide-line/70 md:grid-cols-3 md:divide-x md:divide-y-0">
           <Channel icon={Store} title={t('ch_online')} text={t('ch_online_t')} status={<StatusMark state="on">{t('st_base')}</StatusMark>} action={can('onlineStore', 'view') ? <Link to="/admin/prodavnica" className="text-[12.5px] font-semibold text-ink underline-offset-2 hover:underline">{t('open')} →</Link> : null} />
           <Channel icon={Boxes} title={t('ch_pos')} text={t('ch_pos_t')} status={<StatusMark state="off">{t('st_need')}</StatusMark>} />
           <Channel icon={Globe} title={t('ch_social')} text={t('ch_social_t')} status={<StatusMark state="off">{t('st_integration')}</StatusMark>} />
@@ -463,7 +463,7 @@ export default function Markets() {
                 ) : undefined
               }
             >
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <L10nInput label={t('name')} value={current.name} onChange={(v) => patch({ name: v })} />
                 </div>
@@ -527,7 +527,7 @@ export default function Markets() {
               }
               description={t('currencyDesc')}
             >
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Select label={t('currencyField')} value={current.currency} onChange={(e) => patch({ currency: e.target.value, fxRate: e.target.value === 'EUR' ? 1 : current.fxRate && current.fxRate !== 1 ? current.fxRate : 100 })}>
                   {CURRENCIES.map((c) => (
                     <option key={c} value={c}>
@@ -583,7 +583,7 @@ export default function Markets() {
               </div>
             </Card>
 
-            <div className="grid gap-4 sm:gap-5 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-2">
               <Card
                 title={
                   <span className="flex items-center gap-2">
@@ -671,7 +671,7 @@ export default function Markets() {
                 </span>
               }
             >
-              <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
                 <Select label={t('catalogField')} value={current.catalog ?? 'all'} onChange={(e) => patch({ catalog: e.target.value as MarketX['catalog'] })}>
                   <option value="all">{t('cat_all')}</option>
                   <option value="stock">{t('cat_stock')}</option>

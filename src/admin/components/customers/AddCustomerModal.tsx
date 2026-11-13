@@ -158,7 +158,7 @@ export function AddCustomerModal({ open, onClose, customers, cities, onCreated }
       }
     >
       <form
-        className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6"
+        className="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 sm:p-6"
         onSubmit={(e) => {
           e.preventDefault();
           save();
@@ -188,7 +188,7 @@ export function AddCustomerModal({ open, onClose, customers, cities, onCreated }
         <Input label={t('tags')} hint={t('tagsHint')} value={f.tags} onChange={(e) => set('tags', e.target.value)} wrapClassName="sm:col-span-2" className="h-10! text-[14px]!" />
         <fieldset className="rounded-xl border border-line px-4 py-3 sm:col-span-2">
           <legend className="px-1 text-[13px] font-semibold text-ink-soft">{t('consentTitle')}</legend>
-          <div className="grid gap-2.5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <Checkbox checked={f.email_ok} onChange={(v) => set('email_ok', v)} label={t('consentEmail')} />
             <Checkbox checked={f.sms_ok} onChange={(v) => set('sms_ok', v)} label={t('consentSms')} />
           </div>

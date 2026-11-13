@@ -197,7 +197,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
         )}
 
         <Block title={t('store')} hint={t('store_h')}>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <TextField label={tl('companyName')} value={s.companyName} onChange={(v) => set('companyName', v)} error={errors.companyName} />
             <TextField label={tl('legalName')} value={s.legalName} onChange={(v) => set('legalName', v)} />
             <L10nInput className="sm:col-span-2" label={tl('tagline')} value={s.tagline} onChange={(v) => set('tagline', v)} />
@@ -206,14 +206,14 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
         </Block>
 
         <Block title={t('legal')} hint={t('legal_h')}>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <TextField label={tl('pib')} value={s.pib} onChange={(v) => set('pib', v)} example inputClassName="font-mono text-[13.5px] tracking-wide" />
             <TextField label={tl('pdv')} value={s.pdv} onChange={(v) => set('pdv', v)} example inputClassName="font-mono text-[13.5px] tracking-wide" />
           </div>
         </Block>
 
         <Block title={t('contact')} hint={t('contact_h')}>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <TextField label={tl('email')} type="email" value={s.email} onChange={(v) => set('email', v)} leading={<Mail className={ico} />} error={errors.email} />
             <TextField label={tl('phone')} type="tel" value={s.phone} onChange={(v) => set('phone', v)} leading={<Phone className={ico} />} example />
             <TextField label={tl('phone2')} type="tel" optional value={s.phone2 ?? ''} onChange={(v) => set('phone2', v)} leading={<Phone className={ico} />} example placeholder="+383 …" />
@@ -225,7 +225,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
         </Block>
 
         <Block title={t('addressGroup')}>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <TextField label={tl('address')} value={s.address} onChange={(v) => set('address', v)} leading={<MapPin className={ico} />} example />
             <TextField label={tl('city')} value={s.city} onChange={(v) => set('city', v)} />
             <TextField label={t('country')} value={t('countryName')} onChange={() => undefined} readOnly className="sm:col-span-1" inputClassName="bg-[#f6f6f6] text-muted" />
@@ -249,7 +249,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
 
       <Panel title={t('defaults')} description={t('defaults_d')}>
         <Block>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <div>
               <div className="mb-2.5 flex min-h-6 items-center text-[13px] font-semibold text-ink-soft">{t('currency')}</div>
               <Select value="EUR" disabled aria-label={t('currency')} className="h-10! rounded-lg! text-[14px]!">
@@ -300,7 +300,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
         </Block>
 
         <Block title={t('numbering')} hint={t('numbering_h')}>
-          <div className="grid items-start gap-x-4 gap-y-4 sm:grid-cols-[180px_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 items-start gap-x-4 gap-y-4 sm:grid-cols-[180px_minmax(0,1fr)]">
             <TextField
               label={t('prefix')}
               value={s.orderPrefix}
@@ -326,7 +326,7 @@ export function GeneralSection({ s, set, setExt, errors }: SecProps) {
 
       <Panel title={t('domainSeo')} description={t('domainSeo_d')}>
         <Block>
-          <div className="grid items-start gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="grid grid-cols-1 items-start gap-x-4 gap-y-3 sm:grid-cols-[minmax(0,1fr)_auto]">
             <TextField
               label={t('domain')}
               value={s.ext.domain}

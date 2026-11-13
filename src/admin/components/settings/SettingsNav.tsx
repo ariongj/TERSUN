@@ -84,7 +84,7 @@ export function SettingsNav(p: NavProps) {
         </button>
         {open && (
           <div className="mt-2 rounded-xl border border-line/80 bg-[#f6f6f6] p-2 shadow-[0_8px_24px_-12px_rgb(0_0_0/0.18)]">
-            <ul className="grid gap-0.5 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
               {SECTIONS.map((d) => (
                 <Item key={d.id} d={d} {...p} onNavigate={() => setOpen(false)} />
               ))}

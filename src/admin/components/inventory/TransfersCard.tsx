@@ -25,7 +25,7 @@ export function TransfersCard() {
       }
       actions={<Tag tone="muted">{t('tr_badge')}</Tag>}
     >
-      <div className="grid gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] md:gap-8">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] md:gap-8">
         <div className="space-y-3 text-[13.5px] leading-relaxed text-ink-soft">
           <p>{t('tr_text')}</p>
           <p className="text-muted">{t('tr_small')}</p>

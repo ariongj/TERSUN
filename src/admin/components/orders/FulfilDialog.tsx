@@ -142,7 +142,7 @@ export function FulfilDialog({ order, open, onClose }: { order: Order; open: boo
             })}
           </ul>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <SelectInput label={t('carrier')} value={carrier} onChange={(e) => setCarrier(e.target.value as CarrierKey)}>
             {CARRIERS.map((c) => (
               <option key={c} value={c}>

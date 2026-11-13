@@ -185,7 +185,7 @@ export function Tester({ open, onClose, draft }: { open: boolean; onClose: () =>
 
   return (
     <Modal open={open} onClose={onClose} size="full" title={t('testTitle')} description={t('testDesc')}>
-      <div className="grid lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
         {/* ------------------------------ cart builder ------------------------------ */}
         <div className="space-y-5 border-b border-line p-4 sm:p-6 lg:border-b-0 lg:border-r">
           <section>

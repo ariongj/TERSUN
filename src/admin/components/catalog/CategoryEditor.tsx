@@ -153,7 +153,7 @@ export function CategoryEditor({ open, category, onClose }: { open: boolean; cat
       }
     >
       <form
-        className="grid gap-6 p-6 md:grid-cols-[264px_minmax(0,1fr)]"
+        className="grid grid-cols-1 gap-6 p-6 md:grid-cols-[264px_minmax(0,1fr)]"
         onSubmit={(e) => {
           e.preventDefault();
           save();

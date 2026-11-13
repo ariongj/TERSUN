@@ -256,7 +256,7 @@ function PostEditor({ id }: { id: string }) {
         </Notice>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-6">
           <Card title={te('basics')}>
             <fieldset disabled={readOnly} className="space-y-5">

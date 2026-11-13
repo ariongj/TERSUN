@@ -85,7 +85,7 @@ export function MeasureStep({
       </Note>
       {!started && <Note>{t('notStarted', { d: fullDate(offer.startsAt, lang) })}</Note>}
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card title={t('g_traffic')} description={t('g_trafficText')} bodyClassName="grid grid-cols-2 gap-3">
           <Stat icon={MousePointerClick} label={t('m_visits')} value={num(m.visits, lang)} hint="UTM · banner · hero" />
           <Stat icon={MousePointerClick} label={t('m_cta')} value={num(m.ctaClicks, lang)} hint={t('m_ctr', { p: pct(r.ctr, lang) })} />
@@ -212,7 +212,7 @@ function UtmBuilder({ offer, data, onUtm }: { offer: OfferX; data: OfferData; on
   };
   return (
     <Card title={t('utm')} description={t('utmText')} bodyClassName="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <FieldLabel htmlFor="utm-dest">{t('utm_dest')}</FieldLabel>
           <SelectBox id="utm-dest" value={dest} onChange={(e) => setDest(e.target.value as typeof dest)}>

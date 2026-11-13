@@ -218,7 +218,7 @@ export default function Posts() {
     <div>
       <PageHeader breadcrumbs={[ta('nav_content'), ta('nav_blog')]} title={ta('nav_blog')} description={t('description')} actions={newBtn} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
         <Card padded={false} className="min-w-0 overflow-hidden">
           <div className="flex flex-col gap-3 border-b border-line/70 p-3 sm:p-4 lg:flex-row lg:items-center lg:justify-between">
             <FilterPills<Filter> value={filter} onChange={setFilter} options={filters} />

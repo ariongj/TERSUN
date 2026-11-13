@@ -320,7 +320,7 @@ export default function ProjectsAdmin() {
           <EmptyState icon={<Hammer className="h-6 w-6" />} title={ta('noResults')} text={t('noMatch')} />
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {list.map((p) => (
             <ProjectCard key={p.id} p={p} canEdit={canEdit} canDelete={canDelete} onEdit={() => openEdit(p)} onToggle={() => toggleFeatured(p)} onDelete={() => remove(p)} />
           ))}
@@ -521,7 +521,7 @@ function ProjectModal({
     >
       {d && (
         <form
-          className="grid gap-6 p-6 md:grid-cols-[minmax(0,1fr)_250px]"
+          className="grid grid-cols-1 gap-6 p-6 md:grid-cols-[minmax(0,1fr)_250px]"
           onSubmit={(e) => {
             e.preventDefault();
             submit();

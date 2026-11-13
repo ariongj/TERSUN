@@ -117,7 +117,7 @@ export default function OnlineStore() {
               {/* Logo */}
               <section>
                 <GroupTitle>{t('logo')}</GroupTitle>
-                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <Segmented<LogoVariant>
                       className="w-full"
@@ -204,7 +204,7 @@ export default function OnlineStore() {
               {/* Fonts */}
               <section>
                 <GroupTitle>{t('fonts')}</GroupTitle>
-                <div className="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label={t('fonts')}>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup" aria-label={t('fonts')}>
                   {(Object.keys(FONT_PAIRS) as FontPair[]).map((k) => {
                     const on = form.theme.font === k;
                     return (
@@ -292,7 +292,7 @@ export default function OnlineStore() {
               {/* SEO */}
               <section>
                 <GroupTitle>SEO</GroupTitle>
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <div className="space-y-4">
                     <CountedInput id="seo-title" label={t('seoTitle')} value={form.seo.title} max={SEO_MAX.title} onChange={(v) => setForm((f) => ({ ...f, seo: { ...f.seo, title: v } }))} />
                     <CountedInput id="seo-desc" label={t('seoDesc')} value={form.seo.description} max={SEO_MAX.description} multiline onChange={(v) => setForm((f) => ({ ...f, seo: { ...f.seo, description: v } }))} />
@@ -319,7 +319,7 @@ export default function OnlineStore() {
               {/* Social sharing image */}
               <section>
                 <GroupTitle>{t('shareImage')}</GroupTitle>
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <ImageField value={form.theme.shareImage} onChange={(v) => setTheme({ shareImage: v })} aspect="aspect-[40/21]" hint={t('shareImage_h')} />
                   <div className="self-start overflow-hidden rounded-xl border border-line bg-white">
                     <div className="aspect-[40/21] bg-sand">{form.theme.shareImage && <img src={thumb(form.theme.shareImage)} alt="" className="h-full w-full object-cover" />}</div>
@@ -347,7 +347,7 @@ export default function OnlineStore() {
                     <Switch checked={form.theme.maintenance.on} onChange={toggleMaintenance} disabled={!canPublish || !canEdit} label={<span className="sr-only">{t('maintenance')}</span>} />
                   </Tip>
                 </div>
-                <div className="mt-4 grid gap-5 lg:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-2">
                   <L10nInput label={t('maintMsg')} value={form.theme.maintenance.message} onChange={(v) => setTheme({ maintenance: { ...form.theme.maintenance, message: v } })} multiline rows={3} />
                   <div>
                     <div className="mb-1.5 text-[13px] font-semibold text-ink-soft">{t('maintPreview')}</div>

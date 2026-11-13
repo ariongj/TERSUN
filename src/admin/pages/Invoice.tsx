@@ -303,7 +303,7 @@ function Sheet({ order }: { order: Order }) {
       <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-brand-600" />
 
       {/* Header: company + document meta */}
-      <header className="grid gap-6 sm:grid-cols-[1fr_auto] sm:gap-10">
+      <header className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_auto] sm:gap-10">
         <div>
           <Logo tagline className="h-10" />
           <div className="mt-3 space-y-px text-[11.5px] text-ink-soft">
@@ -336,7 +336,7 @@ function Sheet({ order }: { order: Order }) {
       </header>
 
       {/* Parties */}
-      <section className="mt-6 grid gap-3 sm:grid-cols-2 sm:gap-4">
+      <section className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         <div className="rounded-lg bg-canvas/70 px-4 py-3">
           <Label>{t('buyer')}</Label>
           <p className="mt-1 text-[13.5px] font-bold text-ink">
@@ -399,7 +399,7 @@ function Sheet({ order }: { order: Order }) {
       </table>
 
       {/* Payment instructions + totals */}
-      <section className="mt-5 grid gap-6 sm:grid-cols-[1fr_272px] sm:gap-8">
+      <section className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_272px] sm:gap-8">
         <div className="order-2 rounded-lg border border-dashed border-ink/20 px-4 py-3 sm:order-1">
           <Label>{t('payTitle')}</Label>
           <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 text-[11.5px]">

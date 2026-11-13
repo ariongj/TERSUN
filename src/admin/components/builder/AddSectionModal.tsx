@@ -34,7 +34,7 @@ export function AddSectionModal({
       description={t('catText')}
       footer={<p className="mr-auto text-[12.5px] text-muted">{afterName ? t('catWhere', { name: afterName }) : t('catWhereEnd')}</p>}
     >
-      <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
+      <div className="grid grid-cols-1 gap-2.5 p-4 sm:grid-cols-2 sm:p-5">
         {order.map((type) => {
           const meta = SECTION_META[type];
           const Icon = meta.icon;

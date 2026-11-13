@@ -301,7 +301,7 @@ function Editor({ source }: { source?: Collection }) {
       )}
 
       <fieldset disabled={!canEdit} className="contents">
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_344px]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_344px]">
           {/* ---------------------------- main ---------------------------- */}
           <div className="min-w-0 space-y-5">
             <div id="sec-title" className="scroll-mt-24">
@@ -324,7 +324,7 @@ function Editor({ source }: { source?: Collection }) {
 
             {/* type */}
             <Card title={t('c_type')}>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {(['manual', 'smart'] as const).map((k) => {
                   const on = form.kind === k;
                   const Icon = k === 'smart' ? Sparkles : ListChecks;

@@ -126,7 +126,7 @@ export default function Integrations() {
         <span>{t('sum_events', { n: events24h })}</span>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <Callout icon={Network} title={t('principleTitle')}>
           {t('principle')}
         </Callout>
@@ -142,7 +142,7 @@ export default function Integrations() {
       )}
 
       {/* Cards grouped by kind (PDF p.06: pagesa, korrier, email, fiskalizimi, analitikë, ERP) */}
-      <div className="grid gap-x-5 gap-y-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-5 gap-y-6 lg:grid-cols-2">
         {groups.map((g) => {
           const Icon = KIND_META[g.kind].icon;
           return (
@@ -205,7 +205,7 @@ export default function Integrations() {
             {webhooks.map((x) => {
               const last = lastSyncOf(x, now);
               return (
-                <li key={x.id} className="grid gap-2 px-5 py-3 text-[13px] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_140px_130px] md:items-center md:gap-4">
+                <li key={x.id} className="grid grid-cols-1 gap-2 px-5 py-3 text-[13px] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.4fr)_140px_130px] md:items-center md:gap-4">
                   <div className="min-w-0">
                     <div className="truncate font-semibold text-ink">{nameOf(x)}</div>
                     <code className="block truncate font-mono text-[11.5px] text-muted">{webhookUrl(x.kind).replace('https://', '')}</code>

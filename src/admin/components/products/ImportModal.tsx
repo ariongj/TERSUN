@@ -264,7 +264,7 @@ export function ImportModal({ open, onClose, onImported }: { open: boolean; onCl
               <AlertTriangle className="h-4 w-4 shrink-0" /> {t('imp_required')}
             </p>
           )}
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <div className="mb-2 text-[13px] font-semibold text-ink-soft">{t('imp_existing')}</div>
               <Segmented

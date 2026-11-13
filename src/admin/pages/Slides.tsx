@@ -522,7 +522,7 @@ function SlideshowSettings({ disabled }: { disabled: boolean }) {
   };
   return (
     <Card className="mt-5" title={t('ss_title')} description={t('ss_desc')} actions={disabled ? <Badge tone="gray">{ts('noPermEdit')}</Badge> : undefined}>
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <div className="sm:col-span-2">
           <div className="mb-1.5 text-[13px] font-semibold text-ink-soft">{t('ss_layout')}</div>
           <Segmented<SlideLayout>

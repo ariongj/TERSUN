@@ -373,7 +373,7 @@ export function ShippingCard({ value, onChange }: { value: ShippingInfo; onChang
       <div className="space-y-4">
         <ToggleRow label={t('f_physical')} hint={value.physical ? t('f_physical_h') : t('f_physicalOff')} checked={value.physical} onChange={(physical) => set({ physical })} icon={<Package className="h-4 w-4" />} />
         {value.physical && (
-          <div className="grid gap-4 sm:grid-cols-[minmax(0,160px)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,160px)_minmax(0,1fr)]">
             <FormField label={`${t('f_weight')} (${t('optional')})`}>
               <NumInput value={value.weight ?? null} onChange={(v) => set({ weight: opt(v) })} suffix="kg" placeholder="—" aria-label={t('f_weight')} />
             </FormField>

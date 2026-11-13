@@ -171,7 +171,7 @@ export function CheckoutSection({ s, set }: SecProps) {
       <div className="grid gap-6 min-[1360px]:grid-cols-[minmax(0,1fr)_272px]">
         <div className="min-w-0">
           <Block title={t('account')} hint={t('account_h')}>
-            <div role="radiogroup" aria-label={t('account')} className="grid gap-2.5 md:grid-cols-2">
+            <div role="radiogroup" aria-label={t('account')} className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
               <Choice checked={c.guest} onSelect={() => patch({ guest: true })} title={t('guestYes')} description={t('guestYes_d')} />
               <Choice checked={!c.guest} onSelect={() => patch({ guest: false })} title={t('guestNo')} description={t('guestNo_d')} />
             </div>

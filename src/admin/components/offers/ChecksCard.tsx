@@ -41,7 +41,7 @@ export function ChecksCard({ checks, onFix, footer }: { checks: Check[]; onFix: 
           const list = checks.filter((c) => c.group === g);
           if (!list.length) return null;
           return (
-            <div key={g} className="grid gap-1 px-5 py-3 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-4">
+            <div key={g} className="grid grid-cols-1 gap-1 px-5 py-3 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-4">
               <div className="pt-1 text-[12.5px] font-semibold uppercase tracking-[0.08em] text-muted">{t(`group_${g}`)}</div>
               <ul className="space-y-1">
                 {list.map((c) => {

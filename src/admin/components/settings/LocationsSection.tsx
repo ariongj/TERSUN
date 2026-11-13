@@ -126,7 +126,7 @@ function LocationModal({ open, loc, onClose, onApply }: { open: boolean; loc: St
         </>
       }
     >
-      <div className="grid gap-5 px-6 py-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 px-6 py-5 sm:grid-cols-2">
         <TextField className="sm:col-span-2" label={t('name')} value={d.name} onChange={(v) => setD({ ...d, name: v })} leading={<Store className="h-4 w-4" />} error={tried ? err.name : undefined} autoFocus placeholder="Showroom München" />
         <TextField label={tl('address')} value={d.address} onChange={(v) => setD({ ...d, address: v })} leading={<MapPin className="h-4 w-4" />} error={tried ? err.address : undefined} />
         <TextField label={tl('city')} value={d.city} onChange={(v) => setD({ ...d, city: v })} error={tried ? err.city : undefined} />

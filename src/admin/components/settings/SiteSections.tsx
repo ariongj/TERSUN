@@ -180,7 +180,7 @@ export function AppearanceSection({ s, set, savedBrand }: SectionProps & { saved
 
   return (
     <SectionCard id="appearance" icon={Palette} title={t('s_appearance')} description={t('s_appearance_d')}>
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0">
           <div className="mb-1.5 text-[13px] font-semibold text-ink-soft">{t('brandColor')}</div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -347,7 +347,7 @@ export function AdminSection({ s, set, errors }: SectionProps) {
   const t = useDict(T, 'admin');
   return (
     <SectionCard id="admin" icon={ShieldCheck} title={t('s_admin')} description={t('s_admin_d')}>
-      <div className="grid items-start gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2">
         <TextField
           label={t('adminEmail')}
           hint={t('adminEmail_h')}

@@ -393,7 +393,7 @@ function Editor({ id }: { id: string }) {
 
       <Stepper step={step} onStep={(s) => goStep(s)} steps={stepInfo} />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <fieldset disabled={!canEdit} className="min-w-0 space-y-5">
           {step === 1 && <PrepareStep draft={draft} set={set} mode={mode} setMode={setMode} data={data} isNew={isNew} slugTaken={slugTaken} />}
           {step === 2 && (

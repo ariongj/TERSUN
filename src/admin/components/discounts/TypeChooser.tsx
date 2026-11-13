@@ -11,7 +11,7 @@ import { KIND_ICON, KINDS } from './meta';
 export function TypeGrid({ onChoose, current, className }: { onChoose: (k: DiscountKind) => void; current?: DiscountKind; className?: string }) {
   const t = useDict(dd, 'admin');
   return (
-    <ul className={cn('grid gap-2.5 sm:grid-cols-2', className)}>
+    <ul className={cn('grid grid-cols-1 gap-2.5 sm:grid-cols-2', className)}>
       {KINDS.map((k) => {
         const Icon = KIND_ICON[k];
         const on = current === k;

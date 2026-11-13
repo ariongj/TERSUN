@@ -542,7 +542,7 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
         </div>
       )}
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-5">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-5">
         <div className="min-w-0 space-y-4">
           {/* Lines */}
           <Card

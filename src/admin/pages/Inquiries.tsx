@@ -362,7 +362,7 @@ export default function Inquiries() {
         </div>
 
         {/* Toolbar */}
-        <div className="grid gap-2 border-b border-line/70 p-3 sm:grid-cols-3 sm:p-4 xl:flex xl:items-center">
+        <div className="grid grid-cols-1 gap-2 border-b border-line/70 p-3 sm:grid-cols-3 sm:p-4 xl:flex xl:items-center">
           <SearchInput value={q} onChange={setQ} placeholder={t('searchPh')} className="sm:col-span-3 xl:flex-1 [&_input]:h-9" />
           <FilterSelect label={t('assignee')} value={who} onChange={(e) => setWho(e.target.value)} active={who !== 'all'} className="xl:w-auto">
             <option value="all">{t('everyone')}</option>

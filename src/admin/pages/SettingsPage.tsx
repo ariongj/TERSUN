@@ -142,7 +142,7 @@ export default function SettingsPage() {
   return (
     <div>
       <PageHeader breadcrumbs={[t('title'), t(def.label)]} title={t('title')} />
-      <div className="grid gap-6 xl:grid-cols-[232px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[232px_minmax(0,1fr)]">
         <SettingsNav current={def.id} dirty={dirty} examples={examples} />
         <div className="min-w-0 space-y-5 pb-24">
           {readOnly && editsSettings && (

@@ -494,7 +494,7 @@ export function NotificationsSection({ s, set, errors, readOnly }: SecProps) {
         }
       >
         <Block title={t('sender')} hint={t('sender_h')}>
-          <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
             <TextField label={t('from')} value={`${s.companyName} <${sender}>`} onChange={() => undefined} readOnly leading={<Send className="h-4 w-4" />} inputClassName="bg-[#f6f6f6] text-ink-soft" />
             <TextField label={t('staffEmail')} hint={t('staffEmail_h')} type="email" value={s.adminEmail} onChange={(v) => set('adminEmail', v.trim())} readOnly={readOnly} leading={<Mail className="h-4 w-4" />} error={errors.adminEmail} />
           </div>

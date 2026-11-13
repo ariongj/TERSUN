@@ -338,7 +338,7 @@ export function MarkdownEditor({
           </button>
         </div>
         {help && (
-          <ul className="grid gap-x-6 gap-y-1 border-t border-line/60 px-4 py-3 sm:grid-cols-2 sm:px-5 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-x-6 gap-y-1 border-t border-line/60 px-4 py-3 sm:grid-cols-2 sm:px-5 lg:grid-cols-3">
             {cheats.map(([code, label]) => (
               <li key={label} className="flex min-w-0 items-center justify-between gap-3 rounded-md py-1 text-[12px]">
                 <code className="truncate rounded bg-white px-1.5 py-0.5 font-mono text-[11.5px] font-semibold text-brand-700 ring-1 ring-line/70">{code}</code>

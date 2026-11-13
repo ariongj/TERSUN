@@ -4,7 +4,7 @@ import { Crosshair, ImagePlus, Images, Upload, X } from 'lucide-react';
 import { MediaPicker, useUploader } from '@/admin/components/media';
 import { Button } from '@/components/ui/Button';
 import { useDict } from '@/i18n';
-import { clamp, cn } from '@/lib/utils';
+import { clamp, cn, still } from '@/lib/utils';
 import { SE } from './i18n';
 import type { Focal } from './placements';
 
@@ -76,7 +76,7 @@ export function MediaSlot({
             onKeyDown={nudge}
             className={cn('relative inline-block max-w-full cursor-crosshair overflow-hidden rounded-lg outline-none focus-visible:ring-4 focus-visible:ring-ink/20', disabled && 'cursor-default')}
           >
-            <img src={src} alt="" draggable={false} className={cn('block max-h-[200px] w-auto max-w-full select-none', !value && 'opacity-45 grayscale')} />
+            <img src={still(src)} alt="" draggable={false} className={cn('block max-h-[200px] w-auto max-w-full select-none', !value && 'opacity-45 grayscale')} />
             {/* rule-of-thirds guide */}
             <span aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,transparent_33.2%,rgb(255_255_255/0.35)_33.3%,transparent_33.5%,transparent_66.5%,rgb(255_255_255/0.35)_66.6%,transparent_66.8%),linear-gradient(to_bottom,transparent_33.2%,rgb(255_255_255/0.35)_33.3%,transparent_33.5%,transparent_66.5%,rgb(255_255_255/0.35)_66.6%,transparent_66.8%)]" />
             <span

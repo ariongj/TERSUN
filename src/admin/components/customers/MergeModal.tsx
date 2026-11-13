@@ -195,7 +195,7 @@ function PairView({ pair, onDone }: { pair: DuplicatePair; onDone: () => void })
           {pair.reason === 'phone' ? t('reasonPhone') : t('reasonName')}
         </span>
       </div>
-      <div className="grid gap-3 md:grid-cols-[1fr_1fr_1.15fr]">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_1.15fr]">
         <RecordCard c={pair.a} primary={primary === pair.a} onPick={() => setPrimaryKey(pair.a.key)} labels={labels} />
         <RecordCard c={pair.b} primary={primary === pair.b} onPick={() => setPrimaryKey(pair.b.key)} labels={labels} />
         <div className="flex min-w-0 flex-col rounded-xl bg-canvas p-4 ring-1 ring-inset ring-line">

@@ -208,7 +208,7 @@ export function AdjustDialog({ row, locationName, onClose }: { row: InvRow | und
                       { id: 'set', label: t('adj_set') },
                     ]}
                   />
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <FieldLabel>{mode === 'by' ? t('adj_qtyBy') : t('adj_qtySet')}</FieldLabel>
                       <IntField

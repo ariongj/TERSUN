@@ -167,7 +167,7 @@ function BookingForm({ inquiry: q, onClose }: { inquiry: InquiryX; onClose: () =
   return (
     <>
       <div className="space-y-3.5 px-6 py-5">
-        <div className="grid gap-x-4 gap-y-3.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 sm:grid-cols-2">
           <CSelect
             label={t('service')}
             value={f.serviceId}

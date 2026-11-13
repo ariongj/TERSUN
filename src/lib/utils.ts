@@ -71,6 +71,13 @@ export function initials(name: string) {
 }
 
 /** Swap a local /images/x.webp path for its 640px sibling (/images/x-sm.webp). */
+/** A picture for a media path: a video's poster (`clip.mp4` → `clip-poster.jpg`), anything else unchanged. */
+export function still(src: string): string;
+export function still(src: string | undefined): string | undefined;
+export function still(src: string | undefined) {
+  return src && /\.(mp4|webm|mov)$/i.test(src) ? src.replace(/\.(mp4|webm|mov)$/i, '-poster.jpg') : src;
+}
+
 export function thumb(src: string | undefined) {
   if (!src) return '';
   if (src.startsWith('/images/') && src.endsWith('.webp') && !src.endsWith('-sm.webp')) {

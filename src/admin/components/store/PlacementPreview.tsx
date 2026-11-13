@@ -10,7 +10,7 @@ import { site } from '@/i18n/site';
 import { Accent } from '@/components/ui/misc';
 import { buttonClass } from '@/components/ui/Button';
 import { Logo } from '@/components/brand/Logo';
-import { cn } from '@/lib/utils';
+import { cn, still } from '@/lib/utils';
 import { FONT_PAIRS, storefrontVars, type FontPair } from './theme';
 import { objectPos, type PlacementX } from './placements';
 
@@ -125,7 +125,7 @@ function Media({ p, device, kenburns }: { p: PlacementX; device: Device; kenburn
   return (
     <img
       key={src}
-      src={src}
+      src={still(src)}
       alt={T(p.alt, 'de')}
       className={cn('absolute inset-0 h-full w-full object-cover', kenburns && !reduce && 'animate-[kenburns_9s_ease-out_both]')}
       style={{ objectPosition: objectPos(focal) }}

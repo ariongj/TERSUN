@@ -10,7 +10,7 @@ import { useDict } from '@/i18n';
 import { common } from '@/i18n/common';
 import { adm } from '@/admin/i18n';
 import type { InquiryStatus, OrderStatus, PaymentStatus } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { cn, still } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
 /* Page header                                                         */
@@ -305,5 +305,5 @@ export function KV({ label, children, className }: { label: ReactNode; children:
 }
 
 export function Thumb({ src, className }: { src?: string; className?: string }) {
-  return <span className={cn('block h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-sand ring-1 ring-line', className)}>{src && <img src={src.startsWith('/images/') ? src.replace(/\.webp$/, '-sm.webp') : src} alt="" className="h-full w-full object-cover" loading="lazy" />}</span>;
+  return <span className={cn('block h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-sand ring-1 ring-line', className)}>{src && <img src={still(src).startsWith('/images/') ? still(src).replace(/\.webp$/, '-sm.webp') : still(src)} alt="" className="h-full w-full object-cover" loading="lazy" />}</span>;
 }

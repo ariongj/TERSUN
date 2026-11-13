@@ -309,7 +309,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
           {/* Content */}
           <Card title={t('sec_content')}>
             <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="pl-name">{t('f_name')}</FieldLabel>
                   <input id="pl-name" value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder={t('f_name_ph')} className={cn(ctl, 'h-10')} />
@@ -387,14 +387,14 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
               )}
 
               {offer ? (
-                <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t('sec_offer')}>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t('sec_offer')}>
                   <RadioTile on={!ownSchedule} onClick={() => setScheduleMode(false)} title={t('sched_inherit')} text={t('sched_inherit_d', { range: offerRange })} />
                   <RadioTile on={ownSchedule} onClick={() => setScheduleMode(true)} title={t('sched_own')} text={t('sched_own_d')} />
                 </div>
               ) : null}
 
               {(!offer || ownSchedule) && (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <DateField label={t('f_start')} hint={t('start_h')} value={draft.startsAt} onChange={(v) => set({ startsAt: v })} />
                   <DateField label={t('f_end')} hint={t('end_h')} value={draft.endsAt} onChange={(v) => set({ endsAt: v })} error={datesBad ? t('dateInvalid') : undefined} />
                 </div>
@@ -405,7 +405,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
           {/* CTA */}
           <Card title={isBar ? t('f_link') : t('sec_cta')}>
             <div className="space-y-4">
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <L10nInput label={isBar ? t('f_linkLabel') : t('f_ctaLabel')} value={draft.cta.label} onChange={(v) => set({ cta: { ...draft.cta, label: v } })} />
                 <Destination label={t('f_dest')} value={draft.cta.href} onChange={(v) => set({ cta: { ...draft.cta, href: v } })} ctx={ctx} />
               </div>
@@ -423,7 +423,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
                         {t('removeSecondary')}
                       </Button>
                     </div>
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                       <L10nInput label={t('f_ctaLabel')} value={draft.secondary.label} onChange={(v) => set({ secondary: { ...draft.secondary!, label: v } })} />
                       <Destination label={t('f_dest')} value={draft.secondary.href} onChange={(v) => set({ secondary: { ...draft.secondary!, href: v } })} ctx={ctx} />
                     </div>
@@ -445,7 +445,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
           {/* Media */}
           {!isBar && (
             <Card title={t('sec_media')}>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <MediaSlot
                   label={t('f_mediaDesktop')}
                   hint={showErrors && imageMissing ? <span className="font-medium text-red-600">{t('needImage')}</span> : t('mediaDesktop_h')}
@@ -481,7 +481,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
           {/* Appearance */}
           {!isBar && (
             <Card title={t('sec_style')}>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <div className="mb-1.5 text-[13px] font-semibold text-ink-soft">{t('f_align')}</div>
                   <Segmented<'left' | 'center'>
@@ -518,7 +518,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
 
           {/* Publishing */}
           <Card title={t('sec_publish')} actions={<StatePill state={state} />}>
-            <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t('sec_publish')}>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-label={t('sec_publish')}>
               <RadioTile
                 on={draft.status === 'active'}
                 onClick={() => set({ status: 'active' })}
@@ -529,7 +529,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
               />
               <RadioTile on={draft.status === 'draft'} onClick={() => set({ status: 'draft' })} title={t('status_draft')} text={t('status_draft_d')} disabled={lockedLive} />
             </div>
-            <dl className="mt-4 grid gap-x-6 gap-y-2 border-t border-line/70 pt-4 text-[13px] sm:grid-cols-2">
+            <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-line/70 pt-4 text-[13px] sm:grid-cols-2">
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-muted">{t('nowOnSite')}</dt>
                 <dd>

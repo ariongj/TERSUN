@@ -187,7 +187,7 @@ export function FieldEditor({
         </div>
 
         {/* Label + key */}
-        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_220px]">
           <div>
             <L10nInput
               label={t('label')}
@@ -216,7 +216,7 @@ export function FieldEditor({
         </div>
 
         {/* Rules */}
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <RuleRow label={t('required')} hint={t('requiredHint')} checked={!!draft.required} onChange={(v) => patch({ required: v })} />
           <RuleRow
             label={t('translatable')}

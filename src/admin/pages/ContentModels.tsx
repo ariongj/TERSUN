@@ -117,7 +117,7 @@ export default function ContentModels() {
 
       {/* Definition vs entries vs functional modules (PDF p.36) */}
       <Card padded={false} className="mb-5 overflow-hidden">
-        <div className="grid divide-y divide-line/70 md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div className="grid grid-cols-1 divide-y divide-line/70 md:grid-cols-3 md:divide-x md:divide-y-0">
           <Concept icon={Braces} title={t('c1Title')} text={t('c1Text')} />
           <Concept icon={Rows3} title={t('c2Title')} text={t('c2Text', { n: projectCount })} />
           <Concept icon={CalendarClock} title={t('c3Title')} text={t('c3Text')}>

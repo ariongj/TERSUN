@@ -233,7 +233,7 @@ export function ActivitySection() {
       }
     >
       <div className="space-y-3 border-b border-line/70 px-5 py-4 sm:px-6">
-        <div className="grid gap-2.5 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
+        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
           <SearchInput value={q} onChange={(v) => { setQ(v); setLimit(PAGE); }} placeholder={t('search')} />
           <Select aria-label={t('colActor')} value={actor} onChange={(e) => { setActor(e.target.value); setLimit(PAGE); }} className={selectCls}>
             <option value="all">{t('allActors')}</option>

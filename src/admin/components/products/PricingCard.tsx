@@ -88,7 +88,7 @@ export function PricingCard({
         )}
       </div>
 
-      <div className="mt-5 grid gap-4 border-t border-line/70 pt-5 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-4 border-t border-line/70 pt-5 sm:grid-cols-2">
         <FormField label={t('f_unit')}>
           <SelectInput value={unit} onChange={(e) => onUnit(e.target.value as Unit)} aria-label={t('f_unit')}>
             {UNITS.map((u) => (

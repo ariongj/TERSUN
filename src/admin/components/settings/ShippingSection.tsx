@@ -229,7 +229,7 @@ export function ShippingSection({ s, set, setExt, errors }: SecProps) {
         <Block title={t('local')}>
           <ToggleRow icon={<Truck className="h-[18px] w-[18px]" />} title={t('local')} description={t('local_d')} checked={local.enabled} onChange={(v) => setExt('localDelivery', { ...local, enabled: v })} />
           {local.enabled && (
-            <div className="mt-4 grid gap-x-4 gap-y-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:pl-14">
+            <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-[140px_minmax(0,1fr)] sm:pl-14">
               <NumberField label={t('localFee')} value={local.fee} onChange={(n) => setExt('localDelivery', { ...local, fee: n })} trailing="€" hint={local.fee === 0 ? t('free0') : undefined} />
               <TextField label={t('localArea')} value={local.area} onChange={(v) => setExt('localDelivery', { ...local, area: v })} leading={<MapPin className={ico} />} />
             </div>

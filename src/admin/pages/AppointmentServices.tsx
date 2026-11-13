@@ -300,7 +300,7 @@ export default function AppointmentServices() {
 
       {!canEdit && <p className="mb-4 rounded-xl border border-line bg-white px-4 py-3 text-[13px] text-muted">{t('readOnly')}</p>}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Left column */}
         <div className="min-w-0 space-y-5">
           <Card title={t('services')} description={t('servicesDesc')} padded={false}>
@@ -382,7 +382,7 @@ export default function AppointmentServices() {
           </Card>
 
           <Card title={<span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-muted" />{t('rules')}</span>} description={t('rulesDesc')}>
-            <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
               {(
                 [
                   ['minNoticeHours', t('minNotice'), t('minNoticeHint'), t('hoursUnit'), 0, 168, 1],
@@ -456,7 +456,7 @@ export default function AppointmentServices() {
             )}
             {canEdit && (
               <div className="border-t border-line/70 bg-canvas/40 px-4 py-4 sm:px-5">
-                <div className="grid gap-2.5 sm:grid-cols-[150px_150px_minmax(0,1fr)]">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[150px_150px_minmax(0,1fr)]">
                   <label className="block">
                     <span className="mb-1 block text-[12px] font-semibold text-ink-soft">{t('exFrom')}</span>
                     <input type="date" value={exForm.date} onChange={(e) => setExForm((f) => ({ ...f, date: e.target.value }))} className="h-9 w-full rounded-lg border border-line bg-white px-2.5 text-[13.5px] outline-none focus:border-ink/40" />

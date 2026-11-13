@@ -510,7 +510,7 @@ export function CustomerDrawer({
         </Section>
 
         {/* Contact + addresses */}
-        <div className="grid gap-7 sm:grid-cols-2 sm:gap-4">
+        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 sm:gap-4">
           <Section title={t('contact')}>
             <div className={cn(box, 'divide-y divide-line/70')}>
               <Row icon={<Mail className="h-4 w-4" />} label={t('email')}>

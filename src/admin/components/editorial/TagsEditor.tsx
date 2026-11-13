@@ -101,7 +101,7 @@ export function TagsEditor({ value, onChange, suggestions = [] }: { value: L10n[
           <p className="text-[12.5px] text-muted">{t('noTags')}</p>
         )}
 
-        <div className="grid gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
           {LANGS.map(({ code, ph }) => (
             <label key={code} className="flex h-9 items-center overflow-hidden rounded-lg border border-line bg-white transition focus-within:border-ink/40 focus-within:ring-4 focus-within:ring-ink/5">
               <span className="grid h-full w-9 shrink-0 place-items-center border-r border-line bg-canvas/70 text-[10.5px] font-extrabold tracking-wide text-muted">{code.toUpperCase()}</span>

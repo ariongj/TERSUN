@@ -451,7 +451,7 @@ function Body({ inquiry: q, product, index, duplicateOf, onClose, onOpenInquiry 
               options={STATUSES.map((s) => ({ id: s, label: tx(`st_${s}`), icon: <span className="grid w-3.5 place-items-center"><StatusSymbol status={s} /></span> }))}
             />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-[12.5px] font-semibold text-ink-soft">{t('assignee')}</span>

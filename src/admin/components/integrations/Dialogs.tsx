@@ -118,7 +118,7 @@ function ConnectForm({ x, mode, onClose, onSubmit }: { x: IntegrationY; mode: 'c
           </div>
         </fieldset>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <span className="mb-1.5 block text-[13px] font-semibold text-ink-soft">{t('m_secret')}</span>
             <div className="flex h-10 items-center gap-2 rounded-lg border border-dashed border-ink/20 bg-canvas/70 px-3 text-[13px] text-muted">

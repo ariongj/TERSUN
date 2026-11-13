@@ -301,7 +301,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
         </Note>
       )}
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_330px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-5">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_330px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-5">
         <fieldset disabled={!canEdit} className="min-w-0 space-y-4">
           {/* ------------------------------ type + method + identity ------------------------------ */}
           <Card
@@ -379,7 +379,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
                 </div>
               )}
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <TextField label={t('internalTitle')} hint={t('internalHint')} value={d.title} placeholder={fallbackTitle(d)} onChange={(e) => set({ title: e.target.value })} />
                 <L10nInput label={t('publicTitle')} hint={t('publicHint')} value={d.publicTitle} onChange={(v) => set({ publicTitle: v })} />
               </div>
@@ -412,7 +412,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
                   />
                 </div>
                 {d.kind === 'products' && d.valueType === 'fixed' && (
-                  <div role="radiogroup" className="grid gap-1 sm:grid-cols-2">
+                  <div role="radiogroup" className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                     <Choice checked={!!d.perItem} onSelect={() => set({ perItem: true })} label={t('perItem')} description={t('perItemHint')} />
                     <Choice checked={!d.perItem} onSelect={() => set({ perItem: false })} label={t('perOrder')} description={t('perOrderHint')} />
                   </div>
@@ -479,7 +479,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
                   <div data-error={!!errors.get || undefined}>
                     <ScopePicker kind={d.bxgy.getScope} ids={d.bxgy.getIds} onChange={(ids) => setB({ getIds: ids })} error={errors.get} />
                   </div>
-                  <div className="grid gap-4 border-t border-line/70 pt-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 border-t border-line/70 pt-4 md:grid-cols-2">
                     <div>
                       <FLabel>{t('getDiscount')}</FLabel>
                       <div role="radiogroup" className="space-y-0.5">
@@ -596,7 +596,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
           {/* ------------------------------ combinations ------------------------------ */}
           <Card title={t('sec_combine')} description={t('combineIntro')}>
             <div className="space-y-4">
-              <div className="grid gap-x-6 gap-y-1 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-1 md:grid-cols-3">
                 {CLASSES.map((c) => {
                   const never = c === 'shipping' && own === 'shipping';
                   return (
@@ -663,7 +663,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
           {/* ------------------------------ schedule ------------------------------ */}
           <Card title={t('sec_schedule')}>
             <div className="space-y-3">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DateTime label={t('startsAt')} value={isoToZoned(d.startsAt, tz)} onChange={(v) => set({ startsAt: zonedToIso(v, tz) ?? '' })} error={errors.start} />
                 {d.endsAt !== undefined ? (
                   <DateTime label={t('endsAt')} value={isoToZoned(d.endsAt, tz)} onChange={(v) => set({ endsAt: zonedToIso(v, tz) ?? '' })} error={errors.end} min={isoToZoned(d.startsAt, tz)} />
@@ -688,7 +688,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
           {/* ------------------------------ status + tags ------------------------------ */}
           <Card title={t('sec_status')}>
             <div className="space-y-4">
-              <div role="radiogroup" className="grid gap-1 md:grid-cols-3">
+              <div role="radiogroup" className="grid grid-cols-1 gap-1 md:grid-cols-3">
                 {(['active', 'draft', 'paused'] as const).map((s) => (
                   <Choice
                     key={s}

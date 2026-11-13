@@ -431,12 +431,12 @@ function OrderView({ order }: { order: Order }) {
         </div>
       )}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-5">
           <ItemsCard order={order} t={t} onFulfil={() => setFulfilOpen(true)} />
           <PaymentCard order={order} t={t} onRefund={() => setRefundOpen(true)} refundable={refundable} />
         </div>
-        <div className="grid min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid grid-cols-1 min-w-0 gap-5 sm:grid-cols-2 lg:grid-cols-1">
           <CustomerCard order={order} t={t} />
           <DeliveryCard order={order} t={t} />
           <NotesCard order={order} t={t} />

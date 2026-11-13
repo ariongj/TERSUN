@@ -195,7 +195,7 @@ export default function ModuleMap() {
           <ModChip status="phase2" />
           <ModChip status="need" />
         </div>
-        <div className="grid items-start gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
           {PHASES.map((p, i) => {
             const all = MODULES_MAP.filter((m) => m.phase === p.id);
             return <PhaseColumn key={p.id} phase={p} num={num(i)} all={all} shown={filter === 'all' ? all : all.filter((m) => m.status === filter)} />;
@@ -225,7 +225,7 @@ export default function ModuleMap() {
             ))}
           </div>
         </div>
-        <div className="grid items-start gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
           {CRITERIA.map((g) => (
             <CriteriaCard key={g.id} title={l(g.title)} items={g.items} />
           ))}
@@ -253,7 +253,7 @@ export default function ModuleMap() {
             </div>
           }
         />
-        <div className="grid items-start gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
           {DECISIONS.map((g, i) => (
             <DecisionCard key={g.id} num={num(i)} title={l(g.title)} items={g.items} states={states} hint={hint} onCycle={cycle} />
           ))}

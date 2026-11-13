@@ -266,7 +266,7 @@ function StaffModal({ open, member, onClose }: { open: boolean; member: Staff | 
         </>
       }
     >
-      <div className="grid gap-6 px-6 py-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="grid grid-cols-1 gap-6 px-6 py-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="space-y-5">
           <TextField label={t('name')} value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} leading={<UserRound className="h-4 w-4" />} error={tried ? errors.name : undefined} autoFocus />
           <TextField label={t('email')} type="email" value={draft.email} onChange={(v) => setDraft({ ...draft, email: v })} leading={<Mail className="h-4 w-4" />} error={tried ? errors.email : undefined} />
@@ -545,7 +545,7 @@ export function StaffSection() {
       <RoleMatrix />
 
       <Panel title={t('security')} description={t('security_d')}>
-        <ul className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
           {(['sec1', 'sec2', 'sec3', 'sec4', 'sec5'] as const).map((k) => (
             <li key={k} className="flex items-start gap-2.5 text-[13px] leading-snug text-ink-soft">
               <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink" strokeWidth={2.6} />

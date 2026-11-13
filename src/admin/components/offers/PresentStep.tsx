@@ -66,7 +66,7 @@ export function PresentStep(p: PresentProps) {
       {/* ---------------- badge ---------------- */}
       <Card title={t('badge')} description={t('badgeText')}>
         <div id="of-badge" className="scroll-mt-32" />
-        <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start">
           <L10nInput label={t('badge')} value={draft.badge} onChange={(badge) => set({ badge })} placeholder="−15%" />
           <div>
             <FieldLabel>{t('badgeOnCard')}</FieldLabel>
@@ -108,7 +108,7 @@ export function PresentStep(p: PresentProps) {
         <div className="mb-4 flex min-w-0 items-center gap-2 rounded-lg bg-canvas/70 px-3 py-2 font-mono text-[12.5px] text-ink-soft">
           <span className="truncate">tersun.com{url}</span>
         </div>
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
           <div className="space-y-4">
             <L10nInput label={t('f_landingTitle')} value={draft.landing.title} onChange={(title) => set({ landing: { ...draft.landing, title } })} hint={t('f_landingTitleHint')} />
             {l(draft.landing.title) && (
@@ -136,7 +136,7 @@ export function PresentStep(p: PresentProps) {
         createdNote={p.createdNote}
       />
 
-      <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+      <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
         <DevicePreview slug={p.savedSlug} live={p.live} dirty={p.dirty} />
         <TestCart draft={draft} discount={p.discount} mode={p.mode} participating={p.participating} data={p.data} />
       </div>

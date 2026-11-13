@@ -117,7 +117,7 @@ export function LanguagesSection({ s, set, setExt }: SecProps) {
               const locked = lg.code === langDefault || lg.code === langFallback;
               const cov = coverage[lg.code];
               return (
-                <li key={lg.code} className="grid gap-3 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_130px_200px] sm:items-center sm:gap-4">
+                <li key={lg.code} className="grid grid-cols-1 gap-3 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_130px_200px] sm:items-center sm:gap-4">
                   <div className="flex min-w-0 items-center gap-3">
                     <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[11.5px] font-extrabold tracking-wide ring-1 ring-inset', on ? 'bg-ink text-white ring-ink' : 'bg-[#f3f3f3] text-muted ring-black/[0.06]')}>{lg.short}</span>
                     <div className="min-w-0">
@@ -151,7 +151,7 @@ export function LanguagesSection({ s, set, setExt }: SecProps) {
       </Block>
 
       <Block>
-        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
           <div>
             <div className="mb-2 text-[13px] font-semibold text-ink-soft">{t('default')}</div>
             <Select aria-label={t('default')} value={langDefault} onChange={(e) => { const v = e.target.value as Lang; setExt('langDefault', v); if (!s.languages[v]) toggle(v, true); }} className="h-10! rounded-lg! text-[14px]!">

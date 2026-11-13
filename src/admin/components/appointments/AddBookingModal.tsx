@@ -312,7 +312,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
       <div className="min-h-0 flex-1 overflow-y-auto">
         {/* 1 — service */}
         <Step n={1} title={t('s1')}>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {services.map((s) => {
               const on = s.id === serviceId;
               return (
@@ -338,7 +338,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
 
         {/* 2 — staff & location */}
         <Step n={2} title={t('s2')}>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="mb-1.5 block text-[12.5px] font-semibold text-ink-soft">{ta('staff')}</span>
               <select value={staffId} onChange={(e) => { setStaffId(e.target.value); setPick(null); setError(null); setBlocked(null); }} className={selectCls} style={{ backgroundImage: CHEVRON }}>
@@ -483,7 +483,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
               )}
             </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input label={t('name')} required value={contact.name} onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))} error={errors.name} className="h-10! text-[13.5px]!" />
             <Input label={t('phone')} required type="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} error={errors.phone} placeholder="+383 4_ ___ ___" className="h-10! text-[13.5px]!" />
             <Input label={t('email')} type="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} className="h-10! text-[13.5px]!" />
@@ -493,7 +493,7 @@ function AddBookingForm({ prefill, onClose, onCreated }: { prefill: AddBookingPr
 
         {/* 5 — confirm */}
         <Step n={5} title={t('s5')}>
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="rounded-xl border border-line bg-canvas/50 p-3.5 text-[13px]">
               {service && pick ? (
                 <>

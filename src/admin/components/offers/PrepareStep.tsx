@@ -69,7 +69,7 @@ export function PrepareStep({ draft, set, mode, setMode, data, isNew, slugTaken 
       <Card title={t('basics')} description={t('basicsText')} bodyClassName="space-y-4">
         <div id="of-basics" className="scroll-mt-32" />
         <L10nInput label={t('f_name')} value={draft.name} onChange={setName} required />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <FieldLabel htmlFor="of-slug">{t('f_slug')}</FieldLabel>
             <div className="relative">
@@ -114,7 +114,7 @@ export function PrepareStep({ draft, set, mode, setMode, data, isNew, slugTaken 
       {/* ---------------- rule ---------------- */}
       <Card title={t('rule')} description={t('ruleText')} bodyClassName="space-y-4">
         <div id="of-rule" className="scroll-mt-32" />
-        <div className="grid gap-2 md:grid-cols-3" role="radiogroup" aria-label={t('rule')}>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3" role="radiogroup" aria-label={t('rule')}>
           <ModeCard on={mode === 'link'} icon={<Link2 className="h-4 w-4" />} title={t('mode_link')} text={t('mode_linkText')} onSelect={() => setMode('link')} />
           <ModeCard on={mode === 'new'} icon={<Plus className="h-4 w-4" />} title={t('mode_new')} text={t('mode_newText')} onSelect={() => setMode('new')} />
           <ModeCard on={mode === 'none'} icon={<FileText className="h-4 w-4" />} title={t('mode_none')} text={t('mode_noneText')} onSelect={() => setMode('none')} />
@@ -199,7 +199,7 @@ function PeriodCard({ draft, set, discount, tz }: { draft: OfferX; set: (p: Part
   return (
     <Card title={t('period')} description={t('periodText')} bodyClassName="space-y-4">
       <div id="of-period" className="scroll-mt-32" />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <FieldLabel htmlFor="of-start">{t('f_start')}</FieldLabel>
           <TextInput id="of-start" type="datetime-local" value={toLocalInput(draft.startsAt)} onChange={(e) => set({ startsAt: fromLocalInput(e.target.value) ?? draft.startsAt })} />
@@ -451,7 +451,7 @@ function DiscountSummary({ d, data, offerId }: { d: Discount; data: OfferData; o
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
-      <dl className="grid gap-x-6 px-4 py-2 sm:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-x-6 px-4 py-2 sm:grid-cols-2">
         {rows.map(([k, v]) => (
           <div key={k} className="flex items-baseline justify-between gap-3 border-b border-line/50 py-1.5 text-[13px] last:border-0 sm:[&:nth-last-child(2)]:border-0">
             <dt className="shrink-0 text-muted">{k}</dt>
@@ -524,7 +524,7 @@ function AudienceCard({ draft, set, data, discount }: { draft: OfferX; set: (p: 
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-1.5 py-3 text-[13.5px] sm:grid-cols-[170px_minmax(0,1fr)] sm:items-center sm:gap-4">
+    <div className="grid grid-cols-1 gap-1.5 py-3 text-[13.5px] sm:grid-cols-[170px_minmax(0,1fr)] sm:items-center sm:gap-4">
       <div className="text-[13px] font-semibold text-ink-soft">{label}</div>
       <div className="min-w-0">{children}</div>
     </div>

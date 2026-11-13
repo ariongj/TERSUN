@@ -11,7 +11,7 @@ import { useDb } from '@/store/db';
 import { usePlacements } from '@/store/hooks';
 import { basePrice, isOnSale } from '@/lib/pricing';
 import { money } from '@/lib/format';
-import { thumb } from '@/lib/utils';
+import { still, thumb } from '@/lib/utils';
 import { DENSITY, FONT_PAIRS, accentLast, storefrontVars, type StoreTheme } from './theme';
 import { objectPos, type PlacementX } from './placements';
 
@@ -51,7 +51,7 @@ export function StorePreview({ brand, theme, lang, words }: { brand: string; the
       </div>
       {/* hero */}
       <div className="relative isolate overflow-hidden bg-ink" style={{ minHeight: 176 * d.scale }}>
-        {hero?.image && <img src={thumb(hero.image)} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" style={{ objectPosition: objectPos(hero.focal) }} />}
+        {hero?.image && <img src={thumb(still(hero.image))} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" style={{ objectPosition: objectPos(hero.focal) }} />}
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/80 via-ink/45 to-ink/10" />
         <div style={{ padding: `${d.pad * 1.3}px ${d.pad}px ${d.pad}px` }}>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2 py-0.5 text-[8.5px] font-bold uppercase tracking-[0.18em] text-white">

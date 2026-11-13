@@ -335,10 +335,10 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
       )}
 
       <div className="space-y-5">
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* Supplier, destination & shipment details */}
           <Card title={t('ed_supplierCard')}>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <FieldLabel htmlFor="po-supplier">{t('po_supplier')}</FieldLabel>
                 <TextField
@@ -549,7 +549,7 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
             )}
           </Card>
 
-        <div className="grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
           {/* Differences */}
           {showProgress && (differences.length > 0 || status === 'closed') && (
             <Card title={t('ed_differences')}>

@@ -16,7 +16,8 @@ export type MarkState = 'on' | 'partial' | 'off' | 'bad';
 /** ● on · ◐ partial · ○ off · ▲ bad — the symbol carries the state together with the text, so colour is never alone. */
 export function StatusMark({ state, children, className }: { state: MarkState; children: ReactNode; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold text-ink-soft', className)}>
+    // cn() does not merge conflicting classes: let a caller's whitespace-* replace the default instead of competing with it
+    <span className={cn('inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-ink-soft', !className?.includes('whitespace-') && 'whitespace-nowrap', className)}>
       <StatusSymbol state={state} />
       {children}
     </span>
