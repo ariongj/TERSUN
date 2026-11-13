@@ -211,6 +211,8 @@ export interface Order {
   shipping: number;
   total: number;
   vat: number;
+  /** VAT rate (%) the order was placed at — invoices print this, not the current setting */
+  vatRate?: number;
   lang: Lang;
   timeline: OrderEvent[];
   internalNote?: string;
@@ -332,6 +334,10 @@ export interface HeroSlide {
   image: string;
   /** Optional clip shown instead of the image on portrait (phone) screens */
   video?: string;
+  /** Optional picture for portrait (phone) screens */
+  imageMobile?: string;
+  /** Focal point (object-position, %) chosen in the Slideshow editor */
+  focal?: { x: number; y: number };
   eyebrow: L10n;
   title: L10n;
   subtitle: L10n;

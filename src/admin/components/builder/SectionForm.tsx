@@ -214,6 +214,8 @@ function PromoForm({ data, set }: { data: DataOf<'promo'>; set: SetData<'promo'>
             label={t('endsAt')}
             value={isoToLocalInput(data.endsAt)}
             onChange={(v) => {
+              // emptying the field removes the deadline (no countdown); an incomplete date is ignored
+              if (!v) return set({ ...data, endsAt: '' });
               const iso = localInputToIso(v);
               if (iso) set({ ...data, endsAt: iso });
             }}

@@ -14,6 +14,7 @@ import { basePrice } from '@/lib/pricing';
 import { date, dateTime, money, unitLabel } from '@/lib/format';
 import type { L10n, Quote } from '@/lib/types';
 import { cn, round2, uid } from '@/lib/utils';
+import { same, useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import { cx } from './i18n';
 import { CInput, CSelect, Chip } from './fields';
 import { QuoteStatusPill, StaffAvatar, useNoPermText } from './atoms';
@@ -317,6 +318,14 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
   const [draft, setDraft] = useState<Quote>(() => (saved ? structuredClone(saved) : buildBlank()));
   const [picker, setPicker] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // the stored quote this draft was copied from (the blank one for a new quote); a change saved elsewhere
+  // (another tab) is followed — fields edited here stay
+  const [origin, setOrigin] = useState<Quote>(draft);
+  useFollowStored(saved, origin, setOrigin, draft, setDraft);
+  // ask before leaving with unsaved edits (the editor is opened by ?id=… on the list page)
+  const editable = can('quotes', 'edit') && !(saved && (saved.status === 'accepted' || saved.status === 'converted'));
+  const unsaved = editable && (saved ? content(draft) !== content(saved) || draft.owner !== saved.owner : isNew && !same(draft, origin));
+  const allowNav = useUnsavedGuard(unsaved, { param: 'id' });
 
   if (!isNew && !saved) {
     return (
@@ -373,6 +382,7 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
         db().logAudit({ action: 'status', object: 'inquiry', objectId: inquiry.id, detail: 'new → contacted' });
       }
       toast.success(t('savedNew', { number: q.number }));
+      allowNav();
       navigate(`/admin/kontakti/ponude?id=${q.id}`, { replace: true });
       return;
     }
@@ -385,8 +395,10 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
     toast.success(bump ? t(resend ? 'savedResend' : 'saved', { v: next.version }) : t('savedSame'));
   };
   const discard = () => {
-    if (isNew) navigate(inquiry ? `/admin/kontakti?id=${inquiry.id}` : '/admin/kontakti/ponude');
-    else if (saved) {
+    if (isNew) {
+      allowNav();
+      navigate(inquiry ? `/admin/kontakti?id=${inquiry.id}` : '/admin/kontakti/ponude');
+    } else if (saved) {
       setDraft(structuredClone(saved));
       setErrors({});
     }
@@ -449,6 +461,7 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
     setStatus('converted', { orderId: d.id });
     db().logAudit({ action: 'convert', object: 'quote', objectId: saved.id, detail: `${saved.number} → ${d.number}` });
     toast.success(t('convertedToast', { number: d.number }));
+    allowNav();
     navigate(`/admin/nacrti/${d.id}`);
   };
   const remove = async () => {
@@ -457,6 +470,7 @@ export function QuoteEditor({ id, inquiryId }: { id: string; inquiryId?: string 
     if (!ok) return;
     db().remove('quotes', saved.id);
     toast.success(t('deleted'));
+    allowNav();
     navigate('/admin/kontakti/ponude', { replace: true });
   };
 

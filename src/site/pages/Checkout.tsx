@@ -231,7 +231,7 @@ const EMPTY: FormState = { firstName: '', lastName: '', phone: '', email: '', ci
 const DEMO: Record<Lang, Omit<FormState, 'isCompany' | 'company' | 'pib' | 'note'>> = {
   de: { firstName: 'Lukas', lastName: 'Becker', phone: '+49 151 2345 6780', email: 'lukas.becker@example.com', city: 'München', address: 'Isartalstraße 24' },
   sq: { firstName: 'Arben', lastName: 'Krasniqi', phone: '+383 44 412 337', email: 'arben.krasniqi@example.com', city: 'Prishtina', address: 'Rr. Nëna Terezë 12' },
-  en: { firstName: 'Emma', lastName: 'Carter', phone: '+1 305 555 0148', email: 'emma.carter@example.com', city: 'Miami', address: '1200 Brickell Ave' },
+  en: { firstName: 'Emma', lastName: 'Carter', phone: '+43 660 555 0148', email: 'emma.carter@example.com', city: 'Wien', address: 'Mariahilfer Straße 88' },
 };
 
 const DRAFT_KEY = 'tersun-checkout-draft';
@@ -341,8 +341,9 @@ export default function Checkout() {
   const timers = useRef<number[]>([]);
 
   const city = form.city || undefined;
-  const totals = useCart({ delivery, city });
-  const homeTotals = useCart({ delivery: 'delivery', city });
+  const who = useMemo(() => ({ email: form.email, phone: form.phone }), [form.email, form.phone]);
+  const totals = useCart({ delivery, city, customer: who });
+  const homeTotals = useCart({ delivery: 'delivery', city, customer: who });
   const view = useTotalsView(totals, { showEstimateHint: true });
   const zone = zoneForCity(settings, form.city);
 
@@ -365,11 +366,12 @@ export default function Checkout() {
     else if (form.phone.replace(/\D/g, '').length < 8) e.phone = t('err_phone');
     if (!form.email.trim()) e.email = t('err_required');
     else if (!EMAIL_RE.test(form.email.trim())) e.email = t('err_email');
-    if (!form.city) e.city = t('err_city');
+    // a showroom pickup needs no delivery city (a shopper from anywhere can collect)
+    if (!form.city && addressRequired) e.city = t('err_city');
     if (addressRequired && !form.address.trim()) e.address = t('err_required');
     if (form.isCompany) {
       if (!form.company.trim()) e.company = t('err_required');
-      if (!/^[A-Z0-9-]{5,15}$/i.test(form.pib.replace(/\s/g, ''))) e.pib = form.pib.trim() ? t('err_pib') : t('err_required');
+      if (!/^[A-Z0-9-]{5,15}$/i.test(form.pib.replace(/[\s.]/g, ''))) e.pib = form.pib.trim() ? t('err_pib') : t('err_required');
     }
     if (!terms) e.terms = t('err_terms');
     return e;
@@ -436,17 +438,27 @@ export default function Checkout() {
   }
 
   /* ---------- delivery card copy ---------- */
-  const minFee = Math.min(...settings.shippingZones.map((z) => z.fee));
+  const fees = settings.shippingZones.map((z) => z.fee);
+  const minFee = fees.length ? Math.min(...fees) : 0;
+  const maxFee = fees.length ? Math.max(...fees) : 0;
   const homeFree = homeTotals.freeShippingReason;
-  const homeAside = homeFree ? (
-    <span className="text-emerald-700">{tk('free')}</span>
-  ) : zone ? (
-    <span className="tabular-nums">{money(zone.fee, lang)}</span>
-  ) : (
-    <span className="tabular-nums">{tk('from', { amount: money(minFee, lang) })}</span>
-  );
+  const homeAside =
+    homeFree || (zone && zone.fee === 0) ? (
+      <span className="text-emerald-700">{tk('free')}</span>
+    ) : zone ? (
+      <span className="tabular-nums">{money(zone.fee, lang)}</span>
+    ) : (
+      // city not chosen yet: the range across zones (free in Kosovo … the farthest zone)
+      <span className="tabular-nums">{minFee === maxFee ? money(minFee, lang, { decimals: false }) : tk('deliveryRange', { min: money(minFee, lang, { decimals: false }), max: money(maxFee, lang, { decimals: false }) })}</span>
+    );
   const homeDesc = [
-    homeFree === 'installation' ? t('freeInstallation') : homeFree === 'threshold' ? t('freeThreshold', { amount: money(settings.freeShippingThreshold, lang, { decimals: false }) }) : null,
+    homeFree === 'installation'
+      ? t('freeInstallation')
+      : homeFree === 'threshold'
+        ? t('freeThreshold', { amount: money(homeTotals.freeShippingThreshold ?? settings.freeShippingThreshold, lang, { decimals: false }) })
+        : homeFree === 'code'
+          ? tk('free_code', { code: homeTotals.applied.find((a) => a.kind === 'shipping')?.code ?? '' })
+          : null,
     zone ? t('deliveryDays', { days: zone.days }) : !homeFree ? t('deliveryChooseCity') : null,
   ]
     .filter(Boolean)
@@ -557,7 +569,7 @@ export default function Checkout() {
                     onBlur={touch('email')}
                     error={err('email')}
                   />
-                  <Select id="f-city" label={t('city')} required autoComplete="address-level2" value={form.city} onChange={set('city')} onBlur={touch('city')} error={err('city')}>
+                  <Select id="f-city" label={t('city')} required={addressRequired} autoComplete="address-level2" value={form.city} onChange={set('city')} onBlur={touch('city')} error={err('city')}>
                     <option value="">{t('chooseCity')}</option>
                     {cities.map((c) => (
                       <option key={c} value={c}>

@@ -11,7 +11,32 @@ import { useDb } from '@/store/db';
 import { useSettings } from '@/store/hooks';
 import { date, money, num, unitLabel } from '@/lib/format';
 import { cn, round2 } from '@/lib/utils';
+import { paymentOf, refundedOf } from '@/lib/orders';
 import type { Order } from '@/lib/types';
+
+/**
+ * VAT rate (%) the order was placed at: stored on newer orders (`order.vatRate`); older orders get it back from
+ * their own VAT amount and total — never from the current setting. null = cannot tell (nothing charged).
+ */
+function vatRateOf(o: Order): number | null {
+  if (typeof o.vatRate === 'number') return o.vatRate;
+  const net = o.total - (o.vat || 0);
+  if (o.vat > 0 && net > 0) {
+    const r = (o.vat / net) * 100;
+    return Math.abs(r - Math.round(r)) < 0.3 ? Math.round(r) : Math.round(r * 10) / 10;
+  }
+  return o.total > 0 ? 0 : null;
+}
+
+/** When the order was paid: the first payment event that is not a refund; card orders are paid at checkout. */
+function paidAtOf(o: Order): string | undefined {
+  const refundTimes = new Set((o.refunds ?? []).map((r) => r.at));
+  const ev = o.timeline.find((e) => e.status === 'payment' && !refundTimes.has(e.at) && !(e.note && /refund|RT-\d/i.test(e.note)));
+  if (ev) return ev.at;
+  if (o.payment.method === 'card') return o.createdAt;
+  if (o.payment.method === 'cod') return o.timeline.find((e) => e.status === 'completed')?.at;
+  return undefined;
+}
 
 const T = defineDict({
   de: {
@@ -69,6 +94,27 @@ const T = defineDict({
     notFound: 'Bestellung nicht gefunden',
     notFoundText: 'Die Rechnung kann nicht angezeigt werden, da die Bestellung nicht existiert.',
     toOrders: 'Alle Bestellungen',
+    vatPlain: 'MwSt.',
+    total: 'Gesamtbetrag',
+    totalPaid: 'Bezahlter Gesamtbetrag',
+    refundedRow: 'Erstattet',
+    netPaid: 'Netto bezahlt (nach Erstattungen)',
+    nothingToPay: 'Nichts zu zahlen',
+    stamp_partially_refunded: 'Teilw. erstattet',
+    stamp_refunded: 'Erstattet',
+    stamp_cancelled: 'Storniert',
+    cancelledBanner: 'Bestellung storniert — dieses Dokument ist keine Zahlungsaufforderung.',
+    cancelledOn: 'Storniert am',
+    paidOn: 'Bezahlt am',
+    paymentTitle: 'Zahlung',
+    status: 'Status',
+    refundOn: 'Erstattung {date}',
+    note_paid: 'Der Betrag wurde vollständig bezahlt. Es ist keine weitere Zahlung erforderlich.',
+    note_partly: 'Ein Teil des Betrags wurde erstattet. Es ist keine weitere Zahlung erforderlich.',
+    note_refunded: 'Der gesamte Betrag wurde erstattet. Es ist keine Zahlung erforderlich.',
+    note_cancelled: 'Die Bestellung wurde storniert. Es ist keine Zahlung erforderlich.',
+    note_cancelledRefund: 'Die Bestellung wurde storniert; bereits bezahlte Beträge wurden erstattet. Es ist keine Zahlung erforderlich.',
+    note_cardPending: 'Die Kartenzahlung ist noch nicht abgeschlossen.',
   },
   sq: {
     docTitle: 'Parafaturë / Faturë',
@@ -125,6 +171,27 @@ const T = defineDict({
     notFound: 'Porosia nuk u gjet',
     notFoundText: 'Fatura nuk mund të shfaqet sepse porosia nuk ekziston.',
     toOrders: 'Të gjitha porositë',
+    vatPlain: 'TVSH',
+    total: 'Totali',
+    totalPaid: 'Totali i paguar',
+    refundedRow: 'E rimbursuar',
+    netPaid: 'Neto e paguar (pas rimbursimeve)',
+    nothingToPay: 'Asgjë për të paguar',
+    stamp_partially_refunded: 'Rimbursuar pjesërisht',
+    stamp_refunded: 'E rimbursuar',
+    stamp_cancelled: 'E anuluar',
+    cancelledBanner: 'Porosia është anuluar — ky dokument nuk është kërkesë për pagesë.',
+    cancelledOn: 'Anuluar më',
+    paidOn: 'Paguar më',
+    paymentTitle: 'Pagesa',
+    status: 'Statusi',
+    refundOn: 'Rimbursim {date}',
+    note_paid: 'Shuma është paguar plotësisht. Nuk nevojitet pagesë tjetër.',
+    note_partly: 'Një pjesë e shumës është rimbursuar. Nuk nevojitet pagesë tjetër.',
+    note_refunded: 'E gjithë shuma është rimbursuar. Nuk nevojitet pagesë.',
+    note_cancelled: 'Porosia është anuluar. Nuk nevojitet pagesë.',
+    note_cancelledRefund: 'Porosia është anuluar; shumat e paguara janë rimbursuar. Nuk nevojitet pagesë.',
+    note_cardPending: 'Pagesa me kartelë ende nuk është përfunduar.',
   },
   en: {
     docTitle: 'Proforma / Invoice',
@@ -181,6 +248,27 @@ const T = defineDict({
     notFound: 'Order not found',
     notFoundText: 'The invoice cannot be shown because the order does not exist.',
     toOrders: 'All orders',
+    vatPlain: 'VAT',
+    total: 'Total',
+    totalPaid: 'Total paid',
+    refundedRow: 'Refunded',
+    netPaid: 'Net paid (after refunds)',
+    nothingToPay: 'Nothing to pay',
+    stamp_partially_refunded: 'Part refunded',
+    stamp_refunded: 'Refunded',
+    stamp_cancelled: 'Cancelled',
+    cancelledBanner: 'Order cancelled — this document is not a request for payment.',
+    cancelledOn: 'Cancelled on',
+    paidOn: 'Paid on',
+    paymentTitle: 'Payment',
+    status: 'Status',
+    refundOn: 'Refund {date}',
+    note_paid: 'This amount has been paid in full. No further payment is needed.',
+    note_partly: 'Part of the amount has been refunded. No further payment is needed.',
+    note_refunded: 'The full amount has been refunded. No payment is needed.',
+    note_cancelled: 'This order was cancelled. No payment is needed.',
+    note_cancelledRefund: 'This order was cancelled; any amount paid has been refunded. No payment is needed.',
+    note_cardPending: 'The card payment has not been completed yet.',
   },
 });
 
@@ -267,7 +355,19 @@ function Sheet({ order }: { order: Order }) {
   const tl = useL('admin');
   const c = order.customer;
 
-  const issued = new Date().toISOString();
+  // payment state: refunds and cancellation change what the document asks for
+  const pay = paymentOf(order);
+  const cancelled = order.status === 'cancelled';
+  const settled = pay === 'paid' || pay === 'partially_refunded' || pay === 'refunded';
+  const refunded = refundedOf(order);
+  const net = round2(Math.max(0, order.total - refunded));
+  const paidAt = settled ? paidAtOf(order) : undefined;
+  const cancelledAt = cancelled ? [...order.timeline].reverse().find((e) => e.status === 'cancelled')?.at : undefined;
+  const refunds = order.refunds?.length ? order.refunds : refunded > 0 ? [{ id: 'all', at: cancelledAt ?? order.createdAt, amount: refunded }] : [];
+  const awaiting = !cancelled && !settled;
+
+  // the document's own date: when it was paid, otherwise the order date (not today)
+  const issued = paidAt ?? order.createdAt;
   const dueDate = new Date(new Date(order.createdAt).getTime() + 8 * 86400000).toISOString();
   const d = (iso: string) => date(iso, lang, { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -293,14 +393,48 @@ function Sheet({ order }: { order: Order }) {
   else if (order.discount > 0)
     rows.push({ key: 'disc', desc: order.coupon?.code ? t('discountLine', { code: order.coupon.code }) : t('discountPlain'), qty: '', unit: '', price: null, amount: -order.discount, muted: true });
 
-  const vat = order.vat || round2(order.total - order.total / (1 + s.vatRate / 100));
+  const rate = vatRateOf(order);
+  const vat = order.vat > 0 ? order.vat : rate ? round2(order.total - order.total / (1 + rate / 100)) : 0;
   const base = round2(order.total - vat);
-  const paid = order.payment.status === 'paid';
+  const stamp = cancelled ? 'stamp_cancelled' : pay === 'refunded' ? 'stamp_refunded' : pay === 'partially_refunded' ? 'stamp_partially_refunded' : pay === 'paid' ? 'paidStamp' : null;
+  const payNote = cancelled
+    ? refunded > 0
+      ? t('note_cancelledRefund')
+      : t('note_cancelled')
+    : pay === 'refunded'
+      ? t('note_refunded')
+      : pay === 'partially_refunded'
+        ? t('note_partly')
+        : settled
+          ? t('note_paid')
+          : order.payment.method === 'card'
+            ? t('note_cardPending')
+            : t(`note_${order.payment.method}`);
+  const payRows: [string, ReactNode][] = awaiting
+    ? [
+        [t('recipient'), s.legalName],
+        [t('bank'), s.bankName],
+        [t('account'), <span className="font-semibold tracking-wide tabular-nums">{s.bankAccount}</span>],
+        [t('reference'), <span className="font-bold tracking-wide text-brand-700">{order.number}</span>],
+        [t('amount'), <span className="font-semibold">{money(net, lang)}</span>],
+        [t('purpose'), t('purposeText', { n: order.number })],
+      ]
+    : [
+        [t('status'), <span className="font-semibold">{cancelled ? t('stamp_cancelled') : tc(`paystatus_${order.payment.status}`)}</span>],
+        ...(paidAt ? ([[t('paidOn'), d(paidAt)]] as [string, ReactNode][]) : []),
+        ...(settled ? ([[t('totalPaid'), <span className="font-semibold tabular-nums">{money(order.total, lang)}</span>]] as [string, ReactNode][]) : []),
+        ...refunds.map((r): [string, ReactNode] => [t('refundOn', { date: d(r.at) }), <span className="font-semibold tabular-nums">− {money(r.amount, lang)}</span>]),
+        [t('reference'), <span className="font-bold tracking-wide text-brand-700">{order.number}</span>],
+      ];
 
   return (
     <article className="print-sheet relative mx-auto w-full max-w-[210mm] bg-white px-5 py-7 text-[12px] leading-normal text-ink shadow-[0_1px_2px_rgb(28_26_23/0.06),0_24px_60px_-28px_rgb(28_26_23/0.35)] ring-1 ring-line/70 sm:min-h-[297mm] sm:px-[14mm] sm:py-[12mm] print:min-h-0! print:ring-0!">
       {/* brand rule */}
       <div aria-hidden className="absolute inset-x-0 top-0 h-1.5 bg-brand-600" />
+
+      {cancelled && (
+        <p className="mb-4 rounded-md border-2 border-red-600 px-3 py-2 text-center text-[12px] font-extrabold uppercase tracking-[0.12em] text-red-700">{t('cancelledBanner')}</p>
+      )}
 
       {/* Header: company + document meta */}
       <header className="grid grid-cols-1 gap-6 sm:grid-cols-[1fr_auto] sm:gap-10">
@@ -328,8 +462,10 @@ function Sheet({ order }: { order: Order }) {
           <dl className="mt-4 grid grid-cols-[auto_auto] justify-start gap-x-4 gap-y-0.5 text-[11.5px] sm:justify-end">
             <Meta label={t('issued')}>{d(issued)}</Meta>
             <Meta label={t('orderDate')}>{d(order.createdAt)}</Meta>
+            {paidAt && <Meta label={t('paidOn')}>{d(paidAt)}</Meta>}
+            {cancelledAt && <Meta label={t('cancelledOn')}>{d(cancelledAt)}</Meta>}
             <Meta label={t('place')}>{s.city}</Meta>
-            {order.payment.method === 'bank' && !paid && <Meta label={t('due')}>{d(dueDate)}</Meta>}
+            {order.payment.method === 'bank' && awaiting && <Meta label={t('due')}>{d(dueDate)}</Meta>}
             <Meta label={t('currency')}>EUR (€)</Meta>
           </dl>
         </div>
@@ -361,7 +497,7 @@ function Sheet({ order }: { order: Order }) {
           <p className="mt-1 font-semibold text-ink">{tc(`delivery_${order.delivery.method}`)}</p>
           <p className="text-ink-soft">{order.delivery.method === 'pickup' ? s.pickupAddress : `${c.address}, ${c.city}`}</p>
           <p className="mt-1.5 font-semibold text-ink">{tc(`pay_${order.payment.method}`)}</p>
-          <p className="text-ink-soft">{tc(`paystatus_${order.payment.status}`)}</p>
+          <p className="text-ink-soft">{cancelled ? t('stamp_cancelled') : tc(`paystatus_${order.payment.status}`)}</p>
         </div>
       </section>
 
@@ -401,41 +537,43 @@ function Sheet({ order }: { order: Order }) {
       {/* Payment instructions + totals */}
       <section className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-[1fr_272px] sm:gap-8">
         <div className="order-2 rounded-lg border border-dashed border-ink/20 px-4 py-3 sm:order-1">
-          <Label>{t('payTitle')}</Label>
+          <Label>{awaiting ? t('payTitle') : t('paymentTitle')}</Label>
           <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-4 gap-y-0.5 text-[11.5px]">
-            {(
-              [
-                [t('recipient'), s.legalName],
-                [t('bank'), s.bankName],
-                [t('account'), <span className="font-semibold tracking-wide tabular-nums">{s.bankAccount}</span>],
-                [t('reference'), <span className="font-bold tracking-wide text-brand-700">{order.number}</span>],
-                [t('amount'), <span className="font-semibold">{money(order.total, lang)}</span>],
-                [t('purpose'), t('purposeText', { n: order.number })],
-              ] as [string, ReactNode][]
-            ).map(([k, v]) => (
-              <Fragment key={k}>
+            {payRows.map(([k, v], i) => (
+              <Fragment key={i}>
                 <dt className="text-muted">{k}</dt>
                 <dd className="text-ink">{v}</dd>
               </Fragment>
             ))}
           </dl>
           <p className="mt-2.5 border-t border-line/80 pt-2 text-[11px] text-ink-soft">
-            <span className="font-semibold text-ink">{t('payMethod')}:</span> {tc(`pay_${order.payment.method}`)}. {t(`note_${order.payment.method}`)}
+            <span className="font-semibold text-ink">{t('payMethod')}:</span> {tc(`pay_${order.payment.method}`)}. {payNote}
           </p>
         </div>
 
         <div className="order-1 sm:order-2">
           <dl className="space-y-1 text-[12px]">
             <TotalRow label={t('base')} value={money(base, lang)} />
-            <TotalRow label={t('vat', { rate: s.vatRate })} value={money(vat, lang)} />
+            <TotalRow label={rate != null ? t('vat', { rate: num(rate, lang) }) : t('vatPlain')} value={money(vat, lang)} />
+            {(refunded > 0 || cancelled) && <TotalRow label={t('total')} value={<span className={cn(cancelled && 'line-through')}>{money(order.total, lang)}</span>} />}
+            {refunded > 0 && <TotalRow label={t('refundedRow')} value={`− ${money(refunded, lang)}`} />}
           </dl>
-          <div className="mt-2 flex items-baseline justify-between gap-3 rounded-lg bg-ink px-3.5 py-2 text-paper">
-            <span className="whitespace-nowrap text-[10.5px] font-bold uppercase tracking-[0.08em] text-paper/75">{t('toPay')}</span>
-            <span className="text-[17px] font-extrabold tabular-nums">{money(order.total, lang)}</span>
+          <div className={cn('mt-2 flex items-baseline justify-between gap-3 rounded-lg px-3.5 py-2 text-paper', cancelled ? 'bg-red-700' : 'bg-ink')}>
+            <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-paper/75">
+              {cancelled ? t('nothingToPay') : awaiting ? t('toPay') : refunded > 0 ? t('netPaid') : t('totalPaid')}
+            </span>
+            <span className="whitespace-nowrap text-[17px] font-extrabold tabular-nums">{money(cancelled ? 0 : net, lang)}</span>
           </div>
-          {paid && (
+          {stamp && (
             <div className="mt-4 flex justify-end">
-              <span className="-rotate-6 rounded-md border-2 border-emerald-600 px-3 py-1 text-[13px] font-extrabold uppercase tracking-[0.25em] text-emerald-700">{t('paidStamp')}</span>
+              <span
+                className={cn(
+                  '-rotate-6 rounded-md border-2 px-3 py-1 text-[13px] font-extrabold uppercase tracking-[0.2em]',
+                  cancelled ? 'border-red-600 text-red-700' : pay === 'paid' ? 'border-emerald-600 text-emerald-700' : 'border-amber-600 text-amber-700',
+                )}
+              >
+                {t(stamp)}
+              </span>
             </div>
           )}
         </div>

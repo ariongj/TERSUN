@@ -22,6 +22,8 @@ import { createGovernor } from './quality.js';
 
 const CM = 0.01;
 const LED_WARM = new THREE.Color('#ffd9a0');
+const ZIP_FABRIC = '#5d5a55';
+const FOG_REF = 14; // the framing distance (m) of the default sizes, for which the fog distances are set
 
 // ------------------------------------------------------------------------------------------------
 // Textures
@@ -361,7 +363,7 @@ function glassRoofUnit(k, w, d, opt) {
     const rafter = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.12, len), k.m.frame);
     rafter.position.set(x, 0, 0); rafter.castShadow = true; rafter.receiveShadow = true;
     roof.add(rafter);
-    if (led && r > 0 && r < bays + 1) {
+    if (led && r > 0 && r < bays) {
       for (let q = 1; q <= 3; q++) {
         const spot = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 16), k.m.led);
         spot.position.set(x, -0.065, -len / 2 + (len * q) / 4);
@@ -589,6 +591,8 @@ function lounge(mats) {
   const tree = olive(mats, 8);
   tree.position.set(-1.75, 0, -0.75);
   g.add(tree);
+  g.userData.tree = tree;
+  g.userData.treeH = new THREE.Box3().setFromObject(tree).max.y; // its full height, for the headroom check
   return g;
 }
 
@@ -680,6 +684,13 @@ export function createViewer(container, options) {
   controls.minDistance = 1.5;
   controls.maxDistance = 30;
   controls.autoRotateSpeed = 0.45;
+  if (opts.embed) {
+    // embedded in a page: the wheel scrolls the page and a vertical swipe scrolls it on a phone,
+    // a horizontal drag turns the model
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    renderer.domElement.style.touchAction = 'pan-y';
+  }
 
   // post-processing: bloom makes the LED lines glow
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: small ? 2 : 4 }));
@@ -721,7 +732,7 @@ export function createViewer(container, options) {
     window: new THREE.MeshStandardMaterial({ color: '#1c2328', roughness: 0.12 }),
     windowFrame: new THREE.MeshStandardMaterial({ color: '#25292c', roughness: 0.4 }),
     stone: new THREE.MeshStandardMaterial({ color: '#d2cabd', roughness: 0.85 }),
-    zipFabric: new THREE.MeshStandardMaterial({ color: '#5d5a55', roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.92, alphaMap: meshTexture() }),
+    zipFabric: new THREE.MeshStandardMaterial({ color: ZIP_FABRIC, roughness: 0.95, side: THREE.DoubleSide, transparent: true, opacity: 0.92, alphaMap: meshTexture() }),
     cushion: new THREE.MeshStandardMaterial({ color: '#e7e0d4', roughness: 1 }),
     pillowA: new THREE.MeshStandardMaterial({ color: '#b07a52', roughness: 1 }),
     pillowB: new THREE.MeshStandardMaterial({ color: '#8b977a', roughness: 1 }),
@@ -814,6 +825,7 @@ export function createViewer(container, options) {
   let kit = null, current = null, mode = 'studio', showDims = true, showProps = true;
   let enclosed = false, userMoved = false, kitType = '';
   let roofy = true, dimsNow = { w: 4.5, d: 3.5, h: 2.6 }, view = 'corner', framed = null, firstFrame = true;
+  let frameDist = FOG_REF; // framing distance of the current view and size: the fog scales with it
   const anim = { angle: 30, open: 0.3, extension: 0.8, sideOpen: 0.3 };
   const target = Object.assign({}, anim);
   const fly = { t: 1, from: new THREE.Vector3(), to: new THREE.Vector3(), tFrom: new THREE.Vector3(), tTo: new THREE.Vector3(), dur: 1.6 };
@@ -838,7 +850,8 @@ export function createViewer(container, options) {
     let pos;
     if (name === 'inside' && enclosed) {
       // standing on the terrace, looking out through the glass / screen
-      pos = new THREE.Vector3(-w * 0.12, 1.45, -d + 0.35);
+      // eye height kept under the terrace roof, which rises from the gutter (h) towards the house wall
+      pos = new THREE.Vector3(-w * 0.12, Math.max(0.9, Math.min(1.45, h + 0.3)), -d + 0.35);
       tgt.set(w * 0.08, h * 0.42, 1.5);
     } else if (name === 'inside' && roofy) {
       // standing inside near the front corner, looking across and up into the roof
@@ -859,6 +872,7 @@ export function createViewer(container, options) {
     camera.fov = name === 'inside' && enclosed ? 58 : 30;
     camera.updateProjectionMatrix();
     controls.maxDistance = pose.dist * 1.7;
+    if (Math.abs(pose.dist - frameDist) > 0.01) { frameDist = pose.dist; applyFog(); }
     if (instant) { camera.position.copy(pose.pos); controls.target.copy(pose.tgt); fly.t = 1; return; }
     fly.from.copy(camera.position); fly.to.copy(pose.pos);
     fly.tFrom.copy(controls.target); fly.tTo.copy(pose.tgt);
@@ -923,11 +937,17 @@ export function createViewer(container, options) {
     patioTiles.repeat.set((right - left) / 1.2, (pFront - pBack) / 1.2);
 
     // furniture under the roof
-    const fits = showProps && (roofy || enclosed);
+    // (nothing pokes through the roof: low roofs get a smaller olive tree, or none, and no furniture under 1 m)
+    const room = headroom();
+    const fits = showProps && (roofy || enclosed) && room >= 1;
     const lounge = furniture.lounge, table = furniture.dining;
+    const ls = Math.min(1, (w - 0.6) / 3.4, (d - 0.4) / 2.6);
     lounge.visible = fits && furnitureKind === 'lounge' && w >= 3 && d >= 2.5;
     lounge.position.set(0, studioOn ? 0.05 : 0.04, enclosed ? -d / 2 : -0.1);
-    lounge.scale.setScalar(Math.min(1, (w - 0.6) / 3.4, (d - 0.4) / 2.6));
+    lounge.scale.setScalar(ls);
+    const tree = lounge.userData.tree, ts = (room - 0.08) / (lounge.userData.treeH * ls);
+    tree.visible = ts >= 0.7;
+    tree.scale.setScalar(Math.min(1, ts));
     table.visible = fits && furnitureKind === 'dining' && w >= 2.8 && d >= 2.4;
     table.position.set(0, studioOn ? 0.05 : 0.04, cz);
     table.scale.setScalar(Math.min(1, (w - 0.5) / 3.3, (d - 0.5) / 2.4));
@@ -942,11 +962,19 @@ export function createViewer(container, options) {
     shadowsDirty();
   }
 
+  // clear height (m) under the roof where the furniture stands
+  function headroom() {
+    const { h } = dimsNow;
+    if (enclosed) return h + 0.35; // terrace roof: gutter at h at the front, rising towards the house wall
+    if (kitType === 'bioclimatic') return h - 0.24; // under the beams and the turning louvres
+    return h; // glass roof: the rafters rise from the front gutter (h - 0.2) towards the back
+  }
+
   function build(type, o) {
     if (kit) { scene.remove(kit.group); disposeGroup(kit.group); }
     mats.frame.color.set(o.color || '#383e42');
     mats.louvre.color.set(o.color || '#383e42').offsetHSL(0, 0, 0.04);
-    if (o.fabric) mats.zipFabric.color.set(o.fabric);
+    mats.zipFabric.color.set(o.fabric || ZIP_FABRIC); // back to the default when no fabric is given
     kit = new Kit(o, mats);
     kitType = type;
     BUILDERS[type](kit);
@@ -979,10 +1007,15 @@ export function createViewer(container, options) {
     labels.d.on = roofy && !!labels.d.el.textContent;
 
     // frame the camera when the product or its size changes noticeably
-    const keyFrame = type + ':' + Math.round(Math.max(w, d, h * 1.4) * 2);
+    // (the glass roof and its awning version are one family: moving the awning slider keeps the visitor's view)
+    const keyFrame = (type === 'awning' ? 'glassroof' : type) + ':' + Math.round(Math.max(w, d, h * 1.4) * 2);
     if (framed !== keyFrame) {
       framed = keyFrame;
-      if (firstFrame) {
+      if (firstFrame && opts.embed) {
+        // embedded: start right at the framing its poster shows, so the hand-over from the still does not jump
+        firstFrame = false;
+        flyTo(view, true);
+      } else if (firstFrame) {
         // opening shot: glide in from high above
         firstFrame = false;
         const pose = viewPose(view);
@@ -1053,11 +1086,9 @@ export function createViewer(container, options) {
       hemi.intensity = wet ? 1.5 : THREE.MathUtils.lerp(1.2, 1.7, high);
       scene.fog.color.copy(C.fogLow).lerp(C.fogHigh, high);
       if (wet) scene.fog.color.set('#b4bbc0');
-      scene.fog.near = wet ? 14 : 50; scene.fog.far = wet ? 110 : 420;
       renderer.toneMappingExposure = wet ? 0.82 : 0.6;
     } else {
       scene.fog.color.set(studioOn ? '#151413' : '#0c101a');
-      scene.fog.near = studioOn ? 12 : 30; scene.fog.far = studioOn ? 30 : 130;
       hemi.color.set(night ? '#6d7da8' : '#f3f1ee');
       hemi.groundColor.set(night ? '#20242c' : '#8f8a80');
       hemi.intensity = night ? 0.2 : 0.85;
@@ -1065,6 +1096,7 @@ export function createViewer(container, options) {
       sun.color.set(studioOn ? '#fff1dc' : '#8aa0d6');
       renderer.toneMappingExposure = night ? 1.2 : 0.95;
     }
+    applyFog();
     rim.intensity = studioOn ? 2.2 : 0;
     // reflections on glass and water: sky by day, a dark room otherwise
     const cube = day ? cubes.day : cubes.dark;
@@ -1090,6 +1122,14 @@ export function createViewer(container, options) {
     bloom.threshold = night ? 0.84 : 0.97;
     bloom.radius = night ? 0.45 : 0.35;
     shadowsDirty();
+  }
+
+  // Fog distances, set for the default framing and scaled with the current one, so that a large system
+  // (framed from further away) does not fade into the fog.
+  function applyFog() {
+    const k = Math.max(1, frameDist / FOG_REF), wet = raining && mode !== 'studio';
+    const [near, far] = mode === 'day' ? (wet ? [14, 110] : [50, 420]) : mode === 'studio' ? [12, 30] : [30, 130];
+    scene.fog.near = near * k; scene.fog.far = far * k;
   }
 
   // Serve the kit's LED light markers from the fixed pool: with more markers than lights, neighbours are merged.
@@ -1258,7 +1298,18 @@ export function createViewer(container, options) {
   }
   requestAnimationFrame(frame);
 
-  controls.addEventListener('start', () => { dragging = true; userMoved = true; controls.autoRotate = false; fly.t = 1; if (opts.onInteract) opts.onInteract(); });
+  let autoBefore = false, cancelled = false;
+  controls.addEventListener('start', () => {
+    autoBefore = controls.autoRotate; cancelled = false;
+    dragging = true; userMoved = true; controls.autoRotate = false; fly.t = 1;
+    if (opts.onInteract && !opts.embed) opts.onInteract();
+  });
+  if (opts.embed) {
+    // a vertical swipe that the browser turns into a page scroll cancels the pointer: that was no interaction
+    // (capture: runs before the controls' own handler, which ends the gesture)
+    renderer.domElement.addEventListener('pointercancel', () => { cancelled = true; controls.autoRotate = autoBefore; }, { capture: true });
+    controls.addEventListener('end', () => { if (!cancelled && opts.onInteract) opts.onInteract(); });
+  }
   applyLights();
 
   // Every change from outside is drawn at once and counts as motion, so that a device which needs the lower
@@ -1280,7 +1331,38 @@ export function createViewer(container, options) {
     resetView: edit(resetView),
     isReady: () => shown,
     // always at full resolution, whatever the picture is doing
-    snapshot() { setRatio(gov.full); composer.render(); return renderer.domElement.toDataURL('image/png'); },
+    snapshot() {
+      setRatio(gov.full);
+      composer.render();
+      const src = renderer.domElement;
+      if (!showDims) return src.toDataURL('image/png');
+      // the dimension texts are HTML over the canvas: draw them into the picture, so the lines keep their numbers
+      const out = document.createElement('canvas');
+      out.width = src.width; out.height = src.height;
+      const g = out.getContext('2d');
+      g.drawImage(src, 0, 0);
+      const r = container.getBoundingClientRect();
+      g.scale(src.width / Math.max(1, r.width), src.height / Math.max(1, r.height));
+      for (const k in labels) {
+        const L = labels[k];
+        const text = L.el.textContent;
+        if (!L.on || !text) continue;
+        tmp.copy(L.pos).project(camera);
+        if (tmp.z > 1) continue;
+        const x = ((tmp.x + 1) / 2) * r.width, y = ((1 - tmp.y) / 2) * r.height;
+        const cs = getComputedStyle(L.el);
+        const fs = parseFloat(cs.fontSize) || 15;
+        g.font = `${cs.fontStyle} ${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
+        const bw = g.measureText(text).width + fs * 1.37, bh = fs * 1.9;
+        g.beginPath();
+        if (g.roundRect) g.roundRect(x - bw / 2, y - bh / 2, bw, bh, bh / 2); else g.rect(x - bw / 2, y - bh / 2, bw, bh);
+        g.fillStyle = 'rgba(20, 19, 18, 0.72)'; g.fill();
+        g.lineWidth = 1; g.strokeStyle = 'rgba(228, 211, 180, 0.45)'; g.stroke();
+        g.fillStyle = cs.color || '#f4efe7'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillText(text, x, y + fs * 0.04);
+      }
+      return out.toDataURL('image/png');
+    },
     dispose() {
       disposed = true; cancelAnimationFrame(raf);
       if (io) io.disconnect(); if (ro) ro.disconnect();

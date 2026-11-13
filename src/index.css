@@ -223,3 +223,24 @@ html[data-admin] ::selection {
   from { background-position: 120% 0; opacity: 1; }
   to { background-position: -40% 0; opacity: 0; }
 }
+
+/* Theme (CMS → Online Store → Theme), set on <html> by the storefront layout */
+html[data-font='modern'] .display,
+html[data-font='modern'] .font-display {
+  font-family: var(--font-sans);
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+html[data-font='elegant'] body {
+  font-family: var(--font-display);
+  letter-spacing: 0.005em;
+}
+html[data-font='elegant'] .display {
+  font-weight: 330;
+}
+html[data-density='compact'] {
+  --spacing: 0.22rem;
+}
+html[data-density='airy'] {
+  --spacing: 0.28rem;
+}

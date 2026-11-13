@@ -31,6 +31,7 @@ import { StorePreview } from '@/admin/components/store/StorePreview';
 import {
   BRAND_PRESETS, DENSITY, FONT_PAIRS, normHex, readTheme, storefrontVars, themePatch, whiteContrast, type Density, type FontPair, type LogoVariant, type StoreTheme,
 } from '@/admin/components/store/theme';
+import { rebase, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 
 interface Form {
   brandColor: string;
@@ -56,13 +57,17 @@ export default function OnlineStore() {
   const saved = useMemo(() => formOf(settings), [settings]);
   const [form, setForm] = useState<Form>(saved);
   const [prevSaved, setPrevSaved] = useState(saved);
+  const [hex, setHex] = useState(form.brandColor);
   if (prevSaved !== saved) {
+    // saved elsewhere (another tab): rebase onto it — fields edited here stay, the rest follows
     setPrevSaved(saved);
-    if (JSON.stringify(form) === JSON.stringify(prevSaved)) setForm(saved);
+    const next = rebase(prevSaved, form, saved);
+    setForm(next);
+    if (next.brandColor !== form.brandColor) setHex(next.brandColor);
   }
   const dirty = JSON.stringify(form) !== JSON.stringify(saved);
+  useUnsavedGuard(dirty && canEdit);
   const setTheme = (patch: Partial<StoreTheme>) => setForm((f) => ({ ...f, theme: { ...f.theme, ...patch } }));
-  const [hex, setHex] = useState(form.brandColor);
   const hexBad = !isHex(hex.trim().replace(/^#?/, '#'));
   const pickColor = (v: string) => {
     setHex(normHex(v));

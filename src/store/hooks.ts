@@ -1,8 +1,11 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
 import { useDb } from './db';
 import { useUi } from './ui';
-import { priceCart } from '@/lib/pricing';
+import { activeShippingRule, priceCart } from '@/lib/pricing';
+import { discountCustomer, isPublic, isSellable } from '@/lib/crm';
+import { lt } from '@/i18n';
 import { activePlacements } from '@/lib/offers';
 import { collectionProducts } from '@/lib/collections';
 import { can, type Action, type Module } from '@/lib/permissions';
@@ -18,11 +21,25 @@ export function useCategories() {
 /** Active (published) products only — what the storefront shows. */
 export function useActiveProducts() {
   const products = useDb((s) => s.products);
-  return useMemo(() => products.filter((p) => p.status === 'active'), [products]);
+  return useMemo(() => products.filter(isPublic), [products]);
 }
 
 export function useProduct(idOrSlug: string | undefined): Product | undefined {
   return useDb((s) => s.products.find((p) => p.id === idOrSlug || p.slug === idOrSlug));
+}
+
+/** Order value from which delivery is free — from the live automatic rule; null when there is none (paused in the CMS). */
+export function useFreeShippingFrom(): number | null {
+  const discounts = useDb((s) => s.discounts);
+  return useMemo(() => {
+    const rule = activeShippingRule(discounts);
+    return rule ? (rule.minimum.type === 'amount' ? rule.minimum.value : 0) : null;
+  }, [discounts]);
+}
+
+/** A product whose address was changed in the CMS with "redirect the old address": its current slug. */
+export function useMovedProductSlug(oldSlug: string | undefined): string | undefined {
+  return useDb((s) => (oldSlug ? (s.products.find((p) => isPublic(p) && (p as Product & { redirects?: string[] }).redirects?.includes(oldSlug))?.slug ?? undefined) : undefined));
 }
 
 export function useCategory(idOrSlug: string | undefined) {
@@ -33,15 +50,37 @@ export function useCategory(idOrSlug: string | undefined) {
  * Priced cart for the current shopper (storefront language): automatic discounts + the codes the
  * shopper entered (useUi().codes), evaluated by the discount engine (lib/discounts.ts).
  */
-export function useCart(opts: { delivery?: DeliveryMethod; city?: string } = {}) {
+export function useCart(opts: { delivery?: DeliveryMethod; city?: string; customer?: { email?: string; phone?: string } } = {}) {
   const { cart, lang, codes } = useUi(useShallow((s) => ({ cart: s.cart, lang: s.lang, codes: s.codes })));
-  const { products, settings, discounts, collections } = useDb(
-    useShallow((s) => ({ products: s.products, settings: s.settings, discounts: s.discounts, collections: s.collections })),
+  const { products, settings, discounts, collections, orders, segments } = useDb(
+    useShallow((s) => ({ products: s.products, settings: s.settings, discounts: s.discounts, collections: s.collections, orders: s.orders, segments: s.segments })),
   );
+  // only what can still be bought online: a product the CMS took offline or made "on request" drops out (see useCartCleanup)
+  const sellable = useMemo(() => products.filter(isSellable), [products]);
+  const customer = useMemo(() => discountCustomer(orders, segments, opts.customer), [orders, segments, opts.customer]);
   return useMemo(
-    () => priceCart(cart, products, settings, { lang, codes, discounts, collections, delivery: opts.delivery, city: opts.city }),
-    [cart, products, settings, lang, codes, discounts, collections, opts.delivery, opts.city],
+    () => priceCart(cart, sellable, settings, { lang, codes, discounts, collections, delivery: opts.delivery, city: opts.city, customer }),
+    [cart, sellable, settings, lang, codes, discounts, collections, opts.delivery, opts.city, customer],
   );
+}
+
+/**
+ * Removes cart lines whose product no longer exists or can no longer be bought online (taken offline in the CMS,
+ * or switched to "price on request"), and tells the shopper once. Mounted once, in the site layout.
+ */
+export function useCartCleanup(message: (name: string) => string) {
+  const cart = useUi((s) => s.cart);
+  const remove = useUi((s) => s.removeFromCart);
+  const products = useDb((s) => s.products);
+  const lang = useUi((s) => s.lang);
+  useEffect(() => {
+    for (const item of cart) {
+      const p = products.find((x) => x.id === item.productId);
+      if (p && isSellable(p)) continue;
+      remove(item.key);
+      if (p) toast(message(lt(p.name, lang)));
+    }
+  }, [cart, products, remove, lang, message]);
 }
 
 /** Live placements (slides / banners / announcement bar) for a storefront position. */

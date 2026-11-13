@@ -14,13 +14,30 @@ export function Label({ children, htmlFor, className, required }: { children: Re
   );
 }
 
-export function Hint({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn('mt-1.5 text-xs text-muted', className)}>{children}</p>;
+export function Hint({ children, className, id }: { children: ReactNode; className?: string; id?: string }) {
+  return (
+    <p id={id} className={cn('mt-1.5 text-xs text-muted', className)}>
+      {children}
+    </p>
+  );
 }
 
-export function FieldError({ children }: { children?: ReactNode }) {
+export function FieldError({ children, id }: { children?: ReactNode; id?: string }) {
   if (!children) return null;
-  return <p className="mt-1.5 text-xs font-medium text-red-600">{children}</p>;
+  return (
+    <p id={id} className="mt-1.5 text-xs font-medium text-red-600">
+      {children}
+    </p>
+  );
+}
+
+/** Error (or hint) under a control, and the matching aria-describedby for the control. */
+function describe(fid: string, error: ReactNode, hint: ReactNode, own?: string) {
+  const msgId = error ? `${fid}-error` : hint ? `${fid}-hint` : undefined;
+  return {
+    describedBy: [own, msgId].filter(Boolean).join(' ') || undefined,
+    message: error ? <FieldError id={msgId}>{error}</FieldError> : hint ? <Hint id={msgId}>{hint}</Hint> : null,
+  };
 }
 
 interface FieldWrap {
@@ -32,11 +49,12 @@ interface FieldWrap {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & FieldWrap & { leading?: ReactNode; trailing?: ReactNode }>(function Input(
-  { label, hint, error, required, wrapClassName, className, id, leading, trailing, ...rest },
+  { label, hint, error, required, wrapClassName, className, id, leading, trailing, 'aria-describedby': own, ...rest },
   ref,
 ) {
   const auto = useId();
   const fid = id ?? auto;
+  const { describedBy, message } = describe(fid, error, hint, own);
   return (
     <div className={wrapClassName}>
       {label && (
@@ -50,22 +68,24 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
           ref={ref}
           id={fid}
           aria-invalid={!!error || undefined}
+          aria-describedby={describedBy}
           className={cn(control, 'h-11', leading && 'pl-10', trailing && 'pr-12', className)}
           {...rest}
         />
         {trailing && <span className="absolute inset-y-0 right-3 flex items-center text-sm text-muted">{trailing}</span>}
       </div>
-      {error ? <FieldError>{error}</FieldError> : hint ? <Hint>{hint}</Hint> : null}
+      {message}
     </div>
   );
 });
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement> & FieldWrap>(function Textarea(
-  { label, hint, error, required, wrapClassName, className, id, rows = 4, ...rest },
+  { label, hint, error, required, wrapClassName, className, id, rows = 4, 'aria-describedby': own, ...rest },
   ref,
 ) {
   const auto = useId();
   const fid = id ?? auto;
+  const { describedBy, message } = describe(fid, error, hint, own);
   return (
     <div className={wrapClassName}>
       {label && (
@@ -73,18 +93,27 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
           {label}
         </Label>
       )}
-      <textarea ref={ref} id={fid} rows={rows} aria-invalid={!!error || undefined} className={cn(control, 'resize-y py-3 leading-relaxed', className)} {...rest} />
-      {error ? <FieldError>{error}</FieldError> : hint ? <Hint>{hint}</Hint> : null}
+      <textarea
+        ref={ref}
+        id={fid}
+        rows={rows}
+        aria-invalid={!!error || undefined}
+        aria-describedby={describedBy}
+        className={cn(control, 'resize-y py-3 leading-relaxed', className)}
+        {...rest}
+      />
+      {message}
     </div>
   );
 });
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement> & FieldWrap>(function Select(
-  { label, hint, error, required, wrapClassName, className, id, children, ...rest },
+  { label, hint, error, required, wrapClassName, className, id, children, 'aria-describedby': own, ...rest },
   ref,
 ) {
   const auto = useId();
   const fid = id ?? auto;
+  const { describedBy, message } = describe(fid, error, hint, own);
   return (
     <div className={wrapClassName}>
       {label && (
@@ -93,12 +122,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
         </Label>
       )}
       <div className="relative">
-        <select ref={ref} id={fid} aria-invalid={!!error || undefined} className={cn(control, 'h-11 cursor-pointer appearance-none pr-10', className)} {...rest}>
+        <select ref={ref} id={fid} aria-invalid={!!error || undefined} aria-describedby={describedBy} className={cn(control, 'h-11 cursor-pointer appearance-none pr-10', className)} {...rest}>
           {children}
         </select>
         <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
       </div>
-      {error ? <FieldError>{error}</FieldError> : hint ? <Hint>{hint}</Hint> : null}
+      {message}
     </div>
   );
 });

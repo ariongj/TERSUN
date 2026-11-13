@@ -11,7 +11,7 @@ import { useDraft, useSaveKeyLabel, useSaveShortcut, useUnsavedGuard } from '@/a
 import { ed } from '@/admin/components/editorial/i18n';
 import { cx } from '@/admin/components/editorial/dict';
 import { OrganizationCard, PublishCard, SeoCard, MetaRow } from '@/admin/components/editorial/panels';
-import { PAGE_TEMPLATES, contentState, visibilityOf, withVisibility, type PageTemplate, type PageX } from '@/admin/components/editorial/meta';
+import { PAGE_TEMPLATES, contentState, handleText, hasText, visibilityOf, withVisibility, type PageTemplate, type PageX } from '@/admin/components/editorial/meta';
 import { Notice, StatusPill } from '@/admin/components/editorial/ui';
 import { addPageToFooter, menuRefs } from '@/admin/components/menus/links';
 import { Button, ButtonLink } from '@/components/ui/Button';
@@ -129,7 +129,7 @@ function PageEditor({ id }: { id: string }) {
 
   const slugTaken = useMemo(() => !!draft.slug && pages.some((p) => p.id !== draft.id && p.slug === draft.slug), [pages, draft.slug, draft.id]);
   const errors = {
-    title: !draft.title.de.trim() ? te('titleRequired') : undefined,
+    title: !hasText(draft.title) ? te('titleRequired') : undefined,
     slug: !draft.slug.trim() ? te('slugRequired') : slugTaken ? te('slugTaken') : undefined,
   };
 
@@ -141,12 +141,12 @@ function PageEditor({ id }: { id: string }) {
   const refs = useMemo(() => (isNew ? [] : menuRefs(menus, 'page', [draft.id, source?.slug ?? draft.slug])), [isNew, menus, draft.id, draft.slug, source?.slug]);
   const footer = menus.find((m) => m.handle === 'footer');
 
-  const setTitle = (title: PageX['title']) => patch(slugAuto ? { title, slug: slugify(title.de) } : { title });
+  const setTitle = (title: PageX['title']) => patch(slugAuto ? { title, slug: slugify(handleText(title)) } : { title });
 
   const save = () => {
     if (readOnly || (!dirty && !isNew)) return;
     const clean: PageX = { ...draft, slug: slugify(draft.slug), publishedAt: draft.publishedAt ?? new Date().toISOString() };
-    if (!clean.title.de.trim() || !clean.slug || slugTaken) {
+    if (!hasText(clean.title) || !clean.slug || slugTaken) {
       setShowErrors(true);
       toast.error(te('fixErrors'));
       return;
@@ -260,7 +260,7 @@ function PageEditor({ id }: { id: string }) {
               onChange={(body) => patch({ body })}
               rows={16}
               previewHeader={(lng) => {
-                const title = draft.title[lng]?.trim() || draft.title.de;
+                const title = draft.title[lng]?.trim() || handleText(draft.title);
                 return title ? <h1 className="display mb-2 text-[2rem] leading-tight text-ink sm:text-[2.4rem]">{title}</h1> : null;
               }}
             />
@@ -284,10 +284,10 @@ function PageEditor({ id }: { id: string }) {
                 }}
                 onBlur={() => patch({ slug: slugify(draft.slug) })}
                 auto={slugAuto}
-                canRegenerate={!readOnly && !!draft.title.de.trim() && draft.slug !== slugify(draft.title.de)}
+                canRegenerate={!readOnly && hasText(draft.title) && draft.slug !== slugify(handleText(draft.title))}
                 onRegenerate={() => {
                   setSlugAuto(true);
-                  patch({ slug: slugify(draft.title.de) });
+                  patch({ slug: slugify(handleText(draft.title)) });
                 }}
                 error={slugTaken || showErrors ? errors.slug : undefined}
               />

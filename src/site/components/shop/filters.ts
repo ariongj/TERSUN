@@ -1,5 +1,6 @@
 import type { Category, L10n, Lang, Product, Unit } from '@/lib/types';
 import { basePrice, isOnSale } from '@/lib/pricing';
+import { isTracked, stockLevels } from '@/lib/inventory';
 
 /* ------------------------------------------------------------------ */
 /* Sorting (synced to ?sort=…)                                         */
@@ -43,8 +44,11 @@ export function sortProducts(list: Product[], sort: SortKey, name: (v: L10n) => 
 export type Avail = 'stock' | 'order';
 export type UnitKind = 'piece' | 'area' | 'length';
 
-/** Ready to ship from stock vs. made to order (pergolas, glass systems…; stock ≥ 999 marks "unlimited / produced on demand"). */
-export const availOf = (p: Product): Avail => (!p.quoteOnly && p.stock > 0 && p.stock < 999 ? 'stock' : 'order');
+/**
+ * Ready to ship from stock vs. made to order (pergolas, glass systems…; stock ≥ 999 marks "unlimited / produced on demand").
+ * Stock blocked in the CMS (unavailable) does not count: available = stock − unavailable.
+ */
+export const availOf = (p: Product): Avail => (!p.quoteOnly && isTracked(p) && stockLevels(p).available > 0 ? 'stock' : 'order');
 export const unitKind = (u: Unit): UnitKind => (u === 'm2' ? 'area' : u === 'm' ? 'length' : 'piece');
 export const hasInstall = (p: Product) => !!p.installation?.available;
 
@@ -180,6 +184,38 @@ export function passes(p: Product, f: Filters, ctx: MatchCtx, skip?: Facet) {
   if (skip !== 'colors' && f.colors.length && !(ctx.colors.get(p.id) ?? []).some((c) => f.colors.includes(c))) return false;
   if (skip !== 'units' && f.units.length && !f.units.includes(unitKind(p.unit))) return false;
   return true;
+}
+
+/* ------------------------------------------------------------------ */
+/* URL sync — filters live in the query string next to ?sale and ?sort */
+/* (?cat=a,b&price=100-900&avail=stock&install=1&color=black&unit=area)*/
+/* so they survive opening a product and pressing Back.                */
+/* ------------------------------------------------------------------ */
+const listParam = (v: string | null) => (v ? v.split(',').filter(Boolean) : []);
+const pickParam = <V extends string>(v: string | null, allowed: readonly V[]) => listParam(v).filter((x): x is V => (allowed as readonly string[]).includes(x));
+
+export function filtersFromParams(params: URLSearchParams): Filters {
+  const price = params.get('price')?.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
+  return {
+    cats: listParam(params.get('cat')),
+    price: price ? [Number(price[1]), Number(price[2])] : null,
+    avail: pickParam(params.get('avail'), AVAILS),
+    install: params.get('install') === '1',
+    colors: pickParam(params.get('color'), FAMILY_ORDER),
+    units: pickParam(params.get('unit'), UNIT_KINDS),
+  };
+}
+
+/** Query-string patch for `f` (null removes a key). */
+export function filtersToParams(f: Filters): Record<string, string | null> {
+  return {
+    cat: f.cats.join(',') || null,
+    price: f.price ? `${f.price[0]}-${f.price[1]}` : null,
+    avail: f.avail.join(',') || null,
+    install: f.install ? '1' : null,
+    color: f.colors.join(',') || null,
+    unit: f.units.join(',') || null,
+  };
 }
 
 export function activeCount(f: Filters, sale: boolean) {

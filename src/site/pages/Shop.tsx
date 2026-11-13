@@ -17,6 +17,8 @@ import {
   FAMILY_SWATCH,
   activeCount,
   computeFacets,
+  filtersFromParams,
+  filtersToParams,
   passes,
   productColors,
   sortFromParam,
@@ -44,7 +46,7 @@ function readDensity(): 3 | 4 {
 
 export default function Shop() {
   const { category } = useParams();
-  // Remount per category so local filters (price, colours…) start fresh.
+  // Remount per category (category links keep only ?sale and ?sort, so filters start fresh).
   return <ShopView key={category ?? '*'} slug={category} />;
 }
 
@@ -63,7 +65,6 @@ function ShopView({ slug }: { slug?: string }) {
 
   usePageTitle(category ? l(category.name) : slug ? t('notFoundTitle') : sale ? ts('sale') : ts('allProducts'));
 
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [drawer, setDrawer] = useState(false);
   const [density, setDensityState] = useState<3 | 4>(readDensity);
   const setDensity = (v: 3 | 4) => {
@@ -90,6 +91,12 @@ function ShopView({ slug }: { slug?: string }) {
   );
   const setSale = (v: boolean) => patchParams({ sale: v ? '1' : null });
   const setSort = (v: SortKey) => patchParams({ sort: sortToParam(v) }, true);
+  // Filters are kept in the URL too (replacing the entry, like sort), so Back from a product restores them.
+  const filters: Filters = useMemo(() => {
+    const f = filtersFromParams(params);
+    return { ...f, cats: category ? [] : f.cats.filter((id) => categories.some((c) => c.id === id)) };
+  }, [params, category, categories]);
+  const setFilters = useCallback((f: Filters) => patchParams(filtersToParams(f), true), [patchParams]);
 
   /* ---------------------------- Derived ----------------------------- */
   const scope = useMemo(() => (category ? products.filter((p) => p.categoryId === category.id) : products), [products, category]);
@@ -113,10 +120,8 @@ function ShopView({ slug }: { slug?: string }) {
     return () => mq.removeEventListener('change', fn);
   }, [drawer]);
 
-  const clearAll = () => {
-    setFilters(EMPTY_FILTERS);
-    if (sale) setSale(false);
-  };
+  // one URL update: two setParams calls in a row would each start from the same old query
+  const clearAll = () => patchParams({ ...filtersToParams(EMPTY_FILTERS), ...(sale ? { sale: null } : {}) }, !sale);
 
   /* ------------------------- Active pills --------------------------- */
   const pills: Pill[] = [];

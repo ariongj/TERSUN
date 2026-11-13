@@ -31,8 +31,9 @@ export const EXT_DEFAULTS: SettingsExt = {
   payProvider: 'pilot',
   payEnv: 'test',
   capture: 'auto',
-  langDefault: 'de',
-  langFallback: 'de',
+  // the site opens in Albanian (see `ui.lang`); the storefront reads `settings.ext.langDefault` / `langFallback`
+  langDefault: 'sq',
+  langFallback: 'sq',
   localDelivery: { enabled: true, fee: 0, area: 'Prishtina, Fushë Kosovë' },
 };
 

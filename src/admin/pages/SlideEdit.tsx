@@ -17,6 +17,8 @@ import { adm } from '@/admin/i18n';
 import { LANGS, lt, useDict, useL, useLang } from '@/i18n';
 import { useDb } from '@/store/db';
 import { useCan, useSettings } from '@/store/hooks';
+import { rebase } from '@/admin/components/editorial/hooks';
+import { handleText } from '@/admin/components/editorial/meta';
 import { offerState, placementState } from '@/lib/offers';
 import { date } from '@/lib/format';
 import type { L10n, Lang, Offer, PlacementKind, PlacementPosition } from '@/lib/types';
@@ -103,11 +105,12 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
   const remove = useDb((s) => s.remove);
 
   const [draft, setDraft] = useState<PlacementX>(base);
-  // follow the stored item when it changes elsewhere (another tab) while nothing is edited here
+  // follow the stored item when it changes elsewhere (another tab): fields edited here stay, the rest follows,
+  // so saving here does not undo the other change
   const [prevBase, setPrevBase] = useState(base);
   if (prevBase !== base) {
     setPrevBase(base);
-    if (JSON.stringify(draft) === JSON.stringify(prevBase)) setDraft(base);
+    setDraft(rebase(prevBase, draft, base));
   }
   const dirty = JSON.stringify(draft) !== JSON.stringify(base);
   const set = (patch: Partial<PlacementX>) => setDraft((d) => ({ ...d, ...patch }));
@@ -149,7 +152,7 @@ function Editor({ base, isNew }: { base: PlacementX; isNew: boolean }) {
       toast.error(titleMissing ? t('needTitle') : imageMissing ? t('needImage') : t('dateInvalid'));
       return;
     }
-    let next: PlacementX = { ...draft, name: draft.name.trim() || plain(lt(draft.title, 'de')).slice(0, 60) };
+    let next: PlacementX = { ...draft, name: draft.name.trim() || plain(handleText(draft.title)).slice(0, 60) };
     if (!ownSchedule && next.offerId) next = { ...next, startsAt: undefined, endsAt: undefined };
     if (!next.startsAt) delete next.startsAt;
     if (!next.endsAt) delete next.endsAt;

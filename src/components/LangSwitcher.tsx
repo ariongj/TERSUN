@@ -11,22 +11,42 @@ export function LangSwitcher({ scope = 'site', tone = 'dark', align = 'right', c
   const enabled = useDb((s) => s.settings.languages);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
     const fn = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
+    // Escape closes the list (and only the list, not a dialog around it) and returns focus to the button
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopImmediatePropagation();
+      setOpen(false);
+      if (ref.current?.contains(document.activeElement)) button.current?.focus();
+    };
     document.addEventListener('mousedown', fn);
-    return () => document.removeEventListener('mousedown', fn);
+    window.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('mousedown', fn);
+      window.removeEventListener('keydown', onKey, true);
+    };
   }, [open]);
 
   const langs = scope === 'admin' ? LANGS : LANGS.filter((l) => enabled[l.code]);
   const current = LANGS.find((l) => l.code === lang)!;
 
   return (
-    <div ref={ref} className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      // closes when keyboard focus moves on past the list
+      onBlur={(e) => {
+        if (open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
+      }}
+    >
       <button
+        ref={button}
         type="button"
         onClick={() => setOpen((o) => !o)}
         className={cn(

@@ -241,7 +241,7 @@ export const A = defineDict({
     cmp_year: 'E njëjta periudhë vitin e kaluar',
     cmp_none: 'Pa krahasim',
     ch_all: 'Të gjitha kanalet',
-    ch_online: 'Online Store',
+    ch_online: 'Dyqani online',
     ch_manual: 'Porosi manuale (draft)',
     ch_pos: 'POS',
     vs: 'krahasuar me {range}',

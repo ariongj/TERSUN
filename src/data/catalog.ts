@@ -166,7 +166,7 @@ const optControl: ProductOption = {
   type: 'button',
   values: [
     { id: 'remote', label: T('Fernbedienung', 'Telekomandë', 'Remote'), priceDelta: 0 },
-    { id: 'smart', label: T('Smart Home & App', 'Smart home & app', 'Smart home & app'), priceDelta: 390 },
+    { id: 'smart', label: T('Smart Home & App', 'Shtëpi e mençur & aplikacion', 'Smart home & app'), priceDelta: 390 },
   ],
 };
 

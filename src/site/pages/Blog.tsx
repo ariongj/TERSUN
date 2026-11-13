@@ -155,6 +155,7 @@ export default function Blog() {
     const map = new Map<string, { key: string; post: Post; n: number }>();
     for (const p of posts) {
       const k = tagKey(p);
+      if (!k) continue; // a post without a topic gets no chip of its own ("All" covers it)
       const cur = map.get(k);
       if (cur) cur.n++;
       else map.set(k, { key: k, post: p, n: 1 });

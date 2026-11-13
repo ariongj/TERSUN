@@ -21,6 +21,7 @@ import { isOnSale } from '@/lib/pricing';
 import { date } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { afterHero } from '@/lib/heroReady';
+import { usePublishedPosts } from '@/site/components/content/posts';
 
 type DataOf<T extends HomeSection['type']> = Extract<HomeSection, { type: T }>['data'];
 
@@ -608,8 +609,7 @@ export function BlogSection({ data }: { data: DataOf<'blog'> }) {
   const l = useL();
   const lang = useLang();
   const h = useDict(H);
-  const all = useDb((s) => s.posts);
-  const posts = useMemo(() => all.filter((p) => p.published).slice(0, 3), [all]);
+  const posts = usePublishedPosts().slice(0, 3);
   if (!posts.length) return null;
   return (
     <section className="bg-sand/50 py-24 sm:py-28">
@@ -709,7 +709,7 @@ export function InstagramSection({ data }: { data: DataOf<'instagram'> }) {
         <div className="mt-10 grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-6">
           {data.images.map((src, i) => (
             <Reveal key={i} delay={i * 60}>
-              <a href={url} target="_blank" rel="noreferrer" className="group relative block aspect-square overflow-hidden rounded-2xl bg-sand">
+              <a href={url} target="_blank" rel="noreferrer" aria-label={`${h('follow')}: Instagram @${settings.instagram} (${i + 1}/${data.images.length})`} className="group relative block aspect-square overflow-hidden rounded-2xl bg-sand">
                 <Img src={src} small alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <span className="absolute inset-0 grid place-items-center bg-ink/0 text-white opacity-0 transition group-hover:bg-ink/35 group-hover:opacity-100">
                   <InstagramIcon className="h-7 w-7" />
@@ -734,9 +734,10 @@ export function CtaSection({ data }: { data: DataOf<'cta'> }) {
           <div className="grid gap-4 rounded-[36px] bg-sand/80 p-3 sm:p-4 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="relative min-h-[420px] overflow-hidden rounded-[28px] bg-ink">
               <Img src={data.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/35" />
               <div className="relative flex h-full flex-col justify-end p-7 sm:p-10">
-                <div className="eyebrow text-brand-200">{l(data.eyebrow)}</div>
+                {/* Dark backing keeps the label readable over the light top of the photo */}
+                <div className="eyebrow self-start rounded-full bg-ink/60 px-3 py-1.5 text-brand-100 ring-1 ring-white/10 backdrop-blur-md">{l(data.eyebrow)}</div>
                 <h2 className="display mt-3 text-[34px] leading-[1.04] text-white sm:text-5xl">
                   <Accent text={l(data.title)} accentClassName="text-brand-200" />
                 </h2>

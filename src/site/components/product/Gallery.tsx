@@ -84,7 +84,7 @@ export function Gallery({ images, alt, className }: { images: string[]; alt: str
               type="button"
               onClick={() => go(index - 1)}
               aria-label={t('prev')}
-              className="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition hover:bg-white group-hover/gal:opacity-100 lg:grid"
+              className="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition hover:bg-white focus-visible:opacity-100 group-hover/gal:opacity-100 lg:grid"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -92,7 +92,7 @@ export function Gallery({ images, alt, className }: { images: string[]; alt: str
               type="button"
               onClick={() => go(index + 1)}
               aria-label={t('next')}
-              className="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition hover:bg-white group-hover/gal:opacity-100 lg:grid"
+              className="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-sm backdrop-blur transition hover:bg-white focus-visible:opacity-100 group-hover/gal:opacity-100 lg:grid"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -148,7 +148,7 @@ function Lightbox({ open, onClose, images, index, onIndex, alt }: { open: boolea
   }, [open, n, step]);
 
   return (
-    <Modal open={open} onClose={onClose} size="full" className="h-[92vh] bg-ink! sm:h-[90vh]">
+    <Modal open={open} onClose={onClose} size="full" label={alt} className="h-[92vh] bg-ink! sm:h-[90vh]">
       <div className="relative flex h-full flex-col">
         <div className="flex items-center justify-between px-5 py-4 text-white sm:px-6">
           <span className="text-[13px] font-semibold tabular-nums text-white/70">

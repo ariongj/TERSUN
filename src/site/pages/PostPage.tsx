@@ -11,7 +11,7 @@ import { ShareButtons } from '@/site/components/content/ShareButtons';
 import { MeasureCta } from '@/site/components/content/MeasureCta';
 import { NotFoundBlock } from '@/site/components/content/NotFoundBlock';
 import { C } from '@/site/components/content/dict';
-import { headingsOf, postHref, tagKey, usePublishedPosts } from '@/site/components/content/posts';
+import { headingsOf, postHref, tagKey, usePublishedPosts, useReachablePost } from '@/site/components/content/posts';
 import { usePageTitle } from '@/site/layout/SiteLayout';
 import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { useDb } from '@/store/db';
@@ -153,7 +153,7 @@ export default function PostPage() {
   const lang = useLang();
   const posts = usePublishedPosts();
   const ctaImage = useDb((s) => s.home.find((h): h is CtaData => h.type === 'cta')?.data.image);
-  const post = posts.find((p) => p.slug === slug);
+  const post = useReachablePost(slug);
   const articleRef = useRef<HTMLElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 

@@ -6,7 +6,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { PageHero } from '@/site/components/SectionHeading';
 import { NotFoundBlock } from '@/site/components/content/NotFoundBlock';
 import { C } from '@/site/components/content/dict';
-import { telHref } from '@/site/components/content/posts';
+import { isListed, isReachable, telHref } from '@/site/components/content/posts';
 import { usePageTitle } from '@/site/layout/SiteLayout';
 import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { useDb } from '@/store/db';
@@ -68,8 +68,9 @@ export default function CmsPageView() {
   const lang = useLang();
   const settings = useSettings();
   const all = useDb((s) => s.pages);
-  const published = useMemo(() => all.filter((p) => p.published), [all]);
-  const page = published.find((p) => p.slug === slug);
+  // the side navigation lists public pages; the page itself may also be a hidden one (direct link)
+  const published = useMemo(() => all.filter((p) => isListed(p)), [all]);
+  const page = all.find((p) => p.slug === slug && isReachable(p));
   usePageTitle(page ? l(page.title) : t('nf_eyebrow'));
 
   const nav = (

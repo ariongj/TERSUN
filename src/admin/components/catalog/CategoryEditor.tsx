@@ -11,6 +11,8 @@ import { adm } from '@/admin/i18n';
 import { useDb } from '@/store/db';
 import type { Category } from '@/lib/types';
 import { cn, slugify, uid } from '@/lib/utils';
+import { rebase } from '@/admin/components/editorial/hooks';
+import { handleText, hasText } from '@/admin/components/editorial/meta';
 
 const T = defineDict({
   de: {
@@ -27,12 +29,12 @@ const T = defineDict({
     image: 'Titelbild',
     imageHint: 'Ein Hochformatfoto (4:5) wirkt auf der Startseite am besten.',
     slug: 'Adresse (URL)',
-    slugAuto: 'Wird automatisch aus dem deutschen Namen erzeugt.',
+    slugAuto: 'Wird automatisch aus dem Namen erzeugt (erste ausgefüllte Sprache: SQ, EN, DE).',
     slugManual: 'Die Adresse wurde manuell festgelegt.',
     slugRegen: 'Aus Namen erzeugen',
     featured: 'Hervorgehobene Kategorie',
     featuredText: 'Kennzeichnet die Kategorie als eines der Hauptangebote.',
-    errName: 'Geben Sie den deutschen Namen ein.',
+    errName: 'Geben Sie den Namen in mindestens einer Sprache ein.',
     errSlug: 'Geben Sie die Adresse der Kategorie ein.',
     errSlugTaken: 'Diese Adresse ist bereits vergeben.',
     saved: 'Kategorie gespeichert',
@@ -52,12 +54,12 @@ const T = defineDict({
     image: 'Fotografia kryesore',
     imageHint: 'Një foto vertikale (4:5) duket më mirë në faqen kryesore.',
     slug: 'Adresa (URL)',
-    slugAuto: 'Krijohet automatikisht nga emri në gjermanisht.',
+    slugAuto: 'Krijohet automatikisht nga emri (gjuha e parë e plotësuar: SQ, EN, DE).',
     slugManual: 'Adresa është vendosur manualisht.',
     slugRegen: 'Krijo nga emri',
     featured: 'Kategori e veçuar',
     featuredText: 'E shënon kategorinë si një nga ofertat kryesore.',
-    errName: 'Shkruani emrin në gjermanisht.',
+    errName: 'Shkruani emrin të paktën në një gjuhë.',
     errSlug: 'Shkruani adresën e kategorisë.',
     errSlugTaken: 'Kjo adresë është tashmë e zënë.',
     saved: 'Kategoria u ruajt',
@@ -77,12 +79,12 @@ const T = defineDict({
     image: 'Cover photo',
     imageHint: 'A portrait photo (4:5) looks best on the homepage.',
     slug: 'Address (URL)',
-    slugAuto: 'Generated automatically from the German name.',
+    slugAuto: 'Generated automatically from the name (first language filled in: SQ, EN, DE).',
     slugManual: 'The address was set manually.',
     slugRegen: 'Generate from name',
     featured: 'Featured category',
     featuredText: 'Marks the category as one of your main offers.',
-    errName: 'Enter the German name.',
+    errName: 'Enter the name in at least one language.',
     errSlug: 'Enter the category address.',
     errSlugTaken: 'This address is already taken.',
     saved: 'Category saved',
@@ -114,22 +116,25 @@ export function CategoryEditor({ open, category, onClose }: { open: boolean; cat
 
   const isNew = !category;
   const [draft, setDraft] = useState<Category>(() => (category ? structuredClone(category) : blank(categories.reduce((m, c) => Math.max(m, c.order), 0) + 1)));
-  const [slugAuto, setSlugAuto] = useState(() => !category || category.slug === slugify(category.name.de));
+  const [slugAuto, setSlugAuto] = useState(() => !category || category.slug === slugify(handleText(category.name)));
   const [touched, setTouched] = useState(false);
 
   const set = (patch: Partial<Category>) => setDraft((d) => ({ ...d, ...patch }));
-  const slug = slugAuto ? slugify(draft.name.de) : draft.slug;
+  const slug = slugAuto ? slugify(handleText(draft.name)) : draft.slug;
   const finalSlug = slugify(slug);
   const slugTaken = !!finalSlug && categories.some((c) => c.id !== draft.id && c.slug === finalSlug);
   const errors = {
-    name: !draft.name.de.trim() ? t('errName') : undefined,
+    name: !hasText(draft.name) ? t('errName') : undefined,
     slug: !finalSlug ? t('errSlug') : slugTaken ? t('errSlugTaken') : undefined,
   };
 
   const save = () => {
     setTouched(true);
     if (errors.name || errors.slug) return;
-    upsertCategory({ ...draft, slug: finalSlug });
+    // apply only what was changed here onto the category as stored now (another tab may have saved it meanwhile)
+    const latest = category ? useDb.getState().categories.find((c) => c.id === category.id) : undefined;
+    const next = category && latest ? rebase(category, { ...draft, slug: finalSlug }, latest) : { ...draft, slug: finalSlug };
+    upsertCategory(next);
     toast.success(isNew ? t('created') : t('saved'));
     onClose();
   };

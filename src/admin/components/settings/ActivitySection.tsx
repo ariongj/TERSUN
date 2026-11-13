@@ -63,7 +63,7 @@ const A = defineDict({
     p_today: 'Sot',
     p_7: '7 ditë',
     p_30: '30 ditë',
-    a_create: 'Krijim', a_update: 'Ndryshim', a_delete: 'Fshirje', a_publish: 'Publikim', a_unpublish: 'Çpublikim', a_archive: 'Arkivim', a_status: 'Status', a_refund: 'Rimbursim',
+    a_create: 'Krijim', a_update: 'Ndryshim', a_delete: 'Fshirje', a_publish: 'Publikim', a_unpublish: 'Çpublikim', a_archive: 'Arkivim', a_status: 'Ndryshim statusi', a_refund: 'Rimbursim',
     a_fulfil: 'Përmbushje', a_receive: 'Pranim', a_adjust: 'Rregullim', a_convert: 'Konvertim', a_assign: 'Caktim', a_restore: 'Rikthim', a_login: 'Hyrje', a_send: 'Dërgim',
     o_product: 'Produkt', o_order: 'Porosi', o_discount: 'Zbritje', o_offer: 'Ofertë', o_placement: 'Slide / banner', o_collection: 'Koleksion', o_settings: 'Konfigurime', o_home: 'Faqja kryesore',
     o_draft: 'Draft porosie', o_return: 'Kthim', o_purchaseOrder: 'Furnizim', o_inventory: 'Inventar', o_inquiry: 'Kërkesë', o_quote: 'Ofertë B2B', o_booking: 'Termin', o_staff: 'Staf',

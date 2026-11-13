@@ -9,6 +9,7 @@ import { SwitchRow, TextField } from '@/admin/components/editorial/fields';
 import { TagsEditor } from '@/admin/components/editorial/TagsEditor';
 import { ed } from '@/admin/components/editorial/i18n';
 import { cx } from '@/admin/components/editorial/dict';
+import { hasText } from '@/admin/components/editorial/meta';
 import { ActionMenu, Notice } from '@/admin/components/editorial/ui';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Overlay';
@@ -472,7 +473,7 @@ function ProjectModal({
   const currentYear = new Date().getFullYear();
   const errors = d
     ? {
-        title: !d.title.de.trim() ? te('titleRequired') : undefined,
+        title: !hasText(d.title) ? te('titleRequired') : undefined,
         location: !d.location.trim() ? t('locationRequired') : undefined,
         year: !d.year || d.year < 1990 || d.year > currentYear + 1 ? t('yearInvalid') : undefined,
         image: !d.image ? t('imageRequired') : undefined,

@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { BadgePercent, Copy, Download, Info, Lock, Megaphone, Plus, Sparkles, Trash2, Users, X } from 'lucide-react';
@@ -13,6 +13,7 @@ import { matchesSegment } from '@/lib/crm';
 import { money } from '@/lib/format';
 import type { L10n, Segment, SegmentField, SegmentRule } from '@/lib/types';
 import { cn, download, uid } from '@/lib/utils';
+import { same, useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import { pluralForm } from '@/admin/components/crm/shared';
 import { cx } from './i18n';
 import { exportCsv, isSubscribed, subjectOf, type CustomerRecord } from './model';
@@ -297,14 +298,14 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
   const isNew = id === 'novi';
   const stored = segments.find((s) => s.id === id);
   const original = useMemo(() => (isNew ? blankSegment() : stored ? structuredClone(stored) : null), [isNew, stored]);
+  const [base, setBase] = useState<Segment | null>(original);
   const [draft, setDraft] = useState<Segment | null>(original);
   const [tried, setTried] = useState(false);
-  useEffect(() => {
-    setDraft(original);
-    setTried(false);
-  }, [original]);
+  // the stored segment changed elsewhere (another tab): rebase the draft onto it instead of dropping the edits
+  useFollowStored(original ?? undefined, base, setBase, draft, setDraft);
 
   const canEdit = can('segments', 'edit');
+  const allowNav = useUnsavedGuard(canEdit && !!draft && !!original && !same(draft, original), { param: 'id' });
   const canDelete = can('segments', 'delete');
   const canExport = can('customers', 'export');
 
@@ -347,12 +348,19 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
     const name: L10n = { de: draft.name.de || first, sq: draft.name.sq || first, en: draft.name.en || first };
     const next: Segment = { ...draft, id: draft.id || uid('seg'), name, rules: draft.rules.map((r) => ({ ...r, value: String(r.value).trim().replace(',', '.') })) };
     upsert('segments', next);
+    setDraft(next);
+    setTried(false);
     toast.success(isNew ? t('created') : t('saved'), { description: l(name) });
-    if (isNew) navigate(`/admin/segmenti?id=${next.id}`, { replace: true });
+    if (isNew) {
+      allowNav();
+      navigate(`/admin/segmenti?id=${next.id}`, { replace: true });
+    }
   };
   const discard = () => {
-    if (isNew) navigate('/admin/segmenti');
-    else setDraft(original);
+    if (isNew) {
+      allowNav();
+      navigate('/admin/segmenti');
+    } else setDraft(original);
     setTried(false);
   };
   const duplicateSeg = () => {
@@ -365,6 +373,7 @@ export function SegmentEditor({ id, customers, now }: { id: string; customers: C
     if (!(await confirmDialog({ title: t('deleteTitle', { name: l(original.name) }), text: t('deleteText'), confirmLabel: t('delete'), danger: true }))) return;
     remove('segments', original.id);
     toast.success(t('deleted'), { description: l(original.name) });
+    allowNav();
     navigate('/admin/segmenti');
   };
 

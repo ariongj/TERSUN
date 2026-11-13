@@ -11,6 +11,7 @@ import { useUi } from '@/store/ui';
 import { useDb } from '@/store/db';
 import { defaultOptions, discountPct } from '@/lib/pricing';
 import { money } from '@/lib/format';
+import { maxOrderQty } from '@/lib/inventory';
 import { cn } from '@/lib/utils';
 
 export function ProductBadges({ product, className }: { product: Product; className?: string }) {
@@ -40,7 +41,7 @@ export function ProductCard({ product, className, priority }: { product: Product
   const swatches = product.options.find((o) => o.type === 'swatch');
 
   const quickAdd = () => {
-    addToCart({ productId: product.id, qty: 1, options: defaultOptions(product), installation: false });
+    addToCart({ productId: product.id, qty: 1, options: defaultOptions(product), installation: false }, maxOrderQty(product));
     toast.success(t('added'), { description: l(product.name), action: { label: t('viewCart'), onClick: () => setCartOpen(true) } });
   };
 

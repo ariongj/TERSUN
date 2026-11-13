@@ -50,7 +50,8 @@ export function useDict<T extends Record<string, string>>(
 /** Pick the right language from a localized value (falls back to German, then English). */
 export function lt(v: L10n | null | undefined, lang: Lang): string {
   if (!v) return '';
-  return v[lang]?.trim() ? v[lang] : v.de?.trim() ? v.de : v.en;
+  // the visitor's language, else whatever was written (German, English, Albanian — the CMS opens in Albanian)
+  return v[lang]?.trim() ? v[lang] : v.de?.trim() ? v.de : v.en?.trim() ? v.en : (v.sq ?? '');
 }
 
 export function useL(scope: Scope = 'site') {

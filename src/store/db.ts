@@ -3,10 +3,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type {
   AuditAction, AuditEntry, AuditObject, Booking, CartItem, Category, CmsPage, Coupon, Customer, Db, DeliveryMethod, Discount,
   DraftOrder, HomeSection, Inquiry, InventoryMovement, L10n, Lang, MediaItem, MovementReason, Order, OrderLine, OrderStatus,
-  PaymentMethod, Post, Product, Project, ReturnRequest, ReturnStatus, Settings,
+  PaymentMethod, Placement, Post, Product, Project, ReturnRequest, ReturnStatus, Settings,
 } from '@/lib/types';
 import { createSeed, DB_VERSION } from '@/data/seed';
 import { priceCart } from '@/lib/pricing';
+import { discountCustomer, isSellable } from '@/lib/crm';
 import { refundForLines } from '@/lib/orders';
 import { checkBooking, type BookingConflict } from '@/lib/bookings';
 import { isTracked } from '@/lib/inventory';
@@ -212,7 +213,11 @@ interface BuiltOrder {
 }
 
 function buildOrder(s: Db, input: PlaceOrderInput, extra: { customLines?: DraftOrder['customLines']; draftId?: string; by?: string; status?: OrderStatus } = {}): BuiltOrder {
-  const totals = priceCart(input.items, s.products, s.settings, {
+  // A web order is priced exactly like the checkout showed it: only products still for sale online, and the
+  // shopper's own discount history. (Draft orders built in the CMS may contain anything the team chose.)
+  const web = !extra.draftId;
+  const totals = priceCart(input.items, web ? s.products.filter(isSellable) : s.products, s.settings, {
+    customer: web ? discountCustomer(s.orders, s.segments, input.customer) : undefined,
     lang: input.lang,
     codes: input.codes,
     couponCode: input.couponCode,
@@ -264,6 +269,7 @@ function buildOrder(s: Db, input: PlaceOrderInput, extra: { customLines?: DraftO
     shipping: totals.shipping,
     total,
     vat: round2(total - total / (1 + s.settings.vatRate / 100)),
+    vatRate: s.settings.vatRate,
     lang: input.lang,
     timeline: [{ at: now, status: 'new', by }],
     seen: by !== 'web',
@@ -496,6 +502,7 @@ export const useDb = create<DbStore>()(
         const by = actorId(s);
         set({
           home: s.homeDraft,
+          placements: placementsFromHero(s.placements, s.home, s.homeDraft),
           homeDraft: null,
           homeHistory: [{ at: new Date().toISOString(), by, sections: s.home }, ...s.homeHistory].slice(0, HISTORY_MAX),
           audit: pushAudit(s, { action: 'publish', object: 'home', objectId: 'home', actor: by }),
@@ -724,11 +731,124 @@ export const useDb = create<DbStore>()(
       version: DB_VERSION,
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => Object.fromEntries(DATA_KEYS.map((k) => [k, s[k]])) as unknown as DbStore,
-      // Any schema change → start from fresh demo data.
-      migrate: () => createSeed() as unknown as DbStore,
+      // 104 → 105 keeps the visitor's demo data and only corrects what the earlier version stored wrongly or
+      // seeded with poor wording; any other schema change → start from fresh demo data.
+      migrate: (persisted, version) => (version === 104 && persisted ? (upgradeFrom104(persisted as DbStore) as DbStore) : (createSeed() as unknown as DbStore)),
     },
   ),
 );
 
+/**
+ * Version 104 → 105, in place:
+ * - the CMS stored German as the default/fallback language (its old default) whenever settings were saved — the
+ *   site's default is Albanian;
+ * - seeded labels that read badly in Albanian/German (menus "Journal", FAQ title "Shkurt" = February, an English
+ *   option name) — changed only where they still have the old seeded text.
+ */
+function upgradeFrom104(p: DbStore): DbStore {
+  const ext = (p.settings as Settings & { ext?: { langDefault?: string; langFallback?: string } })?.ext;
+  if (ext) {
+    if (ext.langDefault === 'de') ext.langDefault = 'sq';
+    if (ext.langFallback === 'de') ext.langFallback = 'sq';
+  }
+  const relabel: Record<string, [string, L10n]> = {
+    'mi-journal': ['Journal', { de: 'Ratgeber', sq: 'Këshilla', en: 'Advice' }],
+    'mi-f-journal': ['Journal', { de: 'Ratgeber', sq: 'Këshilla', en: 'Advice' }],
+    'mi-projects': ['Projektet', { de: 'Projekte', sq: 'Realizimet', en: 'Projects' }],
+    'mi-f-projects': ['Projektet', { de: 'Projekte', sq: 'Realizimet', en: 'Projects' }],
+  };
+  const walk = (v: unknown): void => {
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (!v || typeof v !== 'object') return;
+    const o = v as { id?: string; label?: L10n } & Record<string, unknown>;
+    const r = o.id ? relabel[o.id] : undefined;
+    if (r && o.label && o.label.sq === r[0]) o.label = r[1];
+    Object.values(o).forEach(walk);
+  };
+  walk(p.menus);
+  for (const list of [p.home, p.homeDraft]) {
+    for (const s of list ?? []) {
+      const title = (s as { type: string; data: { title?: L10n } }).data?.title;
+      if (s.type === 'faq' && title?.sq === 'Shkurt') title.sq = 'Pyetje të shpejta';
+    }
+  }
+  for (const pr of p.products ?? []) {
+    for (const opt of pr.options ?? []) for (const val of opt.values ?? []) if (val.id === 'smart' && val.label?.sq === 'Smart home & app') val.label = { ...val.label, sq: 'Shtëpi e mençur & aplikacion' };
+  }
+  return p;
+}
+
 /** Convenience non-reactive accessor */
 export const db = () => useDb.getState();
+
+/* ------------------------------------------------------------------ */
+/* Hero slides ⇄ "Slideshow & banners"                                 */
+/* ------------------------------------------------------------------ */
+// The storefront hero shows the live slides of the Slideshow screen (placements at 'home-hero': status, schedule
+// and linked offer decide what is live). The homepage editor's hero slides are the same slides: slide `x` is
+// placement `pl-x`. Publishing the homepage writes its slides there; editing, reordering or deleting such a
+// slide in the Slideshow screen updates the homepage editor's copy (live and draft).
+const E = (): L10n => ({ de: '', sq: '', en: '' });
+const isClip = (src?: string) => !!src && /\.(mp4|webm|mov)$/i.test(src);
+const mirrorId = (slideId: string) => `pl-${slideId}`;
+
+function placementsFromHero(placements: Placement[], before: HomeSection[], after: HomeSection[]): Placement[] {
+  const hero = after.find((h) => h.type === 'hero');
+  if (!hero || hero.type !== 'hero') return placements;
+  const prev = before.find((h) => h.type === 'hero');
+  const now = new Set(hero.data.slides.map((sl) => mirrorId(sl.id)));
+  const dropped = new Set(prev && prev.type === 'hero' ? prev.data.slides.map((sl) => mirrorId(sl.id)).filter((id) => !now.has(id)) : []);
+  let next = placements.filter((p) => !dropped.has(p.id));
+  hero.data.slides.forEach((sl, i) => {
+    const id = mirrorId(sl.id);
+    const content = { eyebrow: sl.eyebrow, title: sl.title, subtitle: sl.subtitle, cta: sl.primary, secondary: sl.secondary, image: sl.image, ...(sl.video ? { imageMobile: sl.video } : {}) };
+    const existing = next.find((p) => p.id === id);
+    if (existing) next = next.map((p) => (p.id === id ? { ...p, ...content, order: i + 1 } : p));
+    else
+      next = [
+        ...next,
+        { id, kind: 'slide', position: 'home-hero', name: `Hero — ${(sl.title.sq || sl.title.en || sl.title.de).replace(/\*/g, '').slice(0, 40)}`, alt: E(), textAlign: 'left', overlay: 35, status: 'active', order: i + 1, ...content },
+      ];
+  });
+  return next;
+}
+
+function heroFromPlacements(sections: HomeSection[] | null, placements: Placement[], changed: Set<string>, deleted: Set<string>, reorder: boolean): HomeSection[] | null {
+  if (!sections) return sections;
+  let touched = false;
+  const byId = new Map(placements.filter((p) => p.position === 'home-hero').map((p) => [p.id, p]));
+  const next = sections.map((sec) => {
+    if (sec.type !== 'hero') return sec;
+    const kept = sec.data.slides.filter((sl) => !deleted.has(mirrorId(sl.id)));
+    const slides = kept.map((sl) => {
+      const p = changed.has(mirrorId(sl.id)) ? byId.get(mirrorId(sl.id)) : undefined;
+      if (!p) return sl;
+      return { ...sl, eyebrow: p.eyebrow, title: p.title, subtitle: p.subtitle, primary: p.cta, secondary: p.secondary ?? sl.secondary, image: p.image, video: isClip(p.imageMobile) ? p.imageMobile : sl.video };
+    });
+    if (reorder && slides.every((sl) => byId.has(mirrorId(sl.id)))) slides.sort((a, b) => byId.get(mirrorId(a.id))!.order - byId.get(mirrorId(b.id))!.order);
+    if (JSON.stringify(slides) === JSON.stringify(sec.data.slides)) return sec;
+    touched = true;
+    return { ...sec, data: { ...sec.data, slides } };
+  });
+  return touched ? next : sections;
+}
+
+// Only real edits count: reloading the same data (another tab, the editor's preview frame) changes nothing.
+useDb.subscribe((s, prev) => {
+  if (s.placements === prev.placements) return;
+  const before = new Map(prev.placements.filter((p) => p.position === 'home-hero').map((p) => [p.id, p]));
+  const changed = new Set<string>();
+  let reorder = false;
+  for (const p of s.placements) {
+    const old = before.get(p.id);
+    if (p.position !== 'home-hero' || !old || JSON.stringify(old) === JSON.stringify(p)) continue;
+    changed.add(p.id);
+    if (old.order !== p.order) reorder = true;
+  }
+  const ids = new Set(s.placements.map((p) => p.id));
+  const deleted = new Set([...before.keys()].filter((id) => !ids.has(id)));
+  if (!changed.size && !deleted.size) return;
+  const home = heroFromPlacements(s.home, s.placements, changed, deleted, reorder);
+  const homeDraft = heroFromPlacements(s.homeDraft, s.placements, changed, deleted, reorder);
+  if (home !== s.home || homeDraft !== s.homeDraft) useDb.setState({ ...(home !== s.home && home ? { home } : {}), ...(homeDraft !== s.homeDraft ? { homeDraft } : {}) });
+});

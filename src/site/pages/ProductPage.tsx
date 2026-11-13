@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { useParams } from 'react-router';
+import { Navigate, useParams } from 'react-router';
 import { toast } from 'sonner';
 import { ArrowRight, PackageSearch } from 'lucide-react';
 import type { Product } from '@/lib/types';
@@ -10,8 +10,11 @@ import { Breadcrumbs } from '@/site/components/SectionHeading';
 import { MeasureForm } from '@/site/components/MeasureForm';
 import { usePageTitle } from '@/site/layout/SiteLayout';
 import { useDict, useL, useLang } from '@/i18n';
-import { useUi } from '@/store/ui';
-import { useActiveProducts, useCategory, useProduct } from '@/store/hooks';
+import { cartKey, useUi } from '@/store/ui';
+import { maxOrderQty } from '@/lib/inventory';
+import { ck } from '@/site/components/checkout/dict';
+import { useActiveProducts, useCategory, useMovedProductSlug, useProduct } from '@/store/hooks';
+import { isPublic } from '@/lib/crm';
 import { optionsLabel } from '@/lib/pricing';
 import { money, num, unitLabel } from '@/lib/format';
 import { PD, packWord } from '@/site/components/product/dict';
@@ -26,10 +29,13 @@ export default function ProductPage() {
   const { slug } = useParams();
   const product = useProduct(slug);
   const t = useDict(PD);
-  const visible = product && product.status === 'active' ? product : undefined;
+  const visible = product && isPublic(product) ? product : undefined;
+  // an address changed in the CMS ("redirect the old address") keeps working
+  const moved = useMovedProductSlug(visible ? undefined : slug);
   const l = useL();
   usePageTitle(visible ? l(visible.name) : t('notFoundTitle'));
 
+  if (!visible && moved) return <Navigate to={`/product/${moved}`} replace />;
   if (!visible) return <NotFoundProduct />;
   // key → options/quantity reset when navigating to another product
   return <ProductView key={visible.id} product={visible} />;
@@ -62,6 +68,7 @@ function NotFoundProduct() {
 
 function ProductView({ product }: { product: Product }) {
   const t = useDict(PD);
+  const tk = useDict(ck);
   const l = useL();
   const lang = useLang();
   const category = useCategory(product.categoryId);
@@ -91,7 +98,16 @@ function ProductView({ product }: { product: Product }) {
   );
 
   const add = () => {
-    addToCart({ productId: product.id, qty: cfg.qty, options: cfg.options, installation: cfg.installation });
+    // never above what is in stock, counting what is already in the cart
+    const limit = maxOrderQty(product);
+    const inCart = useUi.getState().cart.find((c) => c.key === cartKey(product.id, cfg.options, cfg.installation))?.qty ?? 0;
+    if (inCart + cfg.qty > limit) {
+      addToCart({ productId: product.id, qty: cfg.qty, options: cfg.options, installation: cfg.installation }, limit);
+      toast.warning(tk('stockMax', { n: limit }));
+      setCartOpen(true);
+      return;
+    }
+    addToCart({ productId: product.id, qty: cfg.qty, options: cfg.options, installation: cfg.installation }, limit);
     const qty =
       product.unit === 'm2' && product.packSize
         ? `${cfg.qty} ${packWord(cfg.qty, lang, t('pack_one'), t('pack_many'))} (${num(cfg.units, lang)} m²)`
@@ -150,7 +166,7 @@ function ProductView({ product }: { product: Product }) {
             <img src={product.images[0]} alt="" className="h-14 w-14 rounded-xl object-cover" />
             <div className="min-w-0">
               <div className="truncate text-[14px] font-semibold text-ink">{l(product.name)}</div>
-              <div className="truncate text-[12.5px] text-muted">{opts || `${t('sku')}: ${product.sku}`}</div>
+              <div className="truncate text-[12.5px] text-muted">{opts || (product.sku?.trim() ? `${t('sku')}: ${product.sku}` : '')}</div>
             </div>
           </div>
           <MeasureForm type="quote" productId={product.id} defaultMessage={quoteMessage} className="p-0! ring-0! sm:p-0!" />

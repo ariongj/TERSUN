@@ -18,6 +18,7 @@ import { useCan } from '@/store/hooks';
 import { money } from '@/lib/format';
 import type { Lang, Service } from '@/lib/types';
 import { cn, uid } from '@/lib/utils';
+import { useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 
 const T = defineDict({
   de: {
@@ -229,12 +230,10 @@ export default function AppointmentServices() {
 
   const [draft, setDraft] = useState<BookingRules>(() => structuredClone(saved));
   const [base, setBase] = useState(saved);
-  if (base !== saved) {
-    // settings changed elsewhere (another tab / demo reset) → follow it
-    setBase(saved);
-    setDraft(structuredClone(saved));
-  }
+  // settings changed elsewhere (another tab / demo reset) → follow them; fields edited here stay
+  useFollowStored(saved, base, setBase, draft, setDraft);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  useUnsavedGuard(dirty && canEdit);
   const [editing, setEditing] = useState<Service | null>(null);
   const [exForm, setExForm] = useState({ date: '', dateTo: '', label: '', closed: true, from: '08:00', to: '13:00' });
   const [exError, setExError] = useState('');

@@ -10,9 +10,12 @@ import { site } from '@/i18n/site';
 import { common } from '@/i18n/common';
 import { useUi } from '@/store/ui';
 import { useActiveProducts, useCategories } from '@/store/hooks';
+import type { Lang } from '@/lib/types';
 import { searchProducts } from '@/lib/search';
+import { useLockBody } from '@/components/ui/Overlay';
+import { pluralOne } from '@/site/components/utility/shared';
 
-const POPULAR: Record<string, string[]> = {
+const POPULAR: Record<Lang, string[]> = {
   de: ['Pergola', 'Glasdach', 'ZIP', 'LED', 'Heizstrahler', 'Guillotine'],
   sq: ['pergolë', 'xham', 'Zip', 'LED', 'ngrohës', 'guillotine'],
   en: ['pergola', 'glass roof', 'ZIP', 'LED', 'heater', 'guillotine'],
@@ -30,6 +33,7 @@ export function SearchOverlay() {
   const [q, setQ] = useState('');
   const input = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  useLockBody(open);
 
   useEffect(() => {
     if (open) {
@@ -42,6 +46,10 @@ export function SearchOverlay() {
   }, [open, setOpen]);
 
   const results = useMemo(() => searchProducts(products, cats, q, lang), [products, cats, q, lang]);
+  // Only suggest searches that find something
+  const popular = useMemo(() => POPULAR[lang].filter((term) => searchProducts(products, cats, term, lang).length > 0), [products, cats, lang]);
+  // Echo a long query shortened, so it never runs off a phone screen
+  const shownQ = q.trim().length > 60 ? `${q.trim().slice(0, 60)}…` : q.trim();
   const close = () => setOpen(false);
   const submit = () => {
     if (!q.trim()) return;
@@ -52,7 +60,7 @@ export function SearchOverlay() {
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[85]">
+        <div className="fixed inset-0 z-[85]" role="dialog" aria-modal="true" aria-label={t('searchPlaceholder')}>
           <motion.div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={close} />
           <motion.div
             className="relative max-h-[88vh] overflow-y-auto bg-paper shadow-2xl"
@@ -87,7 +95,7 @@ export function SearchOverlay() {
                   <div>
                     <div className="eyebrow mb-3 text-muted">{t('popularSearches')}</div>
                     <div className="flex flex-wrap gap-2">
-                      {POPULAR[lang].map((p) => (
+                      {popular.map((p) => (
                         <button key={p} onClick={() => setQ(p)} className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium hover:border-ink/30">
                           {p}
                         </button>
@@ -109,11 +117,11 @@ export function SearchOverlay() {
                   </div>
                 </div>
               ) : results.length === 0 ? (
-                <p className="py-12 text-center text-muted">{t('noResults', { q })}</p>
+                <p className="py-12 text-center text-muted [overflow-wrap:anywhere]">{t('noResults', { q: shownQ })}</p>
               ) : (
                 <div className="py-6">
                   <div className="mb-4 flex items-center justify-between">
-                    <span className="text-sm text-muted">{t('results', { n: results.length })}</span>
+                    <span className="text-sm text-muted">{t(pluralOne(results.length, lang) ? 'resultsOne' : 'results', { n: results.length })}</span>
                     <button onClick={submit} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-brand-700">
                       {t('seeAll')} <ArrowRight className="h-4 w-4" />
                     </button>

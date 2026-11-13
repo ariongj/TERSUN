@@ -30,6 +30,7 @@ import { NotificationsSection } from '@/admin/components/settings/NotificationsS
 import { PrivacySection } from '@/admin/components/settings/PrivacySection';
 import { ActivitySection } from '@/admin/components/settings/ActivitySection';
 import { DemoDataSection } from '@/admin/components/settings/DemoDataSection';
+import { rebase, useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 
 const P = defineDict({
   de: { invalidEmail: 'Die E-Mail-Adresse ist ungültig' },
@@ -61,17 +62,19 @@ export default function SettingsPage() {
   const role = useUi((s) => s.adminRole);
   const readOnly = !can(role, 'settings', 'edit');
 
-  const base = useMemo(() => withExt(saved), [saved]);
-  const [draft, setDraft] = useState<SettingsX>(base);
+  const stored = useMemo(() => withExt(saved), [saved]);
+  // `base` = the stored settings this draft was copied from
+  const [base, setBase] = useState<SettingsX>(stored);
+  const [draft, setDraft] = useState<SettingsX>(stored);
   const [errors, setErrors] = useState<Errors>({});
   const [saving, setSaving] = useState(false);
 
-  // Saved settings changed elsewhere (another tab, import, reset) and nothing is being edited → follow them.
+  // Saved settings changed elsewhere (another tab, import, reset): rebase the draft onto them. Fields edited here stay,
+  // the rest follows, so an untouched draft shows no phantom "unsaved changes" and saving does not undo the other change.
+  useFollowStored(stored, base, setBase, draft, setDraft);
   const dirty = !same(draft, base);
-  useEffect(() => {
-    if (!dirty) setDraft(base);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [base]);
+  // the settings sub-pages share this draft, so only leaving /admin/konfiguracija asks
+  useUnsavedGuard(dirty && !readOnly, { within: '/admin/konfiguracija' });
 
   const set: SetX = useCallback((key, value) => setDraft((d) => ({ ...d, [key]: value })), []);
   const setExt: SetExt = useCallback((key, value) => setDraft((d) => ({ ...d, ext: { ...d.ext, [key]: value } })), []);
@@ -89,10 +92,17 @@ export default function SettingsPage() {
     }
     setSaving(true);
     await new Promise((r) => setTimeout(r, 300));
-    updateSettings(draft as unknown as Partial<Settings>);
+    // Apply only what was changed here onto the settings as stored now (another tab may have saved meanwhile).
+    const latest = withExt(useDb.getState().settings);
+    const next = rebase(base, draft, latest);
+    // the default and fallback languages are always published
+    next.languages = { ...next.languages, [next.ext.langDefault]: true, [next.ext.langFallback]: true };
+    const patch: Record<string, unknown> = {};
+    for (const k of Object.keys(next) as (keyof SettingsX)[]) if (!same(next[k], latest[k])) patch[k] = next[k];
+    if (Object.keys(patch).length) updateSettings(patch as Partial<Settings>);
     setSaving(false);
     toast.success(ta('saved'));
-  }, [draft, readOnly, t, ta, updateSettings]);
+  }, [base, draft, readOnly, t, tp, ta, updateSettings]);
 
   const discard = useCallback(() => {
     setDraft(base);

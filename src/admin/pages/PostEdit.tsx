@@ -11,7 +11,7 @@ import { readMinutesFor, useDraft, useSaveKeyLabel, useSaveShortcut, useUnsavedG
 import { ed } from '@/admin/components/editorial/i18n';
 import { cx } from '@/admin/components/editorial/dict';
 import { MetaRow, OrganizationCard, PublishCard, SeoCard } from '@/admin/components/editorial/panels';
-import { POST_TEMPLATES, contentState, visibilityOf, withVisibility, type PostTemplate, type PostX } from '@/admin/components/editorial/meta';
+import { POST_TEMPLATES, contentState, handleText, hasText, visibilityOf, withVisibility, type PostTemplate, type PostX } from '@/admin/components/editorial/meta';
 import { Notice, StatusPill } from '@/admin/components/editorial/ui';
 import { ButtonLink } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/misc';
@@ -151,7 +151,7 @@ function PostEditor({ id }: { id: string }) {
 
   const slugTaken = useMemo(() => !!draft.slug && posts.some((p) => p.id !== draft.id && p.slug === draft.slug), [posts, draft.slug, draft.id]);
   const errors = {
-    title: !draft.title.de.trim() ? te('titleRequired') : undefined,
+    title: !hasText(draft.title) ? te('titleRequired') : undefined,
     slug: !draft.slug.trim() ? te('slugRequired') : slugTaken ? te('slugTaken') : undefined,
   };
 
@@ -164,13 +164,13 @@ function PostEditor({ id }: { id: string }) {
   const authors = useMemo(() => Array.from(new Set(['TERSUN Studio', ...staff.filter((s) => s.active).map((s) => s.name), ...posts.map((p) => p.author)].filter(Boolean))), [staff, posts]);
   const tagSuggestions = useMemo(() => Array.from(new Set(posts.flatMap((p) => p.tags ?? []))), [posts]);
 
-  const suggestedMinutes = readMinutesFor(draft.body.de);
-  const setTitle = (title: L10n) => patch(slugAuto ? { title, slug: slugify(title.de) } : { title });
+  const suggestedMinutes = readMinutesFor(draft.body[lang]?.trim() || handleText(draft.body));
+  const setTitle = (title: L10n) => patch(slugAuto ? { title, slug: slugify(handleText(title)) } : { title });
 
   const save = () => {
     if (readOnly || (!dirty && !isNew)) return;
     const clean: PostX = { ...draft, slug: slugify(draft.slug), readMinutes: Math.max(1, Math.round(draft.readMinutes || 1)) };
-    if (!clean.title.de.trim() || !clean.slug || slugTaken) {
+    if (!hasText(clean.title) || !clean.slug || slugTaken) {
       setShowErrors(true);
       toast.error(te('fixErrors'));
       return;
@@ -320,10 +320,10 @@ function PostEditor({ id }: { id: string }) {
                 }}
                 onBlur={() => patch({ slug: slugify(draft.slug) })}
                 auto={slugAuto}
-                canRegenerate={!readOnly && !!draft.title.de.trim() && draft.slug !== slugify(draft.title.de)}
+                canRegenerate={!readOnly && hasText(draft.title) && draft.slug !== slugify(handleText(draft.title))}
                 onRegenerate={() => {
                   setSlugAuto(true);
-                  patch({ slug: slugify(draft.title.de) });
+                  patch({ slug: slugify(handleText(draft.title)) });
                 }}
                 error={slugTaken || showErrors ? errors.slug : undefined}
               />

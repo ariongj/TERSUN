@@ -29,9 +29,46 @@ export function num(value: number, lang: Lang = 'de', maxDecimals = 2) {
   return new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: maxDecimals }).format(value);
 }
 
+/* Albanian names, for browsers without Albanian locale data: Intl then silently answers in English. */
+const SQ_MONTHS = {
+  short: ['jan', 'shk', 'mar', 'pri', 'maj', 'qer', 'korr', 'gush', 'sht', 'tet', 'nën', 'dhj'],
+  long: ['janar', 'shkurt', 'mars', 'prill', 'maj', 'qershor', 'korrik', 'gusht', 'shtator', 'tetor', 'nëntor', 'dhjetor'],
+};
+const SQ_DAYS = { short: ['Die', 'Hën', 'Mar', 'Mër', 'Enj', 'Pre', 'Sht'], long: ['e diel', 'e hënë', 'e martë', 'e mërkurë', 'e enjte', 'e premte', 'e shtunë'] };
+const supported = new Map<string, boolean>();
+const hasLocale = (loc: string) => {
+  let v = supported.get(loc);
+  if (v === undefined) {
+    try {
+      v = Intl.DateTimeFormat.supportedLocalesOf(loc).length > 0;
+    } catch {
+      v = false;
+    }
+    supported.set(loc, v);
+  }
+  return v;
+};
+
+/** en-GB order (day month year, 24 h) with the month and weekday names in Albanian. */
+function albanianFallback(d: Date, opts: Intl.DateTimeFormatOptions) {
+  const num = new Intl.DateTimeFormat('en-GB', { ...opts, month: opts.month ? 'numeric' : undefined, weekday: undefined }).formatToParts(d);
+  const month = Number(num.find((p) => p.type === 'month')?.value ?? d.getMonth() + 1) - 1;
+  const parts = new Intl.DateTimeFormat('en-GB', { ...opts, hour12: false }).formatToParts(d);
+  const wd = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: opts.timeZone }).format(d);
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(wd);
+  return parts
+    .map((p) => {
+      if (p.type === 'month' && (opts.month === 'short' || opts.month === 'long')) return SQ_MONTHS[opts.month][month];
+      if (p.type === 'weekday' && day >= 0) return opts.weekday === 'long' ? SQ_DAYS.long[day] : SQ_DAYS.short[day];
+      return p.value;
+    })
+    .join('');
+}
+
 export function date(iso: string | Date, lang: Lang = 'de', opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' }) {
   const d = typeof iso === 'string' ? new Date(iso) : iso;
   try {
+    if (lang === 'sq' && !hasLocale(DATE_LOCALE.sq)) return albanianFallback(d, opts);
     return new Intl.DateTimeFormat(DATE_LOCALE[lang], opts).format(d);
   } catch {
     return new Intl.DateTimeFormat('en-GB', opts).format(d);

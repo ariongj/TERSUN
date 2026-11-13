@@ -31,6 +31,8 @@ import { date, num, timeAgo } from '@/lib/format';
 import type { Collection, ProductOption, ProductStatus } from '@/lib/types';
 import { cn, round2, slugify, uid } from '@/lib/utils';
 import { href } from '@/lib/paths';
+import { rebase, same } from '@/admin/components/editorial/hooks';
+import { handleText, hasText } from '@/admin/components/editorial/meta';
 
 /* ------------------------------------------------------------------ */
 /* Form model                                                          */
@@ -81,6 +83,8 @@ const blankProduct = (): ProductX => ({
   shipping: { physical: true },
 });
 
+const manualColsOf = (collections: Collection[], id: string) => collections.filter((c) => c.kind === 'manual' && c.productIds.includes(id)).map((c) => c.id);
+
 function formFrom(source: ProductX | undefined, collections: Collection[]): Form {
   const raw = source ? structuredClone(source) : blankProduct();
   const p: ProductX = {
@@ -98,7 +102,7 @@ function formFrom(source: ProductX | undefined, collections: Collection[]): Form
     price,
     compareAt,
     variants: variantsOf(p),
-    manualCols: source ? collections.filter((c) => c.kind === 'manual' && c.productIds.includes(source.id)).map((c) => c.id) : [],
+    manualCols: source ? manualColsOf(collections, source.id) : [],
     redirect: true,
   };
 }
@@ -168,7 +172,20 @@ function Editor({ source }: { source?: ProductX }) {
 
   const [original, setOriginal] = useState<Form>(() => formFrom(source, collections));
   const [form, setForm] = useState<Form>(original);
-  const autoFor = (p: ProductX) => !p.slug || p.slug === slugify(p.name.de);
+  // The stored product (or its manual collections) changed elsewhere, e.g. saved in another tab: rebase this form onto it.
+  // Fields edited here stay, everything else follows the store, so saving here does not undo the other change.
+  const [seen, setSeen] = useState({ source, collections });
+  if (seen.source !== source || seen.collections !== collections) {
+    setSeen({ source, collections });
+    if (source && (!same(seen.source, source) || !same(manualColsOf(seen.collections, source.id), manualColsOf(collections, source.id)))) {
+      const fresh = formFrom(source, collections);
+      if (!same(fresh, original)) {
+        setOriginal(fresh);
+        setForm(rebase(original, form, fresh));
+      }
+    }
+  }
+  const autoFor = (p: ProductX) => !p.slug || p.slug === slugify(handleText(p.name));
   const [slugAuto, setSlugAuto] = useState(() => autoFor(original.p));
   const [tried, setTried] = useState(false);
   const [deleting, setDeleting] = useState<ProductX[]>([]);
@@ -199,7 +216,7 @@ function Editor({ source }: { source?: ProductX }) {
   const validate = (f: Form): Errors => {
     const p = compose(f);
     const e: Errors = {};
-    if (!p.name.de.trim()) e.name = t('e_name');
+    if (!hasText(p.name)) e.name = t('e_name');
     const own = p.sku.trim().toUpperCase();
     if (own && takenSkus.has(own)) e.sku = t('e_skuDup', { sku: p.sku.trim(), name: takenSkus.get(own) ?? '' });
     const vs = f.variants.map((v) => v.sku.trim().toUpperCase()).filter(Boolean);
@@ -245,7 +262,7 @@ function Editor({ source }: { source?: ProductX }) {
     const now = new Date().toISOString();
     const pid = next0.id || uid('p');
     const seo = { title: next0.seo?.title?.trim() || undefined, description: next0.seo?.description?.trim() || undefined };
-    const slug = uniqueSlug(slugify(next0.slug) || slugify(next0.name.de) || pid, pid, allProducts);
+    const slug = uniqueSlug(slugify(next0.slug) || slugify(handleText(next0.name)) || pid, pid, allProducts);
     const oldSlug = source?.slug;
     const redirects = [...(source?.redirects ?? [])];
     if (oldSlug && oldSlug !== slug && f.redirect && !redirects.includes(oldSlug)) redirects.push(oldSlug);
@@ -267,9 +284,12 @@ function Editor({ source }: { source?: ProductX }) {
     // manual collections toggled in "Organizimi"
     if (canCollections) {
       const st = useDb.getState();
+      const before = new Set(original.manualCols);
       for (const c of st.collections) {
         if (c.kind !== 'manual') continue;
         const want = f.manualCols.includes(c.id);
+        // only the collections ticked / unticked here; a change made elsewhere meanwhile stays
+        if (want === before.has(c.id)) continue;
         const has = c.productIds.includes(pid);
         if (want !== has) st.upsert('collections', { ...c, productIds: want ? [...c.productIds, pid] : c.productIds.filter((x) => x !== pid) });
       }
@@ -386,7 +406,7 @@ function Editor({ source }: { source?: ProductX }) {
       )}
     </span>
   );
-  const preview = useMemo<ProductX>(() => ({ ...composed, id: composed.id || 'preview', name: composed.name.de.trim() ? composed.name : { de: t('f_title'), sq: t('f_title'), en: t('f_title') } }), [composed, t]);
+  const preview = useMemo<ProductX>(() => ({ ...composed, id: composed.id || 'preview', name: hasText(composed.name) ? composed.name : { de: t('f_title'), sq: t('f_title'), en: t('f_title') } }), [composed, t]);
   const slugChanged = !isNew && !!source?.slug && slugify(form.p.slug) !== source.slug && !!slugify(form.p.slug);
 
   return (
@@ -443,7 +463,7 @@ function Editor({ source }: { source?: ProductX }) {
                       label={t('f_title')}
                       required
                       value={form.p.name}
-                      onChange={(name) => setForm((f) => ({ ...f, p: { ...f.p, name, slug: slugAuto ? slugify(name.de) : f.p.slug } }))}
+                      onChange={(name) => setForm((f) => ({ ...f, p: { ...f.p, name, slug: slugAuto ? slugify(handleText(name)) : f.p.slug } }))}
                       className={cn(errors.name && '[&_input]:border-red-500 [&_input]:ring-4 [&_input]:ring-red-500/10')}
                     />
                     <FieldError>{errors.name}</FieldError>
@@ -511,7 +531,7 @@ function Editor({ source }: { source?: ProductX }) {
               }}
               onResetSlug={() => {
                 setSlugAuto(true);
-                setP({ slug: slugify(form.p.name.de) });
+                setP({ slug: slugify(handleText(form.p.name)) });
               }}
               onSeo={(seo) => setP({ seo })}
               redirectFrom={slugChanged ? source?.slug : undefined}

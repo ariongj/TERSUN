@@ -32,7 +32,8 @@ export default function LivePreview({ fallback }: { fallback: string }) {
     let v: Viewer | null = null;
     // set the scene up in a quiet moment, so it never interrupts a scroll
     const start = () => {
-      v = createViewer(el, { keepView: true, zoom: 1.5, onInteract: () => setTouched(true), onReady: () => setReady(true) });
+      // embed: the page keeps scrolling over the band (no zoom, vertical swipes scroll) and it starts at the poster's framing
+      v = createViewer(el, { embed: true, zoom: 1.5, onInteract: () => setTouched(true), onReady: () => setReady(true) });
       viewer.current = v;
       v.setDims(false);
       v.update('bioclimatic', { w: 450, d: 350, h: 260, color: '#383e42', layout: 'standard', mount: 'free', side: 'none', led: true, angle: 35 });

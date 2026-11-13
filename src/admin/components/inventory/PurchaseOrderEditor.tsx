@@ -20,6 +20,7 @@ import { LOW_STOCK, PO_STATUSES, actorName, fromDateInput, isOverdue, lineLeft, 
 import { useInventoryRows } from './useInventory';
 import { ProductPicker } from './ProductPicker';
 import { ReceiveDialog } from './ReceiveDialog';
+import { rebase, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import { FieldLabel, Gate, IconBtn, IntField, MoneyField, PO_STATUS_META, PoStatusTag, ReceiveBar, SelectField, Tag, TextField, controlClass } from './ui';
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -83,15 +84,17 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
     setDraft(saved ?? (isNew ? blank() : null));
     setShowErrors(false);
   } else if (saved !== prevSaved) {
-    // Store changed (receipt, status): take it over, keeping unsaved edits to editable fields.
+    // Store changed (receipt, status, another tab): take it over, keeping unsaved edits to editable fields.
     setPrevSaved(saved);
     if (saved)
-      setDraft((d) =>
-        !d || same(d, prevSaved)
-          ? saved
-          : { ...d, status: saved.status, lines: d.lines.map((x) => ({ ...x, ...pickProgress(saved.lines.find((s) => s.productId === x.productId)) })) },
-      );
+      setDraft((d) => {
+        if (!d || same(d, prevSaved)) return saved;
+        const r = rebase<PurchaseOrder>(prevSaved ?? saved, d, saved);
+        return { ...r, status: saved.status, lines: r.lines.map((x) => ({ ...x, ...pickProgress(saved.lines.find((s) => s.productId === x.productId)) })) };
+      });
   }
+  const dirty = !draft ? false : isNew ? !!(draft.supplier.trim() || draft.lines.length || draft.reference?.trim() || draft.note?.trim()) : !!saved && !same(draft, saved);
+  const allowNav = useUnsavedGuard(dirty && canEdit && draft?.status !== 'closed', { param: 'id' });
 
   if (!draft) {
     return (
@@ -115,7 +118,6 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
 
   const status = draft.status;
   const readOnly = !canEdit || status === 'closed';
-  const dirty = isNew ? !!(draft.supplier.trim() || draft.lines.length || draft.reference?.trim() || draft.note?.trim()) : !!saved && !same(draft, saved);
 
   const set = (patch: Partial<PurchaseOrder>) => setDraft((d) => (d ? { ...d, ...patch } : d));
   const setLine = (pid: string, patch: Partial<PurchaseOrderLine>) => set({ lines: draft.lines.map((x) => (x.productId === pid ? { ...x, ...patch } : x)) });
@@ -150,8 +152,12 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
       status: nextStatus ?? draft.status,
     };
     upsert('purchaseOrders', item);
+    if (!isNew) setDraft(item);
     setShowErrors(false);
-    if (isNew) navigate(`/admin/nabavke?id=${item.id}`, { replace: true });
+    if (isNew) {
+      allowNav();
+      navigate(`/admin/nabavke?id=${item.id}`, { replace: true });
+    }
     return item;
   };
 
@@ -160,8 +166,10 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
     if (item) toast.success(isNew ? t('ed_created') : t('ed_saved'), { description: item.number });
   };
   const onDiscard = () => {
-    if (isNew) navigate('/admin/nabavke');
-    else if (saved) setDraft(saved);
+    if (isNew) {
+      allowNav();
+      navigate('/admin/nabavke');
+    } else if (saved) setDraft(saved);
     setShowErrors(false);
   };
   const markSent = () => {
@@ -181,6 +189,7 @@ export function PurchaseOrderEditor({ id }: { id: string }) {
     if (!ok) return;
     remove('purchaseOrders', saved.id);
     toast.success(t('ed_deleted'), { description: saved.number });
+    allowNav();
     navigate('/admin/nabavke');
   };
 

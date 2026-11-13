@@ -2,6 +2,7 @@ import { Globe, Link2, RotateCcw } from 'lucide-react';
 import { Card } from '@/admin/components/kit';
 import { Checkbox, Textarea } from '@/components/ui/Field';
 import { useDict, useLang } from '@/i18n';
+import { handleText } from '@/admin/components/editorial/meta';
 import { useDb } from '@/store/db';
 import type { Product } from '@/lib/types';
 import { basePrice } from '@/lib/pricing';
@@ -43,9 +44,9 @@ export function SeoCard({
   const domain = adminEmail.split('@')[1] || 'tersun.com';
   const seo = draft.seo ?? {};
   // Mirrors the storefront <title>: "{name} — {company}" (see usePageTitle).
-  const autoTitle = `${draft.name.de.trim() || t('f_title')} — ${company}`;
+  const autoTitle = `${draft.name[lang]?.trim() || handleText(draft.name) || t('f_title')} — ${company}`;
   const title = seo.title?.trim() || autoTitle;
-  const autoDesc = draft.short.de.trim() || draft.description.de.trim();
+  const autoDesc = draft.short[lang]?.trim() || draft.description[lang]?.trim() || handleText(draft.short) || handleText(draft.description);
   const desc = seo.description?.trim() || autoDesc;
   const price = basePrice(draft);
   const toOrder = draft.stock >= 999 || draft.stock <= 0;

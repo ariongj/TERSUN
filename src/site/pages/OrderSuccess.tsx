@@ -3,7 +3,7 @@ import { ArrowRight, Banknote, Copy, CreditCard, Home, Landmark, LayoutDashboard
 import type { ComponentType } from 'react';
 import { ButtonLink } from '@/components/ui/Button';
 import { Accent, Badge, Img } from '@/components/ui/misc';
-import { defineDict, useDict, useLang } from '@/i18n';
+import { defineDict, lt, useDict, useLang } from '@/i18n';
 import { common } from '@/i18n/common';
 import { useDb } from '@/store/db';
 import { useSettings } from '@/store/hooks';
@@ -279,6 +279,12 @@ function Success({ order }: { order: Order }) {
   const settings = useSettings();
   const items = useItemsLabel();
   const copy = useCopy();
+  // product names follow the visitor's language when the product still exists (the order keeps its own copy)
+  const products = useDb((s) => s.products);
+  const nameOf = (productId: string | undefined, stored: string) => {
+    const p = productId ? products.find((x) => x.id === productId) : undefined;
+    return p ? lt(p.name, lang) || stored : stored;
+  };
   const discountRows = useDiscountRows(order.discounts);
   usePageTitle(t('pageTitle'));
 
@@ -449,7 +455,7 @@ function Success({ order }: { order: Order }) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-ink">{it.name}</p>
+                        <p className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-ink">{nameOf(it.productId, it.name)}</p>
                         <span className="shrink-0 text-[13.5px] font-semibold tabular-nums text-ink">{money(it.lineTotal, lang)}</span>
                       </div>
                       <p className="mt-0.5 text-[12px] text-muted">

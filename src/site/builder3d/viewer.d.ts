@@ -46,9 +46,27 @@ export interface Viewer {
   resetView(): void;
   /** False until the first frame has been drawn (shaders compile in the background first). */
   isReady(): boolean;
+  /** PNG data URL of the current picture at full resolution, with the dimension texts when they are shown. */
   snapshot(): string;
   dispose(): void;
 }
 
-export function createViewer(container: HTMLElement, options?: { keepView?: boolean; labels?: { w?: boolean }; onInteract?: () => void; /** called once, when the first frame is on the canvas */ onReady?: () => void; /** >1 frames the system closer */ zoom?: number }): Viewer;
+export interface CreateViewerOptions {
+  keepView?: boolean;
+  labels?: { w?: boolean };
+  /** the visitor took the camera (embedded: once a drag has ended, not on a swipe that scrolled the page) */
+  onInteract?: () => void;
+  /** called once, when the first frame is on the canvas */
+  onReady?: () => void;
+  /** >1 frames the system closer */
+  zoom?: number;
+  /**
+   * Embedded in a scrolling page (the homepage band): no zoom or pan, so the wheel scrolls the page; on touch
+   * screens a vertical swipe scrolls the page and a horizontal drag turns the model; no opening glide, the
+   * first frame is the framing of the view.
+   */
+  embed?: boolean;
+}
+
+export function createViewer(container: HTMLElement, options?: CreateViewerOptions): Viewer;
 export function webglAvailable(): boolean;

@@ -71,3 +71,9 @@ export function fromLocalInput(v: string) {
   const d = new Date(v);
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
+
+/** A localized text is filled in in at least one language (titles may be written in SQ, EN or DE only). */
+export const hasText = (v: L10n | null | undefined) => !!(v && (v.sq?.trim() || v.en?.trim() || v.de?.trim()));
+
+/** The text a handle / slug is built from: the first language filled in, in the order SQ, EN, DE. */
+export const handleText = (v: L10n | null | undefined) => (v ? v.sq?.trim() || v.en?.trim() || v.de?.trim() || '' : '');

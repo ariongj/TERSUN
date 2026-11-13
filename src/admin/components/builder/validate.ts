@@ -91,9 +91,12 @@ export function validateSection(s: HomeSection, ctx: ValidateCtx): Issue[] {
     }
     case 'promo': {
       checkTitle(s.data.title, out);
-      const end = new Date(s.data.endsAt).getTime();
-      if (Number.isNaN(end)) out.push({ level: 'error', key: 'v_dateInvalid' });
-      else if (end <= now) out.push({ level: 'warning', key: 'v_expired' });
+      // no end date = a standing band (the site shows it without a countdown)
+      if (s.data.endsAt) {
+        const end = new Date(s.data.endsAt).getTime();
+        if (Number.isNaN(end)) out.push({ level: 'error', key: 'v_dateInvalid' });
+        else if (end <= now) out.push({ level: 'warning', key: 'v_expired' });
+      }
       if (!s.data.image) out.push({ level: 'error', key: 'v_imageMissing' });
       checkCta(s.data.cta, out);
       break;

@@ -10,6 +10,18 @@ import { isOpenOrder } from './orders';
 export const UNTRACKED_STOCK = 999;
 export const isTracked = (p: Pick<Product, 'stock'>) => p.stock < UNTRACKED_STOCK;
 
+/**
+ * The most a shopper can order in one go (in packs for products sold by the pack): what is available while a
+ * stock-tracked product is in stock. Untracked and sold-out products are made to order (the product page shows
+ * the lead time), so they have no limit.
+ */
+export function maxOrderQty(p: Pick<Product, 'stock' | 'unavailable' | 'unit' | 'packSize'>): number {
+  if (!isTracked(p)) return UNTRACKED_STOCK;
+  const available = Math.max(0, p.stock - (p.unavailable ?? 0));
+  if (available <= 0) return UNTRACKED_STOCK;
+  return p.unit === 'm2' && p.packSize ? Math.max(1, Math.floor(available / p.packSize)) : available;
+}
+
 export interface StockLevels {
   onHand: number;
   committed: number;

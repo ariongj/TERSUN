@@ -100,7 +100,8 @@ export function LanguagesSection({ s, set, setExt }: SecProps) {
 
   const { langDefault, langFallback } = s.ext;
   const enabled = (code: Lang) => s.languages[code] || code === langDefault || code === langFallback;
-  const toggle = (code: Lang, v: boolean) => set('languages', { ...s.languages, [code]: v });
+  // the default and fallback languages always stay published, so at least one language is always on
+  const toggle = (code: Lang, v: boolean) => set('languages', { ...s.languages, [code]: v, [langDefault]: true, [langFallback]: true });
 
   return (
     <Panel lead title={ts('sec_languages')} description={ts('sec_languages_d')}>
@@ -154,7 +155,7 @@ export function LanguagesSection({ s, set, setExt }: SecProps) {
         <div className="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-2">
           <div>
             <div className="mb-2 text-[13px] font-semibold text-ink-soft">{t('default')}</div>
-            <Select aria-label={t('default')} value={langDefault} onChange={(e) => { const v = e.target.value as Lang; setExt('langDefault', v); if (!s.languages[v]) toggle(v, true); }} className="h-10! rounded-lg! text-[14px]!">
+            <Select aria-label={t('default')} value={langDefault} onChange={(e) => { const v = e.target.value as Lang; setExt('langDefault', v); if (!s.languages[v]) set('languages', { ...s.languages, [v]: true }); }} className="h-10! rounded-lg! text-[14px]!">
               {LANGS.map((lg) => (
                 <option key={lg.code} value={lg.code}>
                   {lg.short} — {lg.label}
@@ -165,7 +166,7 @@ export function LanguagesSection({ s, set, setExt }: SecProps) {
           </div>
           <div>
             <div className="mb-2 text-[13px] font-semibold text-ink-soft">{t('fallback')}</div>
-            <Select aria-label={t('fallback')} value={langFallback} onChange={(e) => { const v = e.target.value as Lang; setExt('langFallback', v); if (!s.languages[v]) toggle(v, true); }} className="h-10! rounded-lg! text-[14px]!">
+            <Select aria-label={t('fallback')} value={langFallback} onChange={(e) => { const v = e.target.value as Lang; setExt('langFallback', v); if (!s.languages[v]) set('languages', { ...s.languages, [v]: true }); }} className="h-10! rounded-lg! text-[14px]!">
               {LANGS.map((lg) => (
                 <option key={lg.code} value={lg.code}>
                   {lg.short} — {lg.label}

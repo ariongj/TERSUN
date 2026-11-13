@@ -291,8 +291,9 @@ export default function Services() {
             <div className="grid gap-4 rounded-[36px] bg-sand/80 p-3 sm:p-4 lg:grid-cols-[0.9fr_1.1fr]">
               <div className="relative isolate flex min-h-[440px] flex-col justify-end overflow-hidden rounded-[28px] bg-ink p-7 sm:p-10">
                 <Img src="/images/misc/builder-day.webp" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
-                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/10" />
-                <div className="eyebrow text-brand-200">{t('bookEyebrow')}</div>
+                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/60 to-ink/35" />
+                {/* Dark backing keeps the label readable over the light top of the photo */}
+                <div className="eyebrow self-start rounded-full bg-ink/60 px-3 py-1.5 text-brand-100 ring-1 ring-white/10 backdrop-blur-md">{t('bookEyebrow')}</div>
                 <h2 className="display mt-3 text-[34px] leading-[1.04] text-white sm:text-[46px]">
                   <Accent text={t('bookTitle')} accentClassName="text-brand-200" />
                 </h2>

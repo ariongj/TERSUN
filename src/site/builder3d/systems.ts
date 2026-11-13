@@ -8,11 +8,20 @@ export type Field =
   | { key: string; kind: 'choice'; label: L10n; choices: Choice[] }
   | { key: string; kind: 'toggle'; label: L10n };
 
+/**
+ * A catalogue product the system stands for. `values` are the options that make it this product: they are
+ * preselected when the builder opens for it (`/3d?system=…&product=…`) and identify it again when a quote is
+ * filed. `dims` adapt the starting size to the product's limits.
+ */
+export type Variant = { productId: string; values?: Record<string, string>; dims?: { w?: number; d?: number; h?: number } };
+
 export interface SystemDef {
   id: SystemType;
-  /** catalogue category + the product the quote is filed against */
+  /** catalogue category + the base product (its price is the base of the estimate) */
   categoryId: string;
   productId: string;
+  /** the catalogue products of the category, in order of preference */
+  variants: Variant[];
   name: L10n;
   image: string;
   dims: { w: [number, number, number]; d?: [number, number, number]; h: [number, number, number] };
@@ -43,6 +52,12 @@ export const SYSTEMS: SystemDef[] = [
     id: 'bioclimatic',
     categoryId: 'cat-bioclimatic',
     productId: 'p-bio-free',
+    variants: [
+      { productId: 'p-bio-free', values: { layout: 'standard', mount: 'free' } },
+      { productId: 'p-bio-wall', values: { layout: 'standard', mount: 'wall' } },
+      { productId: 'p-bio-double', values: { layout: 'double' } },
+      { productId: 'p-bio-modular', values: { layout: 'modular' } },
+    ],
     name: T('Bioklimatische Pergola', 'Sistemi Bioklimatik', 'Bioclimatic System'),
     image: '/images/cat/bioclimatic.webp',
     dims: { w: [200, 1200, 450], d: [200, 800, 350], h: [220, 300, 260] },
@@ -71,6 +86,13 @@ export const SYSTEMS: SystemDef[] = [
     id: 'glassroof',
     categoryId: 'cat-glass-roof',
     productId: 'p-glass-wall',
+    variants: [
+      { productId: 'p-glass-wall', values: { layout: 'wall' } },
+      { productId: 'p-glass-free', values: { layout: 'free' } },
+      { productId: 'p-glass-l', values: { layout: 'l-shape' } },
+      // the double roof stands on its own posts: no product of its own, filed as the freestanding roof
+      { productId: 'p-glass-free', values: { layout: 'double' } },
+    ],
     name: T('Glasdach', 'Mbulojë Xhami', 'Glass Roof'),
     image: '/images/cat/glass-roof.webp',
     dims: { w: [250, 1500, 500], d: [150, 400, 350], h: [200, 300, 240] },
@@ -89,6 +111,7 @@ export const SYSTEMS: SystemDef[] = [
     id: 'awning',
     categoryId: 'cat-awning',
     productId: 'p-awning',
+    variants: [{ productId: 'p-awning' }, { productId: 'p-awning-combo' }],
     name: T('Aufdachmarkise', 'Tendë mbi Xham', 'Over-Glass Awning'),
     image: '/images/cat/awning.webp',
     dims: { w: [250, 700, 500], d: [200, 500, 350], h: [200, 300, 240] },
@@ -100,6 +123,7 @@ export const SYSTEMS: SystemDef[] = [
     id: 'guillotine',
     categoryId: 'cat-guillotine',
     productId: 'p-guillotine',
+    variants: [{ productId: 'p-guillotine' }, { productId: 'p-guillotine-balcony', dims: { w: 300 } }],
     name: T('Guillotine Premium', 'Guillotine Premium', 'Guillotine Premium'),
     image: '/images/cat/guillotine.webp',
     dims: { w: [100, 400, 350], h: [100, 400, 250] },
@@ -110,6 +134,7 @@ export const SYSTEMS: SystemDef[] = [
     id: 'slide',
     categoryId: 'cat-slide',
     productId: 'p-slide',
+    variants: [{ productId: 'p-slide' }, { productId: 'p-slide-wintergarden' }],
     name: T('Slide Premium', 'Slide Premium', 'Slide Premium'),
     image: '/images/cat/slide.webp',
     dims: { w: [100, 400, 400], h: [100, 300, 240] },
@@ -122,6 +147,7 @@ export const SYSTEMS: SystemDef[] = [
     id: 'zip',
     categoryId: 'cat-zip',
     productId: 'p-zip',
+    variants: [{ productId: 'p-zip' }, { productId: 'p-zip-facade' }],
     name: T('ZIP-Screen', 'Perde Zip', 'ZIP Screen'),
     image: '/images/cat/zip.webp',
     dims: { w: [80, 500, 300], h: [100, 350, 250] },
@@ -133,3 +159,16 @@ export const SYSTEMS: SystemDef[] = [
 
 export const systemById = (id: string | null | undefined) => SYSTEMS.find((s) => s.id === id);
 export const systemForCategory = (categoryId: string) => SYSTEMS.find((s) => s.categoryId === categoryId);
+/** The system that builds a catalogue product (for `/3d?product=…` without a system). */
+export const systemForProduct = (productId: string | null | undefined) => SYSTEMS.find((s) => s.variants.some((v) => v.productId === productId));
+
+const fits = (v: Variant, values: Record<string, string | boolean>) => !v.values || Object.entries(v.values).every(([k, x]) => values[k] === x);
+
+/**
+ * The product a configuration is quoted as: the one the builder was opened for while the chosen options still
+ * match it, otherwise the first product of the system that matches them.
+ */
+export function productFor(s: SystemDef, values: Record<string, string | boolean>, requested?: string | null) {
+  const pick = (requested && s.variants.find((v) => v.productId === requested && fits(v, values))) || s.variants.find((v) => fits(v, values));
+  return pick ? pick.productId : s.productId;
+}

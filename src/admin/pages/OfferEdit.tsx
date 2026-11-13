@@ -16,6 +16,7 @@ import { offerState } from '@/lib/offers';
 import { ROLE_META } from '@/lib/permissions';
 import { href } from '@/lib/paths';
 import { cn, slugify } from '@/lib/utils';
+import { rebase, same, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import type { OfferStatus, Placement, PlacementKind } from '@/lib/types';
 import { useChecker, useOfferData } from '@/admin/components/offers/hooks';
 import { useOfferActions } from '@/admin/components/offers/actions';
@@ -59,6 +60,13 @@ function NotFound() {
   );
 }
 
+/** The editable copy of a stored offer. */
+function offerFrom(stored: OfferX): OfferX {
+  const offer: OfferX = structuredClone(stored);
+  if (!offer.markets) offer.markets = ['mk-xk'];
+  return offer;
+}
+
 /** What is persisted — the rule mode is UI only, the slot list is derived on save. */
 const keyOf = (o: OfferX, linked: string[], created: Placement[]) =>
   JSON.stringify([{ ...o, placements: o.placements.includes('home-block') }, [...linked].sort(), created.map((c) => c.id)]);
@@ -85,7 +93,7 @@ function Editor({ id }: { id: string }) {
 
   /* ----------------------------- state ----------------------------- */
   const [init] = useState(() => {
-    const offer: OfferX = stored ? structuredClone(stored) : emptyOffer(me?.id ?? 'st-gent');
+    const offer: OfferX = stored ? offerFrom(stored) : emptyOffer(me?.id ?? 'st-gent');
     if (!offer.markets) offer.markets = ['mk-xk'];
     const linked = stored ? data.placements.filter((p) => p.offerId === stored.id).map((p) => p.id) : [];
     return { offer, linked, mode: (offer.discountId || isNew ? 'link' : 'none') as RuleMode };
@@ -112,6 +120,21 @@ function Editor({ id }: { id: string }) {
   );
   const createdIds = useMemo(() => new Set(created.map((c) => c.id)), [created]);
   const dirty = keyOf(draft, linkedIds, created) !== keyOf(base.offer, base.linked, []);
+  const allowNav = useUnsavedGuard(canEdit && dirty);
+
+  // The stored offer changed elsewhere (another tab): rebase the draft onto it — fields edited here stay, the rest
+  // follows, so saving here does not undo the other change and an untouched editor shows no phantom changes.
+  const [seen, setSeen] = useState(stored);
+  if (!isNew && stored && seen !== stored) {
+    setSeen(stored);
+    if (!same(seen, stored)) {
+      const fresh = offerFrom(stored);
+      if (!same(fresh, base.offer)) {
+        setBase({ ...base, offer: fresh });
+        setDraft(rebase(base.offer, draft, fresh));
+      }
+    }
+  }
 
   const savedState = stored ? offerState(stored) : 'draft';
   const state = offerState(draft);
@@ -185,8 +208,11 @@ function Editor({ id }: { id: string }) {
     upsert('offers', next);
     // linked content: link / unlink existing placements, create the new ones
     const s = useDb.getState();
+    const before = new Set(base.linked);
     for (const p of s.placements) {
       const want = linkedIds.includes(p.id);
+      // only what was linked / unlinked here; links changed elsewhere meanwhile stay
+      if (want === before.has(p.id)) continue;
       if (want && p.offerId !== next.id) upsert('placements', { ...p, offerId: next.id });
       else if (!want && p.offerId === next.id) {
         const copy = { ...p };
@@ -202,7 +228,10 @@ function Editor({ id }: { id: string }) {
     setDraft(next);
     setBase({ offer: next, linked: ids, mode });
     if (!quiet) toast.success(isNew ? t('createdToast') : t('saved'), { description: l(next.name) });
-    if (isNew) navigate(`/admin/ponude/${next.id}?hapi=${step}`, { replace: true });
+    if (isNew) {
+      allowNav();
+      navigate(`/admin/ponude/${next.id}?hapi=${step}`, { replace: true });
+    }
     return next;
   };
   const discard = () => {
@@ -310,7 +339,10 @@ function Editor({ id }: { id: string }) {
         danger: true,
         divider: true,
         onSelect: async () => {
-          if (await act.del(stored)) navigate('/admin/ponude');
+          if (await act.del(stored)) {
+            allowNav();
+            navigate('/admin/ponude');
+          }
         },
       });
   }

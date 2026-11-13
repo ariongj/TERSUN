@@ -92,7 +92,7 @@ export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: { ch
 /* ------------------------------------------------------------------ */
 /* Quantity stepper                                                    */
 /* ------------------------------------------------------------------ */
-export function QtyStepper({ value, onChange, min = 1, max = 999, size = 'md', className }: { value: number; onChange: (v: number) => void; min?: number; max?: number; size?: 'sm' | 'md'; className?: string }) {
+export function QtyStepper({ value, onChange, min = 1, max = 999, size = 'md', className, label = 'Qty' }: { value: number; onChange: (v: number) => void; min?: number; max?: number; size?: 'sm' | 'md'; className?: string; label?: string }) {
   const h = size === 'sm' ? 'h-9' : 'h-11';
   const w = size === 'sm' ? 'w-8' : 'w-10';
   return (
@@ -103,6 +103,7 @@ export function QtyStepper({ value, onChange, min = 1, max = 999, size = 'md', c
       <input
         type="number"
         inputMode="numeric"
+        aria-label={label}
         className={cn('h-full bg-transparent text-center text-sm font-semibold tabular-nums outline-none', size === 'sm' ? 'w-8' : 'w-10')}
         value={value}
         onChange={(e) => {

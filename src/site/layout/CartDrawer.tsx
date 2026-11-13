@@ -10,19 +10,24 @@ import { common } from '@/i18n/common';
 import { useUi } from '@/store/ui';
 import { useCart, useSettings } from '@/store/hooks';
 import { money, num, unitLabel } from '@/lib/format';
+import { maxOrderQty } from '@/lib/inventory';
 import type { PricedLine } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 import { LineDiscounts } from '@/site/components/checkout/parts';
+import { ck } from '@/site/components/checkout/dict';
 
-export function FreeShippingBar({ remaining, threshold, reason, className }: { remaining: number; threshold: number; reason: string | null; className?: string }) {
+/** Progress to free delivery. Hidden when no free-delivery rule is active (`threshold` null). */
+export function FreeShippingBar({ remaining, threshold, reason, className }: { remaining: number; threshold: number | null; reason: string | null; className?: string }) {
   const t = useDict(site);
   const lang = useLang();
-  const pct = reason ? 100 : Math.min(100, ((threshold - remaining) / threshold) * 100);
+  if (threshold == null) return null;
+  const reached = !!reason || remaining <= 0;
+  const pct = reached || threshold <= 0 ? 100 : Math.min(100, ((threshold - remaining) / threshold) * 100);
   return (
     <div className={cn('rounded-2xl bg-white p-4 ring-1 ring-line', className)}>
       <div className="flex items-center gap-2.5 text-[13px] font-semibold text-ink">
         <Truck className="h-4 w-4 text-brand-600" />
-        {reason === 'installation' ? t('freeWithInstallation') : reason ? t('freeShippingReached') : t('freeShippingLeft', { amount: money(remaining, lang) })}
+        {reason === 'installation' ? t('freeWithInstallation') : reached ? t('freeShippingReached') : t('freeShippingLeft', { amount: money(remaining, lang) })}
       </div>
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-sand">
         <div className="h-full rounded-full bg-brand-600 transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
@@ -61,7 +66,7 @@ export function CartLine({ line, compact }: { line: PricedLine; compact?: boolea
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <QtyStepper size="sm" value={line.item.qty} onChange={(v) => setQty(line.item.key, v)} />
+            <QtyStepper size="sm" label={tc('qtyLabel')} value={line.item.qty} max={maxOrderQty(p)} onChange={(v) => setQty(line.item.key, v, maxOrderQty(p))} />
             <span className="text-[12px] text-muted">
               {isPack ? `${tc('packs')} · ${num(line.units, lang)} m²` : unitLabel(p.unit, lang)}
             </span>
@@ -92,6 +97,7 @@ export function CartLine({ line, compact }: { line: PricedLine; compact?: boolea
 export function CartDrawer() {
   const t = useDict(site);
   const tc = useDict(common);
+  const tk = useDict(ck);
   const lang = useLang();
   const open = useUi((s) => s.cartOpen);
   const setOpen = useUi((s) => s.setCartOpen);
@@ -131,7 +137,9 @@ export function CartDrawer() {
               )}
               <div className="flex justify-between text-muted">
                 <span>{tc('shipping')}</span>
-                <span className="tabular-nums text-ink">{totals.shipping === 0 ? tc('free') : `${totals.shippingEstimate ? tc('from') + ' ' : ''}${money(totals.shipping, lang)}`}</span>
+                <span className="tabular-nums text-ink">
+                  {totals.shippingUnknown ? tk('shippingByCity') : totals.shipping === 0 ? tc('free') : `${totals.shippingEstimate ? tc('from') + ' ' : ''}${money(totals.shipping, lang)}`}
+                </span>
               </div>
               <div className="flex items-baseline justify-between pt-2 text-base font-bold">
                 <span>{tc('total')}</span>
@@ -186,7 +194,7 @@ export function CartDrawer() {
         />
       ) : (
         <div className="px-5 pb-4 pt-5 sm:px-6">
-          <FreeShippingBar remaining={totals.freeShippingRemaining} threshold={settings.freeShippingThreshold} reason={totals.freeShippingReason} />
+          <FreeShippingBar remaining={totals.freeShippingRemaining} threshold={totals.freeShippingThreshold} reason={totals.freeShippingReason} />
           <div className="divide-y divide-line">
             {totals.lines.map((line) => (
               <CartLine key={line.item.key} line={line} />

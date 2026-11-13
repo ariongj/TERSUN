@@ -37,8 +37,9 @@ interface UiState {
 
   setLang: (lang: Lang) => void;
   setAdminLang: (lang: Lang) => void;
-  addToCart: (item: Omit<CartItem, 'key'>) => void;
-  setQty: (key: string, qty: number) => void;
+  /** `limit`: the most this product can be ordered (stock); the line never goes above it */
+  addToCart: (item: Omit<CartItem, 'key'>, limit?: number) => void;
+  setQty: (key: string, qty: number, limit?: number) => void;
   setInstallation: (key: string, on: boolean) => void;
   removeFromCart: (key: string) => void;
   clearCart: () => void;
@@ -78,18 +79,18 @@ export const useUi = create<UiState>()(
 
       setLang: (lang) => set({ lang, langChosen: true }),
       setAdminLang: (adminLang) => set({ adminLang }),
-      addToCart: (item) =>
+      addToCart: (item, limit = Infinity) =>
         set((s) => {
           const key = cartKey(item.productId, item.options, item.installation);
           const existing = s.cart.find((c) => c.key === key);
           if (existing) {
-            return { cart: s.cart.map((c) => (c.key === key ? { ...c, qty: c.qty + item.qty } : c)) };
+            return { cart: s.cart.map((c) => (c.key === key ? { ...c, qty: Math.min(limit, c.qty + item.qty) } : c)) };
           }
-          return { cart: [...s.cart, { ...item, key }] };
+          return { cart: [...s.cart, { ...item, qty: Math.min(limit, item.qty), key }] };
         }),
-      setQty: (key, qty) =>
+      setQty: (key, qty, limit = Infinity) =>
         set((s) => ({
-          cart: qty <= 0 ? s.cart.filter((c) => c.key !== key) : s.cart.map((c) => (c.key === key ? { ...c, qty } : c)),
+          cart: qty <= 0 ? s.cart.filter((c) => c.key !== key) : s.cart.map((c) => (c.key === key ? { ...c, qty: Math.min(limit, qty) } : c)),
         })),
       setInstallation: (key, on) =>
         set((s) => {

@@ -90,7 +90,7 @@ export const od = defineDict({
     draft_converted: 'I konvertuar',
     archived: 'E arkivuar',
     cancelled: 'E anuluar',
-    channel_online: 'Online Store',
+    channel_online: 'Dyqani online',
     channel_draft: 'Manuale (draft)',
     carrier_tersun: 'Ekipi i montimit TERSUN',
     carrier_courier: 'Shërbim korrieri',

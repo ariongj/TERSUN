@@ -1,4 +1,4 @@
-import { Fragment, useState, type ReactNode } from 'react';
+import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
@@ -8,11 +8,12 @@ import { useDict, useL, useLang } from '@/i18n';
 import { common } from '@/i18n/common';
 import { useUi } from '@/store/ui';
 import { useDb } from '@/store/db';
+import { useShallow } from 'zustand/react/shallow';
 import { useSettings } from '@/store/hooks';
 import { money, num } from '@/lib/format';
-import type { PricedLine, Totals } from '@/lib/pricing';
+import { priceCart, type PricedLine, type Totals } from '@/lib/pricing';
 import type { AppliedDiscount } from '@/lib/types';
-import { discountState } from '@/lib/discounts';
+import { discountState, normalizeCode } from '@/lib/discounts';
 import { cn } from '@/lib/utils';
 import { ck, pluralKey } from './dict';
 
@@ -95,69 +96,89 @@ export function CheckoutSteps({ current, className }: { current: 0 | 1 | 2 | 3 |
 export function CouponBox({ totals, collapsible, className }: { totals: Totals; collapsible?: boolean; className?: string }) {
   const t = useDict(ck);
   const lang = useLang();
-  const applied = useUi((s) => s.coupon);
-  const setCoupon = useUi((s) => s.setCoupon);
-  const discounts = useDb((s) => s.discounts);
-  const [code, setCode] = useState(applied ?? '');
-  const [open, setOpen] = useState(!collapsible || !!applied);
+  const codes = useUi((s) => s.codes);
+  const cart = useUi((s) => s.cart);
+  const addCode = useUi((s) => s.addCode);
+  const removeCode = useUi((s) => s.removeCode);
+  const { discounts, products, settings, collections } = useDb(useShallow((s) => ({ discounts: s.discounts, products: s.products, settings: s.settings, collections: s.collections })));
+  const [code, setCode] = useState('');
+  const [open, setOpen] = useState(!collapsible || codes.length > 0);
 
   const apply = (value = code) => {
-    const v = value.trim().toUpperCase();
-    setCode(v);
-    setCoupon(v || null);
+    const v = normalizeCode(value);
+    if (!v) return;
+    addCode(v);
+    setCode('');
+    setOpen(true);
   };
 
-  // Valid coupon → success state
-  if (totals.coupon) {
-    const c = totals.coupon;
-    return (
-      <div className={cn('flex animate-fade-in items-center gap-3 rounded-xl bg-emerald-50 px-3.5 py-3 ring-1 ring-inset ring-emerald-600/15', className)}>
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-emerald-600 shadow-sm">
-          <TicketPercent className="h-[18px] w-[18px]" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="text-[13.5px] font-bold tracking-wide text-emerald-800">
-            {c.code}
-            <span className="ml-1.5 font-semibold tracking-normal text-emerald-700">· {c.type === 'percent' ? `−${c.value}%` : `−${money(c.value, lang, { decimals: c.value % 1 !== 0 })}`}</span>
-          </div>
-          {/* saving of THIS code only — automatic discounts are listed separately in the totals */}
-          <div className="text-[12.5px] leading-snug text-emerald-700">{t('couponSaving', { amount: money(totals.applied.find((a) => a.code === c.code)?.amount ?? totals.discount, lang) })}</div>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setCoupon(null);
-            setCode('');
-          }}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-emerald-700 transition-colors hover:bg-white hover:text-ink"
-          aria-label={t('couponRemove')}
-          title={t('couponRemove')}
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-    );
-  }
+  // One row per entered code: applied (with what it saves) or refused (with the reason)
+  const rows = codes.map((c) => {
+    const applied = totals.applied.find((a) => a.code === c);
+    const rule = discounts.find((d) => d.id === (applied?.id ?? totals.rejected.find((r) => r.code === c)?.id));
+    if (applied) {
+      const label = applied.kind === 'shipping' ? t('codeFreeDelivery') : rule?.kind === 'bxgy' ? '' : rule?.valueType === 'percent' ? `−${rule.value}%` : rule ? `−${money(rule.value, lang, { decimals: rule.value % 1 !== 0 })}` : '';
+      const note = applied.kind === 'shipping' ? t('free_code', { code: c }) : t('couponSaving', { amount: money(applied.amount, lang) });
+      return { code: c, ok: true, label, note };
+    }
+    const rej = totals.rejected.find((r) => r.code === c);
+    // a free-delivery code cannot save anything before the city (and so the fee) is known: it is not refused
+    if (rej && rej.kind === 'shipping' && rej.reason === 'notEligible' && totals.shippingUnknown) return { code: c, ok: true, label: t('codeFreeDelivery'), note: t('codeAtCheckout') };
+    let note: string;
+    if (!rej) note = t('err_notfound', { code: c });
+    else if (rej.reason === 'minimum') {
+      const min = rule?.minimum.value ?? 0;
+      note = rej.minimumType === 'qty' ? t('err_minQty', { amount: min, left: rej.missing ?? 0 }) : t('err_min', { amount: money(min, lang, { decimals: false }), left: money(rej.missing ?? 0, lang) });
+    } else note = t(`err_${rej.reason}`, { code: c });
+    return { code: c, ok: false, label: '', note };
+  });
 
-  const showError = !!applied && !!totals.couponError && code.trim().toUpperCase() === applied.toUpperCase();
-  let error = '';
-  if (showError && applied) {
-    if (totals.couponError === 'min') {
-      const m = totals.couponMinimum;
-      error =
-        m?.type === 'qty'
-          ? t('err_minQty', { amount: m.value, left: m.missing })
-          : t('err_min', { amount: money(m?.value ?? 0, lang, { decimals: false }), left: money(m?.missing ?? 0, lang) });
-    } else error = t(`err_${totals.couponError ?? 'notfound'}`, { code: applied });
-  }
-  // suggest a live public code the cart already qualifies for (minimum counted after product discounts)
-  const demo = discounts.find(
-    (d) =>
-      d.method === 'code' &&
-      d.code &&
-      d.audience.type === 'all' &&
-      discountState(d) === 'active' &&
-      (d.minimum.type !== 'amount' || d.minimum.value <= totals.subtotal - totals.productDiscount),
+  // suggest a live public code only when it really applies to this cart
+  const demo = useMemo(() => {
+    for (const d of discounts) {
+      if (d.method !== 'code' || !d.code || d.audience.type !== 'all' || discountState(d) !== 'active') continue;
+      const c = normalizeCode(d.code);
+      if (codes.includes(c)) continue;
+      const trial = priceCart(cart, products, settings, { lang, codes: [...codes, c], discounts, collections });
+      if (trial.applied.some((a) => a.code === c && a.amount > 0)) return c;
+    }
+    return null;
+  }, [discounts, codes, cart, products, settings, lang, collections]);
+
+  const chips = rows.length > 0 && (
+    <ul className="space-y-2">
+      {rows.map((r) => (
+        <li
+          key={r.code}
+          className={cn(
+            'flex animate-fade-in items-center gap-3 rounded-xl px-3.5 py-3 ring-1 ring-inset',
+            r.ok ? 'bg-emerald-50 ring-emerald-600/15' : 'bg-red-50 ring-red-600/15',
+          )}
+        >
+          <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white shadow-sm', r.ok ? 'text-emerald-600' : 'text-red-600')}>
+            <TicketPercent className="h-[18px] w-[18px]" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className={cn('text-[13.5px] font-bold tracking-wide', r.ok ? 'text-emerald-800' : 'text-red-700 line-through decoration-red-400/70')}>
+              {r.code}
+              {r.label && <span className="ml-1.5 font-semibold tracking-normal text-emerald-700 no-underline">· {r.label}</span>}
+            </div>
+            <div className={cn('text-[12.5px] leading-snug', r.ok ? 'text-emerald-700' : 'text-red-600')} role={r.ok ? undefined : 'alert'}>
+              {r.note}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => removeCode(r.code)}
+            className={cn('grid h-8 w-8 shrink-0 place-items-center rounded-full transition-colors hover:bg-white hover:text-ink', r.ok ? 'text-emerald-700' : 'text-red-600')}
+            aria-label={`${t('couponRemove')} ${r.code}`}
+            title={t('couponRemove')}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 
   return (
@@ -185,7 +206,8 @@ export function CouponBox({ totals, collapsible, className }: { totals: Totals; 
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className={cn(collapsible && 'pt-3')}>
+            <div className={cn('space-y-2.5', collapsible && 'pt-3')}>
+              {chips}
               <div className="flex gap-2">
                 <input
                   id="coupon-code"
@@ -200,8 +222,7 @@ export function CouponBox({ totals, collapsible, className }: { totals: Totals; 
                   placeholder={t('couponPh')}
                   autoComplete="off"
                   spellCheck={false}
-                  aria-invalid={!!error || undefined}
-                  className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-white px-3.5 text-[14px] font-semibold uppercase tracking-wider text-ink outline-none transition-colors placeholder:font-medium placeholder:normal-case placeholder:tracking-normal placeholder:text-muted/70 focus:border-ink/40 focus:ring-4 focus:ring-ink/5 aria-[invalid=true]:border-red-500"
+                  className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-white px-3.5 text-[14px] font-semibold uppercase tracking-wider text-ink outline-none transition-colors placeholder:font-medium placeholder:normal-case placeholder:tracking-normal placeholder:text-muted/70 focus:border-ink/40 focus:ring-4 focus:ring-ink/5"
                 />
                 <button
                   type="button"
@@ -212,19 +233,13 @@ export function CouponBox({ totals, collapsible, className }: { totals: Totals; 
                   {t('couponApply')}
                 </button>
               </div>
-              {error ? (
-                <p className="mt-2 text-[12.5px] font-medium leading-snug text-red-600" role="alert">
-                  {error}
+              {demo && (
+                <p className="text-[12px] text-muted">
+                  {t('couponDemo')}{' '}
+                  <button type="button" onClick={() => apply(demo)} className="font-bold tracking-wide text-ink-soft underline decoration-dotted underline-offset-2 hover:text-brand-700">
+                    {demo}
+                  </button>
                 </p>
-              ) : (
-                demo && (
-                  <p className="mt-2 text-[12px] text-muted">
-                    {t('couponDemo')}{' '}
-                    <button type="button" onClick={() => apply(demo.code)} className="font-bold tracking-wide text-ink-soft underline decoration-dotted underline-offset-2 hover:text-brand-700">
-                      {demo.code}
-                    </button>
-                  </p>
-                )
               )}
             </div>
           </motion.div>
@@ -261,6 +276,8 @@ export interface TotalsView {
   shippingFrom?: boolean;
   /** free shipping (or shipping = 0) */
   shippingFree?: boolean;
+  /** home delivery, city not chosen yet: the fee is not known */
+  shippingUnknown?: boolean;
   shippingNote?: string;
   shippingLabel?: string;
   total: number;
@@ -305,7 +322,9 @@ export function TotalsRows({ v, className, big }: { v: TotalsView; className?: s
           label={v.shippingLabel ?? tc('shipping')}
           sub={v.shippingNote}
           value={
-            v.shippingFree || v.shipping === 0 ? (
+            v.shippingUnknown ? (
+              <span className="text-muted">{t('shippingByCity')}</span>
+            ) : v.shippingFree || v.shipping === 0 ? (
               <span className="font-semibold text-emerald-700">{t('free')}</span>
             ) : v.shippingFrom ? (
               t('from', { amount: money(v.shipping, lang) })
@@ -353,9 +372,11 @@ export function useTotalsView(totals: Totals, opts: { showEstimateHint?: boolean
       ? t('free_threshold', { amount: money(totals.freeShippingThreshold ?? settings.freeShippingThreshold, lang, { decimals: false }) })
       : r === 'installation'
         ? t('free_installation')
-        : r === 'pickup'
-          ? undefined
-          : totals.shippingEstimate && opts.showEstimateHint
+        : r === 'code'
+          ? t('free_code', { code: totals.applied.find((a) => a.kind === 'shipping')?.code ?? '' })
+          : r === 'pickup'
+            ? undefined
+            : (totals.shippingEstimate || totals.shippingUnknown) && opts.showEstimateHint
             ? t('shippingCalc')
             : undefined;
   return {
@@ -367,6 +388,7 @@ export function useTotalsView(totals: Totals, opts: { showEstimateHint?: boolean
     shipping: totals.shipping,
     shippingFrom: totals.shippingEstimate,
     shippingFree: !!r,
+    shippingUnknown: totals.shippingUnknown,
     shippingNote: note,
     shippingLabel: r === 'pickup' ? tc('delivery_pickup') : tc('shipping'),
     total: totals.total,

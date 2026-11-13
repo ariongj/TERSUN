@@ -4,7 +4,7 @@ import { ArrowRight, Clock, Mail, MapPin, Phone, ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { Logo } from '@/components/brand/Logo';
 import { InstagramIcon, FacebookIcon, WhatsAppIcon } from '@/components/brand/Social';
-import { useDict, useL } from '@/i18n';
+import { useDict, useL, useLang } from '@/i18n';
 import { site } from '@/i18n/site';
 import { useCategories, useSettings } from '@/store/hooks';
 import { useDb } from '@/store/db';
@@ -17,8 +17,37 @@ export function Footer() {
   const l = useL();
   const settings = useSettings();
   const menu = useNavMenu('footer');
+  const lang = useLang();
+  const addInquiry = useDb((s) => s.addInquiry);
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(false);
   const year = new Date().getFullYear();
+  // "About the company" from CMS → Settings when filled in for this language, otherwise the built-in text
+  const about = settings.about?.[lang]?.trim() || t('footerAbout');
+
+  /** Newsletter sign-ups land in CMS → Contacts (one entry per address). */
+  const subscribe = () => {
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setEmailError(true);
+      toast.error(t('newsInvalid'));
+      return;
+    }
+    const known = useDb.getState().inquiries.some((q) => q.service === 'Newsletter' && q.email?.toLowerCase() === value.toLowerCase());
+    if (!known) {
+      addInquiry({
+        type: 'contact',
+        name: 'Newsletter',
+        phone: '',
+        email: value,
+        service: 'Newsletter',
+        message: `Newsletter sign-up from the website footer: ${value} (${lang.toUpperCase()})`,
+      });
+    }
+    toast.success(t('subscribed'));
+    setEmail('');
+    setEmailError(false);
+  };
 
   return (
     <footer className="relative mt-24 overflow-hidden bg-ink text-paper">
@@ -31,19 +60,27 @@ export function Footer() {
             <p className="mt-3 max-w-md text-[15px] text-paper/60">{t('newsText')}</p>
           </div>
           <form
+            noValidate
             onSubmit={(e) => {
               e.preventDefault();
-              if (!/^\S+@\S+\.\S+$/.test(email)) return;
-              toast.success(t('subscribed'));
-              setEmail('');
+              subscribe();
             }}
-            className="flex w-full max-w-lg gap-2 rounded-full bg-white/[0.07] p-1.5 ring-1 ring-white/10 focus-within:ring-white/30 lg:justify-self-end"
+            className={cn(
+              'flex w-full max-w-lg gap-2 rounded-full bg-white/[0.07] p-1.5 ring-1 lg:justify-self-end',
+              emailError ? 'ring-red-400/80' : 'ring-white/10 focus-within:ring-white/30',
+            )}
           >
             <input
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false);
+              }}
+              aria-label={t('newsLabel')}
+              aria-invalid={emailError || undefined}
+              autoComplete="email"
               placeholder={t('newsPlaceholder')}
               className="min-w-0 flex-1 bg-transparent px-4 text-[15px] text-white outline-none placeholder:text-paper/40"
             />
@@ -57,7 +94,7 @@ export function Footer() {
         <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Logo tone="light" tagline className="h-12" />
-            <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-paper/60">{t('footerAbout')}</p>
+            <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-paper/60">{about}</p>
             <div className="mt-6 flex gap-2">
               <a href={`https://www.instagram.com/${settings.instagram}/`} target="_blank" rel="noreferrer" className="grid h-10 w-10 place-items-center rounded-full bg-white/[0.08] transition-colors hover:bg-white hover:text-ink" aria-label="Instagram">
                 <InstagramIcon className="h-[18px] w-[18px]" />

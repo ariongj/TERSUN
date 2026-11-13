@@ -24,6 +24,7 @@ import { discountClass, discountState, isDuplicateCode, normalizeCode } from '@/
 import { segmentMembers, segmentSubjects } from '@/lib/crm';
 import type { Discount, DiscountClass, DiscountKind } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { same, useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 
 type Errors = Partial<Record<'code' | 'value' | 'applies' | 'buy' | 'get' | 'getValue' | 'buyQty' | 'getQty' | 'zones' | 'minimum' | 'segment' | 'usageLimit' | 'start' | 'end', string>>;
 const CLASSES: DiscountClass[] = ['products', 'order', 'shipping'];
@@ -142,7 +143,11 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
   const set = (patch: Partial<Discount>) => setD((p) => ({ ...p, ...patch }));
   const setB = (patch: Partial<NonNullable<Discount['bxgy']>>) => setD((p) => ({ ...p, bxgy: { ...(p.bxgy ?? newDiscount('bxgy').bxgy!), ...patch } }));
 
-  const dirty = isNew || JSON.stringify(d) !== JSON.stringify(saved);
+  // saved elsewhere (another tab) → rebase onto it; fields edited here stay
+  useFollowStored(isNew ? undefined : initial, saved, setSaved, d, setD);
+  const changed = !same(d, saved);
+  const dirty = isNew || changed;
+  const allowNav = useUnsavedGuard(canEdit && changed);
   const others = useMemo(() => discounts.filter((o) => o.id !== d.id), [discounts, d.id]);
   const allErrors = useMemo(() => {
     const e = validate(d, discounts, t);
@@ -207,11 +212,15 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
     setShowErrors(false);
     if (isNew) {
       toast.success(canPublish ? t('savedNew') : t('savedPending'), { description: out.method === 'code' ? out.code : out.title });
+      allowNav();
       navigate(`/admin/popusti/${out.id}`, { replace: true });
     } else toast.success(ta('saved'), { description: out.method === 'code' ? out.code : out.title });
   };
   const discard = () => {
-    if (isNew) return navigate('/admin/popusti');
+    if (isNew) {
+      allowNav();
+      return navigate('/admin/popusti');
+    }
     setD(saved);
     setZonesSome(zonesMode(saved) === 'some');
     setShowErrors(false);
@@ -227,6 +236,7 @@ function Editor({ initial, isNew }: { initial: Discount; isNew: boolean }) {
     if (!(await confirmDialog({ title: t('deleteTitle', { name: saved.method === 'code' ? normalizeCode(saved.code) : saved.title }), text: t('deleteText'), confirmLabel: ta('delete'), danger: true }))) return;
     removeItem('discounts', saved.id);
     toast.success(t('deletedToast'), { description: saved.title });
+    allowNav();
     navigate('/admin/popusti');
   };
   const changeType = (k: DiscountKind) => {

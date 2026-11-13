@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CalendarClock, CheckCircle2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input, Select, Textarea } from '@/components/ui/Field';
@@ -22,6 +22,22 @@ const B = defineDict({
 /** Service used for measurement requests from the website. */
 const MEASURE_SERVICE = 'sv-mjerenje';
 
+/** Validation messages are kept as dictionary keys, so they follow a language switch. */
+type ErrKey = 'f_required' | 'f_invalidPhone' | 'f_invalidEmail' | 'f_pastDate';
+type Field = 'name' | 'phone' | 'email' | 'date' | 'message';
+/** Order in which the first invalid field gets focus */
+const FIELDS: Field[] = ['name', 'phone', 'email', 'date', 'message'];
+
+/** Today as YYYY-MM-DD in the visitor's local time (toISOString would give the UTC day). */
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Digits, spaces and + ( ) / - only, with 8–15 digits. */
+const validPhone = (v: string) => /^[\d\s+()/-]+$/.test(v) && /^\d{8,15}$/.test(v.replace(/\D/g, ''));
+const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
 /**
  * Lead form used for "free measurement", "request a quote" and plain contact.
  * Submissions land in Admin → Contacts instantly.
@@ -36,6 +52,7 @@ export function MeasureForm({
 }: {
   type?: InquiryType;
   productId?: string;
+  /** Pre-selected service chip: a category id, or 'other' */
   defaultService?: string;
   defaultMessage?: string;
   className?: string;
@@ -49,11 +66,18 @@ export function MeasureForm({
   const tb = useDict(B);
   const lang = useLang();
   const [form, setForm] = useState({ name: '', phone: '', email: '', city: '', service: defaultService ?? '', date: '', message: defaultMessage ?? '' });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<Field, ErrKey>>>({});
+  const refs = useRef<Partial<Record<Field, HTMLInputElement | HTMLTextAreaElement | null>>>({});
+  const reg = (k: Field) => (el: HTMLInputElement | HTMLTextAreaElement | null) => {
+    refs.current[k] = el;
+  };
   const [sent, setSent] = useState<{ name: string; phone: string; slot?: { start: string; durationMin: number } } | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localToday();
+  // Service chips by id, labelled in the current language (so a language switch keeps the selection)
+  const services = [...cats.map((c) => ({ id: c.id, label: l(c.name) })), { id: 'other', label: t('f_other') }];
+  const serviceLabel = services.find((x) => x.id === form.service)?.label ?? '';
 
   /**
    * A measurement request with a preferred date also books a PENDING appointment (10:00, or the next free
@@ -75,7 +99,7 @@ export function MeasureForm({
       start: slot.start,
       location: service.location ?? 'onsite',
       inquiryId,
-      note: [form.service, form.message.trim()].filter(Boolean).join(' — ') || undefined,
+      note: [serviceLabel, form.message.trim()].filter(Boolean).join(' — ') || undefined,
       status: 'pending',
     });
     if (!res.ok) return undefined;
@@ -86,13 +110,20 @@ export function MeasureForm({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err: Record<string, string> = {};
-    if (!form.name.trim()) err.name = t('f_required');
-    if (!form.phone.trim()) err.phone = t('f_required');
-    else if (form.phone.replace(/\D/g, '').length < 8) err.phone = t('f_invalidPhone');
-    if (type === 'contact' && !form.message.trim()) err.message = t('f_required');
+    const err: Partial<Record<Field, ErrKey>> = {};
+    if (!form.name.trim()) err.name = 'f_required';
+    if (!form.phone.trim()) err.phone = 'f_required';
+    else if (!validPhone(form.phone.trim())) err.phone = 'f_invalidPhone';
+    if (form.email.trim() && !validEmail(form.email.trim())) err.email = 'f_invalidEmail';
+    if (type === 'measurement' && form.date && form.date < localToday()) err.date = 'f_pastDate';
+    if (type === 'contact' && !form.message.trim()) err.message = 'f_required';
     setErrors(err);
-    if (Object.keys(err).length) return;
+    const first = FIELDS.find((k) => err[k]);
+    if (first) {
+      // after the error text has rendered, so it is read with the field
+      requestAnimationFrame(() => refs.current[first]?.focus());
+      return;
+    }
     setBusy(true);
     await new Promise((r) => setTimeout(r, 650));
     const inq = addInquiry({
@@ -101,7 +132,7 @@ export function MeasureForm({
       phone: form.phone.trim(),
       email: form.email.trim() || undefined,
       city: form.city || undefined,
-      service: form.service || undefined,
+      service: serviceLabel || undefined,
       productId,
       message: form.message.trim() || '—',
       preferredDate: form.date || undefined,
@@ -134,7 +165,7 @@ export function MeasureForm({
           className="mt-6"
           onClick={() => {
             setSent(null);
-            setForm({ name: '', phone: '', email: '', city: '', service: defaultService ?? '', date: '', message: '' });
+            setForm({ name: '', phone: '', email: '', city: '', service: defaultService ?? '', date: '', message: defaultMessage ?? '' });
           }}
         >
           {t('f_newRequest')}
@@ -146,10 +177,21 @@ export function MeasureForm({
   return (
     <form onSubmit={submit} noValidate className={cn('rounded-3xl bg-white p-6 ring-1 ring-line sm:p-8', className)}>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Input label={t('f_name')} required value={form.name} onChange={set('name')} error={errors.name} autoComplete="name" />
-        <Input label={t('f_phone')} required type="tel" value={form.phone} onChange={set('phone')} error={errors.phone} placeholder="+383 4_ ___ ___" autoComplete="tel" />
+        <Input ref={reg('name')} label={t('f_name')} required value={form.name} onChange={set('name')} error={errors.name && t(errors.name)} autoComplete="name" />
+        <Input
+          ref={reg('phone')}
+          label={t('f_phone')}
+          required
+          type="tel"
+          inputMode="tel"
+          value={form.phone}
+          onChange={set('phone')}
+          error={errors.phone && t(errors.phone)}
+          placeholder="+383 4_ ___ ___"
+          autoComplete="tel"
+        />
         {type === 'contact' ? (
-          <Input label={t('f_email')} type="email" value={form.email} onChange={set('email')} wrapClassName="sm:col-span-2" autoComplete="email" />
+          <Input ref={reg('email')} label={t('f_email')} type="email" value={form.email} onChange={set('email')} error={errors.email && t(errors.email)} wrapClassName="sm:col-span-2" autoComplete="email" />
         ) : (
           <>
             <Select label={t('f_city')} value={form.city} onChange={set('city')}>
@@ -161,25 +203,26 @@ export function MeasureForm({
               ))}
             </Select>
             {type === 'measurement' ? (
-              <Input label={t('f_date')} type="date" min={today} value={form.date} onChange={set('date')} />
+              <Input ref={reg('date')} label={t('f_date')} type="date" min={today} value={form.date} onChange={set('date')} error={errors.date && t(errors.date)} />
             ) : (
-              <Input label={t('f_email')} type="email" value={form.email} onChange={set('email')} autoComplete="email" />
+              <Input ref={reg('email')} label={t('f_email')} type="email" value={form.email} onChange={set('email')} error={errors.email && t(errors.email)} autoComplete="email" />
             )}
             {type === 'measurement' && (
               <div className="sm:col-span-2">
                 <span className="mb-1.5 block text-[13px] font-semibold text-ink-soft">{t('f_service')}</span>
                 <div className="flex flex-wrap gap-2">
-                  {[...cats.map((c) => l(c.name)), t('f_other')].map((s) => (
+                  {services.map((s) => (
                     <button
-                      key={s}
+                      key={s.id}
                       type="button"
-                      onClick={() => setForm((f) => ({ ...f, service: f.service === s ? '' : s }))}
+                      aria-pressed={form.service === s.id}
+                      onClick={() => setForm((f) => ({ ...f, service: f.service === s.id ? '' : s.id }))}
                       className={cn(
                         'rounded-full border px-3.5 py-2 text-[13px] font-semibold transition-colors',
-                        form.service === s ? 'border-ink bg-ink text-paper' : 'border-line bg-white text-ink-soft hover:border-ink/30',
+                        form.service === s.id ? 'border-ink bg-ink text-paper' : 'border-line bg-white text-ink-soft hover:border-ink/30',
                       )}
                     >
-                      {s}
+                      {s.label}
                     </button>
                   ))}
                 </div>
@@ -187,7 +230,17 @@ export function MeasureForm({
             )}
           </>
         )}
-        <Textarea label={t('f_message')} rows={3} value={form.message} onChange={set('message')} placeholder={t('f_messagePh')} error={errors.message} wrapClassName="sm:col-span-2" />
+        <Textarea
+          ref={reg('message')}
+          label={t('f_message')}
+          required={type === 'contact'}
+          rows={3}
+          value={form.message}
+          onChange={set('message')}
+          placeholder={t('f_messagePh')}
+          error={errors.message && t(errors.message)}
+          wrapClassName="sm:col-span-2"
+        />
       </div>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted sm:max-w-[55%]">{t('f_privacy')}</p>

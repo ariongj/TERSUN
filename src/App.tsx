@@ -106,6 +106,13 @@ const STORAGE_FULL = defineDict({
   en: { full: 'Demo data storage is full — delete some uploaded images or reset the demo.' },
 });
 
+/** Screen-reader labels of the toast area, in the language of the current area (storefront / CMS). */
+const TOASTER = defineDict({
+  de: { region: 'Benachrichtigungen', close: 'Benachrichtigung schließen' },
+  sq: { region: 'Njoftimet', close: 'Mbyll njoftimin' },
+  en: { region: 'Notifications', close: 'Close notification' },
+});
+
 /** Old v1 CMS URLs → v2 screens, keeping ?query (e.g. /admin/upiti?id=inq_120 → /admin/kontakti?id=inq_120). */
 function Redirect({ to }: { to: string }) {
   const { search, hash } = useLocation();
@@ -116,6 +123,7 @@ function Root() {
   const brand = useDb((s) => s.settings.brandColor);
   const { pathname } = useLocation();
   const admin = pathname === '/admin' || pathname.startsWith('/admin/');
+  const toasterLang = useUi((s) => (admin ? s.adminLang : s.lang));
   // Neutral CMS theme under /admin (PDF p.07); the storefront (and the builder's preview iframe) keeps the TERSUN red.
   useLayoutEffect(() => setAdminTheme(admin), [admin]);
   useEffect(() => applyBrand(brand), [brand]);
@@ -135,7 +143,13 @@ function Root() {
       <Suspense fallback={<Loader />}>
         <Outlet />
       </Suspense>
-      <Toaster position="bottom-right" richColors closeButton toastOptions={{ className: 'font-sans' }} />
+      <Toaster
+        position="bottom-right"
+        richColors
+        closeButton
+        containerAriaLabel={TOASTER[toasterLang].region}
+        toastOptions={{ className: 'font-sans', closeButtonAriaLabel: TOASTER[toasterLang].close }}
+      />
     </>
   );
 }

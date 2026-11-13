@@ -10,7 +10,7 @@ import { Price } from '@/site/components/Price';
 import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { systemForCategory } from '@/site/builder3d/systems';
 import { useUi } from '@/store/ui';
-import { useSettings } from '@/store/hooks';
+import { useFreeShippingFrom, useSettings } from '@/store/hooks';
 import { basePrice } from '@/lib/pricing';
 import { money, num, perUnit, unitLabel } from '@/lib/format';
 import { cn, round2 } from '@/lib/utils';
@@ -18,6 +18,7 @@ import { PD, eur, packWord } from './dict';
 import { OptionPicker } from './OptionPicker';
 import { QuantityPicker } from './QuantityPicker';
 import { useTweenedNumber, type Configurator } from './useConfigurator';
+import { isTracked } from '@/lib/inventory';
 
 export function BuyBox({ cfg, category, onAdd, onQuote, ctaRef }: { cfg: Configurator; category?: Category; onAdd: () => void; onQuote: () => void; ctaRef?: Ref<HTMLDivElement> }) {
   const t = useDict(PD);
@@ -54,9 +55,11 @@ export function BuyBox({ cfg, category, onAdd, onQuote, ctaRef }: { cfg: Configu
       <h1 className="display mt-3 text-[34px] leading-[1.04] text-ink sm:text-[42px] xl:text-[46px]">{l(p.name)}</h1>
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <ProductBadges product={p} />
-        <span className="text-[12.5px] font-medium text-muted">
-          {t('sku')}: <span className="font-semibold tabular-nums text-ink-soft">{p.sku}</span>
-        </span>
+        {p.sku?.trim() && (
+          <span className="text-[12.5px] font-medium text-muted">
+            {t('sku')}: <span className="font-semibold tabular-nums text-ink-soft">{p.sku}</span>
+          </span>
+        )}
       </div>
 
       <PriceBlock cfg={cfg} />
@@ -132,8 +135,10 @@ function StockLine({ cfg }: { cfg: Configurator }) {
   const t = useDict(PD);
   const p = cfg.product;
   const days = p.leadDays ?? 0;
-  const toOrder = p.stock >= 999 || p.stock <= 0;
-  const low = !toOrder && p.stock <= 5;
+  // what can actually be sold: stock blocked in the CMS (damaged, reserved…) does not count
+  const available = isTracked(p) ? Math.max(0, p.stock - (p.unavailable ?? 0)) : p.stock;
+  const toOrder = !isTracked(p) || available <= 0;
+  const low = !toOrder && available <= 5;
   return (
     <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13.5px] font-semibold">
       {toOrder ? (
@@ -148,7 +153,7 @@ function StockLine({ cfg }: { cfg: Configurator }) {
               <span className={cn('absolute inline-flex h-full w-full animate-ping rounded-full opacity-60', low ? 'bg-amber-400' : 'bg-emerald-400')} />
               <span className={cn('relative inline-flex h-2.5 w-2.5 rounded-full', low ? 'bg-amber-500' : 'bg-emerald-500')} />
             </span>
-            {low ? t('lowStock', { n: p.stock }) : t('inStock')}
+            {low ? t('lowStock', { n: available }) : t('inStock')}
           </span>
           {days > 0 && (
             <span className="inline-flex items-center gap-1.5 font-medium text-muted">
@@ -344,7 +349,7 @@ function QuotePanel({ cfg, onQuote, ctaRef }: { cfg: Configurator; onQuote: () =
         </div>
         {sys && (
           <Link
-            to={`/3d?system=${sys.id}`}
+            to={`/3d?system=${sys.id}&product=${p.id}`}
             className="mt-3 flex h-12 items-center justify-center gap-2 rounded-full bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-brand-100"
           >
             <Box className="h-4 w-4" /> {t3('design3d')}
@@ -387,12 +392,13 @@ function TrustRow({ warrantyYears }: { warrantyYears?: number }) {
   const t = useDict(PD);
   const lang = useLang();
   const settings = useSettings();
+  const freeFrom = useFreeShippingFrom();
   const items = [
     { icon: Ruler, title: t('trust_measure'), text: t('trust_measureText'), to: '/#consultation' },
     warrantyYears
       ? { icon: ShieldCheck, title: t('trust_warranty', { n: warrantyYears }), text: t('trust_warrantyText') }
       : { icon: ShieldCheck, title: t('trust_bank'), text: t('trust_bankText') },
-    { icon: Truck, title: t('trust_delivery'), text: t('trust_deliveryText', { amount: money(settings.freeShippingThreshold, lang, { decimals: false }) }) },
+    { icon: Truck, title: t('trust_delivery'), text: freeFrom != null ? t('trust_deliveryText', { amount: money(freeFrom, lang, { decimals: false }) }) : t('trust_deliveryTextPlain') },
     settings.payments.cod ? { icon: Banknote, title: t('trust_cod'), text: t('trust_codText') } : { icon: CreditCard, title: t('trust_bank'), text: t('trust_bankText') },
   ];
   return (

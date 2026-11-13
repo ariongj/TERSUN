@@ -1,6 +1,7 @@
 // Collections — CMS proposal p.14. Manual = hand-picked; smart = rules with ALL/ANY logic, evaluated
 // live, so changing a price or a tag updates membership without touching the collection.
 import type { Collection, CollectionRule, CollectionSort, Product } from './types';
+import { isPublic } from './crm';
 
 const fold = (s: string) =>
   s
@@ -111,7 +112,7 @@ export function sortProducts(list: Product[], sort: CollectionSort, manualOrder:
  * they match a rule (p.14 "Produkti draft/arkivuar nuk shfaqet publikisht").
  */
 export function collectionProducts(c: Collection, products: Product[], opts: { publicOnly?: boolean } = {}): Product[] {
-  const members = products.filter((p) => inCollection(c, p) && (!opts.publicOnly || p.status === 'active'));
+  const members = products.filter((p) => inCollection(c, p) && (!opts.publicOnly || isPublic(p)));
   return sortProducts(members, c.sort, c.productIds);
 }
 

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties, type FocusEvent, type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
 import { ArrowRight, ArrowUpRight, Heart, Menu, Phone, Search, ShoppingBag, Ruler } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Logo } from '@/components/brand/Logo';
+import { Logo, LogoMark } from '@/components/brand/Logo';
+import { readTheme } from '@/admin/components/store/theme';
 import { LangSwitcher } from '@/components/LangSwitcher';
 import { ButtonLink } from '@/components/ui/Button';
 import { Img } from '@/components/ui/misc';
@@ -10,11 +11,13 @@ import { Drawer } from '@/components/ui/Overlay';
 import { useDict, useL } from '@/i18n';
 import { site } from '@/i18n/site';
 import { useUi } from '@/store/ui';
-import { useCategories, usePlacements, useSettings } from '@/store/hooks';
+import { useActiveProducts, useCart, useCategories, usePlacements, useSettings } from '@/store/hooks';
 import { isPromo, type NavNode } from '@/admin/components/menus/links';
 import { useNavMenu } from '@/admin/components/menus/useNav';
 import type { L10n } from '@/lib/types';
+import { discountPct } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
+import { T as shopDict } from '@/site/components/shop/dict';
 
 /* ------------------------------------------------------------------ */
 /* Main menu (CMS → Menus "main"), with the built-in links as fallback  */
@@ -113,9 +116,10 @@ function AnnouncementBar() {
   const l = useL();
   const [i, setI] = useState(0);
   const items = useMemo(() => {
-    const live = bar.filter((p) => p.title.de.trim()).map((p) => ({ id: p.id, text: p.title, href: p.cta?.href?.trim() ?? '' }));
+    // a message written in any language counts (the CMS opens in Albanian); it shows in the visitor's language when there
+    const live = bar.filter((p) => l(p.title).trim()).map((p) => ({ id: p.id, text: p.title, href: p.cta?.href?.trim() ?? '' }));
     return live.length ? live : settings.announcements.map((text, n) => ({ id: `a${n}`, text, href: '' }));
-  }, [bar, settings.announcements]);
+  }, [bar, settings.announcements, l]);
   useEffect(() => {
     if (items.length < 2) return;
     const t = setInterval(() => setI((x) => (x + 1) % items.length), 4500);
@@ -162,10 +166,30 @@ function AnnouncementBar() {
   );
 }
 
+/** id of a mega-menu trigger button, so Escape can hand focus back to it */
+const megaBtnId = (id: string) => `mega-btn-${id}`;
+
 function MegaMenu({ item, onClose }: { item: NavItem; onClose: () => void }) {
   const t = useDict(site);
+  const ts = useDict(shopDict);
+  const products = useActiveProducts();
   const promo = item.children.find((c) => isPromo(c));
   const tiles = item.children.filter((c) => c !== promo);
+  // the same "up to" figure the sale page shows
+  const maxPct = useMemo(() => Math.max(0, ...products.map(discountPct)), [products]);
+
+  // Escape closes the menu; focus inside it goes back to its button
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      const btn = document.getElementById(megaBtnId(item.id));
+      if (btn && btn.parentElement?.contains(document.activeElement)) btn.focus();
+      onClose();
+    };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
+  }, [item.id, onClose]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -200,7 +224,7 @@ function MegaMenu({ item, onClose }: { item: NavItem; onClose: () => void }) {
             <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
             <div className="relative flex h-full min-h-[180px] flex-col justify-end p-5 text-white">
               <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-200">{promo.label}</span>
-              <span className="mt-1 font-display text-2xl leading-tight">{promo.type === 'offer' ? promo.sub ?? '' : '−20%'}</span>
+              <span className="mt-1 font-display text-2xl leading-tight">{promo.type === 'offer' ? promo.sub ?? '' : maxPct > 0 ? `${ts('upTo')} −${maxPct}%` : ''}</span>
               <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold">
                 {t('seeAll')} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </span>
@@ -213,11 +237,13 @@ function MegaMenu({ item, onClose }: { item: NavItem; onClose: () => void }) {
 }
 
 export function Header({ transparentTop = false }: { transparentTop?: boolean }) {
+  const logoTheme = readTheme(useSettings());
   const t = useDict(site);
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mega, setMega] = useState<string | null>(null);
-  const cartCount = useUi((s) => s.cart.length);
+  // the same count the cart shows ("3 items"), from priced lines only
+  const cartCount = useCart().count;
   const wishCount = useUi((s) => s.wishlist.length);
   const setCartOpen = useUi((s) => s.setCartOpen);
   const setSearchOpen = useUi((s) => s.setSearchOpen);
@@ -237,12 +263,13 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
   }, [location.pathname, location.search]);
 
   const megaItem = mega ? nav.find((n) => n.id === mega && n.children.length) : undefined;
+  const closeMega = useCallback(() => setMega(null), []);
   const solid = !transparentTop || scrolled || !!megaItem;
   const tone = solid ? 'dark' : 'light';
 
   const linkCls = (active: boolean) =>
     cn(
-      'relative rounded-full px-3.5 py-2 text-[14.5px] font-semibold transition-colors',
+      'relative whitespace-nowrap rounded-full px-2.5 py-2 text-[14.5px] font-semibold transition-colors xl:px-3.5',
       solid ? (active ? 'text-ink' : 'text-ink-soft hover:text-ink') : active ? 'text-white' : 'text-white/85 hover:text-white',
     );
 
@@ -264,22 +291,37 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
             <Menu className="h-5 w-5" />
           </button>
           <Link to="/" className="shrink-0" aria-label="TERSUN">
-            <Logo tone={tone} className="h-[18px] sm:h-[21px]" />
+            {/* logo style and size from the CMS theme (44 px = the standard size) */}
+            {logoTheme.logo === 'mark' ? (
+              <LogoMark tone={tone} className="h-[26px] sm:h-[var(--logo-h)]" style={{ '--logo-h': `${Math.round((30 * logoTheme.logoSize) / 44)}px` } as CSSProperties} />
+            ) : (
+              <Logo tone={tone} className="h-[18px] sm:h-[var(--logo-h)]" style={{ '--logo-h': `${Math.round((21 * logoTheme.logoSize) / 44)}px` } as CSSProperties} />
+            )}
           </Link>
 
-          <nav className="ml-6 hidden items-center gap-0.5 lg:flex">
+          <nav className="ml-4 hidden items-center gap-0.5 lg:flex xl:ml-6">
             {nav.map((n) =>
               n.children.length ? (
-                <button
+                // Button + its panel: the panel follows the button in tab order, and the menu closes once focus moves on
+                <div
                   key={n.id}
-                  type="button"
-                  onMouseEnter={() => setMega(n.id)}
-                  onClick={() => setMega((m) => (m === n.id ? null : n.id))}
-                  className={linkCls(inSection(n, location.pathname) || mega === n.id)}
-                  aria-expanded={mega === n.id}
+                  className="contents"
+                  onBlur={(e: FocusEvent<HTMLDivElement>) => {
+                    if (e.relatedTarget && !e.currentTarget.contains(e.relatedTarget as Node)) setMega((m) => (m === n.id ? null : m));
+                  }}
                 >
-                  {n.label}
-                </button>
+                  <button
+                    id={megaBtnId(n.id)}
+                    type="button"
+                    onMouseEnter={() => setMega(n.id)}
+                    onClick={() => setMega((m) => (m === n.id ? null : n.id))}
+                    className={linkCls(inSection(n, location.pathname) || mega === n.id)}
+                    aria-expanded={mega === n.id}
+                  >
+                    {n.label}
+                  </button>
+                  <AnimatePresence>{megaItem?.id === n.id && <MegaMenu key={n.id} item={megaItem} onClose={closeMega} />}</AnimatePresence>
+                </div>
               ) : n.external ? (
                 <a key={n.id} href={n.to} target="_blank" rel="noreferrer" onMouseEnter={() => setMega(null)} className={linkCls(false)}>
                   {n.label}
@@ -316,7 +358,6 @@ export function Header({ transparentTop = false }: { transparentTop?: boolean })
             </span>
           </div>
         </div>
-        <AnimatePresence>{megaItem && <MegaMenu key={megaItem.id} item={megaItem} onClose={() => setMega(null)} />}</AnimatePresence>
       </header>
       <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} nav={nav} fallback={fallback} />
     </>
@@ -335,6 +376,7 @@ interface MobileRow {
 function MobileMenu({ open, onClose, nav, fallback }: { open: boolean; onClose: () => void; nav: NavItem[]; fallback: boolean }) {
   const t = useDict(site);
   const settings = useSettings();
+  const wishCount = useUi((s) => s.wishlist.length);
   // The first dropdown with image tiles (Proizvodi) drives the category grid; its link becomes "All products".
   const shop = nav.find((n) => n.children.some(isTile));
   const tiles = shop ? shop.children.filter(isTile) : [];
@@ -348,7 +390,7 @@ function MobileMenu({ open, onClose, nav, fallback }: { open: boolean; onClose: 
   ];
   const rowCls = 'border-b border-line py-3.5 text-[17px] font-semibold';
   return (
-    <Drawer open={open} onClose={onClose} side="left" title={<Logo className="h-5" />} width="max-w-[380px]">
+    <Drawer open={open} onClose={onClose} side="left" title={<Logo className="h-5" />} label={t('menu')} width="max-w-[380px]">
       <div className="px-5 py-5">
         {tiles.length > 0 && (
           <>
@@ -390,6 +432,13 @@ function MobileMenu({ open, onClose, nav, fallback }: { open: boolean; onClose: 
               ))}
             </div>
           ))}
+          {/* The header heart is hidden on phones — the wishlist lives here */}
+          <NavLink to="/wishlist" onClick={onClose} className={({ isActive }) => cn(rowCls, 'flex items-center justify-between gap-3', isActive ? 'text-brand-700' : 'text-ink')}>
+            <span className="inline-flex items-center gap-2.5">
+              <Heart className="h-[18px] w-[18px]" /> {t('wishlist')}
+            </span>
+            {wishCount > 0 && <span className="grid h-6 min-w-6 place-items-center rounded-full bg-brand-600 px-1.5 text-[12px] font-bold text-white">{wishCount}</span>}
+          </NavLink>
         </nav>
         <div className="mt-6 flex items-center justify-between">
           <LangSwitcher align="left" />

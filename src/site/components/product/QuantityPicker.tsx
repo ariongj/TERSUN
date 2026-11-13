@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { AlertTriangle, Calculator } from 'lucide-react';
 import { Checkbox } from '@/components/ui/Field';
 import { QtyStepper } from '@/components/ui/misc';
@@ -7,19 +8,29 @@ import { round2 } from '@/lib/utils';
 import { PD, packWord } from './dict';
 import type { Configurator } from './useConfigurator';
 
+/** QtyStepper has no label of its own: name its number field after the caption shown above it. */
+function useStepperLabel(label: string) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    ref.current?.querySelector('input')?.setAttribute('aria-label', label);
+  }, [label]);
+  return ref;
+}
+
 /** Pieces / metres stepper, or the m² → packs calculator for flooring & tiles. */
 export function QuantityPicker({ cfg }: { cfg: Configurator }) {
   const t = useDict(PD);
   const lang = useLang();
   const p = cfg.product;
 
+  const isMetre = p.unit === 'm';
+  const stepper = useStepperLabel(isMetre ? t('length') : t('quantity'));
   if (p.unit === 'm2' && p.packSize) return <AreaCalculator cfg={cfg} />;
 
-  const isMetre = p.unit === 'm';
   return (
     <div>
       <div className="mb-3 text-[13.5px] font-semibold text-ink-soft">{isMetre ? t('length') : t('quantity')}</div>
-      <div className="flex items-center gap-3">
+      <div ref={stepper} className="flex items-center gap-3">
         <QtyStepper value={cfg.qty} onChange={cfg.setQty} max={cfg.maxQty} />
         <span className="text-[14px] font-medium text-muted">{unitLabel(p.unit, lang)}</span>
         {isMetre && <span className="ml-1 text-[12.5px] text-muted">{t('lengthHint')}</span>}
@@ -36,6 +47,7 @@ function AreaCalculator({ cfg }: { cfg: Configurator }) {
   const manual = cfg.areaNum > 0 && cfg.qty !== cfg.suggestedPacks;
   const short = cfg.areaNum > 0 && covered < cfg.areaNum;
   const word = packWord(cfg.qty, lang, t('pack_one'), t('pack_many'));
+  const stepper = useStepperLabel(t('packsLabel'));
 
   return (
     <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-line">
@@ -56,6 +68,7 @@ function AreaCalculator({ cfg }: { cfg: Configurator }) {
             <input
               type="number"
               inputMode="decimal"
+              aria-label={`${t('area')} (m²)`}
               min={0}
               step="0.5"
               value={cfg.area}
@@ -66,7 +79,7 @@ function AreaCalculator({ cfg }: { cfg: Configurator }) {
             <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-muted">m²</span>
           </span>
         </label>
-        <div>
+        <div ref={stepper}>
           <span className="mb-1.5 block text-[12.5px] font-semibold text-ink-soft">{t('packsLabel')}</span>
           <QtyStepper value={cfg.qty} onChange={cfg.setQty} max={cfg.maxQty} className="w-full justify-between" />
         </div>

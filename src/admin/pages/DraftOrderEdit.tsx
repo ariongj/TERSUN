@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useFollowStored, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import { toast } from 'sonner';
 import { AlertCircle, ArrowRightLeft, CheckCircle2, FileText, Plus, Search, Send, Store, Tag, Trash2, Truck, UserRound, Wrench, X } from 'lucide-react';
 import { Button, ButtonLink } from '@/components/ui/Button';
@@ -173,7 +174,7 @@ const T = defineDict({
     total: 'Totali',
     vat: 'TVSH {rate}% e përfshirë · {amount}',
     method: 'Mënyra e pagesës',
-    engineNote: 'Zbritjet llogariten me të njëjtin motor si në Online Store — rezultati mbetet i njëjtë pas konvertimit.',
+    engineNote: 'Zbritjet llogariten me të njëjtin motor si në dyqanin online — rezultati mbetet i njëjtë pas konvertimit.',
     customer: 'Klienti',
     findCustomer: 'Gjej klient ekzistues…',
     noMatch: 'Nuk ka klient — plotësoni të dhënat më poshtë',
@@ -347,16 +348,12 @@ function Editor({ stored }: { stored: DraftOrder | null }) {
   const [showErrors, setShowErrors] = useState<Problem[]>([]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(base);
 
-  // follow store updates (status change, another tab) while there are no local edits
-  useEffect(() => {
-    if (!stored || JSON.stringify(stored) === JSON.stringify(base)) return;
-    setBase(stored);
-    if (!dirty) setDraft(stored);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stored]);
+  // follow store updates (status change, another tab): fields edited here stay, the rest follows the store
+  useFollowStored(stored ?? undefined, base, setBase, draft, setDraft);
 
   const converted = draft.status === 'converted';
   const readOnly = converted || !can('drafts', 'edit');
+  const allowNav = useUnsavedGuard(dirty && !readOnly);
   const totals = useMemo(() => draftTotals(draft, { products, settings, discounts, collections }), [draft, products, settings, discounts, collections]);
   const order = draft.convertedOrderId ? orders.find((o) => o.id === draft.convertedOrderId) : undefined;
   const sentAt = useMemo(() => (stored ? audit.find((a) => a.object === 'draft' && a.objectId === stored.id && a.action === 'send')?.at : undefined), [audit, stored]);
@@ -372,7 +369,10 @@ function Editor({ stored }: { stored: DraftOrder | null }) {
     upsert('drafts', saved);
     setBase(saved);
     setDraft(saved);
-    if (!next.id) navigate(`/admin/nacrti/${saved.id}`, { replace: true });
+    if (!next.id) {
+      allowNav();
+      navigate(`/admin/nacrti/${saved.id}`, { replace: true });
+    }
     return saved;
   };
 
@@ -408,6 +408,7 @@ function Editor({ stored }: { stored: DraftOrder | null }) {
     const created = convertDraft(saved.id);
     if (!created) return;
     toast.success(t('converted', { n: created.number }));
+    allowNav();
     navigate(`/admin/narudzbe/${created.id}`);
   };
 
@@ -416,6 +417,7 @@ function Editor({ stored }: { stored: DraftOrder | null }) {
     if (!ok) return;
     remove('drafts', draft.id);
     toast.success(t('deleted', { n: draft.number }));
+    allowNav();
     navigate('/admin/nacrti');
   };
 

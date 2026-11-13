@@ -16,6 +16,7 @@ import { useCan } from '@/store/hooks';
 import { money } from '@/lib/format';
 import type { Lang } from '@/lib/types';
 import { cn, uid } from '@/lib/utils';
+import { rebase, useUnsavedGuard } from '@/admin/components/editorial/hooks';
 import { COUNTRIES, CURRENCIES, ROUNDINGS, convert, marketX, moneyIn, type MarketX, type Rounding, type ShippingMode } from '@/admin/components/analytics/markets';
 import { Callout, Segmented, StatusMark } from '@/admin/components/analytics/ui';
 
@@ -112,8 +113,8 @@ const T = defineDict({
     readOnly: 'Vetëm shikim',
     readOnlyText: 'Roli juaj mund t’i shikojë tregjet, por jo t’i ndryshojë.',
     channels: 'Kanale shitjeje',
-    channelsDesc: 'Online Store është kanali i parë; kanalet shtesë duhet të kenë integrim të verifikueshëm dhe status sinkronizimi.',
-    ch_online: 'Online Store',
+    channelsDesc: 'Dyqani online është kanali i parë; kanalet shtesë duhet të kenë integrim të verifikueshëm dhe status sinkronizimi.',
+    ch_online: 'Dyqani online',
     ch_online_t: 'Tema, editori, faqet, slideshow/bannerë, SEO dhe domeni. Publikim i kontrolluar.',
     ch_pos: 'POS',
     ch_pos_t: 'Mapim produktesh, variante, çmime dhe stok — një burim i qartë për stokun.',
@@ -300,11 +301,16 @@ export default function Markets() {
   const markets = useMemo(() => settings.markets.map(marketX), [settings.markets]);
   const [selId, setSelId] = useState<string | undefined>(() => markets[0]?.id);
   const selected = markets.find((m) => m.id === selId) ?? markets[0];
-  const [draft, setDraft] = useState<MarketX | null>(null);
-  const current = draft && draft.id === selected?.id ? draft : selected;
-  const dirty = !!draft && !!selected && draft.id === selected.id && !same(draft, selected);
+  // the edited copy + the stored market it was copied from; rebased onto the market as stored now, so a change
+  // saved elsewhere (another tab) is kept and shows no phantom "unsaved changes"
+  const [edit, setEdit] = useState<{ base: MarketX; value: MarketX } | null>(null);
+  const setDraft = (v: null) => setEdit(v);
+  const draft = edit && selected && edit.value.id === selected.id ? rebase(edit.base, edit.value, selected) : null;
+  const current = draft ?? selected;
+  const dirty = !!draft && !!selected && !same(draft, selected);
+  useUnsavedGuard(dirty && canEdit);
 
-  const patch = (p: Partial<MarketX>) => current && setDraft({ ...current, ...p });
+  const patch = (p: Partial<MarketX>) => current && selected && setEdit({ base: selected, value: { ...current, ...p } });
 
   // orders per market: every recorded order belongs to the home market (Kosovo)
   const stats = useMemo(() => {
@@ -333,7 +339,7 @@ export default function Markets() {
     if (!draft.languages.length) return void toast.error(t('needLang'));
     if (!draft.countries.length) return void toast.error(t('needCountry'));
     const clean: MarketX = { ...draft, defaultLang: draft.languages.includes(draft.defaultLang ?? 'de') ? draft.defaultLang : draft.languages[0] };
-    updateSettings({ markets: settings.markets.map((m) => (m.id === clean.id ? clean : m)) });
+    updateSettings({ markets: useDb.getState().settings.markets.map((m) => (m.id === clean.id ? clean : m)) });
     setDraft(null);
     toast.success(t('saved'));
   };

@@ -91,7 +91,7 @@ function RevealTitle({ text, delay }: { text: string; delay: number }) {
   );
 }
 
-export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autoplay: boolean }) {
+export function HeroSection({ slides, autoplay, controls = true, interval = DURATION }: { slides: HeroSlide[]; autoplay: boolean; controls?: boolean; interval?: number }) {
   const l = useL();
   const t = useDict(site);
   const tc = useDict(common);
@@ -144,7 +144,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
             <HeroVideo src={sl.image} active={k === i} />
           ) : (
             <picture className="block h-full w-full">
-              {PORTRAIT[sl.image] && <source media="(orientation: portrait)" srcSet={PORTRAIT[sl.image]} />}
+              {(PORTRAIT[sl.image] || sl.imageMobile) && <source media="(orientation: portrait)" srcSet={PORTRAIT[sl.image] ?? sl.imageMobile} />}
               <img
                 src={sl.image}
                 alt=""
@@ -158,6 +158,7 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
                   k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
                   sl.video && 'portrait:hidden',
                 )}
+                style={sl.focal ? { objectPosition: `${sl.focal.x}% ${sl.focal.y}%` } : undefined}
               />
             </picture>
           )}
@@ -198,12 +199,17 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
               variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.8, delay: base + 1.0 } }, exit: { opacity: 0, transition: { duration: 0.2 } } }}
               className="mt-9 flex flex-wrap gap-3"
             >
-              <ButtonLink to={s.primary.href} size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
-                {l(s.primary.label)}
-              </ButtonLink>
-              <ButtonLink to={s.secondary.href} size="lg" variant="outlineLight" icon={s.secondary.href.includes('consultation') ? <Ruler className="h-4 w-4" /> : undefined}>
-                {l(s.secondary.label)}
-              </ButtonLink>
+              {/* a button without a label (or link) in this language is left out */}
+              {l(s.primary.label) && s.primary.href && (
+                <ButtonLink to={s.primary.href} size="lg" iconRight={<ArrowRight className="h-4 w-4" />}>
+                  {l(s.primary.label)}
+                </ButtonLink>
+              )}
+              {l(s.secondary.label) && s.secondary.href && (
+                <ButtonLink to={s.secondary.href} size="lg" variant="outlineLight" icon={s.secondary.href.includes('consultation') ? <Ruler className="h-4 w-4" /> : undefined}>
+                  {l(s.secondary.label)}
+                </ButtonLink>
+              )}
             </motion.div>
           </motion.div>
         </AnimatePresence>
@@ -221,13 +227,13 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
                 <button key={sl.id} onClick={() => go(k)} className="group relative h-[3px] w-14 overflow-hidden rounded-full bg-white/25" aria-label={tc('slideN', { n: k + 1 })}>
                   <span
                     className={cn('absolute inset-y-0 left-0 rounded-full bg-white', k < i || (k === i && !autoplay) ? 'w-full' : 'w-0')}
-                    style={k === i && autoplay ? { animation: `heroprogress ${k === 0 && intro ? DURATION + 1500 : DURATION}ms linear forwards`, animationPlayState: ready ? 'running' : 'paused' } : undefined}
+                    style={k === i && autoplay ? { animation: `heroprogress ${k === 0 && intro ? interval + 1500 : interval}ms linear forwards`, animationPlayState: ready ? 'running' : 'paused' } : undefined}
                     onAnimationEnd={k === i && autoplay ? () => go(i + 1) : undefined}
                   />
                 </button>
               ))}
             </div>
-            <div className="hidden gap-2 md:flex">
+            <div className={cn('hidden gap-2', controls && 'md:flex')}>
               <button onClick={() => go(i - 1)} className="grid h-11 w-11 place-items-center rounded-full border border-white/30 text-white backdrop-blur transition hover:bg-white hover:text-ink" aria-label={tc('prev')}>
                 <ChevronLeft className="h-5 w-5" />
               </button>

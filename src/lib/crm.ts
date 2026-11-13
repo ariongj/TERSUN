@@ -1,5 +1,6 @@
 // Customers, segments and the contacts inbox — CMS proposal p.19 and p.43.
-import type { Inquiry, InquiryKind, Lang, Order, Segment, SegmentRule } from './types';
+import type { Inquiry, InquiryKind, Lang, Order, Product, Segment, SegmentRule } from './types';
+import type { DiscountCustomer } from './discounts';
 
 /** Inbox kind derived from the inquiry type: contact form · B2B quote request · meeting (measurement). */
 export function inquiryKind(i: Pick<Inquiry, 'type'>): InquiryKind {
@@ -90,6 +91,31 @@ export function matchesSegment(s: SegmentSubject, seg: Pick<Segment, 'match' | '
 
 export function segmentMembers(seg: Segment, subjects: SegmentSubject[]): SegmentSubject[] {
   return subjects.filter((s) => matchesSegment(s, seg));
+}
+
+/** Shown on the storefront: live (active) and published to the Online Store channel (no channels set = online). */
+export const isPublic = (p: Pick<Product, 'status' | 'channels'>) => p.status === 'active' && (p.channels ?? ['online']).includes('online');
+
+/** Products a shopper can buy online: on the storefront, and not "price on request". */
+export const isSellable = (p: Pick<Product, 'status' | 'channels' | 'quoteOnly'>) => isPublic(p) && !p.quoteOnly;
+
+/**
+ * The discount engine's view of a shopper identified by e-mail or phone (as typed at checkout): the discounts
+ * they already used ("once per customer") and the segments their past orders put them in.
+ */
+export function discountCustomer(orders: Order[], segments: Segment[], who?: { email?: string; phone?: string } | null): DiscountCustomer | null {
+  const email = who?.email?.trim().toLowerCase() ?? '';
+  const phone = who?.phone?.replace(/\D/g, '') ?? '';
+  const byPhone = phone.length >= 8;
+  if (!email && !byPhone) return null;
+  const mine = orders.filter(
+    (o) => o.status !== 'cancelled' && ((!!email && (o.customer.email ?? '').trim().toLowerCase() === email) || (byPhone && (o.customer.phone ?? '').replace(/\D/g, '') === phone)),
+  );
+  const used = new Set<string>();
+  for (const o of mine) for (const a of o.discounts ?? []) used.add(a.id);
+  const segmentIds = new Set<string>();
+  for (const subject of segmentSubjects(mine)) for (const id of segmentIdsFor(subject, segments)) segmentIds.add(id);
+  return { usedDiscountIds: [...used], segmentIds: [...segmentIds] };
 }
 
 /** Segment ids for one customer — feed into the discount engine's `customer.segmentIds`. */

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 import { Camera, Check, CloudRain, Link2, Loader2, Maximize, Minimize, Moon, Move3d, Ruler, Sun, SunMedium, Lamp, ArrowRight, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
@@ -7,11 +7,12 @@ import { Drawer } from '@/components/ui/Overlay';
 import { MeasureForm } from '@/site/components/MeasureForm';
 import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { useActiveProducts } from '@/store/hooks';
-import { money } from '@/lib/format';
+import { money, num } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { href } from '@/lib/paths';
+import { usePageTitle } from '@/site/layout/SiteLayout';
 import { createViewer, webglAvailable, type Viewer, type ViewerMode, type ViewerOptions, type ViewerView } from './viewer';
-import { FABRIC_COLORS, FRAME_COLORS, SYSTEMS, systemById, type SystemDef } from './systems';
+import { FABRIC_COLORS, FRAME_COLORS, SYSTEMS, productFor, systemById, systemForProduct, type SystemDef } from './systems';
 
 const D = defineDict({
   de: {
@@ -32,6 +33,7 @@ const D = defineDict({
     side: 'Seite',
     top: 'Oben',
     inside: 'Innen',
+    view: 'Ansicht',
     dims: 'Maße anzeigen',
     rotate: 'Drehen',
     snapshot: 'Bild speichern',
@@ -78,6 +80,7 @@ const D = defineDict({
     side: 'Anash',
     top: 'Sipër',
     inside: 'Brenda',
+    view: 'Pamja',
     dims: 'Shfaq masat',
     rotate: 'Rrotullo',
     snapshot: 'Ruaj foton',
@@ -124,6 +127,7 @@ const D = defineDict({
     side: 'Side',
     top: 'Top',
     inside: 'Inside',
+    view: 'View',
     dims: 'Show dimensions',
     rotate: 'Rotate',
     snapshot: 'Save image',
@@ -179,6 +183,18 @@ function initialState(s: SystemDef): State {
   };
 }
 
+/** The starting point when the builder opens for a catalogue product: its layout / mount and size preselected. */
+function variantState(s: SystemDef, productId: string | null): State {
+  const st = initialState(s);
+  const v = s.variants.find((x) => x.productId === productId);
+  if (v?.values) Object.assign(st.values, v.values);
+  if (v?.dims) Object.assign(st, v.dims);
+  return st;
+}
+
+/** The configuration an address stands for: its code, else the product it was opened for, else the defaults. */
+const startState = (s: SystemDef, code: string | null, productId: string | null) => decodeState(s, code) ?? variantState(s, productId);
+
 /** Pack a configuration into a short URL value, e.g. "450.350.260.0.0.35.0001" (sizes, colours, slider, options). */
 function encodeState(s: SystemDef, st: State) {
   const opts = s.fields.map((f) => (f.kind === 'toggle' ? (st.values[f.key] ? 1 : 0) : Math.max(0, f.choices.findIndex((c) => c.id === st.values[f.key])))).join('');
@@ -192,27 +208,31 @@ function decodeState(s: SystemDef, code: string | null): State | null {
   const p = code.split('.');
   if (p.length !== 7) return null;
   const base = initialState(s);
-  const num = (v: string, [min, max]: [number, number, number], fallback: number) => {
-    const n = Math.round(Number(v));
-    return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+  // an empty field keeps the default (Number('') would be 0); values land on the slider's steps
+  const snap = (v: string, [min, max]: [number, number, number], fallback: number, step = 10) => {
+    const n = v.trim() === '' ? NaN : Number(v);
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, min + Math.round((n - min) / step) * step)) : fallback;
   };
   const values = { ...base.values };
   s.fields.forEach((f, i) => {
     const d = Number(p[6][i]);
     if (!Number.isInteger(d)) return;
-    if (f.kind === 'toggle') values[f.key] = d === 1;
-    else if (f.choices[d]) values[f.key] = f.choices[d].id;
+    if (f.kind === 'toggle') {
+      if (d === 0 || d === 1) values[f.key] = d === 1;
+    } else if (f.choices[d]) values[f.key] = f.choices[d].id;
   });
   return {
-    w: num(p[0], s.dims.w, base.w),
-    d: s.dims.d ? num(p[1], s.dims.d, base.d) : 0,
-    h: num(p[2], s.dims.h, base.h),
+    w: snap(p[0], s.dims.w, base.w),
+    d: s.dims.d ? snap(p[1], s.dims.d, base.d) : 0,
+    h: snap(p[2], s.dims.h, base.h),
     color: FRAME_COLORS[Number(p[3])]?.id ?? base.color,
     fabric: FABRIC_COLORS[Number(p[4])]?.id ?? base.fabric,
-    preview: num(p[5], [s.preview.min, s.preview.max, 0], base.preview),
+    preview: snap(p[5], [s.preview.min, s.preview.max, 0], base.preview, 1),
     values,
   };
 }
+
+const VIEWS = ['corner', 'front', 'side', 'top', 'inside'] as const;
 
 const hexOf = (list: { id: string; hex?: string }[], id: string) => list.find((c) => c.id === id)?.hex;
 
@@ -254,11 +274,16 @@ function viewerParams(s: SystemDef, st: State): { type: SystemDef['id']; o: View
   return { type, o };
 }
 
+/** The second wing of an L-shaped glass roof (cm), as the viewer builds it: 60 % of the width, 2.5–4 m long, as deep as the roof. */
+const lWing = (s: SystemDef, st: State) => (s.id === 'glassroof' && st.values.layout === 'l-shape' ? Math.min(Math.max(250, st.w * 0.6), 400) : 0);
+
+/** Covered area in cm²: roofs width × depth (plus the wing of an L), walls and screens width × height. */
+const areaOf = (s: SystemDef, st: State) => (s.dims.d ? (st.w + lWing(s, st)) * st.d : st.w * st.h);
+
 /** Indicative price: catalogue "from" price scaled by area (sub-linear), rounded to €100. */
 function estimate(base: number, s: SystemDef, st: State) {
   const ref = s.dims.w[2] * (s.dims.d ? s.dims.d[2] : s.dims.h[2]);
-  const area = st.w * (s.dims.d ? st.d : st.h);
-  let p = base * Math.pow(area / ref, 0.85);
+  let p = base * Math.pow(areaOf(s, st) / ref, 0.85);
   if (s.id === 'bioclimatic') {
     if (st.values.side && st.values.side !== 'none') p *= 1.45;
     if (st.values.layout === 'double') p *= 1.08;
@@ -267,17 +292,20 @@ function estimate(base: number, s: SystemDef, st: State) {
   if (s.id === 'glassroof' && st.preview > 0) p += 2400;
   if (st.values.led) p += 390;
   if (s.id === 'slide') p *= 1 + (Number(st.values.tracks) - 3) * 0.12;
-  return Math.max(base * 0.6, Math.round(p / 100) * 100);
+  return Math.round(Math.max(base * 0.6, p) / 100) * 100;
 }
 
 export default function Builder3DPage() {
   const t = useDict(D);
   const l = useL();
   const lang = useLang();
+  const location = useLocation();
   const [params, setParams] = useSearchParams();
   const products = useActiveProducts();
-  const system = systemById(params.get('system')) ?? SYSTEMS[0];
-  const [state, setState] = useState<State>(() => decodeState(system, params.get('c')) ?? initialState(system));
+  const system = systemById(params.get('system')) ?? systemForProduct(params.get('product')) ?? SYSTEMS[0];
+  // the catalogue product the builder was opened for (`&product=`), when it is one of this system's
+  const asked = params.get('product');
+  const requested = system.variants.some((v) => v.productId === asked) ? asked : null;
   const [mode, setMode] = useState<ViewerMode>('day');
   const [view, setView] = useState<ViewerView>('corner');
   const [showDims, setShowDims] = useState(true);
@@ -290,18 +318,51 @@ export default function Builder3DPage() {
   const [furniture, setFurniture] = useState<'lounge' | 'dining' | 'none'>('lounge');
   const [isFull, setIsFull] = useState(false);
   const angleBeforeRain = useRef<number | null>(null);
-  // phones: the builder fills exactly the screen below the header, so nothing needs page scrolling
+
+  // A configuration that starts afresh (a reset, another system, an address): while it rains, the rain
+  // sensor closes the louvres right away, and an angle saved before the rain belongs to the old one.
+  const withSensor = (s: SystemDef, st: State): State => {
+    angleBeforeRain.current = null;
+    if (!rain || s.id !== 'bioclimatic' || st.preview <= 4) return st;
+    angleBeforeRain.current = st.preview;
+    return { ...st, preview: 0 };
+  };
+
+  const [saved, setState] = useState<State>(() => startState(system, params.get('c'), requested));
+  // Back / Forward and links within the builder: the address decides. Another system, or a code other than the
+  // one on screen, starts from the address; the same system without a code (the header link) keeps what is on
+  // screen, and the effect below writes its code back. Decided while rendering, so the system and its
+  // configuration never reach the 3D view out of step.
+  let state = saved;
+  const [seen, setSeen] = useState({ key: location.key, sys: system.id });
+  if (seen.key !== location.key) {
+    const code = params.get('c');
+    setSeen({ key: location.key, sys: system.id });
+    if (seen.sys !== system.id || (code && code !== encodeState(system, saved))) {
+      state = withSensor(system, startState(system, code, requested));
+      setState(state);
+    }
+  }
+  usePageTitle(`${l(system.name)} · ${t('eyebrow')}`);
+
+  // Phones: the builder fills exactly the screen below the header, so nothing needs page scrolling. A phone on its
+  // side (short) puts the stage and the panel side by side; narrow screens move the views into the Scene tab.
   const rootRef = useRef<HTMLDivElement>(null);
-  const [fitH, setFitH] = useState(640);
+  const [fit, setFit] = useState({ h: 640, short: false, narrow: false });
   useLayoutEffect(() => {
-    const fit = () => {
+    if (isFull) return; // fixed to the screen: nothing to measure
+    const measure = () => {
       const top = (rootRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
-      setFitH(Math.max(460, window.innerHeight - top));
+      const vw = window.innerWidth, vh = window.innerHeight, avail = vh - top;
+      const short = vw < 1024 && vw > vh && avail < 560;
+      setFit({ h: Math.max(short ? 200 : 460, Math.round(avail)), short, narrow: vw < 640 });
     };
-    fit();
-    window.addEventListener('resize', fit);
-    return () => window.removeEventListener('resize', fit);
-  }, []);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [isFull]);
+  const { short } = fit;
+  const compact = fit.short || fit.narrow;
   const stageRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const [gl] = useState(() => webglAvailable());
@@ -321,14 +382,6 @@ export default function Builder3DPage() {
     };
   }, [gl]);
 
-  // switching system resets the configuration
-  const firstSystem = useRef(system.id);
-  useEffect(() => {
-    if (firstSystem.current === system.id) return;
-    firstSystem.current = system.id;
-    setState(initialState(system));
-  }, [system]);
-
   useEffect(() => {
     const v = viewerRef.current;
     if (!v) return;
@@ -341,18 +394,25 @@ export default function Builder3DPage() {
   useEffect(() => viewerRef.current?.setRain(rain), [rain]);
   useEffect(() => viewerRef.current?.setFurniture(furniture), [furniture]);
 
+  // the catalogue product this configuration is (bioclimatic wall, glass roof L-shape, …): the quote is filed against it
+  const variant = productFor(system, state.values, requested);
+  const quoteProductId = products.some((p) => p.id === variant) ? variant : system.productId;
+
   // keep the address bar in step with the configuration, so the page can be shared or bookmarked as it is
+  // (also after a navigation that kept the configuration on screen: location.key)
   const shareCode = encodeState(system, state);
   useEffect(() => {
     const id = setTimeout(() => {
       const url = new URL(window.location.href);
       url.searchParams.set('system', system.id);
+      if (variant !== system.productId) url.searchParams.set('product', variant);
+      else url.searchParams.delete('product');
       url.searchParams.set('c', shareCode);
       window.history.replaceState(window.history.state, '', url);
     }, 250);
     return () => clearTimeout(id);
-  }, [system.id, shareCode]);
-  const shareUrl = () => window.location.origin + href(`/3d?system=${system.id}&c=${shareCode}`);
+  }, [system.id, system.productId, variant, shareCode, location.key]);
+  const shareUrl = () => window.location.origin + href(`/3d?system=${system.id}${variant !== system.productId ? `&product=${variant}` : ''}&c=${shareCode}`);
 
   useEffect(() => {
     const fn = () => setIsFull(!!document.fullscreenElement);
@@ -367,16 +427,18 @@ export default function Builder3DPage() {
   const set = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch }));
   const setValue = (k: string, val: string | boolean) => {
     setState((s) => ({ ...s, values: { ...s.values, [k]: val } }));
-    // LEDs barely show in daylight — switching them on jumps to the night scene so the change is visible
-    if (k === 'led' && val === true && mode === 'day') setMode('night');
+    // LEDs do not show in daylight or in the studio — switching them on jumps to the night scene so the change is visible
+    if (k === 'led' && val === true && mode !== 'night') setMode('night');
   };
+  const reset = () => setState(withSensor(system, variantState(system, requested)));
 
-  const area = (state.w * (system.dims.d ? state.d : state.h)) / 10000;
-  const areaText = `${area.toLocaleString(lang === 'en' ? 'en-GB' : lang === 'de' ? 'de-DE' : 'sq-AL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} m²`;
+  const wing = lWing(system, state);
+  const areaText = `${num(Math.round(areaOf(system, state) / 1000) / 10, lang, 1)} m²`;
 
   const summary = useMemo(() => {
-    const rows: [string, string][] = [[t('system'), l(system.name)]];
-    rows.push([t('size'), [state.w, system.dims.d ? state.d : null, state.h].filter(Boolean).join(' × ') + ' cm']);
+    const quoted = products.find((p) => p.id === quoteProductId);
+    const rows: [string, string][] = [[t('system'), l(quoted && quoteProductId !== system.productId ? quoted.name : system.name)]];
+    rows.push([t('size'), [state.w, system.dims.d ? state.d : null, state.h].filter(Boolean).join(' × ') + ' cm' + (wing ? ` + ${wing} × ${state.d} cm` : '')]);
     rows.push([t('area'), areaText]);
     rows.push([t('frame'), `${l(FRAME_COLORS.find((c) => c.id === state.color)?.label)} (${state.color})`]);
     if (system.fabric || (system.id === 'glassroof' && state.preview > 0)) rows.push([t('fabric'), l(FABRIC_COLORS.find((c) => c.id === state.fabric)?.label)]);
@@ -386,14 +448,25 @@ export default function Builder3DPage() {
     }
     if (system.id === 'glassroof') rows.push([l(system.preview.label), state.preview > 0 ? t('on') : t('off')]);
     return rows;
-  }, [state, system, l, t, areaText]);
+  }, [state, system, l, t, areaText, wing, products, quoteProductId]);
 
   const summaryText =
     summary.map(([k, v]) => `${k}: ${v}`).join('\n') + (price ? `\n${t('estimate')} ${money(price, lang, { decimals: false })}` : '') + `\n${t('link')}: ${shareUrl()}`;
 
+  // another system starts from its defaults: the code and product in the address belong to the old one
   const pickSystem = (id: string) => {
-    params.set('system', id);
-    setParams(params, { replace: true });
+    if (id === system.id) return;
+    const next = new URLSearchParams(params);
+    next.set('system', id);
+    next.delete('c');
+    next.delete('product');
+    setParams(next, { replace: true });
+  };
+
+  const pickView = (v: ViewerView) => {
+    setView(v);
+    setRotate(false);
+    viewerRef.current?.setView(v);
   };
 
   const pickTime = (h: number) => {
@@ -402,6 +475,7 @@ export default function Builder3DPage() {
   };
 
   // rain: the scene needs a sky, and a bioclimatic roof reacts like its rain sensor would — the louvres close
+  const rainShown = rain && mode !== 'studio'; // the studio has no weather
   const toggleRain = (on: boolean) => {
     setRain(on);
     if (on && mode === 'studio') setMode('day');
@@ -414,6 +488,18 @@ export default function Builder3DPage() {
       set({ preview: angleBeforeRain.current });
       angleBeforeRain.current = null;
     }
+  };
+  // the visitor sets the louvres by hand: that is the angle now, also after the rain
+  const setPreview = (preview: number) => {
+    angleBeforeRain.current = null;
+    set({ preview });
+  };
+
+  // Full screen is the whole document with the builder laid over the site (fixed, below the drawers), so the
+  // quote drawer and the toasts, which live outside the builder, stay visible.
+  const toggleFull = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen?.().catch(() => undefined);
   };
 
   const share = async () => {
@@ -429,25 +515,22 @@ export default function Builder3DPage() {
     }
   };
 
-  const toggleFull = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void rootRef.current?.requestFullscreen?.().catch(() => undefined);
-  };
-
   const snapshot = () => {
     const v = viewerRef.current;
     if (!v) return;
     const a = document.createElement('a');
     a.href = v.snapshot();
-    a.download = `TERSUN-${system.id}-${state.w}x${state.h}.png`;
+    // roofs: width × depth; walls and screens: width × height
+    a.download = `TERSUN-${system.id}-${state.w}x${system.dims.d ? state.d : state.h}.png`;
     document.body.appendChild(a);
     a.click();
     a.remove();
   };
 
-  const pill = (active: boolean) =>
+  const pill = (active: boolean, tight?: boolean) =>
     cn(
-      'inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[12.5px] font-semibold transition',
+      'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full text-[12.5px] font-semibold transition',
+      tight ? 'px-3' : 'px-3.5',
       active ? 'bg-white text-ink' : 'text-white/75 hover:bg-white/10 hover:text-white',
     );
 
@@ -508,7 +591,7 @@ export default function Builder3DPage() {
                 range={[system.preview.min, system.preview.max, system.preview.value]}
                 step={1}
                 unit={system.preview.unit}
-                onChange={(preview) => set({ preview })}
+                onChange={setPreview}
                 accent
               />
             </section>
@@ -558,54 +641,83 @@ export default function Builder3DPage() {
       </>);
   const resetButton = (
       <>
-            <button onClick={() => setState(initialState(system))} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-paper/50 hover:text-paper">
+            <button onClick={reset} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-paper/50 hover:text-paper">
               <RotateCcw className="h-3.5 w-3.5" /> {t('reset')}
             </button>
       </>);
+  const timeSection = (
+    <section>
+      <PanelLabel className="max-lg:hidden">{t('scene')}</PanelLabel>
+      <Range
+        label={t('time')}
+        value={hours}
+        range={[6, 20, 16]}
+        step={0.5}
+        unit=""
+        format={(h) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`}
+        onChange={pickTime}
+        dim={mode !== 'day'}
+      />
+    </section>
+  );
+  // the studio has no weather: the rain control is dimmed there (choosing rain switches to Day)
+  const rainDim = mode === 'studio' && 'opacity-55';
+  const sceneGrid = (withViews: boolean) => (
+    <section className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 lg:block lg:space-y-6">
+      {withViews && (
+        <div className="contents lg:block">
+          <PanelLabel className="max-lg:mb-0">{t('view')}</PanelLabel>
+          <div className="flex flex-wrap gap-2">
+            {VIEWS.map((v) => (
+              <Chip key={v} active={view === v && !rotate} onClick={() => pickView(v)}>
+                {t(v)}
+              </Chip>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="contents lg:block">
+        <PanelLabel className={cn('max-lg:mb-0 transition-opacity', rainDim)}>{t('rain')}</PanelLabel>
+        <div className={cn('flex gap-2 transition-opacity', rainDim)}>
+          {[false, true].map((on) => (
+            <Chip key={String(on)} active={rainShown === on} onClick={() => toggleRain(on)}>
+              {on ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <CloudRain className="h-3.5 w-3.5" /> {t('on')}
+                </span>
+              ) : (
+                t('off')
+              )}
+            </Chip>
+          ))}
+        </div>
+      </div>
+      <div className="contents lg:block">
+        <PanelLabel className="max-lg:mb-0">{t('furniture')}</PanelLabel>
+        <div className="flex flex-wrap gap-2">
+          {(['lounge', 'dining', 'none'] as const).map((k) => (
+            <Chip key={k} active={furniture === k} onClick={() => setFurniture(k)}>
+              {t(k)}
+            </Chip>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
   const sceneBlock = (
     <>
-      <section>
-        <PanelLabel className="max-lg:hidden">{t('scene')}</PanelLabel>
-        <Range
-          label={t('time')}
-          value={hours}
-          range={[6, 20, 16]}
-          step={0.5}
-          unit=""
-          format={(h) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`}
-          onChange={pickTime}
-          dim={mode !== 'day'}
-        />
-      </section>
-      <section className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 lg:block lg:space-y-6">
-        <div className="contents lg:block">
-          <PanelLabel className="max-lg:mb-0">{t('rain')}</PanelLabel>
-          <div className="flex gap-2">
-            {[false, true].map((on) => (
-              <Chip key={String(on)} active={rain === on} onClick={() => toggleRain(on)}>
-                {on ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <CloudRain className="h-3.5 w-3.5" /> {t('on')}
-                  </span>
-                ) : (
-                  t('off')
-                )}
-              </Chip>
-            ))}
-          </div>
-        </div>
-        <div className="contents lg:block">
-          <PanelLabel className="max-lg:mb-0">{t('furniture')}</PanelLabel>
-          <div className="flex flex-wrap gap-2">
-            {(['lounge', 'dining', 'none'] as const).map((k) => (
-              <Chip key={k} active={furniture === k} onClick={() => setFurniture(k)}>
-                {t(k)}
-              </Chip>
-            ))}
-          </div>
-        </div>
-      </section>
+      {timeSection}
+      {sceneGrid(false)}
     </>
+  );
+  // narrow screens: the views live here (first), not over the picture
+  const phoneSceneBlock = compact ? (
+    <>
+      {sceneGrid(true)}
+      {timeSection}
+    </>
+  ) : (
+    sceneBlock
   );
   const tabs = [
     ['system', systemsBlock],
@@ -618,18 +730,51 @@ export default function Builder3DPage() {
         {resetButton}
       </>
     )],
-    ['scene', sceneBlock],
+    ['scene', phoneSceneBlock],
   ] as const;
+
+  const viewsRow = (
+    <div className="no-scrollbar flex min-w-0 overflow-x-auto rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
+      {VIEWS.map((v) => (
+        <button key={v} onClick={() => pickView(v)} className={pill(view === v && !rotate, true)} aria-pressed={view === v && !rotate}>
+          {t(v)}
+        </button>
+      ))}
+    </div>
+  );
+  const toolsRow = (
+    <div className="pointer-events-auto flex shrink-0 gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
+      <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-label={t('dims')} aria-pressed={showDims}>
+        <Ruler className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-label={t('rotate')} aria-pressed={rotate}>
+        <Move3d className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={snapshot} className={pill(false)} title={t('snapshot')} aria-label={t('snapshot')}>
+        <Camera className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={share} className={pill(false)} title={t('share')} aria-label={t('share')}>
+        <Link2 className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={toggleFull} className={cn(pill(isFull), 'max-lg:hidden')} title={t('fullscreen')} aria-label={t('fullscreen')} aria-pressed={isFull}>
+        {isFull ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
+      </button>
+    </div>
+  );
 
   return (
     <div className="bg-ink text-paper">
       <div
         ref={rootRef}
-        style={{ ['--b3d-h' as string]: `${fitH}px` }}
-        className="flex h-[var(--b3d-h)] flex-col lg:grid lg:h-[calc(100svh-112px)] lg:min-h-[640px] lg:grid-cols-[minmax(0,1fr)_420px]"
+        style={isFull ? undefined : { ['--b3d-h' as string]: `${fit.h}px` }}
+        className={cn(
+          'flex',
+          isFull ? 'fixed inset-0 z-[70] bg-ink' : 'h-[var(--b3d-h)]',
+          short ? 'flex-row' : 'flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_420px]',
+        )}
       >
         {/* ------------------------------------------------ stage */}
-        <div className="relative min-h-0 flex-1 overflow-hidden lg:h-auto">
+        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden lg:h-auto">
           <div ref={stageRef} className={cn('absolute inset-0 transition-opacity duration-500', gl && !ready3d && 'opacity-0')} />
           {gl && !ready3d && (
             <div className="absolute inset-0 grid place-items-center">
@@ -649,14 +794,23 @@ export default function Builder3DPage() {
           )}
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(10_9_8/0.55)_0%,transparent_26%,transparent_74%,rgb(10_9_8/0.5)_100%)]" />
 
-          {/* title */}
-          <div className="pointer-events-none absolute left-4 top-4 sm:left-8 sm:top-7">
-            <div className="eyebrow text-brand-200">{t('eyebrow')}</div>
-            <h1 className="display mt-2 max-w-[calc(100vw-170px)] text-[24px] leading-[1.02] text-white sm:max-w-none sm:text-[52px]">{l(system.name)}</h1>
+          {/* title; on wider screens the views and tools follow it, so a title on two lines never runs into them */}
+          <div className={cn('pointer-events-none absolute flex flex-col', short ? 'inset-x-3 top-3' : 'inset-x-4 top-4 sm:inset-x-6 sm:top-7')}>
+            {/* kept clear of the mode switch on the right */}
+            <div className={short ? 'max-w-[calc(100%-150px)]' : 'max-w-[calc(100%-150px)] sm:max-w-[calc(100%-270px)] sm:pl-2'}>
+              {!short && <div className="eyebrow text-brand-200">{t('eyebrow')}</div>}
+              <h1 className={cn('display leading-[1.02] text-white', short ? 'text-[19px]' : 'mt-2 text-[24px] sm:text-[44px] lg:text-[40px] xl:text-[52px]')}>{l(system.name)}</h1>
+            </div>
+            {!compact && (
+              <div className="pointer-events-auto mt-5 flex items-center justify-between gap-2">
+                {viewsRow}
+                {toolsRow}
+              </div>
+            )}
           </div>
 
           {/* mode switch */}
-          <div className="absolute right-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md sm:right-6 sm:top-6">
+          <div className={cn('absolute flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md', short ? 'right-3 top-3' : 'right-4 top-4 sm:right-6 sm:top-6')}>
             {(
               [
                 ['studio', <Lamp key="s" className="h-3.5 w-3.5" />],
@@ -664,48 +818,15 @@ export default function Builder3DPage() {
                 ['night', <Moon key="n" className="h-3.5 w-3.5" />],
               ] as const
             ).map(([m, icon]) => (
-              <button key={m} onClick={() => setMode(m)} className={pill(mode === m)} aria-pressed={mode === m}>
+              <button key={m} onClick={() => setMode(m)} className={pill(mode === m)} aria-pressed={mode === m} title={t(m)} aria-label={t(m)}>
                 {icon}
-                <span className="hidden sm:inline">{t(m)}</span>
+                <span className={short ? 'hidden' : 'hidden sm:inline'}>{t(m)}</span>
               </button>
             ))}
           </div>
 
-          {/* views + tools */}
-          <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 sm:inset-x-6 sm:bottom-auto sm:top-[132px]">
-            <div className="no-scrollbar flex min-w-0 overflow-x-auto rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
-              {(['corner', 'front', 'side', 'top', 'inside'] as const).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => {
-                    setView(v);
-                    setRotate(false);
-                    viewerRef.current?.setView(v);
-                  }}
-                  className={pill(view === v && !rotate)}
-                >
-                  {t(v)}
-                </button>
-              ))}
-            </div>
-            <div className="flex shrink-0 gap-1 rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md">
-              <button onClick={() => setShowDims((x) => !x)} className={pill(showDims)} title={t('dims')} aria-label={t('dims')} aria-pressed={showDims}>
-                <Ruler className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => setRotate((x) => !x)} className={pill(rotate)} title={t('rotate')} aria-label={t('rotate')} aria-pressed={rotate}>
-                <Move3d className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={snapshot} className={pill(false)} title={t('snapshot')} aria-label={t('snapshot')}>
-                <Camera className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={share} className={pill(false)} title={t('share')} aria-label={t('share')}>
-                <Link2 className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={toggleFull} className={cn(pill(isFull), 'max-lg:hidden')} title={t('fullscreen')} aria-label={t('fullscreen')}>
-                {isFull ? <Minimize className="h-3.5 w-3.5" /> : <Maximize className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-          </div>
+          {/* narrow and short screens: the tools in the corner, the views in the Scene tab */}
+          {compact && <div className="absolute bottom-3 right-3">{toolsRow}</div>}
         </div>
 
 
@@ -737,8 +858,8 @@ export default function Builder3DPage() {
           </div>
         </aside>
 
-        {/* ------------------------------------------------ panel: phone bottom sheet (no page scrolling) */}
-        <div className="flex shrink-0 flex-col border-t border-white/[0.08] bg-[#1a1917] lg:hidden">
+        {/* ------------------------------------------------ panel: phone sheet (no page scrolling); beside the stage on a phone held sideways */}
+        <div className={cn('flex shrink-0 flex-col border-white/[0.08] bg-[#1a1917] lg:hidden', short ? 'w-[min(340px,46vw)] border-l' : 'border-t')}>
           <div className="grid grid-cols-5 border-b border-white/[0.06]">
             {tabs.map(([id]) => (
               <button
@@ -746,7 +867,8 @@ export default function Builder3DPage() {
                 onClick={() => setTab(id)}
                 aria-pressed={tab === id}
                 className={cn(
-                  'relative h-11 text-[12px] font-semibold transition',
+                  'relative text-[12px] font-semibold transition',
+                  short ? 'h-9' : 'h-11',
                   tab === id ? 'text-white' : 'text-paper/45',
                 )}
               >
@@ -755,13 +877,13 @@ export default function Builder3DPage() {
               </button>
             ))}
           </div>
-          <div className="h-[214px] space-y-4 overflow-y-auto overscroll-contain px-4 py-3">{tabs.find(([id]) => id === tab)?.[1]}</div>
-          <div className="flex items-center justify-between gap-3 border-t border-white/[0.08] bg-[#141312] px-4 py-3">
+          <div className={cn('space-y-4 overflow-y-auto overscroll-contain px-4 py-3', short ? 'min-h-0 flex-1' : 'h-[214px]')}>{tabs.find(([id]) => id === tab)?.[1]}</div>
+          <div className={cn('flex items-center justify-between gap-3 border-t border-white/[0.08] bg-[#141312] px-4', short ? 'py-2' : 'py-3')}>
             <div className="min-w-0">
               <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-paper/45">{t('estimate')}</div>
-              <div className="display text-[24px] leading-none text-white tabular-nums">{price ? money(price, lang, { decimals: false }) : '—'}</div>
+              <div className={cn('display leading-none text-white tabular-nums', short ? 'text-[20px]' : 'text-[24px]')}>{price ? money(price, lang, { decimals: false }) : '—'}</div>
             </div>
-            <Button onClick={() => setQuoteOpen(true)} iconRight={<ArrowRight className="h-4 w-4" />}>
+            <Button size={short ? 'sm' : 'md'} onClick={() => setQuoteOpen(true)} iconRight={<ArrowRight className="h-4 w-4" />}>
               {t('quote')}
             </Button>
           </div>
@@ -784,7 +906,7 @@ export default function Builder3DPage() {
               </div>
             )}
           </dl>
-          <MeasureForm key={summaryText} type="quote" productId={system.productId} defaultMessage={summaryText} onDone={() => undefined} />
+          <MeasureForm key={summaryText} type="quote" productId={quoteProductId} defaultMessage={summaryText} onDone={() => undefined} />
         </div>
       </Drawer>
     </div>

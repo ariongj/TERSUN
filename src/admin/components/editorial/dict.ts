@@ -114,7 +114,7 @@ export const cx = defineDict({
     addedToFooter: 'Lidhja u shtua në menunë e footer-it',
     manageMenus: 'Menaxho menutë',
     menu_main: 'Menuja kryesore',
-    menu_footer: 'Footer',
+    menu_footer: 'Menuja e fundit të faqes',
     menuIssueHidden: 'Elementi i fshehur nuk shfaqet në menu.',
     menuIssueDraft: 'Drafti nuk shfaqet në menu.',
     by: 'nga {name}',

@@ -6,6 +6,7 @@ import { useDb } from '@/store/db';
 import { useUi } from '@/store/ui';
 import { offerState } from '@/lib/offers';
 import { collectionProducts } from '@/lib/collections';
+import { isPublic } from '@/lib/crm';
 import { discountState, discountValueLabel } from '@/lib/discounts';
 import { date, money } from '@/lib/format';
 import type { Discount, Lang, Offer, OfferState, Product } from '@/lib/types';
@@ -48,7 +49,7 @@ export function useOfferLanding(slug: string | undefined): OfferLanding {
     // (a preview shows the rule as prepared, unless it has already expired)
     const ls = linked ? discountState(linked) : null;
     const discount = linked && (ls === 'active' || (preview && ls !== 'expired')) ? linked : undefined;
-    const live = products.filter((p) => p.status === 'active');
+    const live = products.filter(isPublic);
     const others = offers.filter((o) => o.id !== offer?.id && offerState(o) === 'active');
 
     // participating products: the offer's collection + hand-picked products, else what the discount targets

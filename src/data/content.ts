@@ -249,7 +249,7 @@ export function buildHome(now = new Date()): HomeSection[] {
       enabled: true,
       data: {
         eyebrow: T('FAQ', 'Pyetje', 'FAQ'),
-        title: T('Kurz gefragt', 'Shkurt', 'Quick answers'),
+        title: T('Kurz gefragt', 'Pyetje të shpejta', 'Quick answers'),
         items: [
           {
             q: T('Wie lange dauert es bis zur Montage?', 'Sa zgjat deri te montimi?', 'How long until installation?'),

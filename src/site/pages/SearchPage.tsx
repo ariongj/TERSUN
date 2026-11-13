@@ -221,6 +221,8 @@ export default function SearchPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Echo a long query shortened, so it never runs off a phone screen
+  const shownQ = q.length > 60 ? `${q.slice(0, 60)}…` : q;
   const hasQuery = q.length > 0;
   const noResults = hasQuery && results.length === 0;
 
@@ -279,10 +281,10 @@ export default function SearchPage() {
 
           {/* Summary + sort */}
           <div className="mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-            <p className="text-[15px] text-muted" aria-live="polite">
+            <p className="min-w-0 text-[15px] text-muted [overflow-wrap:anywhere]" aria-live="polite">
               {hasQuery ? (
                 <>
-                  <span className="font-bold text-ink">{count(results.length, 'resultOne', 'resultMany')}</span> {t('forQuery', { q })}
+                  <span className="font-bold text-ink">{count(results.length, 'resultOne', 'resultMany')}</span> {t('forQuery', { q: shownQ })}
                 </>
               ) : (
                 t('startCount', { count: count(products.length, 'productOne', 'productMany') })
@@ -351,7 +353,7 @@ export default function SearchPage() {
               <h2 className="display mt-6 text-[38px] leading-[1.04] text-ink sm:text-[48px]">
                 <Accent text={t('noTitle')} />
               </h2>
-              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-muted">{t('noText', { q })}</p>
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-muted [overflow-wrap:anywhere]">{t('noText', { q: shownQ })}</p>
             </div>
             <div className="animate-fade-up rounded-3xl border border-line bg-white p-5 [animation-delay:80ms] sm:p-8 lg:col-span-7">
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-muted">

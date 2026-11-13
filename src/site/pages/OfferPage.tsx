@@ -10,7 +10,7 @@ import { HelpBand } from '@/site/components/shop/HelpBand';
 import { usePageTitle } from '@/site/layout/SiteLayout';
 import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/misc';
-import { useL, useLang } from '@/i18n';
+import { defineDict, useDict, useL, useLang } from '@/i18n';
 import { OfferHero } from '@/site/components/offers/OfferHero';
 import { HowItWorks } from '@/site/components/offers/HowItWorks';
 import { OfferEnded } from '@/site/components/offers/OfferEnded';
@@ -20,15 +20,23 @@ import { useOT, type OTKey } from '@/site/components/offers/i18n';
 
 const SHOWN = 8;
 
+/** Tab title of a scheduled offer (the page itself says it starts soon). */
+const SOON = defineDict({
+  de: { soon_page: 'Das Angebot beginnt in Kürze' },
+  sq: { soon_page: 'Oferta fillon së shpejti' },
+  en: { soon_page: 'This offer starts soon' },
+});
+
 export default function OfferPage() {
   const { slug } = useParams();
   const t = useOT();
+  const ts = useDict(SOON);
   const l = useL();
   const lang = useLang();
   const data = useOfferLanding(slug);
   const { offer, state, preview, visible, discount, products, scope, others, collectionSlug } = data;
 
-  usePageTitle(visible && offer ? l(offer.name) : t('ended_page'));
+  usePageTitle(visible && offer ? l(offer.name) : state === 'scheduled' ? ts('soon_page') : t('ended_page'));
   useCountVisit(offer, state === 'active');
 
   if (!offer || !visible) return <OfferEnded slug={slug} offer={offer} state={state} others={others} />;

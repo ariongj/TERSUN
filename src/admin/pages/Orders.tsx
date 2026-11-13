@@ -98,7 +98,7 @@ const T = defineDict({
     csv_archived: 'Archiviert',
   },
   sq: {
-    description: 'Të gjitha porositë nga Online Store dhe porositë manuale të ekipit. Pagesa, përmbushja dhe kthimet ndiqen veçmas.',
+    description: 'Të gjitha porositë nga dyqani online dhe porositë manuale të ekipit. Pagesa, përmbushja dhe kthimet ndiqen veçmas.',
     create: 'Krijo porosi',
     exportCsv: 'Eksporto CSV',
     exported: 'CSV u shkarkua: {n}',
@@ -146,7 +146,7 @@ const T = defineDict({
     stat_returns: 'Kthime të hapura',
     stat_returnsHint: 'presin vendim ose mallin',
     emptyAllTitle: 'Ende nuk ka porosi',
-    emptyAllText: 'Kur klientët porosisin nga Online Store, ose ekipi konverton një draft, porositë shfaqen këtu.',
+    emptyAllText: 'Kur klientët porosisin nga dyqani online, ose ekipi konverton një draft, porositë shfaqen këtu.',
     emptyTitle: 'Nuk ka porosi për këta filtra',
     emptyText: 'Ndryshoni skedën, filtrat ose termin e kërkimit.',
     emptyArchivedTitle: 'Arkivi është bosh',

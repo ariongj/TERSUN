@@ -1230,9 +1230,9 @@ export function buildMenus(): Menu[] {
         url('mi-products', T('Systeme', 'Sistemet', 'Systems'), '/shop', [...categories(), url('mi-sale', T('Angebote', 'Oferta', 'Offers'), '/shop?sale=1')]),
         url('mi-3d', T('3D-Builder', '3D Builder', '3D Builder'), '/3d'),
         url('mi-services', T('Service', 'Shërbimet', 'Services'), '/services'),
-        url('mi-projects', T('Projekte', 'Projektet', 'Projects'), '/projects'),
+        url('mi-projects', T('Projekte', 'Realizimet', 'Projects'), '/projects'),
         url('mi-about', T('Über uns', 'Rreth nesh', 'About'), '/about'),
-        url('mi-journal', T('Journal', 'Journal', 'Journal'), '/journal'),
+        url('mi-journal', T('Ratgeber', 'Këshilla', 'Advice'), '/journal'),
         url('mi-contact', T('Kontakt', 'Kontakt', 'Contact'), '/contact'),
       ],
     },
@@ -1245,9 +1245,9 @@ export function buildMenus(): Menu[] {
         url('mi-f-company', T('Unternehmen', 'Kompania', 'Company'), '/about', [
           url('mi-f-about', T('Über uns', 'Rreth nesh', 'About'), '/about'),
           url('mi-f-services', T('Service', 'Shërbimet', 'Services'), '/services'),
-          url('mi-f-projects', T('Projekte', 'Projektet', 'Projects'), '/projects'),
+          url('mi-f-projects', T('Projekte', 'Realizimet', 'Projects'), '/projects'),
           url('mi-f-3d', T('3D-Builder', '3D Builder', '3D Builder'), '/3d'),
-          url('mi-f-journal', T('Journal', 'Journal', 'Journal'), '/journal'),
+          url('mi-f-journal', T('Ratgeber', 'Këshilla', 'Advice'), '/journal'),
           url('mi-f-contact', T('Kontakt', 'Kontakt', 'Contact'), '/contact'),
         ]),
         url('mi-f-help', T('Kundenservice', 'Për klientët', 'Customer care'), '', [

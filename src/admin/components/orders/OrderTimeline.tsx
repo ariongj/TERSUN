@@ -33,7 +33,7 @@ const T = defineDict({
     add: 'Shto',
     added: 'Shënimi u shtua',
     shortcut: 'Ctrl + Enter',
-    ev_created: 'Porosia u pranua nga Online Store',
+    ev_created: 'Porosia u pranua nga dyqani online',
     ev_createdStaff: 'Porosia u krijua nga ekipi',
     ev_fromDraft: 'U konvertua nga drafti {n}',
     ev_status: 'Statusi: „{s}“',

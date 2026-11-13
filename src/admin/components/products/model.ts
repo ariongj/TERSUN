@@ -218,7 +218,7 @@ export type Requirement = 'name' | 'category' | 'price' | 'image';
 
 export function missingForPublish(p: Pick<Product, 'name' | 'categoryId' | 'price' | 'images'>, categories: Pick<Category, 'id'>[]): Requirement[] {
   const out: Requirement[] = [];
-  if (!p.name.de.trim()) out.push('name');
+  if (!(p.name.sq?.trim() || p.name.en?.trim() || p.name.de?.trim())) out.push('name');
   if (!p.categoryId || !categories.some((c) => c.id === p.categoryId)) out.push('category');
   if (!(p.price > 0)) out.push('price');
   if (!p.images.length) out.push('image');

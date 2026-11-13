@@ -169,7 +169,10 @@ export interface Totals {
   shipping: number;
   /** true when no city chosen yet and shipping is an estimate ("from") */
   shippingEstimate: boolean;
-  freeShippingReason: 'threshold' | 'installation' | 'pickup' | null;
+  /** Why delivery is free: the order-value rule, booked installation, showroom pickup, or a free-delivery code */
+  freeShippingReason: 'threshold' | 'installation' | 'pickup' | 'code' | null;
+  /** Home delivery to a city not chosen yet: the fee is not known (the cart shows "by city", not "free") */
+  shippingUnknown: boolean;
   freeShippingRemaining: number;
   total: number;
   vat: number;
@@ -277,16 +280,20 @@ export function priceCart(cart: CartItem[], products: Product[], settings: Setti
   const shipping = res.shipping;
 
   /* ---------- free shipping reason & progress ---------- */
-  let freeShippingReason: Totals['freeShippingReason'] = null;
-  if (lines.length) {
-    if (opts.delivery === 'pickup') freeShippingReason = 'pickup';
-    else if (hasInstallation) freeShippingReason = 'installation';
-    else if (fee > 0 && shipping === 0 && res.applied.some((a) => a.kind === 'shipping')) freeShippingReason = 'threshold';
-  }
   const rule = activeShippingRule(discounts, opts.now);
   const freeShippingThreshold = rule && rule.minimum.type === 'amount' ? rule.minimum.value : rule ? 0 : null;
   // threshold base = subtotal after product discounts (same as the engine)
   const freeShippingRemaining = freeShippingThreshold != null ? Math.max(0, round2(freeShippingThreshold - (subtotal - res.productDiscount))) : 0;
+  const appliedShipping = res.applied.find((a) => a.kind === 'shipping');
+  let freeShippingReason: Totals['freeShippingReason'] = null;
+  if (lines.length) {
+    if (opts.delivery === 'pickup') freeShippingReason = 'pickup';
+    else if (hasInstallation) freeShippingReason = 'installation';
+    else if (fee > 0 && shipping === 0 && appliedShipping) freeShippingReason = appliedShipping.code ? 'code' : 'threshold';
+    // no city yet, but the order already qualifies: delivery will be free wherever it goes
+    else if (!zone && freeShippingThreshold != null && freeShippingRemaining <= 0) freeShippingReason = 'threshold';
+  }
+  const shippingUnknown = lines.length > 0 && !freeShippingReason && !zone && opts.delivery !== 'pickup' && !hasInstallation;
 
   /* ---------- legacy single-coupon view ---------- */
   const first = codes[0];
@@ -311,6 +318,7 @@ export function priceCart(cart: CartItem[], products: Product[], settings: Setti
     shipping,
     shippingEstimate: shippingEstimate && shipping > 0,
     freeShippingReason,
+    shippingUnknown,
     freeShippingRemaining,
     total,
     vat,
