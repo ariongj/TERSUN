@@ -6,6 +6,27 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#141312" />
     <title>TERSUN — Beyond Outdoor Living</title>
+    <script>
+      // First visit to the homepage: start the opening photo right away, alongside the app's code, which would
+      // otherwise only discover it once it has loaded. (Returning visitors have it cached; and only on a first
+      // visit is it certain which photo opens the page — the CMS can change it.)
+      (function () {
+        try {
+          var base = '%BASE_URL%';
+          var path = location.pathname;
+          if ((path === base || path + '/' === base) && !localStorage.getItem('tersun-db')) {
+            var link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            // a phone held upright gets the upright crop (as the hero's <picture> does)
+            var upright = window.matchMedia && window.matchMedia('(orientation: portrait)').matches;
+            link.href = base + 'images/hero/bioclimatic' + (upright ? '-portrait' : '') + '.webp';
+            link.setAttribute('fetchpriority', 'high');
+            document.head.appendChild(link);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta name="description" content="Bioclimatic pergolas, glass roofs, over-glass awnings, Guillotine and Slide glass, ZIP screens — designed in 3D, installed across Europe and the USA." />
     <!-- Link preview in chat apps and social networks: they need an absolute image URL (JPEG, 1200 × 630). -->
     <meta property="og:type" content="website" />

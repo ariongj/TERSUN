@@ -20,6 +20,7 @@ import { useActiveProducts, useCategories, useSettings } from '@/store/hooks';
 import { isOnSale } from '@/lib/pricing';
 import { date } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { afterHero } from '@/lib/heroReady';
 
 type DataOf<T extends HomeSection['type']> = Extract<HomeSection, { type: T }>['data'];
 
@@ -294,11 +295,18 @@ function FeatureBand({ data }: { data: DataOf<'promo'> }) {
   const l = useL();
   const live = data.cta.href === '/3d';
   const [stageRef, near] = useNearViewport<HTMLDivElement>();
-  // fetch the 3D code while the page is idle, long before the band scrolls into view
+  // fetch the 3D code while the page is idle, long before the band scrolls into view — but only once the
+  // opening photo is on screen, so that on a slow connection it does not hold that photo up
   useEffect(() => {
     if (!live) return;
-    const idle = window.requestIdleCallback ? window.requestIdleCallback(() => void loadLivePreview(), { timeout: 3000 }) : window.setTimeout(() => void loadLivePreview(), 1500);
-    return () => (window.cancelIdleCallback ? window.cancelIdleCallback(idle) : window.clearTimeout(idle));
+    let idle = 0;
+    const cancel = afterHero(() => {
+      idle = window.requestIdleCallback ? window.requestIdleCallback(() => void loadLivePreview(), { timeout: 3000 }) : window.setTimeout(() => void loadLivePreview(), 1500);
+    });
+    return () => {
+      cancel();
+      if (idle) (window.cancelIdleCallback ? window.cancelIdleCallback(idle) : window.clearTimeout(idle));
+    };
   }, [live]);
   return (
     <section className="pb-24 sm:pb-32">

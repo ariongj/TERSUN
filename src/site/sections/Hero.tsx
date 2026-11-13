@@ -8,8 +8,19 @@ import { useDict, useL } from '@/i18n';
 import { site } from '@/i18n/site';
 import { common } from '@/i18n/common';
 import { cn } from '@/lib/utils';
+import { markHeroReady } from '@/lib/heroReady';
 
 const DURATION = 3500;
+
+/**
+ * Upright crops of the standard hero photos. A phone held upright shows only the middle of a wide photo, so
+ * it gets that middle at the same sharpness for about half the download. (Must match the preload in index.html.)
+ */
+const PORTRAIT: Record<string, string> = {
+  '/images/hero/bioclimatic.webp': '/images/hero/bioclimatic-portrait.webp',
+  '/images/hero/glass-roof.webp': '/images/hero/glass-roof-portrait.webp',
+  '/images/hero/guillotine.webp': '/images/hero/guillotine-portrait.webp',
+};
 
 /**
  * Portrait (≈2:3) clip. On landscape screens it plays in a wide frame on the right — cropped top and bottom
@@ -95,6 +106,24 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
   useEffect(() => {
     if (i !== 0) setIntro(false);
   }, [i]);
+  // The first photo downloads alone. The other slides follow once it is on screen, each one only when it is
+  // next in line, so that on a slow connection nothing competes with what the visitor sees first.
+  const [firstIn, setFirstIn] = useState(false);
+  const [reach, setReach] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setFirstIn(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    if (firstIn) markHeroReady();
+  }, [firstIn]);
+  useEffect(() => {
+    setReach((r) => Math.max(r, i));
+  }, [i]);
+  const first = () => {
+    setReady(true);
+    setFirstIn(true);
+  };
   const base = intro && i === 0 ? 1.2 : 0.15; // extra delay while the opening image settles
   const count = slides.length;
   const go = useCallback((n: number) => setI(((n % count) + count) % count), [count]);
@@ -111,24 +140,28 @@ export function HeroSection({ slides, autoplay }: { slides: HeroSlide[]; autopla
       {/* Images — the first slide opens with a slow pull-back out of darkness */}
       {slides.map((sl, k) => (
         <div key={sl.id} className={cn('absolute inset-0 -z-20 overflow-hidden transition-opacity duration-[900ms] ease-out', k === i ? 'opacity-100' : 'opacity-0')} aria-hidden={k !== i}>
-          {/\.mp4$/i.test(sl.image) ? (
+          {k !== 0 && !(firstIn && k <= reach + 1) ? null : /\.mp4$/i.test(sl.image) ? (
             <HeroVideo src={sl.image} active={k === i} />
           ) : (
-            <img
-              src={sl.image}
-              alt=""
-              loading={k === 0 ? 'eager' : 'lazy'}
-              fetchPriority={k === 0 ? 'high' : undefined}
-              onLoad={k === 0 ? () => setReady(true) : undefined}
-              className={cn(
-                'h-full w-full object-cover will-change-transform',
-                k === 0 && intro && !ready && 'scale-[1.32] brightness-[0.15]',
-                k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
-                sl.video && 'portrait:hidden',
-              )}
-            />
+            <picture className="block h-full w-full">
+              {PORTRAIT[sl.image] && <source media="(orientation: portrait)" srcSet={PORTRAIT[sl.image]} />}
+              <img
+                src={sl.image}
+                alt=""
+                loading={k === 0 ? 'eager' : 'lazy'}
+                fetchPriority={k === 0 ? 'high' : undefined}
+                onLoad={k === 0 ? first : undefined}
+                onError={k === 0 ? first : undefined}
+                className={cn(
+                  'h-full w-full object-cover will-change-transform',
+                  k === 0 && intro && !ready && 'scale-[1.32] brightness-[0.15]',
+                  k === i && ready && (k === 0 && intro ? 'animate-[heroIntro_3.2s_cubic-bezier(.16,1,.3,1)_both]' : 'animate-[kenburns_9s_ease-out_both]'),
+                  sl.video && 'portrait:hidden',
+                )}
+              />
+            </picture>
           )}
-          {sl.video && (
+          {sl.video && (k === 0 || (firstIn && k <= reach + 1)) && (
             <video src={sl.video} poster={sl.video.replace(/\.mp4$/i, '-poster.jpg')} autoPlay muted loop playsInline preload="metadata" className="hidden h-full w-full object-cover portrait:block" />
           )}
         </div>
