@@ -14,8 +14,13 @@ export function cartKey(productId: string, options: Record<string, string>, inst
 /** Codes are stored trimmed, without spaces, uppercase (same as the discount engine). */
 const norm = (code: string) => code.trim().replace(/\s+/g, '').toUpperCase();
 
+/** The language a visitor sees until they pick one themselves. */
+export const DEFAULT_LANG: Lang = 'sq';
+
 interface UiState {
   lang: Lang;
+  /** The visitor picked the language themselves (otherwise the default applies). */
+  langChosen: boolean;
   adminLang: Lang;
   cart: CartItem[];
   wishlist: string[];
@@ -53,12 +58,13 @@ interface UiState {
 
 const withCodes = (codes: string[]) => ({ codes, coupon: codes[0] ?? null });
 
-export const UI_VERSION = 2;
+export const UI_VERSION = 3;
 
 export const useUi = create<UiState>()(
   persist(
     (set) => ({
-      lang: 'en',
+      lang: DEFAULT_LANG,
+      langChosen: false,
       adminLang: 'sq',
       cart: [],
       wishlist: [],
@@ -70,7 +76,7 @@ export const useUi = create<UiState>()(
       cartOpen: false,
       searchOpen: false,
 
-      setLang: (lang) => set({ lang }),
+      setLang: (lang) => set({ lang, langChosen: true }),
       setAdminLang: (adminLang) => set({ adminLang }),
       addToCart: (item) =>
         set((s) => {
@@ -130,6 +136,7 @@ export const useUi = create<UiState>()(
       storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         lang: s.lang,
+        langChosen: s.langChosen,
         adminLang: s.adminLang,
         cart: s.cart,
         wishlist: s.wishlist,
@@ -141,12 +148,19 @@ export const useUi = create<UiState>()(
       }),
       // v1 → v2: keep the shopper's cart, wishlist, history, language and login; the CMS now opens in
       // Albanian (sq) as owner; the single coupon becomes the first entry of `codes`.
+      // v2 → v3: the storefront opens in Albanian. Before v3 the language was stored whether or not the visitor
+      // had picked it, so a stored English (the old default) counts as "never picked"; German and Albanian
+      // can only have been picked and are kept.
       migrate: (persisted, version) => {
         const old = (persisted ?? {}) as Partial<UiState>;
         if (version >= UI_VERSION) return old as UiState;
+        const picked = old.lang === 'de' || old.lang === 'sq';
+        const lang = picked && old.lang ? old.lang : DEFAULT_LANG;
+        if (version === 2) return { ...old, lang, langChosen: picked } as UiState;
         const codes = old.coupon ? [norm(old.coupon)] : [];
         return {
-          lang: old.lang ?? 'en',
+          lang,
+          langChosen: picked,
           adminLang: 'sq',
           cart: Array.isArray(old.cart) ? old.cart : [],
           wishlist: Array.isArray(old.wishlist) ? old.wishlist : [],

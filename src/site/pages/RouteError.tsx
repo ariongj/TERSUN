@@ -17,7 +17,7 @@ function lang(): keyof typeof T {
   } catch {
     /* fall through */
   }
-  return 'en'; // the site's default language, for a visitor who has not chosen one
+  return 'sq'; // the site's default language, for a visitor who has not chosen one
 }
 
 /**

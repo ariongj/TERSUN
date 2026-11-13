@@ -1,6 +1,8 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { copyFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 
 /**
@@ -33,9 +35,41 @@ function baseImages(prefix: string): Plugin {
   };
 }
 
+/**
+ * Where the site is published, without a trailing slash: link previews need absolute URLs. Set SITE_ORIGIN
+ * when the site moves to its own domain.
+ */
+const SITE_ORIGIN = (process.env.SITE_ORIGIN ?? 'https://ariongj.github.io').replace(/\/+$/, '');
+
+function siteOrigin(): Plugin {
+  return { name: 'tersun-site-origin', transformIndexHtml: (html) => html.replaceAll('%SITE_ORIGIN%', SITE_ORIGIN) };
+}
+
+/**
+ * Static hosts know nothing of the app's routes. GitHub Pages answers an unknown address with 404.html, so
+ * that file is the app shell and every deep link opens. The main pages also get their own copy
+ * (`/3d` is served from `3d.html`), so they answer with a proper 200 and shared links get a preview.
+ * Only pages without sub-pages: a copy must never sit next to a folder of the same name.
+ */
+function appShell(pages: string[]): Plugin {
+  let out = '';
+  return {
+    name: 'tersun-app-shell',
+    apply: 'build',
+    configResolved(config) {
+      out = resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      const shell = resolve(out, 'index.html');
+      if (!existsSync(shell)) return;
+      for (const name of ['404', ...pages]) copyFileSync(shell, resolve(out, `${name}.html`));
+    },
+  };
+}
+
 export default defineConfig({
   base,
-  plugins: [baseImages(base), react(), tailwindcss()],
+  plugins: [baseImages(base), siteOrigin(), react(), tailwindcss(), appShell(['3d', 'services', 'projects', 'about', 'contact', 'cart', 'checkout', 'search', 'wishlist'])],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
