@@ -96,7 +96,7 @@ const ASPECT: Record<Size, string> = {
   pairNarrow: 'aspect-[5/4] sm:aspect-[4/5]',
 };
 
-function ProjectTile({ project: p, size, onOpen }: { project: Project; size: Size; onOpen: () => void }) {
+function ProjectTile({ project: p, size, onOpen, eager }: { project: Project; size: Size; onOpen: () => void; eager?: boolean }) {
   const l = useL();
   const t = useDict(T);
   const big = size === 'big' || size === 'solo';
@@ -110,6 +110,7 @@ function ProjectTile({ project: p, size, onOpen }: { project: Project; size: Siz
       <Img
         src={p.image}
         small={!big}
+        eager={eager}
         alt={l(p.title)}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
       />
@@ -134,7 +135,7 @@ function ProjectTile({ project: p, size, onOpen }: { project: Project; size: Siz
           <MapPin className="h-3.5 w-3.5" />
           {p.location} · {p.year}
         </div>
-        <h3 className={cn('display mt-2 max-w-xl leading-[1.08] text-white', big ? 'text-[28px] sm:text-[38px] lg:text-[44px]' : 'text-[24px] sm:text-[28px]')}>{l(p.title)}</h3>
+        <h2 className={cn('display mt-2 max-w-xl leading-[1.08] text-white', big ? 'text-[28px] sm:text-[38px] lg:text-[44px]' : 'text-[24px] sm:text-[28px]')}>{l(p.title)}</h2>
         <div className="grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:grid-rows-[1fr] group-hover:opacity-100">
           <div className="overflow-hidden">
             <p className="max-w-lg pt-2.5 text-[14.5px] leading-relaxed text-white/80">{l(p.summary)}</p>
@@ -253,6 +254,7 @@ export default function Projects() {
                     <ProjectTile
                       project={p}
                       size={sizes[i]}
+                      eager={i < 3}
                       onOpen={() => {
                         setIndex(i);
                         setOpen(true);

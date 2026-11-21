@@ -3,6 +3,7 @@ import { Lamp, Loader2, Moon, Move3d, Sun } from 'lucide-react';
 import { defineDict, useDict } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { createViewer, webglAvailable, type Viewer, type ViewerMode } from './viewer';
+import { sizeOf } from '@/lib/imageSize';
 
 const D = defineDict({
   de: { studio: 'Studio', day: 'Tag', night: 'Nacht', drag: 'Ziehen zum Drehen', loading: '3D wird geladen' },
@@ -55,11 +56,11 @@ export default function LivePreview({ fallback }: { fallback: string }) {
     viewer.current?.setMode(m);
   };
 
-  if (!gl) return <img src={fallback} alt="" className="absolute inset-0 h-full w-full object-cover" />;
+  if (!gl) return <img src={fallback} {...sizeOf(fallback)} alt="" className="absolute inset-0 h-full w-full object-cover" />;
 
   return (
     <>
-      <img src={LIVE_POSTER} alt="" className={cn('absolute inset-0 h-full w-full object-cover transition-opacity duration-700', ready && 'opacity-0')} />
+      <img src={LIVE_POSTER} {...sizeOf(LIVE_POSTER)} alt="" className={cn('absolute inset-0 h-full w-full object-cover transition-opacity duration-700', ready && 'opacity-0')} />
       <div ref={ref} className={cn('absolute inset-0 cursor-grab transition-opacity duration-700 active:cursor-grabbing', ready ? 'opacity-100' : 'opacity-0')} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_50%,transparent_60%,rgb(0_0_0/0.35)_100%)]" />
       <div className={cn('absolute left-4 top-4 flex rounded-full bg-black/40 p-1 ring-1 ring-white/10 backdrop-blur-md transition-opacity duration-500 sm:left-5 sm:top-5', !ready && 'pointer-events-none opacity-0')}>

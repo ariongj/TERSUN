@@ -32,6 +32,31 @@ import { AllHeader, CategoryBanner, CategoryChips, shopHref } from '@/site/compo
 import { FilterPanel } from '@/site/components/shop/FilterPanel';
 import { DensityToggle, FilterButton, FilterPills, SortSelect, type Pill } from '@/site/components/shop/Toolbar';
 import { HelpBand } from '@/site/components/shop/HelpBand';
+import { Link } from 'react-router';
+import { useDb } from '@/store/db';
+import { collectionProducts } from '@/lib/collections';
+
+/** The published collections, linked from the shop (otherwise no page leads to them). */
+function CollectionLinks() {
+  const t = useDict(T);
+  const l = useL();
+  const collections = useDb((s) => s.collections);
+  const products = useActiveProducts();
+  const list = useMemo(() => collections.filter((c) => c.published && collectionProducts(c, products, { publicOnly: true }).length > 0), [collections, products]);
+  if (!list.length) return null;
+  return (
+    <section className="container-x pb-12">
+      <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">{t('collections')}</h2>
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        {list.map((c) => (
+          <Link key={c.id} to={`/collection/${c.slug}`} className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-semibold text-ink transition-colors hover:border-ink/30">
+            {l(c.title)} <ArrowRight className="h-3.5 w-3.5 opacity-60" />
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 const PAGE = 24;
 const DENSITY_KEY = 'tersun-shop-cols';
@@ -63,7 +88,8 @@ function ShopView({ slug }: { slug?: string }) {
   const sale = params.get('sale') === '1';
   const sort = sortFromParam(params.get('sort'));
 
-  usePageTitle(category ? l(category.name) : slug ? t('notFoundTitle') : sale ? ts('sale') : ts('allProducts'));
+  // "· all models": a category page must not share its title with the product of the same name
+  usePageTitle(category ? t('categoryTitle', { name: l(category.name) }) : slug ? t('notFoundTitle') : sale ? ts('sale') : ts('allProducts'));
 
   const [drawer, setDrawer] = useState(false);
   const [density, setDensityState] = useState<3 | 4>(readDensity);
@@ -282,6 +308,7 @@ function ShopView({ slug }: { slug?: string }) {
         </div>
       </section>
 
+      {!slug && <CollectionLinks />}
       <HelpBand />
 
       {/* Mobile filter drawer */}

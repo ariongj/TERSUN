@@ -135,7 +135,7 @@ export function AllHeader({ products, categories, sale, params }: { products: Pr
                 className={cn('group relative block aspect-[5/4] overflow-hidden rounded-2xl bg-ink animate-fade-up', sale && n === 0 && 'opacity-50')}
                 style={{ animationDelay: `${120 + i * 60}ms` }}
               >
-                <Img src={c.image} small alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-110" />
+                <Img src={c.image} small eager alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
                 <span className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-ink opacity-0 transition-all duration-300 group-hover:opacity-100">
                   <ArrowUpRight className="h-4 w-4" />

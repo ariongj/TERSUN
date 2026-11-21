@@ -9,6 +9,7 @@ import { site } from '@/i18n/site';
 import { common } from '@/i18n/common';
 import { cn } from '@/lib/utils';
 import { markHeroReady } from '@/lib/heroReady';
+import { sizeOf } from '@/lib/imageSize';
 
 const DURATION = 3500;
 
@@ -144,9 +145,10 @@ export function HeroSection({ slides, autoplay, controls = true, interval = DURA
             <HeroVideo src={sl.image} active={k === i} />
           ) : (
             <picture className="block h-full w-full">
-              {(PORTRAIT[sl.image] || sl.imageMobile) && <source media="(orientation: portrait)" srcSet={PORTRAIT[sl.image] ?? sl.imageMobile} />}
+              {(PORTRAIT[sl.image] || sl.imageMobile) && <source media="(orientation: portrait)" srcSet={PORTRAIT[sl.image] ?? sl.imageMobile} {...sizeOf(PORTRAIT[sl.image] ?? sl.imageMobile)} />}
               <img
                 src={sl.image}
+                {...sizeOf(sl.image)}
                 alt=""
                 loading={k === 0 ? 'eager' : 'lazy'}
                 fetchPriority={k === 0 ? 'high' : undefined}

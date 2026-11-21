@@ -200,6 +200,8 @@ function CollectionView({ collection, products, preview }: { collection: Collect
                 <ChevronDown className="pointer-events-none absolute right-3.5 h-4 w-4 text-muted" />
               </label>
             </div>
+            {/* the product list is a section of the page: its cards' h3 titles sit under this heading */}
+            <h2 className="sr-only">{countLabel(t, lang, products.length)}</h2>
             <div key={sort} className="mt-6 grid grid-cols-2 gap-x-3.5 gap-y-9 sm:gap-x-5 md:grid-cols-3 lg:mt-8 lg:gap-x-6 lg:gap-y-12 xl:grid-cols-4 xl:gap-x-5">
               {list.map((p, i) => (
                 <div key={p.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 11) * 45}ms` }}>

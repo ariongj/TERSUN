@@ -24,6 +24,7 @@ import { BuyBox } from '@/site/components/product/BuyBox';
 import { DetailTabs } from '@/site/components/product/DetailTabs';
 import { StickyBar } from '@/site/components/product/StickyBar';
 import { ProductRail } from '@/site/components/product/ProductRail';
+import { sizeOf } from '@/lib/imageSize';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -163,7 +164,7 @@ function ProductView({ product }: { product: Product }) {
       <Modal open={quoteOpen} onClose={() => setQuoteOpen(false)} title={t('quoteTitle')} description={t('quoteText')} size="lg">
         <div className="p-4 sm:p-6">
           <div className="mb-4 flex items-center gap-3 rounded-2xl bg-sand/60 p-3">
-            <img src={product.images[0]} alt="" className="h-14 w-14 rounded-xl object-cover" />
+            <img src={product.images[0]} {...sizeOf(product.images[0])} alt="" className="h-14 w-14 rounded-xl object-cover" />
             <div className="min-w-0">
               <div className="truncate text-[14px] font-semibold text-ink">{l(product.name)}</div>
               <div className="truncate text-[12.5px] text-muted">{opts || (product.sku?.trim() ? `${t('sku')}: ${product.sku}` : '')}</div>

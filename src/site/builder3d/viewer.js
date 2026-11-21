@@ -1114,12 +1114,15 @@ export function createViewer(container, options) {
     // wet stone is darker and shinier
     patio.material.roughness = wet ? 0.3 : 0.8;
     patio.material.color.set(wet ? '#a9a39a' : '#d6d0c6');
-    mats.led.color.set(night ? '#ffe9c4' : '#f6efe2');
-    ledPool.forEach((l) => { l.intensity = night ? l.userData.intensity || 0 : 0; });
-    // bloom only where it shows (LED lines at night, the studio spot): it is several full-screen passes
-    bloom.enabled = !day;
-    bloom.strength = night ? 0.5 : 0.12;
-    bloom.threshold = night ? 0.84 : 0.97;
+    // LEDs shine whenever they are switched on — by day, in the studio and at night, at any time of day. The strips
+    // are brighter than white (HDR) so they glow through the tone mapping; the light they cast is softer in daylight.
+    const ledsOn = !!kit && kit.lights.length > 0;
+    mats.led.color.set(night ? '#ffe9c4' : '#ffdcaa').multiplyScalar(night ? 1 : day ? 7 : 3);
+    ledPool.forEach((l) => { l.intensity = (l.userData.intensity || 0) * (night ? 1 : day ? 0.3 : 0.55); });
+    // bloom only where it shows (LED lines, the studio spot): it is several full-screen passes
+    bloom.enabled = !day || ledsOn;
+    bloom.strength = night ? 0.5 : day ? 0.55 : ledsOn ? 0.35 : 0.12;
+    bloom.threshold = night ? 0.84 : day ? 2.4 : 0.97;
     bloom.radius = night ? 0.45 : 0.35;
     shadowsDirty();
   }

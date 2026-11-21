@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/Overlay';
 import { useDict } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { PD } from './dict';
+import { sizeOf } from '@/lib/imageSize';
 
 /**
  * Product gallery: swipeable main image (scroll-snap) with a subtle
@@ -60,7 +61,7 @@ export function Gallery({ images, alt, className }: { images: string[]; alt: str
               className="group/slide relative h-full w-full shrink-0 snap-center overflow-hidden lg:cursor-zoom-in"
             >
               <div className="h-full w-full transition-transform duration-500 ease-out lg:group-hover/slide:scale-[1.35]">
-                {src && <Img src={src} eager={i === 0} alt={i === 0 ? alt : ''} className="h-full w-full object-cover" />}
+                {src && <Img src={src} eager={i === 0} alt={i === 0 ? alt : `${alt} (${i + 1}/${list.length})`} className="h-full w-full object-cover" />}
               </div>
             </button>
           ))}
@@ -177,7 +178,7 @@ function Lightbox({ open, onClose, images, index, onIndex, alt }: { open: boolea
                 else if (info.offset.x > 60) step(-1);
               }}
             >
-              {images[index] && <img src={images[index]} alt={alt} draggable={false} className="max-h-full max-w-full rounded-2xl object-contain select-none" />}
+              {images[index] && <img src={images[index]} {...sizeOf(images[index])} alt={alt} draggable={false} className="max-h-full max-w-full rounded-2xl object-contain select-none" />}
             </motion.div>
           </AnimatePresence>
           {n > 1 && (

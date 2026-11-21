@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode, type ImgHTMLAttr
 import { AnimatePresence, motion } from 'motion/react';
 import { Minus, Plus, ChevronDown } from 'lucide-react';
 import { cn, thumb } from '@/lib/utils';
+import { sizeOf } from '@/lib/imageSize';
 
 /* ------------------------------------------------------------------ */
 /* Badge                                                               */
@@ -42,6 +43,7 @@ export function Img({ src, alt = '', className, small, eager, ...rest }: ImgHTML
   return (
     <img
       src={real}
+      {...sizeOf(real)}
       alt={alt}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"

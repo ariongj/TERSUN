@@ -333,7 +333,13 @@ export default function SearchPage() {
 
       {/* ---------------------------------------------------------------- Body */}
       <div className="container-x pt-12 sm:pt-16">
-        {hasQuery && !noResults && <ProductGrid products={shown} />}
+        {hasQuery && !noResults && (
+          <>
+            {/* the results list is a section of the page: its cards' h3 titles sit under this heading */}
+            <h2 className="sr-only">{count(results.length, 'resultOne', 'resultMany')}</h2>
+            <ProductGrid products={shown} />
+          </>
+        )}
 
         {related.length > 0 && (
           <section className="mt-16 border-t border-line pt-12 sm:mt-20 sm:pt-16">

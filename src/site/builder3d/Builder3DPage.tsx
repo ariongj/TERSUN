@@ -13,6 +13,7 @@ import { href } from '@/lib/paths';
 import { usePageTitle } from '@/site/layout/SiteLayout';
 import { createViewer, webglAvailable, type Viewer, type ViewerMode, type ViewerOptions, type ViewerView } from './viewer';
 import { FABRIC_COLORS, FRAME_COLORS, SYSTEMS, productFor, systemById, systemForProduct, type SystemDef } from './systems';
+import { sizeOf } from '@/lib/imageSize';
 
 const D = defineDict({
   de: {
@@ -426,9 +427,8 @@ export default function Builder3DPage() {
   const price = product ? estimate(product.price, system, state) : null;
   const set = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch }));
   const setValue = (k: string, val: string | boolean) => {
+    // (LEDs light up in every scene and at every time of day: switching them on keeps the scene the visitor chose)
     setState((s) => ({ ...s, values: { ...s.values, [k]: val } }));
-    // LEDs do not show in daylight or in the studio — switching them on jumps to the night scene so the change is visible
-    if (k === 'led' && val === true && mode !== 'night') setMode('night');
   };
   const reset = () => setState(withSensor(system, variantState(system, requested)));
 
@@ -550,7 +550,7 @@ export default function Builder3DPage() {
                       s.id === system.id ? 'ring-2 ring-brand-300' : 'ring-white/10 hover:ring-white/30',
                     )}
                   >
-                    <img src={s.image.replace(/\.webp$/, '-sm.webp')} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100" />
+                    <img src={s.image.replace(/\.webp$/, '-sm.webp')} {...sizeOf(s.image.replace(/\.webp$/, '-sm.webp'))} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100" />
                     <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                     <span className="absolute inset-x-1.5 bottom-1.5 text-left text-[10.5px] font-semibold leading-tight text-white">{l(s.name)}</span>
                     {s.id === system.id && (
@@ -778,7 +778,7 @@ export default function Builder3DPage() {
           <div ref={stageRef} className={cn('absolute inset-0 transition-opacity duration-500', gl && !ready3d && 'opacity-0')} />
           {gl && !ready3d && (
             <div className="absolute inset-0 grid place-items-center">
-              <img src={system.image.replace(/\.webp$/, '-sm.webp')} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl" />
+              <img src={system.image.replace(/\.webp$/, '-sm.webp')} {...sizeOf(system.image.replace(/\.webp$/, '-sm.webp'))} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl" />
               <div className="relative inline-flex items-center gap-2.5 rounded-full bg-black/45 px-5 py-2.5 text-[13px] font-semibold text-white/85 ring-1 ring-white/10 backdrop-blur-md">
                 <Loader2 className="h-4 w-4 animate-spin" /> {t('loading')}
               </div>
@@ -787,7 +787,7 @@ export default function Builder3DPage() {
           {!gl && (
             <div className="absolute inset-0 grid place-items-center p-8 text-center">
               <div>
-                <img src={system.image} alt="" className="mx-auto mb-6 max-h-64 rounded-2xl object-cover" />
+                <img src={system.image} {...sizeOf(system.image)} alt="" className="mx-auto mb-6 max-h-64 rounded-2xl object-cover" />
                 <p className="max-w-md text-sm text-paper/70">{t('noGl')}</p>
               </div>
             </div>
