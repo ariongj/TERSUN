@@ -92,6 +92,11 @@ function seoFiles(): Plugin {
           resolve(out, '404.html'),
           seo.pageHtml(shell, { path: '/404', title: 'Faqja nuk u gjet — TERSUN', description: 'TERSUN — Beyond Outdoor Living.', image: SITE_ORIGIN + base + 'images/og.jpg', type: 'website', noindex: true, jsonld: [] }, ''),
         );
+        // The CMS demo is linked from every page: give its entry a real 200 answer, kept out of the index.
+        writeFileSync(
+          resolve(out, 'admin.html'),
+          seo.pageHtml(shell, { path: '/admin', title: 'Admin — TERSUN', description: 'TERSUN CMS.', image: SITE_ORIGIN + base + 'images/og.jpg', type: 'website', noindex: true, jsonld: [] }, ''),
+        );
         writeFileSync(resolve(out, 'sitemap.xml'), seo.sitemapXml(pages, (p) => loc(p.path)));
         writeFileSync(resolve(out, 'robots.txt'), seo.robotsTxt(SITE_ORIGIN + base + 'sitemap.xml'));
         console.log(`seo: ${pages.length} pages (${pages.filter((p) => !p.noindex).length} in the sitemap), 404.html, sitemap.xml, robots.txt`);
