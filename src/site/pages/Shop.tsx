@@ -35,6 +35,7 @@ import { HelpBand } from '@/site/components/shop/HelpBand';
 import { Link } from 'react-router';
 import { useDb } from '@/store/db';
 import { collectionProducts } from '@/lib/collections';
+import { offerState } from '@/lib/offers';
 
 /** The published collections, linked from the shop (otherwise no page leads to them). */
 function CollectionLinks() {
@@ -42,8 +43,10 @@ function CollectionLinks() {
   const l = useL();
   const collections = useDb((s) => s.collections);
   const products = useActiveProducts();
+  const offers = useDb((s) => s.offers);
   const list = useMemo(() => collections.filter((c) => c.published && collectionProducts(c, products, { publicOnly: true }).length > 0), [collections, products]);
-  if (!list.length) return null;
+  const live = useMemo(() => offers.filter((o) => offerState(o) === 'active'), [offers]);
+  if (!list.length && !live.length) return null;
   return (
     <section className="container-x pb-12">
       <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">{t('collections')}</h2>
@@ -51,6 +54,11 @@ function CollectionLinks() {
         {list.map((c) => (
           <Link key={c.id} to={`/collection/${c.slug}`} className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-white px-4 text-[14px] font-semibold text-ink transition-colors hover:border-ink/30">
             {l(c.title)} <ArrowRight className="h-3.5 w-3.5 opacity-60" />
+          </Link>
+        ))}
+        {live.map((o) => (
+          <Link key={o.id} to={`/offer/${o.slug}`} className="inline-flex h-10 items-center gap-2 rounded-full border border-brand-600/30 bg-brand-600/5 px-4 text-[14px] font-semibold text-ink transition-colors hover:border-brand-600/60">
+            <Percent className="h-3.5 w-3.5 text-brand-600" /> {l(o.name)}
           </Link>
         ))}
       </div>
